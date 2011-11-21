@@ -67,6 +67,9 @@ static const int MAX_BLOCKS_IN_TRANSIT_PER_PEER = 128;
 /** Timeout in seconds before considering a block download peer unresponsive. */
 static const unsigned int BLOCK_DOWNLOAD_TIMEOUT = 60;
 
+/** Dust Soft Limit, allowed with additional fee per output */
+static const int64_t DUST_SOFT_LIMIT = 100000; // 0.001 LTC
+
 #ifdef USE_UPNP
 static const int fHaveUPnP = true;
 #else
