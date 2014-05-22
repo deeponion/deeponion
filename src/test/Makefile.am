@@ -55,6 +55,7 @@ test_bitcoin_SOURCES = \
   rpc_tests.cpp \
   script_P2SH_tests.cpp \
   script_tests.cpp \
+  scrypt_tests.cpp \
   serialize_tests.cpp \
   sigopcount_tests.cpp \
   test_bitcoin.cpp \
