@@ -6,12 +6,20 @@
 #include "primitives/block.h"
 
 #include "hash.h"
+#include "crypto/scrypt.h"
 #include "tinyformat.h"
 #include "utilstrencodings.h"
 
 uint256 CBlockHeader::GetHash() const
 {
     return Hash(BEGIN(nVersion), END(nNonce));
+}
+
+uint256 CBlockHeader::GetPoWHash() const
+{
+    uint256 thash;
+    scrypt_1024_1_1_256(BEGIN(nVersion), BEGIN(thash));
+    return thash;
 }
 
 uint256 CBlock::BuildMerkleTree(bool* fMutated) const
