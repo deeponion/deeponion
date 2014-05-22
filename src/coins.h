@@ -83,7 +83,7 @@ public:
 
     // construct a CCoins from a CTransaction, at a given height
     CCoins(const CTransaction &tx, int nHeightIn) : fCoinBase(tx.IsCoinBase()), vout(tx.vout), nHeight(nHeightIn), nVersion(tx.nVersion) {
-        ClearUnspendable();
+        //ClearUnspendable();
     }
 
     // empty constructor
@@ -97,13 +97,13 @@ public:
             std::vector<CTxOut>().swap(vout);
     }
 
-    void ClearUnspendable() {
-        BOOST_FOREACH(CTxOut &txout, vout) {
-            if (txout.scriptPubKey.IsUnspendable())
-                txout.SetNull();
-        }
-        Cleanup();
-    }
+    //void ClearUnspendable() {
+        //BOOST_FOREACH(CTxOut &txout, vout) {
+        //    if (txout.scriptPubKey.IsUnspendable())
+        //        txout.SetNull();
+        //}
+        //Cleanup();
+    //}
 
     void swap(CCoins &to) {
         std::swap(to.fCoinBase, fCoinBase);
@@ -115,8 +115,8 @@ public:
     // equality test
     friend bool operator==(const CCoins &a, const CCoins &b) {
          // Empty CCoins objects are always equal.
-         if (a.IsPruned() && b.IsPruned())
-             return true;
+         //if (a.IsPruned() && b.IsPruned())
+         //    return true;
          return a.fCoinBase == b.fCoinBase &&
                 a.nHeight == b.nHeight &&
                 a.nVersion == b.nVersion &&
