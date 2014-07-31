@@ -408,7 +408,7 @@ void PaymentServer::handleURIOrFile(const QString& s)
                 emit receivedPaymentRequest(recipient);
             else
                 emit message(tr("URI handling"),
-                    tr("URI can not be parsed! This can be caused by an invalid Bitcoin address or malformed URI parameters."),
+                    tr("URI cannot be parsed! This can be caused by an invalid Bitcoin address or malformed URI parameters."),
                     CClientUIInterface::ICON_WARNING);
 
             return;
@@ -423,7 +423,7 @@ void PaymentServer::handleURIOrFile(const QString& s)
             emit receivedPaymentRequest(recipient);
         else
             emit message(tr("Payment request file handling"),
-                tr("Payment request file can not be read or processed! This can be caused by an invalid payment request file."),
+                tr("Payment request file cannot be read! This can be caused by an invalid payment request file."),
                 CClientUIInterface::ICON_WARNING);
 
         return;
@@ -622,7 +622,7 @@ void PaymentServer::netRequestFinished(QNetworkReply* reply)
         {
             qDebug() << "PaymentServer::netRequestFinished : Error processing payment request";
             emit message(tr("Payment request error"),
-                tr("Payment request can not be parsed or processed!"),
+                tr("Payment request cannot be parsed!"),
                 CClientUIInterface::MSG_ERROR);
         }
 
