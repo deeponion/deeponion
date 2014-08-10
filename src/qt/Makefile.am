@@ -238,6 +238,9 @@ RES_ICONS = \
   res/icons/editcopy.png \
   res/icons/editpaste.png \
   res/icons/export.png \
+  res/icons/eye.png \
+  res/icons/eye_minus.png \
+  res/icons/eye_plus.png \
   res/icons/filesave.png \
   res/icons/history.png \
   res/icons/key.png \
