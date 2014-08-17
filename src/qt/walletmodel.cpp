@@ -34,6 +34,7 @@ WalletModel::WalletModel(CWallet *wallet, OptionsModel *optionsModel, QObject *p
 {
     fProcessingQueuedTransactions = false;
     fHaveWatchOnly = wallet->HaveWatchOnly();
+    fForceCheckBalanceChanged = false;
 
     addressTableModel = new AddressTableModel(wallet, this);
     transactionTableModel = new TransactionTableModel(wallet, this);
@@ -119,8 +120,10 @@ void WalletModel::pollBalanceChanged()
     if(!lockWallet)
         return;
 
-    if(chainActive.Height() != cachedNumBlocks)
+    if(fForceCheckBalanceChanged || chainActive.Height() != cachedNumBlocks)
     {
+        fForceCheckBalanceChanged = false;
+
         // Balance and number of transactions might have changed
         cachedNumBlocks = chainActive.Height();
 
@@ -165,7 +168,7 @@ void WalletModel::updateTransaction(const QString &hash, int status)
         transactionTableModel->updateTransaction(hash, status);
 
     // Balance and number of transactions might have changed
-    checkBalanceChanged();
+    fForceCheckBalanceChanged = true;
 }
 
 void WalletModel::updateAddressBook(const QString &address, const QString &label,
@@ -348,6 +351,7 @@ WalletModel::SendCoinsReturn WalletModel::sendCoins(WalletModelTransaction &tran
         }
         emit coinsSent(wallet, rcp, transaction_array);
     }
+    checkBalanceChanged(); // update balance immediately, otherwise there could be a short noticeable delay until pollBalanceChanged hits
 
     return SendCoinsReturn(OK);
 }
@@ -477,11 +481,6 @@ static void NotifyTransactionChanged(WalletModel *walletmodel, CWallet *wallet, 
 
 static void ShowProgress(WalletModel *walletmodel, const std::string &title, int nProgress)
 {
-    // emits signal "showProgress"
-    QMetaObject::invokeMethod(walletmodel, "showProgress", Qt::QueuedConnection,
-                              Q_ARG(QString, QString::fromStdString(title)),
-                              Q_ARG(int, nProgress));
-
     if (nProgress == 0)
         fQueueNotifications = true;
 
@@ -499,6 +498,11 @@ static void ShowProgress(WalletModel *walletmodel, const std::string &title, int
         }
         std::vector<std::pair<uint256, ChangeType> >().swap(vQueueNotifications); // clear
     }
+
+    // emits signal "showProgress"
+    QMetaObject::invokeMethod(walletmodel, "showProgress", Qt::QueuedConnection,
+                              Q_ARG(QString, QString::fromStdString(title)),
+                              Q_ARG(int, nProgress));
 }
 
 static void NotifyWatchonlyChanged(WalletModel *walletmodel, bool fHaveWatchonly)
