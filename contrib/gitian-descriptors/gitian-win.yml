@@ -19,8 +19,8 @@ packages:
 
 reference_datetime: "2013-06-01 00:00:00"
 remotes:
-- "url": "https://github.com/bitcoin/bitcoin.git"
-  "dir": "bitcoin"
+- "url": "https://github.com/litecoin-project/bitcoinomg.git"
+  "dir": "bitcoinomg"
 files:
 - "qt-win32-5.2.0-gitian-r3.zip"
 - "qt-win64-5.2.0-gitian-r3.zip"
