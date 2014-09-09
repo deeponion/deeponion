@@ -43,6 +43,10 @@
         <translation>نیا پاس فریز دہرائیں</translation>
     </message>
     <message>
+        <source>Encrypt wallet</source>
+        <translation>بٹوے کی رمزنگاری</translation>
+    </message>
+    <message>
         <source>Unlock wallet</source>
         <translation>بٹوا ان لاک</translation>
     </message>

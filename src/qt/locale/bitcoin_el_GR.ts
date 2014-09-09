@@ -663,12 +663,20 @@ Address: %4
         <translation>κανένα</translation>
     </message>
     <message>
+        <source>Dust</source>
+        <translation>Σκόνη</translation>
+    </message>
+    <message>
         <source>yes</source>
         <translation>ναι</translation>
     </message>
     <message>
         <source>no</source>
         <translation>όχι</translation>
+    </message>
+    <message>
+        <source>This label turns red, if the transaction size is greater than 1000 bytes.</source>
+        <translation>Η ετικετα γινετε κοκκινη , αν το μεγεθος της συναλαγης ειναι μεγαλητερο απο 1000 bytes.</translation>
     </message>
     <message>
         <source>(no label)</source>

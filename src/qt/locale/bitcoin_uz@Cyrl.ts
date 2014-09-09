@@ -205,8 +205,28 @@ MIT/X11 дастурий таъминот лицензияси остида та
         <translation>Ҳамённи кодлашни тасдиқлаш</translation>
     </message>
     <message>
+        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR BITCOINS&lt;/b&gt;!</source>
+        <translation>Диққат: Агар сиз ҳамёнингизни кодласангиз ва махфий сўзингизни унутсангиз, сиз &lt;b&gt;БАРЧА BITCOIN ПУЛЛАРИНГИЗНИ ЙЎҚОТАСИЗ&lt;/b&gt;!</translation>
+    </message>
+    <message>
+        <source>Are you sure you wish to encrypt your wallet?</source>
+        <translation>Ҳамёнингизни кодлашни ростдан хоҳлайсизми?</translation>
+    </message>
+    <message>
+        <source>IMPORTANT: Any previous backups you have made of your wallet file should be replaced with the newly generated, encrypted wallet file. For security reasons, previous backups of the unencrypted wallet file will become useless as soon as you start using the new, encrypted wallet.</source>
+        <translation>МУҲИМ: Сиз қилган олдинги ҳамён файли заҳиралари янги яратилган, кодланган ҳамён файли билан алмаштирилиши керак. Хавфсизлик сабабларига кўра олдинги кодланган ҳамён файли заҳираси янги кодланган ҳамёндан фойдаланишингиз билан яроқсиз ҳолга келади.</translation>
+    </message>
+    <message>
+        <source>Warning: The Caps Lock key is on!</source>
+        <translation>Диққат: Caps Lock тугмаси ёқилган!</translation>
+    </message>
+    <message>
         <source>Wallet encrypted</source>
         <translation>Ҳамёни кодланган</translation>
+    </message>
+    <message>
+        <source>Bitcoin will close now to finish the encryption process. Remember that encrypting your wallet cannot fully protect your bitcoins from being stolen by malware infecting your computer.</source>
+        <translation>Bitcoin кодлаш жараёнини тугатиш учун ёпилади. Ёдда сақланг: ҳамёнингизни кодлаш компьютерингизни зарарлаган зарарли дастурлар томонидан bitcoin тангаларингизни ўғирланишидан тўлиқ ҳимоя қила олмайди.</translation>
     </message>
     <message>
         <source>Wallet encryption failed</source>
@@ -232,9 +252,17 @@ MIT/X11 дастурий таъминот лицензияси остида та
         <source>Wallet decryption failed</source>
         <translation>Ҳамённи коддан чиқариш амалга ошмади</translation>
     </message>
-    </context>
+    <message>
+        <source>Wallet passphrase was successfully changed.</source>
+        <translation>Ҳамён пароли муваффақиятли алмаштирилди.</translation>
+    </message>
+</context>
 <context>
     <name>BitcoinGUI</name>
+    <message>
+        <source>Sign &amp;message...</source>
+        <translation>&amp;Хабар ёзиш...</translation>
+    </message>
     <message>
         <source>Synchronizing with network...</source>
         <translation>Тармоқ билан синхронланмоқда...</translation>
@@ -242,6 +270,10 @@ MIT/X11 дастурий таъминот лицензияси остида та
     <message>
         <source>&amp;Overview</source>
         <translation>&amp;Кўриб чиқиш</translation>
+    </message>
+    <message>
+        <source>Node</source>
+        <translation>Улам</translation>
     </message>
     <message>
         <source>Show general overview of wallet</source>
@@ -268,8 +300,28 @@ MIT/X11 дастурий таъминот лицензияси остида та
         <translation>Bitcoin ҳақидаги маълумотларни кўрсатиш</translation>
     </message>
     <message>
+        <source>About &amp;Qt</source>
+        <translation>&amp;Qt ҳақида</translation>
+    </message>
+    <message>
+        <source>Show information about Qt</source>
+        <translation>Qt ҳақидаги маълумотларни кўрсатиш</translation>
+    </message>
+    <message>
         <source>&amp;Options...</source>
         <translation>&amp;Мосламалар...</translation>
+    </message>
+    <message>
+        <source>&amp;Encrypt Wallet...</source>
+        <translation>Ҳамённи &amp;кодлаш...</translation>
+    </message>
+    <message>
+        <source>&amp;Backup Wallet...</source>
+        <translation>Ҳамённи &amp;заҳиралаш...</translation>
+    </message>
+    <message>
+        <source>&amp;Change Passphrase...</source>
+        <translation>Махфий сўзни &amp;ўзгартириш...</translation>
     </message>
     <message>
         <source>&amp;Sending addresses...</source>
@@ -284,8 +336,76 @@ MIT/X11 дастурий таъминот лицензияси остида та
         <translation>Интернет манзилни очиш</translation>
     </message>
     <message>
+        <source>Importing blocks from disk...</source>
+        <translation>Дискдан блоклар импорт қилинмоқда...</translation>
+    </message>
+    <message>
+        <source>Reindexing blocks on disk...</source>
+        <translation>Дискдаги блоклар қайта индексланмоқда...</translation>
+    </message>
+    <message>
+        <source>Send coins to a Bitcoin address</source>
+        <translation>Тангаларни Bitcoin манзилига жўнатиш</translation>
+    </message>
+    <message>
+        <source>Modify configuration options for Bitcoin</source>
+        <translation>Bitcoin учун мослаш танловларини ўзгартириш</translation>
+    </message>
+    <message>
+        <source>Backup wallet to another location</source>
+        <translation>Ҳамённи бошқа манзилга заҳиралаш</translation>
+    </message>
+    <message>
         <source>Change the passphrase used for wallet encryption</source>
         <translation>Паролни ўзгартириш ҳамённи кодлашда фойдаланилади</translation>
+    </message>
+    <message>
+        <source>&amp;Debug window</source>
+        <translation>&amp;Носозликни ҳал қилиш ойнаси</translation>
+    </message>
+    <message>
+        <source>Open debugging and diagnostic console</source>
+        <translation>Носозликни ҳал қилиш ва ташхис терминали</translation>
+    </message>
+    <message>
+        <source>&amp;Verify message...</source>
+        <translation>Хабарни &amp;тасдиқлаш...</translation>
+    </message>
+    <message>
+        <source>Bitcoin</source>
+        <translation>Bitcoin</translation>
+    </message>
+    <message>
+        <source>Wallet</source>
+        <translation>Ҳамён</translation>
+    </message>
+    <message>
+        <source>&amp;Send</source>
+        <translation>&amp;Жўнатиш</translation>
+    </message>
+    <message>
+        <source>&amp;Receive</source>
+        <translation>&amp;Қабул қилиш</translation>
+    </message>
+    <message>
+        <source>&amp;Show / Hide</source>
+        <translation>&amp;Кўрсатиш / Яшириш</translation>
+    </message>
+    <message>
+        <source>Show or hide the main Window</source>
+        <translation>Асосий ойнани кўрсатиш ёки яшириш</translation>
+    </message>
+    <message>
+        <source>Encrypt the private keys that belong to your wallet</source>
+        <translation>Ҳамёнингизга тегишли махфий калитларни кодлаш</translation>
+    </message>
+    <message>
+        <source>Sign messages with your Bitcoin addresses to prove you own them</source>
+        <translation>Bitcoin манзилидан унинг эгаси эканлигингизни исботлаш учун хабарлар ёзинг</translation>
+    </message>
+    <message>
+        <source>Verify messages to ensure they were signed with specified Bitcoin addresses</source>
+        <translation>Хабарларни махсус Bitcoin манзилларингиз билан ёзилганлигига ишонч ҳосил қилиш учун уларни тасдиқланг</translation>
     </message>
     <message>
         <source>&amp;File</source>
@@ -308,12 +428,48 @@ MIT/X11 дастурий таъминот лицензияси остида та
         <translation>[testnet]</translation>
     </message>
     <message>
+        <source>Bitcoin Core</source>
+        <translation>Bitcoin Core</translation>
+    </message>
+    <message>
+        <source>Request payments (generates QR codes and bitcoin: URIs)</source>
+        <translation>Тўловлар (QR кодлари ва bitcoin ёрдамида яратишлар: URI’лар) сўраш</translation>
+    </message>
+    <message>
+        <source>&amp;About Bitcoin Core</source>
+        <translation>Bitcoin Core &amp;ҳақида</translation>
+    </message>
+    <message>
+        <source>Show the list of used sending addresses and labels</source>
+        <translation>Фойдаланилган жўнатилган манзиллар ва ёрлиқлар рўйхатини кўрсатиш</translation>
+    </message>
+    <message>
+        <source>Show the list of used receiving addresses and labels</source>
+        <translation>Фойдаланилган қабул қилинган манзиллар ва ёрлиқлар рўйхатини кўрсатиш</translation>
+    </message>
+    <message>
+        <source>Open a bitcoin: URI or payment request</source>
+        <translation>Bitcoin’ни очиш: URI ёки тўлов сўрови</translation>
+    </message>
+    <message>
+        <source>&amp;Command-line options</source>
+        <translation>&amp;Буйруқлар сатри мосламалари</translation>
+    </message>
+    <message>
+        <source>Show the Bitcoin Core help message to get a list with possible Bitcoin command-line options</source>
+        <translation>Мавжуд Bitcoin буйруқлар матни мосламалари билан  Bitcoin Core ёрдам хабарларини олиш рўйхатини кўрсатиш</translation>
+    </message>
+    <message>
         <source>Bitcoin client</source>
         <translation>Bitcoin мижози</translation>
     </message>
     <message numerus="yes">
         <source>%n active connection(s) to Bitcoin network</source>
         <translation><numerusform>%n та Bitcoin тармоғига фаол уланиш мавжуд</numerusform></translation>
+    </message>
+    <message>
+        <source>No block source available...</source>
+        <translation>Блок манбалари мавжуд эмас...</translation>
     </message>
     <message>
         <source>Processed %1 blocks of transaction history.</source>
@@ -340,8 +496,36 @@ MIT/X11 дастурий таъминот лицензияси остида та
         <translation><numerusform>%n йил</numerusform></translation>
     </message>
     <message>
+        <source>%1 behind</source>
+        <translation>%1 орқада</translation>
+    </message>
+    <message>
+        <source>Last received block was generated %1 ago.</source>
+        <translation>Сўнги қабул қилинган блок %1 олдин яратилган.</translation>
+    </message>
+    <message>
+        <source>Transactions after this will not yet be visible.</source>
+        <translation>Бундан кейинги пул ўтказмалари кўринмайдиган бўлади.</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation>Хатолик</translation>
+    </message>
+    <message>
+        <source>Warning</source>
+        <translation>Диққат</translation>
+    </message>
+    <message>
+        <source>Information</source>
+        <translation>Маълумот</translation>
+    </message>
+    <message>
         <source>Up to date</source>
         <translation>Янгиланган</translation>
+    </message>
+    <message>
+        <source>Catching up...</source>
+        <translation>Банд қилинмоқда...</translation>
     </message>
     <message>
         <source>Sent transaction</source>
@@ -352,6 +536,18 @@ MIT/X11 дастурий таъминот лицензияси остида та
         <translation>Кирувчи операция</translation>
     </message>
     <message>
+        <source>Date: %1
+Amount: %2
+Type: %3
+Address: %4
+</source>
+        <translation>Санаси: %1
+Миқдори: %2
+Тури: %3
+Манзили: %4
+</translation>
+    </message>
+    <message>
         <source>Wallet is &lt;b&gt;encrypted&lt;/b&gt; and currently &lt;b&gt;unlocked&lt;/b&gt;</source>
         <translation>Ҳамён &lt;b&gt;кодланган&lt;/b&gt; ва вақтинча &lt;b&gt;қулфдан чиқарилган&lt;/b&gt;</translation>
     </message>
@@ -359,15 +555,67 @@ MIT/X11 дастурий таъминот лицензияси остида та
         <source>Wallet is &lt;b&gt;encrypted&lt;/b&gt; and currently &lt;b&gt;locked&lt;/b&gt;</source>
         <translation>Ҳамён &lt;b&gt;кодланган&lt;/b&gt; ва вақтинча &lt;b&gt;қулфланган&lt;/b&gt;</translation>
     </message>
-    </context>
+    <message>
+        <source>A fatal error occurred. Bitcoin can no longer continue safely and will quit.</source>
+        <translation>Жиддий хато юз берди. Bitcoin хавфсиз ишлай олмайди, шунинг учун чиқиб кетилади.</translation>
+    </message>
+</context>
 <context>
     <name>ClientModel</name>
-    </context>
+    <message>
+        <source>Network Alert</source>
+        <translation>Тармоқ огоҳлантиргичи</translation>
+    </message>
+</context>
 <context>
     <name>CoinControlDialog</name>
     <message>
+        <source>Coin Control Address Selection</source>
+        <translation>Танга бошқарув манзилини танлаш</translation>
+    </message>
+    <message>
+        <source>Quantity:</source>
+        <translation>Сони:</translation>
+    </message>
+    <message>
         <source>Bytes:</source>
         <translation>Байт:</translation>
+    </message>
+    <message>
+        <source>Amount:</source>
+        <translation>Миқдори:</translation>
+    </message>
+    <message>
+        <source>Priority:</source>
+        <translation>Муҳимлиги:</translation>
+    </message>
+    <message>
+        <source>Fee:</source>
+        <translation>Солиқ:</translation>
+    </message>
+    <message>
+        <source>Low Output:</source>
+        <translation>Паст чиқиш:</translation>
+    </message>
+    <message>
+        <source>After Fee:</source>
+        <translation>Солиқдан сўнг:</translation>
+    </message>
+    <message>
+        <source>Change:</source>
+        <translation>Ўзгартириш:</translation>
+    </message>
+    <message>
+        <source>(un)select all</source>
+        <translation>барчасини танаш (бекор қилиш)</translation>
+    </message>
+    <message>
+        <source>Tree mode</source>
+        <translation>Дарахт усулида</translation>
+    </message>
+    <message>
+        <source>List mode</source>
+        <translation>Рўйхат усулида</translation>
     </message>
     <message>
         <source>Amount</source>
@@ -382,8 +630,16 @@ MIT/X11 дастурий таъминот лицензияси остида та
         <translation>Сана</translation>
     </message>
     <message>
+        <source>Confirmations</source>
+        <translation>Тасдиқлашлар</translation>
+    </message>
+    <message>
         <source>Confirmed</source>
         <translation>Тасдиқланди</translation>
+    </message>
+    <message>
+        <source>Priority</source>
+        <translation>Муҳимлиги</translation>
     </message>
     <message>
         <source>Copy address</source>
@@ -398,14 +654,146 @@ MIT/X11 дастурий таъминот лицензияси остида та
         <translation>Кийматни нусхала</translation>
     </message>
     <message>
+        <source>Copy transaction ID</source>
+        <translation>Ўтказам рақамидан нусха олиш</translation>
+    </message>
+    <message>
+        <source>Lock unspent</source>
+        <translation>Сарфланмаганларни қулфлаш</translation>
+    </message>
+    <message>
+        <source>Unlock unspent</source>
+        <translation>Сарфланмаганларни қулфдан чиқариш</translation>
+    </message>
+    <message>
+        <source>Copy quantity</source>
+        <translation>Нусха сони</translation>
+    </message>
+    <message>
+        <source>Copy fee</source>
+        <translation>Нусха солиғи</translation>
+    </message>
+    <message>
+        <source>Copy after fee</source>
+        <translation>Нусха солиқдан сўнг</translation>
+    </message>
+    <message>
+        <source>Copy bytes</source>
+        <translation>Нусха байти</translation>
+    </message>
+    <message>
+        <source>Copy priority</source>
+        <translation>Нусха муҳимлиги</translation>
+    </message>
+    <message>
+        <source>Copy change</source>
+        <translation>Нусха қайтими</translation>
+    </message>
+    <message>
+        <source>highest</source>
+        <translation>энг юқори</translation>
+    </message>
+    <message>
+        <source>higher</source>
+        <translation>юқорирок</translation>
+    </message>
+    <message>
+        <source>high</source>
+        <translation>юқори</translation>
+    </message>
+    <message>
+        <source>medium-high</source>
+        <translation>ўртача-юқори</translation>
+    </message>
+    <message>
         <source>medium</source>
         <translation>ўрта</translation>
+    </message>
+    <message>
+        <source>low-medium</source>
+        <translation>паст-юқори</translation>
+    </message>
+    <message>
+        <source>low</source>
+        <translation>паст</translation>
+    </message>
+    <message>
+        <source>lower</source>
+        <translation>пастроқ</translation>
+    </message>
+    <message>
+        <source>lowest</source>
+        <translation>энг паст</translation>
+    </message>
+    <message>
+        <source>(%1 locked)</source>
+        <translation>(%1 қулфланган)</translation>
+    </message>
+    <message>
+        <source>none</source>
+        <translation>йўқ</translation>
+    </message>
+    <message>
+        <source>Dust</source>
+        <translation>Чанг</translation>
+    </message>
+    <message>
+        <source>yes</source>
+        <translation>ҳа</translation>
+    </message>
+    <message>
+        <source>no</source>
+        <translation>йўқ</translation>
+    </message>
+    <message>
+        <source>This label turns red, if the transaction size is greater than 1000 bytes.</source>
+        <translation>Агар ўтказманинг ҳажми 1000 байтдан ошса, ёрлиқ қизаради.</translation>
+    </message>
+    <message>
+        <source>This means a fee of at least %1 per kB is required.</source>
+        <translation>Бу дегани солиқ ҳар кб учун камида %1  талаб қилинади.</translation>
+    </message>
+    <message>
+        <source>Can vary +/- 1 byte per input.</source>
+        <translation>Ҳар бир кирим +/- 1 байт билан ўзгариши мумкин.</translation>
+    </message>
+    <message>
+        <source>Transactions with higher priority are more likely to get included into a block.</source>
+        <translation>Юқори муҳимликка эга бўлган ўтказмалар тезда блокнинг ичига қўшимча олади.</translation>
+    </message>
+    <message>
+        <source>This label turns red, if the priority is smaller than "medium".</source>
+        <translation>Агар муҳимлиги "ўртача"дан паст бўлса, ушбу ёрлиқ қизил бўлиб ёнади.</translation>
+    </message>
+    <message>
+        <source>This label turns red, if any recipient receives an amount smaller than %1.</source>
+        <translation>Агар қабул қилувчи %1дан кичик қийматни қабул қилса, ушбу ёрлиқ қизил бўлиб ёнади.</translation>
+    </message>
+    <message>
+        <source>This means a fee of at least %1 is required.</source>
+        <translation>Бу солиқни камида %1 талаб қилишини билдиради.</translation>
+    </message>
+    <message>
+        <source>Amounts below 0.546 times the minimum relay fee are shown as dust.</source>
+        <translation>Қиймат энг кам тўлов 0.546 дан паст бўлса, чанг сифатида кўрсатилади.</translation>
+    </message>
+    <message>
+        <source>This label turns red, if the change is smaller than %1.</source>
+        <translation>Агар қайтим %1дан кичикроқ бўлса, ушбу ёрлиқ қизил бўлиб ёнади.</translation>
     </message>
     <message>
         <source>(no label)</source>
         <translation>(Ёрлик мавжуд эмас)</translation>
     </message>
-    </context>
+    <message>
+        <source>change from %1 (%2)</source>
+        <translation>%1 (%2)дан ўзгартириш</translation>
+    </message>
+    <message>
+        <source>(change)</source>
+        <translation>(ўзгартириш)</translation>
+    </message>
+</context>
 <context>
     <name>EditAddressDialog</name>
     <message>
@@ -414,7 +802,15 @@ MIT/X11 дастурий таъминот лицензияси остида та
     </message>
     <message>
         <source>&amp;Label</source>
-        <translation>&amp;Ёрлик</translation>
+        <translation>&amp;Ёрлиқ</translation>
+    </message>
+    <message>
+        <source>The label associated with this address list entry</source>
+        <translation>Ёрлиқ ушбу манзилар рўйхати ёзуви билан боғланган</translation>
+    </message>
+    <message>
+        <source>The address associated with this address list entry. This can only be modified for sending addresses.</source>
+        <translation>Манзил ушбу манзиллар рўйхати ёзуви билан боғланган. Уни фақат жўнатиладиган манзиллар учун ўзгартирса бўлади.</translation>
     </message>
     <message>
         <source>&amp;Address</source>
@@ -441,6 +837,10 @@ MIT/X11 дастурий таъминот лицензияси остида та
         <translation>Киритилган "%1" манзили аллақачон манзил китобида.</translation>
     </message>
     <message>
+        <source>The entered address "%1" is not a valid Bitcoin address.</source>
+        <translation>Киритилган "%1" манзили тўғри Bitcoin манзили эмас.</translation>
+    </message>
+    <message>
         <source>Could not unlock wallet.</source>
         <translation>Ҳамён қулфдан чиқмади.</translation>
     </message>
@@ -451,17 +851,113 @@ MIT/X11 дастурий таъминот лицензияси остида та
 </context>
 <context>
     <name>FreespaceChecker</name>
-    </context>
+    <message>
+        <source>A new data directory will be created.</source>
+        <translation>Янги маълумотлар директорияси яратилади.</translation>
+    </message>
+    <message>
+        <source>name</source>
+        <translation>номи</translation>
+    </message>
+    <message>
+        <source>Directory already exists. Add %1 if you intend to create a new directory here.</source>
+        <translation>Директория аллақачон мавжуд. Агар бу ерда янги директория яратмоқчи бўлсангиз, %1 қўшинг.</translation>
+    </message>
+    <message>
+        <source>Path already exists, and is not a directory.</source>
+        <translation>Йўл аллақачон мавжуд. У директория эмас.</translation>
+    </message>
+    <message>
+        <source>Cannot create data directory here.</source>
+        <translation>Маълумотлар директориясини бу ерда яратиб бўлмайди..</translation>
+    </message>
+</context>
 <context>
     <name>HelpMessageDialog</name>
+    <message>
+        <source>Bitcoin Core - Command-line options</source>
+        <translation>Bitcoin Core - буйруқлар қатори орали мослаш</translation>
+    </message>
+    <message>
+        <source>Bitcoin Core</source>
+        <translation>Bitcoin Core</translation>
+    </message>
+    <message>
+        <source>version</source>
+        <translation>версияси</translation>
+    </message>
     <message>
         <source>Usage:</source>
         <translation>Фойдаланиш:</translation>
     </message>
-    </context>
+    <message>
+        <source>command-line options</source>
+        <translation>буйруқлар қатори орқали мослаш</translation>
+    </message>
+    <message>
+        <source>UI options</source>
+        <translation>UI мосламалари</translation>
+    </message>
+    <message>
+        <source>Start minimized</source>
+        <translation>Йиғилганларни бошлаш</translation>
+    </message>
+    <message>
+        <source>Set SSL root certificates for payment request (default: -system-)</source>
+        <translation>Тўлов сўровлари учун SSL асос сертификатларини ўрнатиш (стандарт: -system-)</translation>
+    </message>
+    <message>
+        <source>Choose data directory on startup (default: 0)</source>
+        <translation>Ишга тушиш вақтида маълумотлар директориясини танлаш (стандарт: 0)</translation>
+    </message>
+</context>
 <context>
     <name>Intro</name>
-    </context>
+    <message>
+        <source>Welcome</source>
+        <translation>Хуш келибсиз</translation>
+    </message>
+    <message>
+        <source>Welcome to Bitcoin Core.</source>
+        <translation>"Bitcoin Core"га хуш келибсиз.</translation>
+    </message>
+    <message>
+        <source>As this is the first time the program is launched, you can choose where Bitcoin Core will store its data.</source>
+        <translation>Биринчи марта дастур ишга тушгани каби сиз Bitcoin Core маълумотларини жойлаштирадиган жойни танлашингиз мумкин.</translation>
+    </message>
+    <message>
+        <source>Bitcoin Core will download and store a copy of the Bitcoin block chain. At least %1GB of data will be stored in this directory, and it will grow over time. The wallet will also be stored in this directory.</source>
+        <translation>Bitcoin Core юклаб олинади ва Bitcoin блок занжири нусхаси жойлаштирилади. Камида %1GB  маълумот ушбу директорияга жойлаштирилади ва вақт давомида ўсиб боради. Ҳамён ҳам ушбу директорияда жойлашади.</translation>
+    </message>
+    <message>
+        <source>Use the default data directory</source>
+        <translation>Стандарт маълумотлар директориясидан фойдаланиш</translation>
+    </message>
+    <message>
+        <source>Use a custom data directory:</source>
+        <translation>Бошқа маълумотлар директориясида фойдаланинг:</translation>
+    </message>
+    <message>
+        <source>Bitcoin</source>
+        <translation>Bitcoin</translation>
+    </message>
+    <message>
+        <source>Error: Specified data directory "%1" can not be created.</source>
+        <translation>Хато: кўрсатилган маълумотлар директорияси "%1"ни яратиб бўлмади.</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation>Хатолик</translation>
+    </message>
+    <message>
+        <source>GB of free space available</source>
+        <translation>GB бўш жой мавжуд</translation>
+    </message>
+    <message>
+        <source>(of %1GB needed)</source>
+        <translation>(%1GB керак)</translation>
+    </message>
+</context>
 <context>
     <name>OpenURIDialog</name>
     </context>
@@ -471,6 +967,10 @@ MIT/X11 дастурий таъминот лицензияси остида та
         <source>Options</source>
         <translation>Танламалар</translation>
     </message>
+    <message>
+        <source>none</source>
+        <translation>йўқ</translation>
+    </message>
     </context>
 <context>
     <name>OverviewPage</name>
@@ -479,8 +979,12 @@ MIT/X11 дастурий таъминот лицензияси остида та
         <translation>Шакл</translation>
     </message>
     <message>
+        <source>Wallet</source>
+        <translation>Ҳамён</translation>
+    </message>
+    <message>
         <source>&lt;b&gt;Recent transactions&lt;/b&gt;</source>
-        <translation>&lt;b&gt;Жорий утказмалар&lt;/b&gt;</translation>
+        <translation>&lt;b&gt;Сўнгги ўтказмалар&lt;/b&gt;</translation>
     </message>
     </context>
 <context>
@@ -488,6 +992,10 @@ MIT/X11 дастурий таъминот лицензияси остида та
     </context>
 <context>
     <name>QObject</name>
+    <message>
+        <source>Bitcoin</source>
+        <translation>Bitcoin</translation>
+    </message>
     </context>
 <context>
     <name>QRImageWidget</name>
@@ -563,8 +1071,36 @@ MIT/X11 дастурий таъминот лицензияси остида та
         <translation>Тангаларни жунат</translation>
     </message>
     <message>
+        <source>Quantity:</source>
+        <translation>Сони:</translation>
+    </message>
+    <message>
         <source>Bytes:</source>
         <translation>Байт:</translation>
+    </message>
+    <message>
+        <source>Amount:</source>
+        <translation>Миқдори:</translation>
+    </message>
+    <message>
+        <source>Priority:</source>
+        <translation>Муҳимлиги:</translation>
+    </message>
+    <message>
+        <source>Fee:</source>
+        <translation>Солиқ:</translation>
+    </message>
+    <message>
+        <source>Low Output:</source>
+        <translation>Паст чиқиш:</translation>
+    </message>
+    <message>
+        <source>After Fee:</source>
+        <translation>Солиқдан сўнг:</translation>
+    </message>
+    <message>
+        <source>Change:</source>
+        <translation>Ўзгартириш:</translation>
     </message>
     <message>
         <source>Send to multiple recipients at once</source>
@@ -583,8 +1119,32 @@ MIT/X11 дастурий таъминот лицензияси остида та
         <translation>Тангалар жўнаишни тасдиқлаш</translation>
     </message>
     <message>
+        <source>Copy quantity</source>
+        <translation>Нусха сони</translation>
+    </message>
+    <message>
         <source>Copy amount</source>
         <translation>Кийматни нусхала</translation>
+    </message>
+    <message>
+        <source>Copy fee</source>
+        <translation>Нусха солиғи</translation>
+    </message>
+    <message>
+        <source>Copy after fee</source>
+        <translation>Нусха солиқдан сўнг</translation>
+    </message>
+    <message>
+        <source>Copy bytes</source>
+        <translation>Нусха байти</translation>
+    </message>
+    <message>
+        <source>Copy priority</source>
+        <translation>Нусха муҳимлиги</translation>
+    </message>
+    <message>
+        <source>Copy change</source>
+        <translation>Нусха қайтими</translation>
     </message>
     <message>
         <source>The amount to pay must be larger than 0.</source>
@@ -646,6 +1206,10 @@ MIT/X11 дастурий таъминот лицензияси остида та
     </context>
 <context>
     <name>SplashScreen</name>
+    <message>
+        <source>Bitcoin Core</source>
+        <translation>Bitcoin Core</translation>
+    </message>
     <message>
         <source>The Bitcoin Core developers</source>
         <translation>Bitcoin Core дастурчилари</translation>
@@ -850,6 +1414,10 @@ MIT/X11 дастурий таъминот лицензияси остида та
         <translation>Кийматни нусхала</translation>
     </message>
     <message>
+        <source>Copy transaction ID</source>
+        <translation>Ўтказам рақамидан нусха олиш</translation>
+    </message>
+    <message>
         <source>Edit label</source>
         <translation>Ёрликни тахрирлаш</translation>
     </message>
@@ -962,8 +1530,20 @@ MIT/X11 дастурий таъминот лицензияси остида та
         <translation>Синов тармоғидан фойдаланинг</translation>
     </message>
     <message>
+        <source>Information</source>
+        <translation>Маълумот</translation>
+    </message>
+    <message>
         <source>Username for JSON-RPC connections</source>
         <translation>JSON-RPC уланишлари учун фойдаланувчи номи</translation>
+    </message>
+    <message>
+        <source>Warning</source>
+        <translation>Диққат</translation>
+    </message>
+    <message>
+        <source>version</source>
+        <translation>версияси</translation>
     </message>
     <message>
         <source>Password for JSON-RPC connections</source>
@@ -1012,6 +1592,10 @@ MIT/X11 дастурий таъминот лицензияси остида та
     <message>
         <source>Done loading</source>
         <translation>Юклаш тайёр</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation>Хатолик</translation>
     </message>
     </context>
 </TS>

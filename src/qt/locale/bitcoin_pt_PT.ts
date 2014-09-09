@@ -2904,6 +2904,10 @@ por exemplo: alertnotify=echo %%s | mail -s "Alerta Bitcoin" admin@foo.com</tran
         <translation>Selecione a versão do proxy socks a usar (4 ou 5, por defeito: 5)</translation>
     </message>
     <message>
+        <source>Set database cache size in megabytes (%d to %d, default: %d)</source>
+        <translation>Definir o tamanho da cache de base de dados em megabytes (%d a %d, padrão: %d)</translation>
+    </message>
+    <message>
         <source>Set maximum block size in bytes (default: %d)</source>
         <translation>Definir tamanho máximo por bloco em bytes (por defeito: %d)</translation>
     </message>

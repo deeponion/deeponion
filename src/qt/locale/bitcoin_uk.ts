@@ -31,8 +31,20 @@ This product includes software developed by the OpenSSL Project for use in the O
         <translation>Створити нову адресу</translation>
     </message>
     <message>
+        <source>&amp;New</source>
+        <translation>Но&amp;ва</translation>
+    </message>
+    <message>
         <source>Copy the currently selected address to the system clipboard</source>
         <translation>Копіювати виділену адресу в буфер обміну</translation>
+    </message>
+    <message>
+        <source>&amp;Copy</source>
+        <translation>&amp;Копіювати</translation>
+    </message>
+    <message>
+        <source>C&amp;lose</source>
+        <translation>З&amp;акрити</translation>
     </message>
     <message>
         <source>&amp;Copy Address</source>
@@ -55,8 +67,24 @@ This product includes software developed by the OpenSSL Project for use in the O
         <translation>&amp;Видалити</translation>
     </message>
     <message>
+        <source>Choose the address to send coins to</source>
+        <translation>Виберіть адресу для відправлення на неї монет</translation>
+    </message>
+    <message>
+        <source>Choose the address to receive coins with</source>
+        <translation>Виберіть адресу для отримання монет</translation>
+    </message>
+    <message>
         <source>C&amp;hoose</source>
         <translation>&amp;Обрати</translation>
+    </message>
+    <message>
+        <source>Sending addresses</source>
+        <translation>Адреси для відправлення</translation>
+    </message>
+    <message>
+        <source>Receiving addresses</source>
+        <translation>Адреси для отримання</translation>
     </message>
     <message>
         <source>These are your Bitcoin addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
@@ -373,11 +401,27 @@ This product includes software developed by the OpenSSL Project for use in the O
     </message>
     <message>
         <source>Bitcoin Core</source>
-        <translation>Bitcoin Ядро</translation>
+        <translation>Bitcoin Core</translation>
+    </message>
+    <message>
+        <source>&amp;About Bitcoin Core</source>
+        <translation>&amp;Про Bitcoin Core</translation>
+    </message>
+    <message>
+        <source>Show the list of used sending addresses and labels</source>
+        <translation>Показати список адрес і позначок, що були використані для відправлення</translation>
+    </message>
+    <message>
+        <source>Show the list of used receiving addresses and labels</source>
+        <translation>Показати список адрес і позначок, що були використані для отримання</translation>
     </message>
     <message>
         <source>&amp;Command-line options</source>
         <translation>Параметри командного рядка</translation>
+    </message>
+    <message>
+        <source>Show the Bitcoin Core help message to get a list with possible Bitcoin command-line options</source>
+        <translation>Показати довідку Bitcoin Core для отримання переліку можливих параметрів командного рядка.</translation>
     </message>
     <message>
         <source>Bitcoin client</source>
@@ -390,6 +434,10 @@ This product includes software developed by the OpenSSL Project for use in the O
     <message>
         <source>No block source available...</source>
         <translation>Ні блок джерела доступні ...</translation>
+    </message>
+    <message>
+        <source>Processed %1 of %2 (estimated) blocks of transaction history.</source>
+        <translation>Оброблено %1 з %2 (приблизно) блоків історії переказів.</translation>
     </message>
     <message>
         <source>Processed %1 blocks of transaction history.</source>
@@ -490,12 +538,24 @@ Address: %4
         <translation>Комісія:</translation>
     </message>
     <message>
+        <source>Low Output:</source>
+        <translation>Малий вихід:</translation>
+    </message>
+    <message>
         <source>After Fee:</source>
         <translation>Після комісії</translation>
     </message>
     <message>
         <source>Change:</source>
         <translation>Решта:</translation>
+    </message>
+    <message>
+        <source>Tree mode</source>
+        <translation>Деревом</translation>
+    </message>
+    <message>
+        <source>List mode</source>
+        <translation>Списком</translation>
     </message>
     <message>
         <source>Amount</source>
@@ -510,8 +570,16 @@ Address: %4
         <translation>Дата</translation>
     </message>
     <message>
+        <source>Confirmations</source>
+        <translation>Підтверджень</translation>
+    </message>
+    <message>
         <source>Confirmed</source>
         <translation>Підтверджені</translation>
+    </message>
+    <message>
+        <source>Priority</source>
+        <translation>Пріоритет</translation>
     </message>
     <message>
         <source>Copy address</source>
@@ -590,6 +658,10 @@ Address: %4
         <translation>найнижчий</translation>
     </message>
     <message>
+        <source>none</source>
+        <translation>відсутні</translation>
+    </message>
+    <message>
         <source>yes</source>
         <translation>так</translation>
     </message>
@@ -602,12 +674,36 @@ Address: %4
         <translation>Ця позначка буде червоною, якщо розмір транзакції вищий за 1000 байт.</translation>
     </message>
     <message>
+        <source>This means a fee of at least %1 per kB is required.</source>
+        <translation>Це означає, що необхідно сплатити комісію (щонайменше %1 за КБ).</translation>
+    </message>
+    <message>
+        <source>Can vary +/- 1 byte per input.</source>
+        <translation>Може відрізнятися на +/- 1 байт за вхід.</translation>
+    </message>
+    <message>
+        <source>Transactions with higher priority are more likely to get included into a block.</source>
+        <translation>Транзакції з вищим пріоритетом мають більше шансів бути включеними до блоку.</translation>
+    </message>
+    <message>
         <source>This label turns red, if the priority is smaller than "medium".</source>
         <translation>Ця позначка буде червоною, якщо пріорітет транзакції нижчий за «середній»".</translation>
     </message>
     <message>
         <source>This label turns red, if any recipient receives an amount smaller than %1.</source>
         <translation>Ця позначка буде червоною, якщо будь хто з отримувачів отримає менше ніж %1.</translation>
+    </message>
+    <message>
+        <source>This means a fee of at least %1 is required.</source>
+        <translation>Це означає, що необхідно сплатити щонайменше %1 комісії.</translation>
+    </message>
+    <message>
+        <source>Amounts below 0.546 times the minimum relay fee are shown as dust.</source>
+        <translation>Суми, що менші за 0.546 мінімальних комісій ретрансляції, відображаються як пил.</translation>
+    </message>
+    <message>
+        <source>This label turns red, if the change is smaller than %1.</source>
+        <translation>Ця позначка буде червоною, якщо решта менша за %1.</translation>
     </message>
     <message>
         <source>(no label)</source>
@@ -687,8 +783,12 @@ Address: %4
 <context>
     <name>HelpMessageDialog</name>
     <message>
+        <source>Bitcoin Core - Command-line options</source>
+        <translation>Bitcoin Core - Параметри командного рядка</translation>
+    </message>
+    <message>
         <source>Bitcoin Core</source>
-        <translation>Bitcoin Ядро</translation>
+        <translation>Bitcoin Core</translation>
     </message>
     <message>
         <source>version</source>
@@ -816,6 +916,22 @@ Address: %4
         <translation>&amp;Мережа</translation>
     </message>
     <message>
+        <source>Expert</source>
+        <translation>Експерт</translation>
+    </message>
+    <message>
+        <source>Enable coin &amp;control features</source>
+        <translation>Ввімкнути &amp;керування монетами</translation>
+    </message>
+    <message>
+        <source>If you disable the spending of unconfirmed change, the change from a transaction cannot be used until that transaction has at least one confirmation. This also affects how your balance is computed.</source>
+        <translation>Якщо вимкнути витрату непідтвердженої здачі, то здачу від транзакції не можна буде використати, допоки ця транзакція не матиме хоча б одне підтвердження. Це також впливає на розрахунок балансу.</translation>
+    </message>
+    <message>
+        <source>&amp;Spend unconfirmed change</source>
+        <translation>&amp;Витрачати непідтверджену здачу</translation>
+    </message>
+    <message>
         <source>Automatically open the Bitcoin client port on the router. This only works when your router supports UPnP and it is enabled.</source>
         <translation>Автоматично відкривати порт для клієнту біткоін на роутері. Працює лише якщо ваш роутер підтримує UPnP і ця функція увімкнена.</translation>
     </message>
@@ -892,6 +1008,10 @@ Address: %4
         <translation>&amp;Відображати адресу в списку транзакцій</translation>
     </message>
     <message>
+        <source>Whether to show coin control features or not.</source>
+        <translation>Показати або сховати керування монетами.</translation>
+    </message>
+    <message>
         <source>&amp;OK</source>
         <translation>&amp;Гаразд</translation>
     </message>
@@ -904,8 +1024,20 @@ Address: %4
         <translation>типово</translation>
     </message>
     <message>
+        <source>none</source>
+        <translation>відсутні</translation>
+    </message>
+    <message>
         <source>Confirm options reset</source>
         <translation>Підтвердження скидання параметрів</translation>
+    </message>
+    <message>
+        <source>Client restart required to activate changes.</source>
+        <translation>Для застосування змін необхідно перезапустити клієнта.</translation>
+    </message>
+    <message>
+        <source>This change would require a client restart.</source>
+        <translation>Ця зміна вступить в силу після перезапуску клієнта</translation>
     </message>
     <message>
         <source>The supplied proxy address is invalid.</source>
@@ -927,12 +1059,20 @@ Address: %4
         <translation>Гаманець</translation>
     </message>
     <message>
+        <source>Available:</source>
+        <translation>Доступно:</translation>
+    </message>
+    <message>
         <source>Your current spendable balance</source>
-        <translation>Ваш поточний баланс расходуемого</translation>
+        <translation>Ваш поточний підтверджений баланс</translation>
+    </message>
+    <message>
+        <source>Pending:</source>
+        <translation>Очікується:</translation>
     </message>
     <message>
         <source>Total of transactions that have yet to be confirmed, and do not yet count toward the spendable balance</source>
-        <translation>Всього угод, які ще мають бути підтверджені, і до цих пір не враховуються в расходуемого балансу</translation>
+        <translation>Сума монет у непідтверджених транзакціях</translation>
     </message>
     <message>
         <source>Immature:</source>
@@ -940,7 +1080,7 @@ Address: %4
     </message>
     <message>
         <source>Mined balance that has not yet matured</source>
-        <translation>Замінований баланс, який ще не дозрів</translation>
+        <translation>Баланс видобутих та ще недозрілих монет</translation>
     </message>
     <message>
         <source>Total:</source>
@@ -948,7 +1088,7 @@ Address: %4
     </message>
     <message>
         <source>Your current total balance</source>
-        <translation>Ваше поточне Сукупний баланс</translation>
+        <translation>Ваш поточний сукупний баланс</translation>
     </message>
     <message>
         <source>&lt;b&gt;Recent transactions&lt;/b&gt;</source>
@@ -1095,6 +1235,22 @@ Address: %4
         <translation>Наберіть &lt;b&gt;help&lt;/b&gt; для перегляду доступних команд.</translation>
     </message>
     <message>
+        <source>%1 B</source>
+        <translation>%1 Б</translation>
+    </message>
+    <message>
+        <source>%1 KB</source>
+        <translation>%1 КБ</translation>
+    </message>
+    <message>
+        <source>%1 MB</source>
+        <translation>%1 МБ</translation>
+    </message>
+    <message>
+        <source>%1 GB</source>
+        <translation>%1 ГБ</translation>
+    </message>
+    <message>
         <source>%1 m</source>
         <translation>%1 х</translation>
     </message>
@@ -1215,6 +1371,10 @@ Address: %4
         <translation>Відправити</translation>
     </message>
     <message>
+        <source>Coin Control Features</source>
+        <translation>Керування монетами</translation>
+    </message>
+    <message>
         <source>Quantity:</source>
         <translation>Кількість:</translation>
     </message>
@@ -1231,8 +1391,12 @@ Address: %4
         <translation>Комісія:</translation>
     </message>
     <message>
+        <source>Low Output:</source>
+        <translation>Малий вихід:</translation>
+    </message>
+    <message>
         <source>After Fee:</source>
-        <translation>Після комісії</translation>
+        <translation>Після комісії:</translation>
     </message>
     <message>
         <source>Change:</source>
@@ -1376,7 +1540,15 @@ Address: %4
 </context>
 <context>
     <name>ShutdownWindow</name>
-    </context>
+    <message>
+        <source>Bitcoin Core is shutting down...</source>
+        <translation>Bitcoin Core вимикається...</translation>
+    </message>
+    <message>
+        <source>Do not shut down the computer until this window disappears.</source>
+        <translation>Не вимикайте комп’ютер до зникнення цього вікна.</translation>
+    </message>
+</context>
 <context>
     <name>SignVerifyMessageDialog</name>
     <message>
@@ -1481,11 +1653,11 @@ Address: %4
     </message>
     <message>
         <source>The entered address does not refer to a key.</source>
-        <translation>Введений адреса не відноситься до ключа.</translation>
+        <translation>Введена адреса не відноситься до ключа.</translation>
     </message>
     <message>
         <source>Wallet unlock was cancelled.</source>
-        <translation>Розблокування Гаманець був скасований.</translation>
+        <translation>Розблокування гаманця було скасоване.</translation>
     </message>
     <message>
         <source>Private key for the entered address is not available.</source>
@@ -1524,7 +1696,7 @@ Address: %4
     <name>SplashScreen</name>
     <message>
         <source>Bitcoin Core</source>
-        <translation>Bitcoin Ядро</translation>
+        <translation>Bitcoin Core</translation>
     </message>
     <message>
         <source>[testnet]</source>
