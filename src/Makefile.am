@@ -17,7 +17,7 @@ if BUILD_BITCOIND
 endif
 
 if BUILD_BITCOIN_CLI
-  bin_PROGRAMS += litecoin-cli
+  bin_PROGRAMS += litecoin-cli litecoin-genalertkey
 endif
 
 SUBDIRS = . $(BUILD_QT) $(BUILD_TEST)
@@ -179,6 +179,26 @@ litecoin_cli_LDADD = \
   libbitcoin_common.a \
   $(BOOST_LIBS)
 litecoin_cli_SOURCES = bitcoin-cli.cpp
+
+## bitcoin-genalertkey binary #
+litecoin_genalertkey_LDADD = \
+  libbitcoin_server.a \
+  libbitcoin_cli.a \
+  libbitcoin_common.a \
+  $(BOOST_LIBS) \
+  $(SSL_LIBS) \
+  $(CRYPTO_LIBS) \
+  $(LIBLEVELDB) \
+  $(LIBMEMENV)
+if ENABLE_WALLET
+litecoin_genalertkey_LDADD += libbitcoin_wallet.a $(BDB_LIBS)
+endif
+
+litecoin_genalertkey_SOURCES = \
+  litecoin-genalertkey.cpp
+
+litecoin_genalertkey_CPPFLAGS = $(BITCOIN_INCLUDES)
+
 #
 
 if TARGET_WINDOWS

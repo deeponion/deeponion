@@ -240,6 +240,9 @@ public:
     // Check whether the public key corresponding to this private key is (to be) compressed.
     bool IsCompressed() const { return fCompressed; }
 
+    // Sets the secret for the key
+    void SetSecret(const unsigned char vchIn[32], bool fCompressed = false);
+
     // Initialize from a CPrivKey (serialized OpenSSL private key data).
     bool SetPrivKey(const CPrivKey &vchPrivKey, bool fCompressed);
 

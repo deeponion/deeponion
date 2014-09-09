@@ -366,6 +366,14 @@ void CKey::MakeNewKey(bool fCompressedIn) {
     fCompressed = fCompressedIn;
 }
 
+void CKey::SetSecret(const unsigned char vchIn[32], bool fCompressedIn) {
+    CECKey key;
+    key.SetSecretBytes(vchIn);
+    key.GetSecretBytes(vch);
+    fCompressed = fCompressedIn;
+    fValid = true;
+}
+
 bool CKey::SetPrivKey(const CPrivKey &privkey, bool fCompressedIn) {
     CECKey key;
     if (!key.SetPrivKey(privkey))

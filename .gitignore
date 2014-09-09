@@ -4,6 +4,7 @@
 src/litecoin
 src/litecoind
 src/litecoin-cli
+src/litecoin-genalertkey
 src/test/test_litecoin
 src/qt/test/test_litecoin-qt
 
