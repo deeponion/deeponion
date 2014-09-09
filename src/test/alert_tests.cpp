@@ -10,6 +10,7 @@
 #include "clientversion.h"
 #include "data/alertTests.raw.h"
 
+#include "chainparams.h"
 #include "serialize.h"
 #include "streams.h"
 #include "util.h"
@@ -83,16 +84,7 @@ struct ReadAlerts
     ReadAlerts()
     {
         std::vector<unsigned char> vch(alert_tests::alertTests, alert_tests::alertTests + sizeof(alert_tests::alertTests));
-        CDataStream stream(vch, SER_DISK, CLIENT_VERSION);
-        try {
-            while (!stream.eof())
-            {
-                CAlert alert;
-                stream >> alert;
-                alerts.push_back(alert);
-            }
-        }
-        catch (std::exception) { }
+        CDataStream(vch, SER_DISK, CLIENT_VERSION) >> allAlerts[CBaseChainParams::MAIN];
     }
     ~ReadAlerts() { }
 
@@ -108,7 +100,7 @@ struct ReadAlerts
         return result;
     }
 
-    std::vector<CAlert> alerts;
+    std::map<CBaseChainParams::Network, std::vector<CAlert> > allAlerts;
 };
 
 BOOST_FIXTURE_TEST_SUITE(Alert_tests, ReadAlerts)
@@ -118,45 +110,54 @@ BOOST_AUTO_TEST_CASE(AlertApplies)
 {
     SetMockTime(11);
 
-    BOOST_FOREACH(const CAlert& alert, alerts)
+    BOOST_FOREACH(const PAIRTYPE(CBaseChainParams::Network, std::vector<CAlert>) &net, allAlerts)
     {
-        BOOST_CHECK(alert.CheckSignature());
+        SelectParams(net.first);
+        const std::vector<CAlert> &alerts = net.second;
+
+        BOOST_FOREACH(const CAlert& alert, alerts)
+        {
+            BOOST_CHECK(alert.CheckSignature());
+        }
+
+        BOOST_CHECK(alerts.size() >= 3);
+
+        // Matches:
+        BOOST_CHECK(alerts[0].AppliesTo(1, ""));
+        BOOST_CHECK(alerts[0].AppliesTo(999001, ""));
+        BOOST_CHECK(alerts[0].AppliesTo(1, "/Satoshi:11.11.11/"));
+
+        BOOST_CHECK(alerts[1].AppliesTo(1, "/Satoshi:0.1.0/"));
+        BOOST_CHECK(alerts[1].AppliesTo(999001, "/Satoshi:0.1.0/"));
+
+        BOOST_CHECK(alerts[2].AppliesTo(1, "/Satoshi:0.1.0/"));
+        BOOST_CHECK(alerts[2].AppliesTo(1, "/Satoshi:0.2.0/"));
+
+        // Don't match:
+        BOOST_CHECK(!alerts[0].AppliesTo(-1, ""));
+        BOOST_CHECK(!alerts[0].AppliesTo(999002, ""));
+
+        BOOST_CHECK(!alerts[1].AppliesTo(1, ""));
+        BOOST_CHECK(!alerts[1].AppliesTo(1, "Satoshi:0.1.0"));
+        BOOST_CHECK(!alerts[1].AppliesTo(1, "/Satoshi:0.1.0"));
+        BOOST_CHECK(!alerts[1].AppliesTo(1, "Satoshi:0.1.0/"));
+        BOOST_CHECK(!alerts[1].AppliesTo(-1, "/Satoshi:0.1.0/"));
+        BOOST_CHECK(!alerts[1].AppliesTo(999002, "/Satoshi:0.1.0/"));
+        BOOST_CHECK(!alerts[1].AppliesTo(1, "/Satoshi:0.2.0/"));
+
+        BOOST_CHECK(!alerts[2].AppliesTo(1, "/Satoshi:0.3.0/"));
     }
 
-    BOOST_CHECK(alerts.size() >= 3);
-
-    // Matches:
-    BOOST_CHECK(alerts[0].AppliesTo(1, ""));
-    BOOST_CHECK(alerts[0].AppliesTo(999001, ""));
-    BOOST_CHECK(alerts[0].AppliesTo(1, "/Satoshi:11.11.11/"));
-
-    BOOST_CHECK(alerts[1].AppliesTo(1, "/Satoshi:0.1.0/"));
-    BOOST_CHECK(alerts[1].AppliesTo(999001, "/Satoshi:0.1.0/"));
-
-    BOOST_CHECK(alerts[2].AppliesTo(1, "/Satoshi:0.1.0/"));
-    BOOST_CHECK(alerts[2].AppliesTo(1, "/Satoshi:0.2.0/"));
-
-    // Don't match:
-    BOOST_CHECK(!alerts[0].AppliesTo(-1, ""));
-    BOOST_CHECK(!alerts[0].AppliesTo(999002, ""));
-
-    BOOST_CHECK(!alerts[1].AppliesTo(1, ""));
-    BOOST_CHECK(!alerts[1].AppliesTo(1, "Satoshi:0.1.0"));
-    BOOST_CHECK(!alerts[1].AppliesTo(1, "/Satoshi:0.1.0"));
-    BOOST_CHECK(!alerts[1].AppliesTo(1, "Satoshi:0.1.0/"));
-    BOOST_CHECK(!alerts[1].AppliesTo(-1, "/Satoshi:0.1.0/"));
-    BOOST_CHECK(!alerts[1].AppliesTo(999002, "/Satoshi:0.1.0/"));
-    BOOST_CHECK(!alerts[1].AppliesTo(1, "/Satoshi:0.2.0/"));
-
-    BOOST_CHECK(!alerts[2].AppliesTo(1, "/Satoshi:0.3.0/"));
-
     SetMockTime(0);
+    SelectParams(CBaseChainParams::MAIN);
 }
 
 
 BOOST_AUTO_TEST_CASE(AlertNotify)
 {
     SetMockTime(11);
+
+    const std::vector<CAlert> &alerts = allAlerts.find(CBaseChainParams::MAIN)->second;
 
     boost::filesystem::path temp = GetTempPath() / "alertnotify.txt";
     boost::filesystem::remove(temp);
