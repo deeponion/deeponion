@@ -10,6 +10,7 @@
 #include "protocol.h"
 #include "sync.h"
 #include "util.h"
+#include "version.h"
 
 #include <boost/foreach.hpp>
 #include "json/json_spirit_value.h"
@@ -388,6 +389,8 @@ Value getnetworkinfo(const Array& params, bool fHelp)
 
     Object obj;
     obj.push_back(Pair("version",       (int)CLIENT_VERSION));
+    obj.push_back(Pair("subversion",
+        FormatSubVersion(CLIENT_NAME, CLIENT_VERSION, std::vector<string>())));
     obj.push_back(Pair("protocolversion",(int)PROTOCOL_VERSION));
     obj.push_back(Pair("localservices",       strprintf("%016x", nLocalServices)));
     obj.push_back(Pair("timeoffset",    GetTimeOffset()));
