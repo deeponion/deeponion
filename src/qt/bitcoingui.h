@@ -64,7 +64,7 @@ public:
     bool addWallet(const QString& name, WalletModel *walletModel);
     bool setCurrentWallet(const QString& name);
     void removeAllWallets();
-#endif
+#endif // ENABLE_WALLET
 
 protected:
     void changeEvent(QEvent *e);
@@ -164,7 +164,7 @@ public slots:
 
     /** Show incoming transaction notification for new transactions. */
     void incomingTransaction(const QString& date, int unit, qint64 amount, const QString& type, const QString& address);
-#endif
+#endif // ENABLE_WALLET
 
 private slots:
 #ifdef ENABLE_WALLET
@@ -184,7 +184,7 @@ private slots:
 
     /** Show open dialog */
     void openClicked();
-#endif
+#endif // ENABLE_WALLET
     /** Show configuration dialog */
     void optionsClicked();
     /** Show about dialog */
