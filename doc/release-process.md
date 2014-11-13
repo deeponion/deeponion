@@ -1,15 +1,8 @@
 Release Process
 ====================
 
-* update translations (ping wumpus, Diapolo or tcatm on IRC)
-* see https://github.com/bitcoin/bitcoin/blob/master/doc/translation_process.md#syncing-with-transifex
-
-* * *
-
 ###update (commit) version in sources
 
-	contrib/verifysfbinaries/verify.sh
-	doc/README*
 	share/setup.nsi
 	src/clientversion.h (change CLIENT_VERSION_IS_RELEASE to true)
 
@@ -25,7 +18,13 @@ Release Process
 
 ##perform gitian builds
 
- From a directory containing the bitcoin source, gitian-builder and gitian.sigs
+
+ Checkout bitcoinomg source, gitian-builder and gitian.sigs.omg
+	git clone https://github.com/litecoin-project/bitcoinomg
+	git clone https://github.com/devrandom/gitian-builder
+	git clone https://github.com/litecoin-project/gitian.sigs.omg
+
+ Set your SIGNER name and VERSION, checkout the exact bitcoin source tag and create the gitian-builder/inputs/ directory
   
 	export SIGNER=(your gitian key, ie bluematt, sipa, etc)
 	export VERSION=(new version, e.g. 0.8.0)
@@ -89,16 +88,16 @@ Release Process
 
  The expected SHA256 hashes of the intermediate inputs are:
 
-    b66e8374031adf8d5309c046615fe4f561c3a7e3c1f6885675c13083db0c4d3b  bitcoin-deps-linux32-gitian-r8.zip
-    ec83deb4e81bea5ac1fb5e3f1b88cd02ca665306f0c2290ef4f19b974525005e  bitcoin-deps-linux64-gitian-r8.zip
+    e4c00b2a4d79f70da96ebc6188c05f473df63272dcdbebd1d126b030bea09b70  bitcoin-deps-linux32-gitian-r9.zip
+    3582bf456a4c148e3f1b303a7f63892efbe34458544f0b18c3e02f593aa2f0ba  bitcoin-deps-linux64-gitian-r9.zip
     f29b7d9577417333fb56e023c2977f5726a7c297f320b175a4108cf7cd4c2d29  boost-linux32-1.55.0-gitian-r1.zip
     88232451c4104f7eb16e469ac6474fd1231bd485687253f7b2bdf46c0781d535  boost-linux64-1.55.0-gitian-r1.zip
     57e57dbdadc818cd270e7e00500a5e1085b3bcbdef69a885f0fb7573a8d987e1  qt-linux32-4.6.4-gitian-r1.tar.gz
     60eb4b9c5779580b7d66529efa5b2836ba1a70edde2a0f3f696d647906a826be  qt-linux64-4.6.4-gitian-r1.tar.gz
     60dc2d3b61e9c7d5dbe2f90d5955772ad748a47918ff2d8b74e8db9b1b91c909  boost-win32-1.55.0-gitian-r6.zip
     f65fcaf346bc7b73bc8db3a8614f4f6bee2f61fcbe495e9881133a7c2612a167  boost-win64-1.55.0-gitian-r6.zip
-    9c2572b021b3b50dc9441f2e96d672ac1da4cb6c9f88a1711aa0234882f353cf  bitcoin-deps-win32-gitian-r15.zip
-    94e9f6d861140d9130a15830eba40eba4c8c830440506ac7cc0d1e3217293c25  bitcoin-deps-win64-gitian-r15.zip
+    7faaa24f714ff22f13cbedceaa86fcf04c619764f86e11d06b079d17e011892b  bitcoin-deps-win32-gitian-r16.zip
+    958c8512f9312b778a7d43bd141a5ede3244512afac54ee901e2bb68fdf9aadb  bitcoin-deps-win64-gitian-r16.zip
     963e3e5e85879010a91143c90a711a5d1d5aba992e38672cdf7b54e42c56b2f1  qt-win32-5.2.0-gitian-r3.zip
     751c579830d173ef3e6f194e83d18b92ebef6df03289db13ab77a52b6bc86ef0  qt-win64-5.2.0-gitian-r3.zip
     e2e403e1a08869c7eed4d4293bce13d51ec6a63592918b90ae215a0eceb44cb4  protobuf-win32-2.5.0-gitian-r4.zip
@@ -107,19 +106,19 @@ Release Process
  Build bitcoind and bitcoin-qt on Linux32, Linux64, and Win32:
   
 	./bin/gbuild --commit bitcoin=v${VERSION} ../bitcoin/contrib/gitian-descriptors/gitian-linux.yml
-	./bin/gsign --signer $SIGNER --release ${VERSION} --destination ../gitian.sigs/ ../bitcoin/contrib/gitian-descriptors/gitian-linux.yml
+	./bin/gsign --signer $SIGNER --release ${VERSION} --destination ../gitian.sigs.omg/ ../bitcoin/contrib/gitian-descriptors/gitian-linux.yml
 	pushd build/out
 	zip -r bitcoin-${VERSION}-linux-gitian.zip *
 	mv bitcoin-${VERSION}-linux-gitian.zip ../../../
 	popd
 	./bin/gbuild --commit bitcoin=v${VERSION} ../bitcoin/contrib/gitian-descriptors/gitian-win.yml
-	./bin/gsign --signer $SIGNER --release ${VERSION}-win --destination ../gitian.sigs/ ../bitcoin/contrib/gitian-descriptors/gitian-win.yml
+	./bin/gsign --signer $SIGNER --release ${VERSION}-win --destination ../gitian.sigs.omg/ ../bitcoin/contrib/gitian-descriptors/gitian-win.yml
 	pushd build/out
 	zip -r bitcoin-${VERSION}-win-gitian.zip *
 	mv bitcoin-${VERSION}-win-gitian.zip ../../../
 	popd
         ./bin/gbuild --commit bitcoin=v${VERSION} ../bitcoin/contrib/gitian-descriptors/gitian-osx-bitcoin.yml
-        ./bin/gsign --signer $SIGNER --release ${VERSION}-osx --destination ../gitian.sigs/ ../bitcoin/contrib/gitian-descriptors/gitian-osx-bitcoin.yml
+        ./bin/gsign --signer $SIGNER --release ${VERSION}-osx --destination ../gitian.sigs.omg/ ../bitcoin/contrib/gitian-descriptors/gitian-osx-bitcoin.yml
 	pushd build/out
 	mv Bitcoin-Qt.dmg ../../../
 	popd
@@ -130,7 +129,7 @@ Release Process
   1. linux 32-bit and 64-bit binaries + source (bitcoin-${VERSION}-linux-gitian.zip)
   2. windows 32-bit and 64-bit binaries + installer + source (bitcoin-${VERSION}-win-gitian.zip)
   3. OSX installer (Bitcoin-Qt.dmg)
-  4. Gitian signatures (in gitian.sigs/${VERSION}[-win|-osx]/(your gitian key)/
+  4. Gitian signatures (in gitian.sigs.omg/${VERSION}[-win|-osx]/(your gitian key)/
 
 repackage gitian builds for release as stand-alone zip/tar/installer exe
 
@@ -153,14 +152,14 @@ repackage gitian builds for release as stand-alone zip/tar/installer exe
 
 ###Next steps:
 
-Commit your signature to gitian.sigs:
+Commit your signature to gitian.sigs.omg:
 
-	pushd gitian.sigs
+	pushd gitian.sigs.omg
 	git add ${VERSION}-linux/${SIGNER}
 	git add ${VERSION}-win/${SIGNER}
 	git add ${VERSION}-osx/${SIGNER}
 	git commit -a
-	git push  # Assuming you can push to the gitian.sigs tree
+	git push  # Assuming you can push to the gitian.sigs.omg tree
 	popd
 
 -------------------------------------------------------------------------
