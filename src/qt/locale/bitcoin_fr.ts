@@ -770,6 +770,10 @@ Adresse : %4
         <translation>Cette étiquette devient rouge si la priorité est plus basse que « moyenne »</translation>
     </message>
     <message>
+        <source>This label turns red, if any recipient receives an amount smaller than %1.</source>
+        <translation>Cette étiquette devient rouge si un destinataire reçoit un montant inférieur à %1.</translation>
+    </message>
+    <message>
         <source>This means a fee of at least %1 is required.</source>
         <translation>Signifie que des frais d'au moins %1 sont requis.</translation>
     </message>

@@ -774,6 +774,10 @@ Address: %4
         <translation>ようこそ</translation>
     </message>
     <message>
+        <source>Welcome to Bitcoin Core.</source>
+        <translation>ようこそ！</translation>
+    </message>
+    <message>
         <source>Use the default data directory</source>
         <translation>初期値のデータ ディレクトリを使用</translation>
     </message>

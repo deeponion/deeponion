@@ -1,6 +1,14 @@
 <TS language="sr" version="2.1">
 <context>
     <name>AboutDialog</name>
+    <message>
+        <source>About Bitcoin Core</source>
+        <translation>O Bitcoin Coru</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Bitcoin Core&lt;/b&gt; version</source>
+        <translation>Bitcoin Core verzija</translation>
+    </message>
     </context>
 <context>
     <name>AddressBookPage</name>
