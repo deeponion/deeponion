@@ -39,7 +39,7 @@ static const unsigned int MAX_BLOCK_SIZE = 1000000;
 static const unsigned int DEFAULT_BLOCK_MAX_SIZE = 750000;
 static const unsigned int DEFAULT_BLOCK_MIN_SIZE = 0;
 /** Default for -blockprioritysize, maximum space for zero/low-fee transactions **/
-static const unsigned int DEFAULT_BLOCK_PRIORITY_SIZE = 50000;
+static const unsigned int DEFAULT_BLOCK_PRIORITY_SIZE = 17000;
 /** The maximum size for transactions we're willing to relay/mine */
 static const unsigned int MAX_STANDARD_TX_SIZE = 100000;
 /** The maximum allowed number of signature check operations in a block (network rule) */
@@ -68,6 +68,9 @@ static const int DEFAULT_SCRIPTCHECK_THREADS = 0;
 static const int MAX_BLOCKS_IN_TRANSIT_PER_PEER = 128;
 /** Timeout in seconds before considering a block download peer unresponsive. */
 static const unsigned int BLOCK_DOWNLOAD_TIMEOUT = 60;
+
+/** Dust Soft Limit, allowed with additional fee per output */
+static const int64_t DUST_SOFT_LIMIT = 100000; // 0.001 LTC
 
 #ifdef USE_UPNP
 static const int fHaveUPnP = true;
@@ -300,7 +303,7 @@ inline bool AllowFree(double dPriority)
 {
     // Large (in bytes) low-priority (new, small-coin) transactions
     // need a fee.
-    return dPriority > COIN * 144 / 250;
+    return dPriority > COIN * 576 / 250;
 }
 
 // Check whether all inputs of this transaction are valid (no double spends, scripts & sigs, amounts)
@@ -823,7 +826,9 @@ public:
 
     bool CheckIndex() const
     {
-        return CheckProofOfWork(GetBlockHash(), nBits);
+        /** Scrypt is used for block proof-of-work, but for purposes of performance the index internally uses sha256.
+         *  This check was considered unneccessary given the other safeguards like the genesis and checkpoints. */
+        return true; // return CheckProofOfWork(GetBlockHash(), nBits);
     }
 
     enum { nMedianTimeSpan=11 };

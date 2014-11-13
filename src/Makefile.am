@@ -7,17 +7,17 @@ noinst_LIBRARIES = \
   libbitcoin_common.a \
   libbitcoin_cli.a
 if ENABLE_WALLET
-noinst_LIBRARIES += libbitcoin_wallet.a
+noinst_LIBRARIES += libbitcoin_wallet.a libbitcoin_server_wallet.a
 endif
 
 bin_PROGRAMS =
 
 if BUILD_BITCOIND
-  bin_PROGRAMS += bitcoind
+  bin_PROGRAMS += litecoind
 endif
 
 if BUILD_BITCOIN_CLI
-  bin_PROGRAMS += bitcoin-cli
+  bin_PROGRAMS += litecoin-cli litecoin-genalertkey
 endif
 
 SUBDIRS = . $(BUILD_QT) $(BUILD_TEST)
@@ -57,6 +57,7 @@ BITCOIN_CORE_H = \
   rpcprotocol.h \
   rpcserver.h \
   script.h \
+  scrypt.h \
   serialize.h \
   sync.h \
   threadsafety.h \
@@ -114,10 +115,13 @@ libbitcoin_server_a_SOURCES = \
 libbitcoin_wallet_a_SOURCES = \
   db.cpp \
   crypter.cpp \
-  rpcdump.cpp \
-  rpcwallet.cpp \
   wallet.cpp \
   walletdb.cpp \
+  $(BITCOIN_CORE_H)
+
+libbitcoin_server_wallet_a_SOURCES = \
+  rpcdump.cpp \
+  rpcwallet.cpp \
   $(BITCOIN_CORE_H)
 
 libbitcoin_common_a_SOURCES = \
@@ -131,6 +135,7 @@ libbitcoin_common_a_SOURCES = \
   protocol.cpp \
   rpcprotocol.cpp \
   script.cpp \
+  scrypt.cpp \
   sync.cpp \
   util.cpp \
   version.cpp \
@@ -148,36 +153,56 @@ libbitcoin_cli_a_SOURCES = \
 nodist_libbitcoin_common_a_SOURCES = $(top_srcdir)/src/obj/build.h
 #
 
-# bitcoind binary #
-bitcoind_LDADD = \
+# litecoind binary #
+litecoind_LDADD = \
   libbitcoin_server.a \
   libbitcoin_cli.a \
   libbitcoin_common.a \
   $(LIBLEVELDB) \
   $(LIBMEMENV)
 if ENABLE_WALLET
-bitcoind_LDADD += libbitcoin_wallet.a
+litecoind_LDADD += libbitcoin_wallet.a libbitcoin_server_wallet.a
 endif
-bitcoind_SOURCES = bitcoind.cpp
+litecoind_SOURCES = bitcoind.cpp
 #
 
 if TARGET_WINDOWS
-bitcoind_SOURCES += bitcoind-res.rc
+litecoind_SOURCES += bitcoind-res.rc
 endif
 
 AM_CPPFLAGS += $(BDB_CPPFLAGS)
-bitcoind_LDADD += $(BOOST_LIBS) $(BDB_LIBS)
+litecoind_LDADD += $(BOOST_LIBS) $(BDB_LIBS)
 
-# bitcoin-cli binary #
-bitcoin_cli_LDADD = \
+# litecoin-cli binary #
+litecoin_cli_LDADD = \
   libbitcoin_cli.a \
   libbitcoin_common.a \
   $(BOOST_LIBS)
-bitcoin_cli_SOURCES = bitcoin-cli.cpp
+litecoin_cli_SOURCES = bitcoin-cli.cpp
+
+## bitcoin-genalertkey binary #
+litecoin_genalertkey_LDADD = \
+  libbitcoin_server.a \
+  libbitcoin_cli.a \
+  libbitcoin_common.a \
+  $(BOOST_LIBS) \
+  $(SSL_LIBS) \
+  $(CRYPTO_LIBS) \
+  $(LIBLEVELDB) \
+  $(LIBMEMENV)
+if ENABLE_WALLET
+litecoin_genalertkey_LDADD += libbitcoin_wallet.a $(BDB_LIBS)
+endif
+
+litecoin_genalertkey_SOURCES = \
+  litecoin-genalertkey.cpp
+
+litecoin_genalertkey_CPPFLAGS = $(BITCOIN_INCLUDES)
+
 #
 
 if TARGET_WINDOWS
-bitcoin_cli_SOURCES += bitcoin-cli-res.rc
+litecoin_cli_SOURCES += bitcoin-cli-res.rc
 endif
 
 # NOTE: This dependency is not strictly necessary, but without it make may try to build both in parallel, which breaks the LevelDB build system in a race
