@@ -176,6 +176,9 @@ public:
         fMineBlocksOnDemand = false;
         fSkipProofOfWorkCheck = false;
         fTestnetToBeDeprecatedFieldRPC = false;
+
+        // Litecoin: Mainnet v2 enforced as of block 710k
+        nEnforceV2AfterHeight = 710000;
     }
 
     const Checkpoints::CCheckpointData& Checkpoints() const 
@@ -233,6 +236,9 @@ public:
         fRequireStandard = false;
         fMineBlocksOnDemand = false;
         fTestnetToBeDeprecatedFieldRPC = true;
+
+        // Litecoin: Testnet v2 enforced as of block 400k
+        nEnforceV2AfterHeight = 400000;
     }
     const Checkpoints::CCheckpointData& Checkpoints() const 
     {
@@ -278,6 +284,9 @@ public:
         fRequireStandard = false;
         fMineBlocksOnDemand = true;
         fTestnetToBeDeprecatedFieldRPC = false;
+
+        // Litecoin: v2 enforced using Bitcoin's supermajority rule
+        nEnforceV2AfterHeight = -1;
     }
     const Checkpoints::CCheckpointData& Checkpoints() const 
     {
@@ -303,6 +312,9 @@ public:
         fDefaultCheckMemPool = true;
         fAllowMinDifficultyBlocks = false;
         fMineBlocksOnDemand = true;
+
+        // Litecoin: v2 enforced using Bitcoin's supermajority rule
+        nEnforceV2AfterHeight = -1;
     }
 
     const Checkpoints::CCheckpointData& Checkpoints() const 
