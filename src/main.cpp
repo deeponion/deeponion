@@ -2513,9 +2513,25 @@ bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationState& sta
     if (pcheckpoint && nHeight < pcheckpoint->nHeight)
         return state.DoS(100, error("%s : forked chain older than last checkpoint (height %d)", __func__, nHeight));
 
-    // Reject block.nVersion=1 blocks when 95% (75% on testnet) of the network has upgraded:
-    if (block.nVersion < 2 && 
-        CBlockIndex::IsSuperMajority(2, pindexPrev, Params().RejectBlockOutdatedMajority()))
+    // Litecoin: Reject block.nVersion=1 blocks (mainnet >= 710000, testnet >= 400000, regtest uses supermajority)
+    bool enforceV2 = false;
+    if (block.nVersion < 2)
+    {
+        if (Params().EnforceV2AfterHeight() != -1)
+        {
+            // Mainnet 710k, Testnet 400k
+            if (nHeight >= Params().EnforceV2AfterHeight())
+                enforceV2 = true;
+        }
+        else
+        {
+            // Regtest and Unittest: use Bitcoin's supermajority rule
+            if (CBlockIndex::IsSuperMajority(2, pindexPrev, Params().RejectBlockOutdatedMajority()))
+                enforceV2 = true;
+        }
+    }
+
+    if (enforceV2)
     {
         return state.Invalid(error("%s : rejected nVersion=1 block", __func__),
                              REJECT_OBSOLETE, "bad-version");
@@ -2534,10 +2550,27 @@ bool ContextualCheckBlock(const CBlock& block, CValidationState& state, CBlockIn
             return state.DoS(10, error("%s : contains a non-final transaction", __func__), REJECT_INVALID, "bad-txns-nonfinal");
         }
 
+    // Litecoin: (mainnet >= 710000, testnet >= 400000, regtest uses supermajority)
     // Enforce block.nVersion=2 rule that the coinbase starts with serialized block height
     // if 750 of the last 1,000 blocks are version 2 or greater (51/100 if testnet):
-    if (block.nVersion >= 2 && 
-        CBlockIndex::IsSuperMajority(2, pindexPrev, Params().EnforceBlockUpgradeMajority()))
+    bool checkHeightMismatch = false;
+    if (block.nVersion >= 2)
+    {
+        if (Params().EnforceV2AfterHeight() != -1)
+        {
+            // Mainnet 710k, Testnet 400k
+            if (nHeight >= Params().EnforceV2AfterHeight())
+                checkHeightMismatch = true;
+        }
+        else
+        {
+            // Regtest and Unittest: use Bitcoin's supermajority rule
+            if (CBlockIndex::IsSuperMajority(2, pindexPrev, Params().EnforceBlockUpgradeMajority()))
+                checkHeightMismatch = true;
+        }
+    }
+
+    if (checkHeightMismatch)
     {
         CScript expect = CScript() << nHeight;
         if (block.vtx[0].vin[0].scriptSig.size() < expect.size() ||
