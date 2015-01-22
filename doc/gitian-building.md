@@ -1,9 +1,9 @@
 Gitian building
 ================
 
-*Setup instructions for a gitian build of Bitcoin using a Debian VM or physical system.*
+*Setup instructions for a gitian build of Litecoin using a Debian VM or physical system.*
 
-Gitian is the deterministic build process that is used to build the Bitcoin
+Gitian is the deterministic build process that is used to build the Litecoin
 Core executables. It provides a way to be reasonably sure that the
 executables are really built from source on GitHub. It also makes sure that
 the same, tested dependencies are used and statically built into the executable.
@@ -11,7 +11,7 @@ the same, tested dependencies are used and statically built into the executable.
 Multiple developers build the source code by following a specific descriptor
 ("recipe"), cryptographically sign the result, and upload the resulting signature.
 These results are compared and only if they match, the build is accepted and uploaded
-to bitcoin.org.
+to litecoin.org.
 
 More independent gitian builders are needed, which is why I wrote this
 guide. It is preferred to follow these steps yourself instead of using someone else's
@@ -26,7 +26,7 @@ Table of Contents
 - [Installing gitian](#installing-gitian)
 - [Setting up gitian images](#setting-up-gitian-images)
 - [Getting and building the inputs](#getting-and-building-the-inputs)
-- [Building Bitcoin](#building-bitcoin)
+- [Building Litecoin](#building-litecoin)
 - [Building an alternative repository](#building-an-alternative-repository)
 - [Signing externally](#signing-externally)
 - [Uploading signatures](#uploading-signatures)
@@ -41,7 +41,7 @@ Debian Linux was chosen as the host distribution because it has a lightweight in
 Any kind of virtualization can be used, for example:
 - [VirtualBox](https://www.virtualbox.org/), covered by this guide
 - [KVM](http://www.linux-kvm.org/page/Main_Page)
-- [LXC](https://linuxcontainers.org/), see also [Gitian host docker container](https://github.com/gdm85/tenku/tree/master/docker/gitian-bitcoin-host/README.md).
+- [LXC](https://linuxcontainers.org/)
 
 You can also install on actual hardware instead of using virtualization.
 
@@ -277,12 +277,12 @@ cd ..
 
 **Note**: When sudo asks for a password, enter the password for the user *debian* not for *root*.
 
-Clone the git repositories for bitcoin and gitian and then checkout the bitcoin version that you want to build.
+Clone the git repositories for litecoin and gitian and then checkout the litecoin version that you want to build.
 
 ```bash
 git clone https://github.com/devrandom/gitian-builder.git
-git clone https://github.com/bitcoin/bitcoin
-cd bitcoin
+git clone https://github.com/litecoin-project/litecoin.git
+cd litecoin
 git checkout v${VERSION}
 cd ..
 ```
@@ -310,16 +310,16 @@ There will be a lot of warnings printed during build of the images. These can be
 Getting and building the inputs
 --------------------------------
 
-Follow the instructions in [doc/release-process.md](release-process.md) in the bitcoin repository
+Follow the instructions in [doc/release-process.md](release-process.md) in the litecoin repository
 under 'Fetch and build inputs' to install sources which require manual intervention. Also follow
 the next step: 'Seed the Gitian sources cache', which will fetch all necessary source files allowing
 for gitian to work offline.
 
-Building Bitcoin
+Building Litecoin
 ----------------
 
-To build Bitcoin (for Linux, OSX and Windows) just follow the steps under 'perform
-gitian builds' in [doc/release-process.md](release-process.md) in the bitcoin repository.
+To build Liteocin (for Linux, OSX and Windows) just follow the steps under 'perform
+gitian builds' in [doc/release-process.md](release-process.md) in the litecoin repository.
 
 This may take a long time as it also builds the dependencies needed for each descriptor.
 These dependencies will be cached after a successful build to avoid rebuilding them when possible.
@@ -332,12 +332,12 @@ tail -f var/build.log
 
 Output from `gbuild` will look something like
 
-    Initialized empty Git repository in /home/debian/gitian-builder/inputs/bitcoin/.git/
+    Initialized empty Git repository in /home/debian/gitian-builder/inputs/litecoin/.git/
     remote: Reusing existing pack: 35606, done.
     remote: Total 35606 (delta 0), reused 0 (delta 0)
     Receiving objects: 100% (35606/35606), 26.52 MiB | 4.28 MiB/s, done.
     Resolving deltas: 100% (25724/25724), done.
-    From https://github.com/bitcoin/bitcoin
+    From https://github.com/litecoin-project/litecoin
     ... (new tags, new branch etc)
     --- Building for precise x86_64 ---
     Stopping target if it is up
@@ -363,11 +363,11 @@ and inputs.
 
 For example:
 ```bash
-URL=https://github.com/laanwj/bitcoin.git
+URL=https://github.com/user/litecoin.git
 COMMIT=2014_03_windows_unicode_path
-./bin/gbuild --commit bitcoin=${COMMIT} --url bitcoin=${URL} ../bitcoin/contrib/gitian-descriptors/gitian-linux.yml
-./bin/gbuild --commit bitcoin=${COMMIT} --url bitcoin=${URL} ../bitcoin/contrib/gitian-descriptors/gitian-win.yml
-./bin/gbuild --commit bitcoin=${COMMIT} --url bitcoin=${URL} ../bitcoin/contrib/gitian-descriptors/gitian-osx.yml
+./bin/gbuild --commit litecoin=${COMMIT} --url litecoin=${URL} ../litecoin/contrib/gitian-descriptors/gitian-linux.yml
+./bin/gbuild --commit litecoin=${COMMIT} --url litecoin=${URL} ../litecoin/contrib/gitian-descriptors/gitian-win.yml
+./bin/gbuild --commit litecoin=${COMMIT} --url litecoin=${URL} ../litecoin/contrib/gitian-descriptors/gitian-osx.yml
 ```
 
 Signing externally
@@ -382,9 +382,9 @@ When you execute `gsign` you will get an error from GPG, which can be ignored. C
 in `gitian.sigs` to your signing machine and do
 
 ```bash
-    gpg --detach-sign ${VERSION}-linux/${SIGNER}/bitcoin-build.assert
-    gpg --detach-sign ${VERSION}-win/${SIGNER}/bitcoin-build.assert
-    gpg --detach-sign ${VERSION}-osx/${SIGNER}/bitcoin-build.assert
+    gpg --detach-sign ${VERSION}-linux/${SIGNER}/litecoin-build.assert
+    gpg --detach-sign ${VERSION}-win/${SIGNER}/litecoin-build.assert
+    gpg --detach-sign ${VERSION}-osx/${SIGNER}/litecoin-build.assert
 ```
 
 This will create the `.sig` files that can be committed together with the `.assert` files to assert your
@@ -394,5 +394,5 @@ Uploading signatures
 ---------------------
 
 After building and signing you can push your signatures (both the `.assert` and `.assert.sig` files) to the
-[bitcoin/gitian.sigs](https://github.com/bitcoin/gitian.sigs/) repository, or if that's not possible create a pull
-request. You can also mail the files to me (laanwj@gmail.com) and I'll commit them.
+[litecoin/gitian.sigs](https://github.com/litecoin-project/gitian.sigs.ltc/) repository, or if that's not possible create a pull
+request. 
