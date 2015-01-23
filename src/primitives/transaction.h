@@ -136,16 +136,9 @@ public:
 
     bool IsDust(CFeeRate minRelayTxFee) const
     {
-        // "Dust" is defined in terms of CTransaction::minRelayTxFee,
-        // which has units satoshis-per-kilobyte.
-        // If you'd pay more than 1/3 in fees
-        // to spend something, then we consider it dust.
-        // A typical txout is 34 bytes big, and will
-        // need a CTxIn of at least 148 bytes to spend:
-        // so dust is a txout less than 546 satoshis 
-        // with default minRelayTxFee.
-        size_t nSize = GetSerializeSize(SER_DISK,0)+148u;
-        return (nValue < 3*minRelayTxFee.GetFee(nSize));
+        // IsDust() detection disabled, allows any valid dust to be relayed
+        // The fees imposed on each dust txo is considered sufficient spam deterrant.
+        return false;
     }
 
     friend bool operator==(const CTxOut& a, const CTxOut& b)

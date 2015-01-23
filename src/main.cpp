@@ -55,7 +55,7 @@ unsigned int nCoinCacheSize = 5000;
 
 
 /** Fees smaller than this (in satoshi) are considered zero fee (for relaying and mining) */
-CFeeRate minRelayTxFee = CFeeRate(1000);
+CFeeRate minRelayTxFee = CFeeRate(DUST_THRESHOLD);
 
 CTxMemPool mempool(::minRelayTxFee);
 
@@ -899,6 +899,13 @@ CAmount GetMinRelayFee(const CTransaction& tx, unsigned int nBytes, bool fAllowF
         if (dPriorityDelta > 0 || nFeeDelta > 0)
             return 0;
     }
+
+    // Litecoin
+    // To limit dust spam, add 1000 byte penalty for each output smaller than DUST_THRESHOLD
+    BOOST_FOREACH(const CTxOut& txout, tx.vout)
+        if (txout.nValue < DUST_THRESHOLD)
+            nBytes += 1000;
+            fAllowFree = false;
 
     CAmount nMinFee = ::minRelayTxFee.GetFee(nBytes);
 

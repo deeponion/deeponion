@@ -458,6 +458,7 @@ void CoinControlDialog::updateLabels(WalletModel *model, QDialog* dialog)
     // nPayAmount
     CAmount nPayAmount = 0;
     bool fDust = false;
+    unsigned int nBytesPenalty = 0;
     CMutableTransaction txDummy;
     foreach(const CAmount &amount, CoinControlDialog::payAmounts)
     {
@@ -465,6 +466,12 @@ void CoinControlDialog::updateLabels(WalletModel *model, QDialog* dialog)
 
         if (amount > 0)
         {
+            if (amount < DUST_THRESHOLD)
+            {
+                fDust = true;
+                nBytesPenalty += 1000;
+            }
+
             CTxOut txout(amount, (CScript)vector<unsigned char>(24, 0));
             txDummy.vout.push_back(txout);
             if (txout.IsDust(::minRelayTxFee))
@@ -541,13 +548,13 @@ void CoinControlDialog::updateLabels(WalletModel *model, QDialog* dialog)
         sPriorityLabel = CoinControlDialog::getPriorityLabel(dPriority, mempoolEstimatePriority);
 
         // Fee
-        nPayFee = CWallet::GetMinimumFee(nBytes, nTxConfirmTarget, mempool);
+        nPayFee = CWallet::GetMinimumFee(nBytes + nBytesPenalty, nTxConfirmTarget, mempool);
 
         // Allow free?
         double dPriorityNeeded = mempoolEstimatePriority;
         if (dPriorityNeeded <= 0)
             dPriorityNeeded = AllowFreeThreshold(); // not enough data, back to hard-coded
-        fAllowFree = (dPriority >= dPriorityNeeded);
+        fAllowFree = !nBytesPenalty && (dPriority >= dPriorityNeeded);
 
         if (fSendFreeTransactions)
             if (fAllowFree && nBytes <= MAX_FREE_TRANSACTION_CREATE_SIZE)
@@ -558,10 +565,10 @@ void CoinControlDialog::updateLabels(WalletModel *model, QDialog* dialog)
             nChange = nAmount - nPayFee - nPayAmount;
 
             // Never create dust outputs; if we would, just add the dust to the fee.
-            if (nChange > 0 && nChange < CENT)
+            if (nChange > 0 && nChange < DUST_THRESHOLD)
             {
-                CTxOut txout(nChange, (CScript)vector<unsigned char>(24, 0));
-                if (txout.IsDust(::minRelayTxFee))
+                //CTxOut txout(nChange, (CScript)vector<unsigned char>(24, 0));
+                //if (txout.IsDust(::minRelayTxFee))
                 {
                     nPayFee += nChange;
                     nChange = 0;
