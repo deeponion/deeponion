@@ -3275,6 +3275,12 @@ string GetWarnings(string strFor)
 }
 
 
+void static RelayAlerts(CNode* pfrom)
+{
+    LOCK(cs_mapAlerts);
+    BOOST_FOREACH(PAIRTYPE(const uint256, CAlert)& item, mapAlerts)
+        item.second.RelayTo(pfrom);
+}
 
 
 
@@ -3467,6 +3473,8 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
         vRecv >> pfrom->nVersion >> pfrom->nServices >> nTime >> addrMe;
         if (pfrom->nVersion < MIN_PEER_PROTO_VERSION)
         {
+            // relay alerts prior to disconnection
+            RelayAlerts(pfrom);
             // disconnect from peers older than this proto version
             LogPrintf("peer=%d using obsolete version %i; disconnecting\n", pfrom->id, pfrom->nVersion);
             pfrom->PushMessage("reject", strCommand, REJECT_OBSOLETE,
@@ -3548,11 +3556,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
         }
 
         // Relay alerts
-        {
-            LOCK(cs_mapAlerts);
-            BOOST_FOREACH(PAIRTYPE(const uint256, CAlert)& item, mapAlerts)
-                item.second.RelayTo(pfrom);
-        }
+        RelayAlerts(pfrom);
 
         pfrom->fSuccessfullyConnected = true;
 
