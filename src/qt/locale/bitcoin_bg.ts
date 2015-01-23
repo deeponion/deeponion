@@ -120,7 +120,7 @@
         <translation>Потвърждаване на криптирането</translation>
     </message>
     <message>
-        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR BITCOINS&lt;/b&gt;!</source>
+        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR LITECOINS&lt;/b&gt;!</source>
         <translation>ВНИМАНИЕ: Ако защитите вашият портфейл и изгубите ключовата дума, вие ще &lt;b&gt;ИЗГУБИТЕ ВСИЧКИТЕ СИ БИТКОЙНОВЕ&lt;/b&gt;!</translation>
     </message>
     <message>
@@ -140,8 +140,8 @@
         <translation>Портфейлът е криптиран</translation>
     </message>
     <message>
-        <source>Bitcoin will close now to finish the encryption process. Remember that encrypting your wallet cannot fully protect your bitcoins from being stolen by malware infecting your computer.</source>
-        <translation>Биткоин ще се затоври сега за да завърши процеса на криптиране. Запомнете, че криптирането на вашия портефейл не може напълно да предпази вашите Бит-монети от кражба чрез зловреден софтуер, инфектирал вашия компютър</translation>
+        <source>Litecoin will close now to finish the encryption process. Remember that encrypting your wallet cannot fully protect your litecoins from being stolen by malware infecting your computer.</source>
+        <translation>Litecoin ще се затоври сега за да завърши процеса на криптиране. Запомнете, че криптирането на вашия портефейл не може напълно да предпази вашите Бит-монети от кражба чрез зловреден софтуер, инфектирал вашия компютър</translation>
     </message>
     <message>
         <source>Wallet encryption failed</source>
@@ -231,8 +231,8 @@
         <translation>&amp;Смяна на паролата...</translation>
     </message>
     <message>
-        <source>Send coins to a Bitcoin address</source>
-        <translation>Изпращане към Биткоин адрес</translation>
+        <source>Send coins to a Litecoin address</source>
+        <translation>Изпращане към Litecoin адрес</translation>
     </message>
     <message>
         <source>Change the passphrase used for wallet encryption</source>
@@ -243,8 +243,8 @@
         <translation>&amp;Проверка на съобщение...</translation>
     </message>
     <message>
-        <source>Bitcoin</source>
-        <translation>Биткоин</translation>
+        <source>Litecoin</source>
+        <translation>Litecoin</translation>
     </message>
     <message>
         <source>Wallet</source>
@@ -279,8 +279,8 @@
         <translation>Раздели</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Bitcoin network</source>
-        <translation><numerusform>%n връзка към Биткоин мрежата</numerusform><numerusform>%n връзки към Биткоин мрежата</numerusform></translation>
+        <source>%n active connection(s) to Litecoin network</source>
+        <translation><numerusform>%n връзка към Litecoin мрежата</numerusform><numerusform>%n връзки към Litecoin мрежата</numerusform></translation>
     </message>
     <message numerus="yes">
         <source>%n hour(s)</source>
@@ -440,8 +440,8 @@
         <translation>Вече има адрес "%1" в списъка с адреси.</translation>
     </message>
     <message>
-        <source>The entered address "%1" is not a valid Bitcoin address.</source>
-        <translation>"%1" не е валиден Биткоин адрес.</translation>
+        <source>The entered address "%1" is not a valid Litecoin address.</source>
+        <translation>"%1" не е валиден Litecoin адрес.</translation>
     </message>
     <message>
         <source>Could not unlock wallet.</source>
@@ -507,16 +507,16 @@
         <translation>&amp;Основни</translation>
     </message>
     <message>
-        <source>&amp;Start Bitcoin on system login</source>
-        <translation>&amp;Пускане на Биткоин при вход в системата</translation>
+        <source>&amp;Start Litecoin on system login</source>
+        <translation>&amp;Пускане на Litecoin при вход в системата</translation>
     </message>
     <message>
         <source>&amp;Network</source>
         <translation>&amp;Мрежа</translation>
     </message>
     <message>
-        <source>Automatically open the Bitcoin client port on the router. This only works when your router supports UPnP and it is enabled.</source>
-        <translation>Автоматично отваряне на входящия Bitcoin порт. Работи само с рутери поддържащи UPnP.</translation>
+        <source>Automatically open the Litecoin client port on the router. This only works when your router supports UPnP and it is enabled.</source>
+        <translation>Автоматично отваряне на входящия Litecoin порт. Работи само с рутери поддържащи UPnP.</translation>
     </message>
     <message>
         <source>Map port using &amp;UPnP</source>
@@ -563,8 +563,8 @@
         <translation>Език:</translation>
     </message>
     <message>
-        <source>The user interface language can be set here. This setting will take effect after restarting Bitcoin.</source>
-        <translation>Промяната на езика ще влезе в сила след рестартиране на Биткоин.</translation>
+        <source>The user interface language can be set here. This setting will take effect after restarting Litecoin.</source>
+        <translation>Промяната на езика ще влезе в сила след рестартиране на Litecoin.</translation>
     </message>
     <message>
         <source>&amp;Unit to show amounts in:</source>
@@ -689,7 +689,7 @@
         <translation>Общо:</translation>
     </message>
     <message>
-        <source>Open the Bitcoin debug log file from the current data directory. This can take a few seconds for large log files.</source>
+        <source>Open the Litecoin debug log file from the current data directory. This can take a few seconds for large log files.</source>
         <translation>Отворете Биткой дебъг лог файла от настоящата Data папка. Може да отнеме няколко секунди при по - големи лог файлове.</translation>
     </message>
     <message>
@@ -958,7 +958,7 @@
         <translation>Копиране на текущия подпис</translation>
     </message>
     <message>
-        <source>Sign the message to prove you own this Bitcoin address</source>
+        <source>Sign the message to prove you own this Litecoin address</source>
         <translation>Подпишете съобщение като доказателство, че притежавате определен адрес</translation>
     </message>
     <message>
@@ -974,8 +974,8 @@
         <translation>&amp;Провери</translation>
     </message>
     <message>
-        <source>Verify the message to ensure it was signed with the specified Bitcoin address</source>
-        <translation>Проверете съобщение, за да сте сигурни че е подписано с определен Биткоин адрес</translation>
+        <source>Verify the message to ensure it was signed with the specified Litecoin address</source>
+        <translation>Проверете съобщение, за да сте сигурни че е подписано с определен Litecoin адрес</translation>
     </message>
     <message>
         <source>Click "Sign Message" to generate signature</source>
