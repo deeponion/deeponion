@@ -66,8 +66,14 @@ unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHead
     uint256 bnOld;
     bnNew.SetCompact(pindexLast->nBits);
     bnOld = bnNew;
+    // Litecoin: intermediate uint256 can overflow by 1 bit
+    bool fShift = bnNew.bits() > 235;
+    if (fShift)
+        bnNew >>= 1;
     bnNew *= nActualTimespan;
     bnNew /= Params().TargetTimespan();
+    if (fShift)
+        bnNew <<= 1;
 
     if (bnNew > Params().ProofOfWorkLimit())
         bnNew = Params().ProofOfWorkLimit();
