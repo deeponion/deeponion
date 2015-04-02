@@ -38,7 +38,7 @@ CAmount nMinimumInputThreshold = DEFAULT_MINIMUM_INPUT_THRESHOLD;
  * Fees smaller than this (in satoshi) are considered zero fee (for transaction creation) 
  * Override with -mintxfee
  */
-CFeeRate CWallet::minTxFee = CFeeRate(DUST_THRESHOLD);
+CFeeRate CWallet::minTxFee = CFeeRate(DEFAULT_TX_FEE);
 
 /** @defgroup mapWallet
  *
