@@ -104,8 +104,8 @@
         <translation>تایید رمزگذاری</translation>
     </message>
     <message>
-        <source>Litecoin will close now to finish the encryption process. Remember that encrypting your wallet cannot fully protect your litecoins from being stolen by malware infecting your computer.</source>
-        <translation>Litecoin برای اتمام فرایند رمزگذاری بسته خواهد شد. به خاطر داشته باشید که رمزگذاری WALLET شما،  کامپیوتر شما را از آلودگی به بدافزارها مصون نمی دارد.</translation>
+        <source>Bitcoin will close now to finish the encryption process. Remember that encrypting your wallet cannot fully protect your bitcoins from being stolen by malware infecting your computer.</source>
+        <translation>Bitcoin برای اتمام فرایند رمزگذاری بسته خواهد شد. به خاطر داشته باشید که رمزگذاری WALLET شما،  کامپیوتر شما را از آلودگی به بدافزارها مصون نمی دارد.</translation>
     </message>
     <message>
         <source>Wallet encryption failed</source>
@@ -191,8 +191,8 @@
         <translation>تغییر رمز/پَس فرِیز</translation>
     </message>
     <message>
-        <source>Modify configuration options for Litecoin</source>
-        <translation>اصلاح انتخابها برای پیکربندی Litecoin</translation>
+        <source>Modify configuration options for Bitcoin</source>
+        <translation>اصلاح انتخابها برای پیکربندی Bitcoin</translation>
     </message>
     <message>
         <source>Backup wallet to another location</source>
@@ -203,8 +203,8 @@
         <translation>رمز مربوط به رمزگذاریِ wallet را تغییر دهید</translation>
     </message>
     <message>
-        <source>Litecoin</source>
-        <translation>litecoin</translation>
+        <source>Bitcoin</source>
+        <translation>bitcoin</translation>
     </message>
     <message>
         <source>Wallet</source>
@@ -346,8 +346,8 @@ Address: %4
         <translation>ویرایش حساب ارسال کننده</translation>
     </message>
     <message>
-        <source>The entered address "%1" is not a valid Litecoin address.</source>
-        <translation>آدرس وارد شده "%1" یک آدرس صحیح برای litecoin نسشت</translation>
+        <source>The entered address "%1" is not a valid Bitcoin address.</source>
+        <translation>آدرس وارد شده "%1" یک آدرس صحیح برای bitcoin نسشت</translation>
     </message>
     <message>
         <source>Could not unlock wallet.</source>
@@ -408,8 +408,8 @@ Address: %4
         <translation>فرم</translation>
     </message>
     <message>
-        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Litecoin network after a connection is established, but this process has not completed yet.</source>
-        <translation>اطلاعات نمایش داده شده ممکن است روزآمد نباشد. wallet شما به صورت خودکار بعد از برقراری اتصال با شبکه litecoin به روز می شود اما این فرایند هنوز تکمیل نشده است.</translation>
+        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Bitcoin network after a connection is established, but this process has not completed yet.</source>
+        <translation>اطلاعات نمایش داده شده ممکن است روزآمد نباشد. wallet شما به صورت خودکار بعد از برقراری اتصال با شبکه bitcoin به روز می شود اما این فرایند هنوز تکمیل نشده است.</translation>
     </message>
     <message>
         <source>out of sync</source>
@@ -459,8 +459,8 @@ Address: %4
         <translation>تعداد زنجیره های حاضر</translation>
     </message>
     <message>
-        <source>Welcome to the Litecoin RPC console.</source>
-        <translation>به کنسول آر.پی.سی. LITECOIN خوش آمدید</translation>
+        <source>Welcome to the Bitcoin RPC console.</source>
+        <translation>به کنسول آر.پی.سی. BITCOIN خوش آمدید</translation>
     </message>
     </context>
 <context>
