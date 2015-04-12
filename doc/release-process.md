@@ -126,8 +126,6 @@ rm SHA256SUMS
 ```
 (the digest algorithm is forced to sha256 to avoid confusion of the `Hash:` header that GPG adds with the SHA256 used for the files)
 
-- Upload zips and installers, as well as `SHA256SUMS.asc` from last step, to the litecoin.org server
-
 - Update litecoin.org version
 
 - Announce the release:
