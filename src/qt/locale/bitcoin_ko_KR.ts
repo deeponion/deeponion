@@ -63,11 +63,11 @@
     </message>
     <message>
         <source>These are your Litecoin addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
-        <translation>비트코인을 받는 계좌 주소입니다. 코인을 보내기 전에 잔고와 받는 주소를 항상 확인하세요.</translation>
+        <translation>라이트코인을 받는 계좌 주소입니다. 코인을 보내기 전에 잔고와 받는 주소를 항상 확인하세요.</translation>
     </message>
     <message>
         <source>These are your Litecoin addresses for receiving payments. It is recommended to use a new receiving address for each transaction.</source>
-        <translation>비트코인을 받을 수 있는 계좌 주소입니다. 매 거래마다 새로운 주소 사용을 권장합니다. </translation>
+        <translation>라이트코인을 받을 수 있는 계좌 주소입니다. 매 거래마다 새로운 주소 사용을 권장합니다. </translation>
     </message>
     <message>
         <source>Copy &amp;Label</source>
@@ -157,7 +157,7 @@
     </message>
     <message>
         <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR LITECOINS&lt;/b&gt;!</source>
-        <translation>경고: 만약 암호화된 지갑의 비밀번호를 잃어버릴 경우, 모든 비트코인들을 잃어버릴 수 있습니다!</translation>
+        <translation>경고: 만약 암호화된 지갑의 비밀번호를 잃어버릴 경우, 모든 라이트코인들을 잃어버릴 수 있습니다!</translation>
     </message>
     <message>
         <source>Are you sure you wish to encrypt your wallet?</source>
@@ -177,7 +177,7 @@
     </message>
     <message>
         <source>Litecoin will close now to finish the encryption process. Remember that encrypting your wallet cannot fully protect your litecoins from being stolen by malware infecting your computer.</source>
-        <translation>암호화 처리 과정을 끝내기 위해 비트코인을 종료합니다. 지갑 암호화는 컴퓨터로의 멀웨어 감염으로 인한 비트코인 도난을 완전히 방지할 수 없음을 기억하세요.</translation>
+        <translation>암호화 처리 과정을 끝내기 위해 라이트코인을 종료합니다. 지갑 암호화는 컴퓨터로의 멀웨어 감염으로 인한 라이트코인 도난을 완전히 방지할 수 없음을 기억하세요.</translation>
     </message>
     <message>
         <source>Wallet encryption failed</source>
@@ -284,7 +284,7 @@
     </message>
     <message>
         <source>Litecoin Core client</source>
-        <translation>비트코인 코어 클라이언트</translation>
+        <translation>라이트코인 코어 클라이언트</translation>
     </message>
     <message>
         <source>Importing blocks from disk...</source>
@@ -296,11 +296,11 @@
     </message>
     <message>
         <source>Send coins to a Litecoin address</source>
-        <translation>비트코인 주소로 코인 전송</translation>
+        <translation>라이트코인 주소로 코인 전송</translation>
     </message>
     <message>
         <source>Modify configuration options for Litecoin</source>
-        <translation>비트코인 설정 옵션 수정</translation>
+        <translation>라이트코인 설정 옵션 수정</translation>
     </message>
     <message>
         <source>Backup wallet to another location</source>
@@ -324,7 +324,7 @@
     </message>
     <message>
         <source>Litecoin</source>
-        <translation>비트코인</translation>
+        <translation>라이트코인</translation>
     </message>
     <message>
         <source>Wallet</source>
@@ -340,7 +340,7 @@
     </message>
     <message>
         <source>Show information about Litecoin Core</source>
-        <translation>비트코인 코어에 관한 정보입니다.</translation>
+        <translation>라이트코인 코어에 관한 정보입니다.</translation>
     </message>
     <message>
         <source>&amp;Show / Hide</source>
@@ -356,11 +356,11 @@
     </message>
     <message>
         <source>Sign messages with your Litecoin addresses to prove you own them</source>
-        <translation>지갑 주소가 본인 소유인지 증명하기 위해 비트코인 주소에 서명할 수 있습니다.</translation>
+        <translation>지갑 주소가 본인 소유인지 증명하기 위해 라이트코인 주소에 서명할 수 있습니다.</translation>
     </message>
     <message>
         <source>Verify messages to ensure they were signed with specified Litecoin addresses</source>
-        <translation>비트코인 주소의 전자 서명 확인을 위해 첨부된 메시지가 있을 경우 이를 검증할 수 있습니다.</translation>
+        <translation>라이트코인 주소의 전자 서명 확인을 위해 첨부된 메시지가 있을 경우 이를 검증할 수 있습니다.</translation>
     </message>
     <message>
         <source>&amp;File</source>
@@ -380,15 +380,15 @@
     </message>
     <message>
         <source>Litecoin Core</source>
-        <translation>비트코인 코어</translation>
+        <translation>라이트코인 코어</translation>
     </message>
     <message>
         <source>Request payments (generates QR codes and litecoin: URIs)</source>
-        <translation>지불 요청하기 (QR코드와 비트코인이 생성됩니다: URIs)</translation>
+        <translation>지불 요청하기 (QR코드와 라이트코인이 생성됩니다: URIs)</translation>
     </message>
     <message>
         <source>&amp;About Litecoin Core</source>
-        <translation>&amp;비트코인 코어 소개</translation>
+        <translation>&amp;라이트코인 코어 소개</translation>
     </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>
@@ -400,7 +400,7 @@
     </message>
     <message>
         <source>Open a litecoin: URI or payment request</source>
-        <translation>비트코인: URI 또는 지불요청 열기</translation>
+        <translation>라이트코인: URI 또는 지불요청 열기</translation>
     </message>
     <message>
         <source>&amp;Command-line options</source>
@@ -408,7 +408,7 @@
     </message>
     <message>
         <source>Show the Litecoin Core help message to get a list with possible Litecoin command-line options</source>
-        <translation>사용할 수 있는 비트코인 명령어 옵션 목록을 가져오기 위해 Litecoin-Qt 도움말 메시지를 표시합니다.</translation>
+        <translation>사용할 수 있는 라이트코인 명령어 옵션 목록을 가져오기 위해 Litecoin-Qt 도움말 메시지를 표시합니다.</translation>
     </message>
     <message>
         <source>No block source available...</source>
@@ -582,11 +582,11 @@ Address: %4
     </message>
     <message>
         <source>Lock unspent</source>
-        <translation>비트코인이 사용되지 않은 주소를 잠금 처리합니다.</translation>
+        <translation>라이트코인이 사용되지 않은 주소를 잠금 처리합니다.</translation>
     </message>
     <message>
         <source>Unlock unspent</source>
-        <translation>비트코인이 사용되지 않은 주소를 잠금 해제합니다. </translation>
+        <translation>라이트코인이 사용되지 않은 주소를 잠금 해제합니다. </translation>
     </message>
     <message>
         <source>Copy quantity</source>
@@ -725,7 +725,7 @@ Address: %4
     </message>
     <message>
         <source>The entered address "%1" is not a valid Litecoin address.</source>
-        <translation>입력한 "%1" 주소는 올바른 비트코인 주소가 아닙니다.</translation>
+        <translation>입력한 "%1" 주소는 올바른 라이트코인 주소가 아닙니다.</translation>
     </message>
     <message>
         <source>Could not unlock wallet.</source>
@@ -763,7 +763,7 @@ Address: %4
     <name>HelpMessageDialog</name>
     <message>
         <source>Litecoin Core</source>
-        <translation>비트코인 코어</translation>
+        <translation>라이트코인 코어</translation>
     </message>
     <message>
         <source>version</source>
@@ -775,7 +775,7 @@ Address: %4
     </message>
     <message>
         <source>About Litecoin Core</source>
-        <translation>비트코인 코어 소개</translation>
+        <translation>라이트코인 코어 소개</translation>
     </message>
     <message>
         <source>Command-line options</source>
@@ -822,15 +822,15 @@ Address: %4
     </message>
     <message>
         <source>Welcome to Litecoin Core.</source>
-        <translation>비트코인 코어에 오신것을 환영합니.</translation>
+        <translation>라이트코인 코어에 오신것을 환영합니.</translation>
     </message>
     <message>
         <source>As this is the first time the program is launched, you can choose where Litecoin Core will store its data.</source>
-        <translation>프로그램이 처음으로 실행되고 있습니다. 비트코인 코어가 어디에 데이터를 저장할지 선택할 수 있습니다. </translation>
+        <translation>프로그램이 처음으로 실행되고 있습니다. 라이트코인 코어가 어디에 데이터를 저장할지 선택할 수 있습니다. </translation>
     </message>
     <message>
         <source>Litecoin Core will download and store a copy of the Litecoin block chain. At least %1GB of data will be stored in this directory, and it will grow over time. The wallet will also be stored in this directory.</source>
-        <translation>비트코인 코어가 블럭체인의 복사본을 다운로드 저장합니다. 적어도 %1GB의 데이터가 이 폴더에 저장되며 시간이 경과할수록 점차 증가합니다. 그리고 지갑 또한 이 폴더에 저장됩니다. </translation>
+        <translation>라이트코인 코어가 블럭체인의 복사본을 다운로드 저장합니다. 적어도 %1GB의 데이터가 이 폴더에 저장되며 시간이 경과할수록 점차 증가합니다. 그리고 지갑 또한 이 폴더에 저장됩니다. </translation>
     </message>
     <message>
         <source>Use the default data directory</source>
@@ -842,7 +842,7 @@ Address: %4
     </message>
     <message>
         <source>Litecoin Core</source>
-        <translation>비트코인 코어</translation>
+        <translation>라이트코인 코어</translation>
     </message>
     <message>
         <source>Error</source>
@@ -884,11 +884,11 @@ Address: %4
     </message>
     <message>
         <source>Automatically start Litecoin after logging in to the system.</source>
-        <translation>시스템 로그인후에 비트코인을 자동으로 시작합니다.</translation>
+        <translation>시스템 로그인후에 라이트코인을 자동으로 시작합니다.</translation>
     </message>
     <message>
         <source>&amp;Start Litecoin on system login</source>
-        <translation>시스템 로그인시 비트코인 시작(&amp;S)</translation>
+        <translation>시스템 로그인시 라이트코인 시작(&amp;S)</translation>
     </message>
     <message>
         <source>Size of &amp;database cache</source>
@@ -952,7 +952,7 @@ Address: %4
     </message>
     <message>
         <source>Automatically open the Litecoin client port on the router. This only works when your router supports UPnP and it is enabled.</source>
-        <translation>라우터의 비트코인 클라이언트 포트를 자동으로 엽니다. 라우터에서 UPnP를 지원하고 활성화 했을 경우에만 동작합니다.</translation>
+        <translation>라우터의 라이트코인 클라이언트 포트를 자동으로 엽니다. 라우터에서 UPnP를 지원하고 활성화 했을 경우에만 동작합니다.</translation>
     </message>
     <message>
         <source>Map port using &amp;UPnP</source>
@@ -1000,7 +1000,7 @@ Address: %4
     </message>
     <message>
         <source>The user interface language can be set here. This setting will take effect after restarting Litecoin.</source>
-        <translation>사용자 인터페이스 언어를 여기서 설정할 수 있습니다. 이 설정은 비트코인을 다시 시작할때 적용됩니다.</translation>
+        <translation>사용자 인터페이스 언어를 여기서 설정할 수 있습니다. 이 설정은 라이트코인을 다시 시작할때 적용됩니다.</translation>
     </message>
     <message>
         <source>&amp;Unit to show amounts in:</source>
@@ -1059,7 +1059,7 @@ Address: %4
     </message>
     <message>
         <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Litecoin network after a connection is established, but this process has not completed yet.</source>
-        <translation>표시한 정보가 오래된 것 같습니다. 비트코인 네트워크에 연결하고 난 다음에 지갑을 자동으로 동기화 하지만, 아직 과정이 끝나지는 않았습니다.</translation>
+        <translation>표시한 정보가 오래된 것 같습니다. 라이트코인 네트워크에 연결하고 난 다음에 지갑을 자동으로 동기화 하지만, 아직 과정이 끝나지는 않았습니다.</translation>
     </message>
     <message>
         <source>Watch-only:</source>
@@ -1126,7 +1126,7 @@ Address: %4
     </message>
     <message>
         <source>Cannot start litecoin: click-to-pay handler</source>
-        <translation>비트코인을 시작할 수 없습니다: 지급제어기를 클릭하시오</translation>
+        <translation>라이트코인을 시작할 수 없습니다: 지급제어기를 클릭하시오</translation>
     </message>
     <message>
         <source>Payment request fetch URL is invalid: %1</source>
@@ -1290,7 +1290,7 @@ Address: %4
     </message>
     <message>
         <source>Open the Litecoin debug log file from the current data directory. This can take a few seconds for large log files.</source>
-        <translation>비트코인 디버그 로그파일을 현재 데이터 폴더에서 여십시요. 용량이 큰 로그 파일들은 몇 초가 걸릴 수 있습니다.</translation>
+        <translation>라이트코인 디버그 로그파일을 현재 데이터 폴더에서 여십시요. 용량이 큰 로그 파일들은 몇 초가 걸릴 수 있습니다.</translation>
     </message>
     <message>
         <source>Clear console</source>
@@ -1298,7 +1298,7 @@ Address: %4
     </message>
     <message>
         <source>Welcome to the Litecoin RPC console.</source>
-        <translation>비트코인 RPC 콘솔에 오신걸 환영합니다</translation>
+        <translation>라이트코인 RPC 콘솔에 오신걸 환영합니다</translation>
     </message>
     <message>
         <source>Use up and down arrows to navigate history, and &lt;b&gt;Ctrl-L&lt;/b&gt; to clear screen.</source>
@@ -1626,7 +1626,7 @@ Address: %4
     </message>
     <message>
         <source>Warning: Invalid Litecoin address</source>
-        <translation>경고: 잘못된 비트코인주소입니다</translation>
+        <translation>경고: 잘못된 라이트코인주소입니다</translation>
     </message>
     <message>
         <source>(no label)</source>
@@ -1701,7 +1701,7 @@ Address: %4
     </message>
     <message>
         <source>A message that was attached to the litecoin: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Litecoin network.</source>
-        <translation>비트코인에 첨부된 메시지: 참고용으로 거래와 함께 저장될 URI. 메모: 이 메시지는 비트코인 네트워크로 전송되지 않습니다.</translation>
+        <translation>라이트코인에 첨부된 메시지: 참고용으로 거래와 함께 저장될 URI. 메모: 이 메시지는 라이트코인 네트워크로 전송되지 않습니다.</translation>
     </message>
     <message>
         <source>This is an unverified payment request.</source>
@@ -1720,7 +1720,7 @@ Address: %4
     <name>ShutdownWindow</name>
     <message>
         <source>Litecoin Core is shutting down...</source>
-        <translation>비트코인코어가 닫아지고 있습니다</translation>
+        <translation>라이트코인코어가 닫아지고 있습니다</translation>
     </message>
     <message>
         <source>Do not shut down the computer until this window disappears.</source>
@@ -1771,7 +1771,7 @@ Address: %4
     </message>
     <message>
         <source>Sign the message to prove you own this Litecoin address</source>
-        <translation>여러분의 비트코인 주소를 증명하려면 메시지 서명하십시오</translation>
+        <translation>여러분의 라이트코인 주소를 증명하려면 메시지 서명하십시오</translation>
     </message>
     <message>
         <source>Sign &amp;Message</source>
@@ -1795,7 +1795,7 @@ Address: %4
     </message>
     <message>
         <source>Verify the message to ensure it was signed with the specified Litecoin address</source>
-        <translation>정확한 비트코인주소가 입력됬는지 메시지를 확인하시오</translation>
+        <translation>정확한 라이트코인주소가 입력됬는지 메시지를 확인하시오</translation>
     </message>
     <message>
         <source>Verify &amp;Message</source>
@@ -1862,11 +1862,11 @@ Address: %4
     <name>SplashScreen</name>
     <message>
         <source>Litecoin Core</source>
-        <translation>비트코인 코어</translation>
+        <translation>라이트코인 코어</translation>
     </message>
     <message>
         <source>The Bitcoin Core developers</source>
-        <translation>비트코인코어 개발자들</translation>
+        <translation>비트코인 개발자들</translation>
     </message>
     <message>
         <source>[testnet]</source>
@@ -1972,7 +1972,7 @@ Address: %4
     </message>
     <message>
         <source>Generated coins must mature %1 blocks before they can be spent. When you generated this block, it was broadcast to the network to be added to the block chain. If it fails to get into the chain, its state will change to "not accepted" and it won't be spendable. This may occasionally happen if another node generates a block within a few seconds of yours.</source>
-        <translation>신규 채굴된 코인이 사용되기 위해서는 %1 개의 블럭이 경과되어야 합니다. 블럭을 생성할 때 블럭체인에 추가되도록 네트워크에 전파되는 과정을 거치는데, 블럭체인에 포함되지 못하고 실패한다면 해당 블럭의 상태는 '미승인'으로 표현되고 비트코인 또한 사용될 수 없습니다. 이 현상은 다른 노드가 비슷한 시간대에 동시에 블럭을 생성할 때 종종 발생할 수 있습니다. </translation>
+        <translation>신규 채굴된 코인이 사용되기 위해서는 %1 개의 블럭이 경과되어야 합니다. 블럭을 생성할 때 블럭체인에 추가되도록 네트워크에 전파되는 과정을 거치는데, 블럭체인에 포함되지 못하고 실패한다면 해당 블럭의 상태는 '미승인'으로 표현되고 라이트코인 또한 사용될 수 없습니다. 이 현상은 다른 노드가 비슷한 시간대에 동시에 블럭을 생성할 때 종종 발생할 수 있습니다. </translation>
     </message>
     <message>
         <source>Debug information</source>
@@ -2360,7 +2360,7 @@ Address: %4
     </message>
     <message>
         <source>Warning: We do not appear to fully agree with our peers! You may need to upgrade, or other nodes may need to upgrade.</source>
-        <translation>경고: 현재 비트코인 버전이 다른 네트워크 참여자들과 동일하지 않는 것 같습니다. 당신 또는 다른 참여자들이 동일한 비트코인 버전으로 업그레이드 할 필요가 있습니다.</translation>
+        <translation>경고: 현재 라이트코인 버전이 다른 네트워크 참여자들과 동일하지 않는 것 같습니다. 당신 또는 다른 참여자들이 동일한 라이트코인 버전으로 업그레이드 할 필요가 있습니다.</translation>
     </message>
     <message>
         <source>Warning: error reading wallet.dat! All keys read correctly, but transaction data or address book entries might be missing or incorrect.</source>
@@ -2492,7 +2492,7 @@ Address: %4
     </message>
     <message>
         <source>Cannot obtain a lock on data directory %s. Litecoin Core is probably already running.</source>
-        <translation>데이터 디렉토리 %s에 락을 걸 수 없었습니다. 비트코인 코어가 이미 실행 중인 것으로 보입니다.</translation>
+        <translation>데이터 디렉토리 %s에 락을 걸 수 없었습니다. 라이트코인 코어가 이미 실행 중인 것으로 보입니다.</translation>
     </message>
     <message>
         <source>Execute command when a relevant alert is received or we see a really long fork (%s in cmd is replaced by message)</source>
@@ -2516,7 +2516,7 @@ Address: %4
     </message>
     <message>
         <source>RPC SSL options: (see the Litecoin Wiki for SSL setup instructions)</source>
-        <translation>RPC SSL 옵션: (비트코인 위키의 SSL 설정 설명서 참고)</translation>
+        <translation>RPC SSL 옵션: (라이트코인 위키의 SSL 설정 설명서 참고)</translation>
     </message>
     <message>
         <source>RPC server options:</source>
