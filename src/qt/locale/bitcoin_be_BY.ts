@@ -1,4 +1,4 @@
-<TS language="be_BY" version="2.0">
+<TS language="be_BY" version="2.1">
 <context>
     <name>AddressBookPage</name>
     <message>
@@ -292,7 +292,7 @@
     </message>
     <message numerus="yes">
         <source>%n active connection(s) to Litecoin network</source>
-        <translation><numerusform>%n актыўнае злучэнне з Litecoin-сецівам</numerusform><numerusform>%n актыўных злучэнняў з Litecoin-сецівам</numerusform></translation>
+        <translation><numerusform>%n актыўнае злучэнне з Litecoin-сецівам</numerusform><numerusform>%n актыўных злучэнняў з Litecoin-сецівам</numerusform><numerusform>%n актыўных злучэнняў з Litecoin-сецівам</numerusform><numerusform>%n актыўных злучэнняў з Litecoin-сецівам</numerusform></translation>
     </message>
     <message>
         <source>Error</source>
