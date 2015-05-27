@@ -1,6 +1,6 @@
-Litecoin Core version 0.10.1.3 is now available from:
+Litecoin Core version 0.10.2.1 is now available from:
 
-  <https://download.litecoin.org/litecoin-0.10.1.3/>
+  <https://download.litecoin.org/litecoin-0.10.2.1/>
 
 This is a new major version release, bringing bug fixes and translation 
 updates. It is recommended to upgrade to this version.
@@ -23,9 +23,9 @@ litecoind/litecoin-qt (on Linux).
 Downgrade warning
 ------------------
 
-Because release 0.10.0 and later makes use of headers-first synchronization and
+Because release 0.10+ and later makes use of headers-first synchronization and
 parallel block download (see further), the block files and databases are not
-backwards-compatible with pre-0.10 versions of Bitcoin Core or other software:
+backwards-compatible with pre-0.10 versions of Litecoin Core or other software:
 
 * Blocks will be stored on disk out of order (in the order they are
 received, really), which makes it incompatible with some tools or
@@ -44,9 +44,9 @@ supported and may break as soon as the older version attempts to reindex.
 This does not affect wallet forward or backward compatibility.
 
 
-Litecoin 0.10.1.3 Change log
+Litecoin 0.10.2.1 Change log
 ============================
-This release is based upon Bitcoin Core v0.10.1.  Their upstream changelog applies to us and
+This release is based upon Bitcoin Core v0.10.2.  Their upstream changelog applies to us and
 is included in as separate release-notes.  This section describes the Litecoin-specific differences.
 
 Protocol:
@@ -62,13 +62,13 @@ Protocol:
 - bnProofOfWorkLimit = >> 20    (instead of >> 32)
 - See 9a980612005adffdeb2a17ca7a09fe126dd45e0e for Genesis Parameters
 - zeitgeist2 protection: b1b31d15cc720a1c186431b21ecc9d1a9062bcb6 Slightly different way to calculate difficulty changes.
-- Litecoin Core v0.10.1.3 is protocol version 70003 (instead of 70002)
+- Litecoin Core v0.10.2.1 is protocol version 70003 (instead of 70002)
 
 Relay:
 - Litecoin Core rounds transaction size up to the nearest 1000 bytes before calculating fees.  This size rounding behavior is to mimic fee calculation of Litecoin v0.6 and v0.8.
 - Bitcoin's IsDust() is disabled in favor of Litecoin's fee-based dust penalty.
 - Fee-based Dust Penalty: For each transaction output smaller than DUST_THRESHOLD (currently 0.001 LTC) the default relay/mining policy will expect an additional 1000 bytes of fee.  Otherwise the transaction will be rejected from relay/mining.  Such transactions are also disqualified from the free/high-priority transaction rule.
-- Miners and relays can adjust the expect fee per-KB with the -minrelaytxfee parameter.
+- Miners and relays can adjust the expected fee per-KB with the -minrelaytxfee parameter.
 
 Wallet:
 - Coins smaller than 0.00001 LTC are by default ignored by the wallet.  Use the -mininput parameter if you want to see smaller coins.
