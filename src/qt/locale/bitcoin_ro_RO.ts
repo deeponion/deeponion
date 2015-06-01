@@ -2979,8 +2979,8 @@ Adresa: %4
         <translation>Eroare: Argument nesuportat -tor găsit, folosiţi -onion.</translation>
     </message>
     <message>
-        <source>Fee (in BTC/kB) to add to transactions you send (default: %s)</source>
-        <translation>Taxa (în BTC/kB) de adăugat la tranzacţiile pe care le trimiteţi(implicit: %s)</translation>
+        <source>Fee (in LTC/kB) to add to transactions you send (default: %s)</source>
+        <translation>Taxa (în LTC/kB) de adăugat la tranzacţiile pe care le trimiteţi(implicit: %s)</translation>
     </message>
     <message>
         <source>Information</source>

@@ -3059,12 +3059,12 @@ Adres: %4
         <translation>Voer commando uit zodra een waarschuwing is ontvangen of wanneer we een erg lange fork detecteren (%s in commando wordt vervangen door bericht)</translation>
     </message>
     <message>
-        <source>Fees (in BTC/Kb) smaller than this are considered zero fee for relaying (default: %s)</source>
-        <translation>Toeslagen (in BTC/Kb) kleiner dan dit worden beschouwd als geen vergoeding (voor doorgeven) (standaard: %s)</translation>
+        <source>Fees (in LTC/Kb) smaller than this are considered zero fee for relaying (default: %s)</source>
+        <translation>Toeslagen (in LTC/Kb) kleiner dan dit worden beschouwd als geen vergoeding (voor doorgeven) (standaard: %s)</translation>
     </message>
     <message>
-        <source>Fees (in BTC/Kb) smaller than this are considered zero fee for transaction creation (default: %s)</source>
-        <translation>Toeslagen (in BTC/Kb) kleiner dan dit worden beschouwd als geen vergoeding transactieaanmaak (standaard: %s)</translation>
+        <source>Fees (in LTC/Kb) smaller than this are considered zero fee for transaction creation (default: %s)</source>
+        <translation>Toeslagen (in LTC/Kb) kleiner dan dit worden beschouwd als geen vergoeding transactieaanmaak (standaard: %s)</translation>
     </message>
     <message>
         <source>If paytxfee is not set, include enough fee so transactions begin confirmation on average within n blocks (default: %u)</source>
@@ -3148,8 +3148,8 @@ Adres: %4
         <translation>Fout: Niet ondersteund argument -tor gevonden, gebruik -onion.</translation>
     </message>
     <message>
-        <source>Fee (in BTC/kB) to add to transactions you send (default: %s)</source>
-        <translation>Transactiekosten (in BTC/kB) om toe te voegen aan transacties die u verstuurd (standaard: %s)</translation>
+        <source>Fee (in LTC/kB) to add to transactions you send (default: %s)</source>
+        <translation>Transactiekosten (in LTC/kB) om toe te voegen aan transacties die u verstuurd (standaard: %s)</translation>
     </message>
     <message>
         <source>Information</source>

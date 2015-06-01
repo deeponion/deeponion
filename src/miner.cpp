@@ -543,7 +543,7 @@ void static BitcoinMiner(CWallet *pwallet)
     }
     catch (const std::runtime_error &e)
     {
-        LogPrintf("BitcoinMiner runtime error: %s\n", e.what());
+        LogPrintf("LitecoinMiner runtime error: %s\n", e.what());
         return;
     }
 }

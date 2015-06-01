@@ -2828,12 +2828,12 @@ The network does not appear to fully agree! Some miners appear to be experiencin
         <translation>Vykonať príkaz po prijatí patričného varovania alebo uvidíme veľmi dlhé rozdvojenie siete (%s v cmd je nahradené správou)</translation>
     </message>
     <message>
-        <source>Fees (in BTC/Kb) smaller than this are considered zero fee for relaying (default: %s)</source>
-        <translation>Poplatky (v BTC/Kb) nižšie ako toľkoto sa považujú za nulové pri postupovaní transakcií (predvolené: %s)</translation>
+        <source>Fees (in LTC/Kb) smaller than this are considered zero fee for relaying (default: %s)</source>
+        <translation>Poplatky (v LTC/Kb) nižšie ako toľkoto sa považujú za nulové pri postupovaní transakcií (predvolené: %s)</translation>
     </message>
     <message>
-        <source>Fees (in BTC/Kb) smaller than this are considered zero fee for transaction creation (default: %s)</source>
-        <translation>Poplatky (v BTC/Kb) nižšie ako toľkoto sa považujú za nulové pri vytváraní transakcií (predvolené: %s)</translation>
+        <source>Fees (in LTC/Kb) smaller than this are considered zero fee for transaction creation (default: %s)</source>
+        <translation>Poplatky (v LTC/Kb) nižšie ako toľkoto sa považujú za nulové pri vytváraní transakcií (predvolené: %s)</translation>
     </message>
     <message>
         <source>Maximum total fees to use in a single wallet transaction, setting too low may abort large transactions (default: %s)</source>
@@ -2856,8 +2856,8 @@ The network does not appear to fully agree! Some miners appear to be experiencin
         <translation>Chyba pri čítaní wallet.dat: Peňaženka vyžaduje vyššiu verziu Jadra Litecoin</translation>
     </message>
     <message>
-        <source>Fee (in BTC/kB) to add to transactions you send (default: %s)</source>
-        <translation>Poplatok (v BTC/kB), ktorý sa pridá k transakciám, ktoré odosielate (predvolený: %s)</translation>
+        <source>Fee (in LTC/kB) to add to transactions you send (default: %s)</source>
+        <translation>Poplatok (v LTC/kB), ktorý sa pridá k transakciám, ktoré odosielate (predvolený: %s)</translation>
     </message>
     <message>
         <source>Information</source>

@@ -290,7 +290,7 @@
                <string>Current total balance in watch-only addresses</string>
               </property>
               <property name="text">
-               <string notr="true">0.000 000 00 BTC</string>
+               <string notr="true">0.000 000 00 LTC</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -332,7 +332,7 @@
                <string>Your current spendable balance</string>
               </property>
               <property name="text">
-               <string notr="true">0.000 000 00 BTC</string>
+               <string notr="true">0.000 000 00 LTC</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
