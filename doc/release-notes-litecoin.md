@@ -1,6 +1,6 @@
-Litecoin Core version 0.10.2.1 is now available from:
+Litecoin Core version 0.10.2.2 is now available from:
 
-  <https://download.litecoin.org/litecoin-0.10.2.1/>
+  <https://download.litecoin.org/litecoin-0.10.2.2/>
 
 This is a new major version release, bringing bug fixes and translation 
 updates. It is recommended to upgrade to this version.
@@ -44,7 +44,7 @@ supported and may break as soon as the older version attempts to reindex.
 This does not affect wallet forward or backward compatibility.
 
 
-Litecoin 0.10.2.1 Change log
+Litecoin 0.10.2.2 Change log
 ============================
 This release is based upon Bitcoin Core v0.10.2.  Their upstream changelog applies to us and
 is included in as separate release-notes.  This section describes the Litecoin-specific differences.
@@ -62,7 +62,7 @@ Protocol:
 - bnProofOfWorkLimit = >> 20    (instead of >> 32)
 - See 9a980612005adffdeb2a17ca7a09fe126dd45e0e for Genesis Parameters
 - zeitgeist2 protection: b1b31d15cc720a1c186431b21ecc9d1a9062bcb6 Slightly different way to calculate difficulty changes.
-- Litecoin Core v0.10.2.1 is protocol version 70003 (instead of 70002)
+- Litecoin Core v0.10.2.2 is protocol version 70003 (instead of 70002)
 
 Relay:
 - Litecoin Core rounds transaction size up to the nearest 1000 bytes before calculating fees.  This size rounding behavior is to mimic fee calculation of Litecoin v0.6 and v0.8.
@@ -87,6 +87,7 @@ Thanks to everyone who directly contributed to this release:
 
 - Charles Lee
 - pooler
+- Gitju
 - Adrian Gallagher
 - Anton Yemelyanov
 - Martin Smith
