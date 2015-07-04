@@ -55,7 +55,9 @@ lots of money.
 
 Large changes should have a test plan, and should be tested by somebody other
 than the developer who wrote the code.
-See https://github.com/bitcoin/QA/ for how to create a test plan.
+Creating a thread in the [Litecoin discussion forum](https://litecointalk.org/index.php?board=2.0) will allow the Litecoin
+development team members to review your proposal and to provide assistance with creating a test plan. 
+
 
 Translations
 ------------
