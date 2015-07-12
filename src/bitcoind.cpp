@@ -78,7 +78,7 @@ bool AppInit(int argc, char* argv[])
         else
         {
             strUsage += "\n" + _("Usage:") + "\n" +
-                  "  litecoind [options]                     " + _("Start Liteocin Core Daemon") + "\n";
+                  "  litecoind [options]                     " + _("Start Litecoin Core Daemon") + "\n";
 
             strUsage += "\n" + HelpMessage(HMM_BITCOIND);
         }
