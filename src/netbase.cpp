@@ -267,6 +267,9 @@ bool static InterruptibleRecv(char* data, size_t len, int timeout, SOCKET& hSock
         } else { // Other error or blocking
             int nErr = WSAGetLastError();
             if (nErr == WSAEINPROGRESS || nErr == WSAEWOULDBLOCK || nErr == WSAEINVAL) {
+                if (!IsSelectableSocket(hSocket)) {
+                    return false;
+                }
                 struct timeval tval = MillisToTimeval(std::min(endTime - curTime, maxWait));
                 fd_set fdset;
                 FD_ZERO(&fdset);
@@ -944,7 +947,7 @@ std::vector<unsigned char> CNetAddr::GetGroup() const
         nBits -= 8;
     }
     if (nBits > 0)
-        vchRet.push_back(GetByte(15 - nStartByte) | ((1 << nBits) - 1));
+        vchRet.push_back(GetByte(15 - nStartByte) | ((1 << (8 - nBits)) - 1));
 
     return vchRet;
 }
