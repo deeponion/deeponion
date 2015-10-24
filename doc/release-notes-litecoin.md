@@ -1,9 +1,9 @@
-Litecoin Core version 0.10.2.2 is now available from:
+Litecoin Core version 0.10.3.0 is now available from:
 
-  <https://download.litecoin.org/litecoin-0.10.2.2/>
+  <https://download.litecoin.org/litecoin-0.10.3.0/>
 
-This is a new major version release, bringing bug fixes and translation 
-updates. It is recommended to upgrade to this version.
+This is a new minor version release, bringing security fixes and translation 
+updates. It is recommended to upgrade to this version as soon as possible.
 
 Please report bugs using the issue tracker at github:
 
@@ -43,42 +43,73 @@ supported and may break as soon as the older version attempts to reindex.
 
 This does not affect wallet forward or backward compatibility.
 
+Notable changes
+===============
 
-Litecoin 0.10.2.2 Change log
-============================
-This release is based upon Bitcoin Core v0.10.2.  Their upstream changelog applies to us and
+Fix buffer overflow in bundled upnp
+------------------------------------
+
+Bundled miniupnpc was updated to 1.9.20151008. This fixes a buffer overflow in
+the XML parser during initial network discovery.
+
+Details can be found here: http://talosintel.com/reports/TALOS-2015-0035/
+
+This applies to the distributed executables only, not when building from source or
+using distribution provided packages.
+
+Additionally, upnp has been disabled by default. This may result in a lower
+number of reachable nodes on IPv4, however this prevents future libupnpc
+vulnerabilities from being a structural risk to the network
+(see https://github.com/bitcoin/bitcoin/pull/6795).
+
+Test for LowS signatures before relaying
+-----------------------------------------
+
+Make the node require the canonical 'low-s' encoding for ECDSA signatures when
+relaying or mining.  This removes a nuisance malleability vector.
+
+Consensus behavior is unchanged.
+
+If widely deployed this change would eliminate the last remaining known vector
+for nuisance malleability on SIGHASH_ALL P2PKH transactions. On the down-side
+it will block most transactions made by sufficiently out of date software.
+
+Unlike the other avenues to change txids on transactions this
+one was randomly violated by all deployed litecoin software prior to
+its discovery. So, while other malleability vectors where made
+non-standard as soon as they were discovered, this one has remained
+permitted. Even BIP62 did not propose applying this rule to
+old version transactions, but conforming implementations have become
+much more common since BIP62 was initially written.
+
+Litecoin Core has produced compatible signatures since the 0.9 development
+branch, but this didn't make it into a release until 0.10. Both litecoinj
+and Electrum have been more recently updated.
+
+This does not replace the need for BIP62 or similar, as miners can
+still cooperate to break transactions.  Nor does it replace the
+need for wallet software to handle malleability sanely[1]. This
+only eliminates the cheap and irritating DOS attack.
+
+[1] On the Malleability of Bitcoin Transactions
+Marcin Andrychowicz, Stefan Dziembowski, Daniel Malinowski, Łukasz Mazurek
+http://fc15.ifca.ai/preproceedings/bitcoin/paper_9.pdf
+
+0.10.3 Change log
+=================
+
+This release is based upon Bitcoin Core v0.10.3.  Their upstream changelog applies to us and
 is included in as separate release-notes.  This section describes the Litecoin-specific differences.
 
-Protocol:
-- Scrypt Proof-of-Work instead of sha256d, however block hashes are sha256d for performance reasons.
-- Litecoin TCP port 9333 (instead of 8333)
-- RPC TCP port 9332 (instead of 8332)
-- Testnet TCP port 19333 (instead of 18333)
-- Testnet RPC TCP port 19332 (instead of 18332)
-- 84 million coin limit  (instead of 21 million)
-- Magic 0xfbc0b6db       (instead of 0xf9beb4d9)
-- Target Block Time 2.5 minutes (instead of 10 minutes)
-- Target Timespan 3.5 days      (instead of two weeks)
-- bnProofOfWorkLimit = >> 20    (instead of >> 32)
-- See 9a980612005adffdeb2a17ca7a09fe126dd45e0e for Genesis Parameters
-- zeitgeist2 protection: b1b31d15cc720a1c186431b21ecc9d1a9062bcb6 Slightly different way to calculate difficulty changes.
-- Litecoin Core v0.10.2.2 is protocol version 70003 (instead of 70002)
-
-Relay:
-- Litecoin Core rounds transaction size up to the nearest 1000 bytes before calculating fees.  This size rounding behavior is to mimic fee calculation of Litecoin v0.6 and v0.8.
-- Bitcoin's IsDust() is disabled in favor of Litecoin's fee-based dust penalty.
-- Fee-based Dust Penalty: For each transaction output smaller than DUST_THRESHOLD (currently 0.001 LTC) the default relay/mining policy will expect an additional 1000 bytes of fee.  Otherwise the transaction will be rejected from relay/mining.  Such transactions are also disqualified from the free/high-priority transaction rule.
-- Miners and relays can adjust the expected fee per-KB with the -minrelaytxfee parameter.
-
-Wallet:
-- Coins smaller than 0.00001 LTC are by default ignored by the wallet.  Use the -mininput parameter if you want to see smaller coins.
-
-Notable changes since Litecoin v0.8
-===================================
-
-- The Block data and indexes of v0.10 are incompatible with v0.8 clients.  You can upgrade from v0.8 but you downgrading is not possible.  For this reason you may want to make a backup copy of your Data Directory.
-- litecoind no longer sends RPC commands.  You must use the separate litecoin-cli command line utility.
-- Watch-Only addresses are now possible.
+- Adjusted default confirmation target value (nTxConfirmTarget) which is used for transaction fee 
+	calculation, resulting in lower and more accurate fees. This mainly impacts users who use
+	litecoind via litecoin-cli or the RPC service to send transactions as GUI (Qt) users
+	already have the option to change their fee preferences. 
+- Fixed OSX notification bug displaying incorrect icon.
+- Fixed OSX Chinese language Unicode character display bug.
+- Fixed make check testing suite.
+- Updated Qt translations.
+- Updated build instructions for OSX and Unix.
 
 Credits
 =======
@@ -87,9 +118,9 @@ Thanks to everyone who directly contributed to this release:
 
 - Charles Lee
 - pooler
-- Gitju
+- CohibAA
+- kaykurokawa
 - Adrian Gallagher
 - Anton Yemelyanov
-- Martin Smith
 - Warren Togami
 
