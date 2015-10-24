@@ -6,16 +6,68 @@
         <translation>Шинэ хаяг нээх</translation>
     </message>
     <message>
+        <source>&amp;New</source>
+        <translation>&amp;Шинэ</translation>
+    </message>
+    <message>
         <source>Copy the currently selected address to the system clipboard</source>
         <translation>Одоогоор сонгогдсон байгаа хаягуудыг сануулах</translation>
+    </message>
+    <message>
+        <source>&amp;Copy</source>
+        <translation>&amp;Хуулах</translation>
+    </message>
+    <message>
+        <source>C&amp;lose</source>
+        <translation>&amp;Хаах</translation>
     </message>
     <message>
         <source>&amp;Copy Address</source>
         <translation>Хаягийг &amp;Хуулбарлах</translation>
     </message>
     <message>
+        <source>Delete the currently selected address from the list</source>
+        <translation>Одоо сонгогдсон байгаа хаягуудыг жагсаалтаас устгах</translation>
+    </message>
+    <message>
+        <source>Export the data in the current tab to a file</source>
+        <translation>Сонгогдсон таб дээрхи дата-г экспортлох</translation>
+    </message>
+    <message>
+        <source>&amp;Export</source>
+        <translation>&amp;Экспортдлох</translation>
+    </message>
+    <message>
         <source>&amp;Delete</source>
         <translation>&amp;Устгах</translation>
+    </message>
+    <message>
+        <source>Choose the address to send coins to</source>
+        <translation>Зооснуудыг илгээх хаягийг сонгоно уу</translation>
+    </message>
+    <message>
+        <source>Choose the address to receive coins with</source>
+        <translation>Зооснуудыг хүлээн авах хаягийг сонгоно уу</translation>
+    </message>
+    <message>
+        <source>C&amp;hoose</source>
+        <translation>С&amp;онго</translation>
+    </message>
+    <message>
+        <source>Sending addresses</source>
+        <translation>Илгээх хаягууд</translation>
+    </message>
+    <message>
+        <source>Receiving addresses</source>
+        <translation>Хүлээн авах хаяг</translation>
+    </message>
+    <message>
+        <source>These are your Litecoin addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
+        <translation>Эдгээр Litecoin хаягууд нь илгээх хаягууд. Хүлээн авах хаяг болон тоо хэмжээг илгээхээсээ өмнө сайн нягталж үзэж байна уу</translation>
+    </message>
+    <message>
+        <source>These are your Litecoin addresses for receiving payments. It is recommended to use a new receiving address for each transaction.</source>
+        <translation>Эдгээр Litecoin хаягууд нь хүлээн авах хаягууд. Гүйлгээ болгонд шинээр хаяг үүсгэхийг бид санал болгож байна.</translation>
     </message>
     <message>
         <source>Copy &amp;Label</source>
@@ -24,6 +76,10 @@
     <message>
         <source>&amp;Edit</source>
         <translation>&amp;Ѳѳрчлѳх</translation>
+    </message>
+    <message>
+        <source>Export Address List</source>
+        <translation>Экспорт хийх хаягуудын жагсаалт</translation>
     </message>
     <message>
         <source>Comma separated file (*.csv)</source>
@@ -97,7 +153,7 @@
     </message>
     <message>
         <source>Litecoin will close now to finish the encryption process. Remember that encrypting your wallet cannot fully protect your litecoins from being stolen by malware infecting your computer.</source>
-        <translation>Цоожлолтын процесыг дуусгахын тулд Биткойн одоо хаагдана. Ѳѳрийн түрүйвчийг цоожлох нь таны биткойнуудыг компьютерийн вирус хулгайлахаас бүрэн сэргийлж чадахгүй гэдгийг санаарай.</translation>
+        <translation>Цоожлолтын процесыг дуусгахын тулд Litecoin одоо хаагдана. Ѳѳрийн түрүйвчийг цоожлох нь таны litecoinsуудыг компьютерийн вирус хулгайлахаас бүрэн сэргийлж чадахгүй гэдгийг санаарай.</translation>
     </message>
     <message>
         <source>Wallet encryption failed</source>
@@ -192,7 +248,7 @@
     </message>
     <message>
         <source>Litecoin</source>
-        <translation>Биткойн</translation>
+        <translation>Litecoin</translation>
     </message>
     <message>
         <source>Wallet</source>
@@ -216,7 +272,7 @@
     </message>
     <message numerus="yes">
         <source>%n active connection(s) to Litecoin network</source>
-        <translation><numerusform>Биткойны сүлжээрүү %n идэвхитэй холболт байна </numerusform><numerusform>Биткойны сүлжээрүү %n идэвхитэй холболтууд байна </numerusform></translation>
+        <translation><numerusform>Litecoinы сүлжээрүү %n идэвхитэй холболт байна </numerusform><numerusform>Litecoinы сүлжээрүү %n идэвхитэй холболтууд байна </numerusform></translation>
     </message>
     <message numerus="yes">
         <source>%n hour(s)</source>
@@ -636,10 +692,6 @@ Address: %4
         <translation>Ѳѳрчлѳлтийг санах</translation>
     </message>
     <message>
-        <source>Total Amount %1 (= %2)</source>
-        <translation>Нийт дүн %1 (= %2)</translation>
-    </message>
-    <message>
         <source>or</source>
         <translation>эсвэл</translation>
     </message>
@@ -657,7 +709,7 @@ Address: %4
     </message>
     <message>
         <source>Warning: Invalid Litecoin address</source>
-        <translation>Анхаар:Буруу Биткойны хаяг байна</translation>
+        <translation>Анхаар:Буруу Litecoinы хаяг байна</translation>
     </message>
     <message>
         <source>(no label)</source>
@@ -703,7 +755,7 @@ Address: %4
     <name>ShutdownWindow</name>
     <message>
         <source>Litecoin Core is shutting down...</source>
-        <translation>Биткойны цѳм хаагдаж байна...</translation>
+        <translation>Litecoinы цѳм хаагдаж байна...</translation>
     </message>
     <message>
         <source>Do not shut down the computer until this window disappears.</source>
@@ -1002,6 +1054,14 @@ Address: %4
 </context>
 <context>
     <name>WalletView</name>
+    <message>
+        <source>&amp;Export</source>
+        <translation>&amp;Экспортдлох</translation>
+    </message>
+    <message>
+        <source>Export the data in the current tab to a file</source>
+        <translation>Сонгогдсон таб дээрхи дата-г экспортлох</translation>
+    </message>
     </context>
 <context>
     <name>bitcoin-core</name>

@@ -15,7 +15,7 @@ packages:
 - "faketime"
 - "bsdmainutils"
 - "binutils-gold"
-reference_datetime: "2013-06-01 00:00:00"
+reference_datetime: "2015-10-01 00:00:00"
 remotes:
 - "url": "https://github.com/litecoin-project/litecoin.git"
   "dir": "litecoin"
@@ -23,7 +23,7 @@ files: []
 script: |
   WRAP_DIR=$HOME/wrapped
   HOSTS="i686-pc-linux-gnu x86_64-unknown-linux-gnu"
-  CONFIGFLAGS="--enable-upnp-default --enable-glibc-back-compat"
+  CONFIGFLAGS="--enable-glibc-back-compat"
   FAKETIME_HOST_PROGS=""
   FAKETIME_PROGS="date ar ranlib nm strip"
 

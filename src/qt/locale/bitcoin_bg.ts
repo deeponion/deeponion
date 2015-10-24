@@ -165,7 +165,7 @@
     </message>
     <message>
         <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR LITECOINS&lt;/b&gt;!</source>
-        <translation>ВНИМАНИЕ: Ако защитите вашият портфейл и изгубите ключовата дума, вие ще &lt;b&gt;ИЗГУБИТЕ ВСИЧКИТЕ СИ БИТКОЙНОВЕ&lt;/b&gt;!</translation>
+        <translation>ВНИМАНИЕ: Ако защитите вашият портфейл и изгубите ключовата дума, вие ще &lt;b&gt;ИЗГУБИТЕ ВСИЧКИТЕ СИ LITECOINS&lt;/b&gt;!</translation>
     </message>
     <message>
         <source>Are you sure you wish to encrypt your wallet?</source>
@@ -185,7 +185,7 @@
     </message>
     <message>
         <source>Litecoin will close now to finish the encryption process. Remember that encrypting your wallet cannot fully protect your litecoins from being stolen by malware infecting your computer.</source>
-        <translation>Litecoin ще се затоври сега за да завърши процеса на криптиране. Запомнете, че криптирането на вашия портефейл не може напълно да предпази вашите Бит-монети от кражба чрез зловреден софтуер, инфектирал вашия компютър</translation>
+        <translation>Litecoin ще се затоври сега за да завърши процеса на криптиране. Запомнете, че криптирането на вашия портефейл не може напълно да предпази вашите litecoins от кражба чрез зловреден софтуер, инфектирал вашия компютър</translation>
     </message>
     <message>
         <source>Wallet encryption failed</source>
@@ -400,7 +400,7 @@
     </message>
     <message>
         <source>Open a litecoin: URI or payment request</source>
-        <translation>Отворете биткойн: URI  или заявка за плащане</translation>
+        <translation>Отворете litecoin: URI  или заявка за плащане</translation>
     </message>
     <message>
         <source>&amp;Command-line options</source>
@@ -1134,7 +1134,7 @@ Address: %4
     </message>
     <message>
         <source>Cannot start litecoin: click-to-pay handler</source>
-        <translation>Биткойн не можe да се стартира: click-to-pay handler</translation>
+        <translation>Litecoin не можe да се стартира: click-to-pay handler</translation>
     </message>
     <message>
         <source>Payment request file handling</source>
@@ -1188,7 +1188,7 @@ Address: %4
     </message>
     <message>
         <source>Enter a Litecoin address (e.g. %1)</source>
-        <translation>Въведете Биткойн адрес (например: %1)</translation>
+        <translation>Въведете Litecoin адрес (например: %1)</translation>
     </message>
     <message>
         <source>%1 d</source>
@@ -1753,10 +1753,6 @@ Address: %4
         <translation>Копирай рестото</translation>
     </message>
     <message>
-        <source>Total Amount %1 (= %2)</source>
-        <translation>Пълна сума %1 (= %2)</translation>
-    </message>
-    <message>
         <source>or</source>
         <translation>или</translation>
     </message>
@@ -2095,6 +2091,14 @@ Address: %4
         <translation>Дебит</translation>
     </message>
     <message>
+        <source>Total debit</source>
+        <translation>Общ дълг</translation>
+    </message>
+    <message>
+        <source>Total credit</source>
+        <translation>Общ дълг</translation>
+    </message>
+    <message>
         <source>Transaction fee</source>
         <translation>Такса</translation>
     </message>
@@ -2117,6 +2121,10 @@ Address: %4
     <message>
         <source>Merchant</source>
         <translation>Търговец</translation>
+    </message>
+    <message>
+        <source>Generated coins must mature %1 blocks before they can be spent. When you generated this block, it was broadcast to the network to be added to the block chain. If it fails to get into the chain, its state will change to "not accepted" and it won't be spendable. This may occasionally happen if another node generates a block within a few seconds of yours.</source>
+        <translation>Генерираните монети трябва да отлежат %1 блока преди да могат да бъдат похарчени. Когато генерираш блока, той се разпространява в мрежата, за да се добави в блок-веригата. Ако не успее да се добави във веригата, неговия статус  ще се стане "неприет" и няма да може да се похарчи. Това е възможно да се случи случайно, ако друг възел генерира блок няколко секунди след твоя.</translation>
     </message>
     <message>
         <source>Debug information</source>
@@ -2171,6 +2179,10 @@ Address: %4
     <message>
         <source>Address</source>
         <translation>Адрес</translation>
+    </message>
+    <message>
+        <source>Immature (%1 confirmations, will be available after %2)</source>
+        <translation>Неплатим (%1 потвърждения, ще бъде платим след %2)</translation>
     </message>
     <message>
         <source>Open until %1</source>

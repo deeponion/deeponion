@@ -2,6 +2,10 @@
 <context>
     <name>AddressBookPage</name>
     <message>
+        <source>Right-click to edit address or label</source>
+        <translation>برای تغییر آدرس و یا برچسب کلیک راست کنید.</translation>
+    </message>
+    <message>
         <source>Create a new address</source>
         <translation>ایجاد نشانی جدید</translation>
     </message>
@@ -42,8 +46,28 @@
         <translation>&amp;حذف</translation>
     </message>
     <message>
+        <source>Choose the address to send coins to</source>
+        <translation>آدرس مورد نظر برای ارسال کوین ها را انتخاب کنید</translation>
+    </message>
+    <message>
+        <source>Choose the address to receive coins with</source>
+        <translation>آدرس موردنظر برای دریافت کوین ها را انتخاب کنید.</translation>
+    </message>
+    <message>
+        <source>Sending addresses</source>
+        <translation>آدرس های ارسال کننده</translation>
+    </message>
+    <message>
+        <source>Receiving addresses</source>
+        <translation>آدرس های دریافت کننده</translation>
+    </message>
+    <message>
         <source>These are your Litecoin addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
-        <translation>این‌ها نشانی‌های بیت‌کوین شما برای ارسال وجود هستند. همیشه قبل از ارسال سکه‌ها، نشانی دریافت‌کننده و مقدار ارسالی را بررسی کنید.</translation>
+        <translation>این‌ها نشانی‌های Litecoin شما برای ارسال وجود هستند. همیشه قبل از ارسال سکه‌ها، نشانی دریافت‌کننده و مقدار ارسالی را بررسی کنید.</translation>
+    </message>
+    <message>
+        <source>These are your Litecoin addresses for receiving payments. It is recommended to use a new receiving address for each transaction.</source>
+        <translation>این‌ها نشانی‌های Litecoin شما برای دریافت وجوه هستند. توصیه می‌شود یک نشانی دریافت جدید برای هر تبادل استفاده کنید.</translation>
     </message>
     <message>
         <source>Copy &amp;Label</source>
@@ -133,7 +157,7 @@
     </message>
     <message>
         <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR LITECOINS&lt;/b&gt;!</source>
-        <translation>هشدار: اگر کیف پول خود را رمزنگاری کنید و گذرواژه را فراموش کنید، &lt;b&gt;تمام دارایی بیت‌کوین خود را از دست خواهید داد&lt;/b&gt;!</translation>
+        <translation>هشدار: اگر کیف پول خود را رمزنگاری کنید و گذرواژه را فراموش کنید، &lt;b&gt;تمام دارایی LITECOINS خود را از دست خواهید داد&lt;/b&gt;!</translation>
     </message>
     <message>
         <source>Are you sure you wish to encrypt your wallet?</source>
@@ -152,8 +176,12 @@
         <translation>کیف پول رمزنگاری شد</translation>
     </message>
     <message>
+        <source>Enter the new passphrase to the wallet.&lt;br/&gt;Please use a passphrase of &lt;b&gt;ten or more random characters&lt;/b&gt;, or &lt;b&gt;eight or more words&lt;/b&gt;.</source>
+        <translation>رمز جدید کیف پول خود را وارد کنید.&lt;br/&gt;از رمز عبوری استفاده کنید که&lt;b&gt; حداقل 10  کاراکتر تصادفی &lt;/b&gt; و یا &lt;b&gt; حداقل 8 حرف داشته باشد.&lt;/b&gt;</translation>
+    </message>
+    <message>
         <source>Litecoin will close now to finish the encryption process. Remember that encrypting your wallet cannot fully protect your litecoins from being stolen by malware infecting your computer.</source>
-        <translation>بیت‌کوین هم اکنون بسته می‌شود تا فرایند رمزگذاری را تمام کند. به خاطر داشته باشید که رمزگذاری کردن کیف پول‌تان نمی‌تواند به طور کامل بیت‌کوین‌های شما را در برابر دزدیده شدن توسط بدافزارهایی که احتمالاً رایانهٔ شما را آلوده می‌کنند، محافظت نماید.</translation>
+        <translation>Litecoin هم اکنون بسته می‌شود تا فرایند رمزگذاری را تمام کند. به خاطر داشته باشید که رمزگذاری کردن کیف پول‌تان نمی‌تواند به طور کامل Litecoin‌های شما را در برابر دزدیده شدن توسط بدافزارهایی که احتمالاً رایانهٔ شما را آلوده می‌کنند، محافظت نماید.</translation>
     </message>
     <message>
         <source>Wallet encryption failed</source>
@@ -197,6 +225,10 @@
     <message>
         <source>&amp;Overview</source>
         <translation>&amp;بررسی اجمالی</translation>
+    </message>
+    <message>
+        <source>Node</source>
+        <translation>گره</translation>
     </message>
     <message>
         <source>Show general overview of wallet</source>
@@ -243,6 +275,18 @@
         <translation>&amp;تغییر گذرواژه...</translation>
     </message>
     <message>
+        <source>&amp;Sending addresses...</source>
+        <translation>$ارسال آدرس ها...</translation>
+    </message>
+    <message>
+        <source>&amp;Receiving addresses...</source>
+        <translation>&amp;در حال دریافت آدرس ها...</translation>
+    </message>
+    <message>
+        <source>Open &amp;URI...</source>
+        <translation>باز کردن &amp;آدرس</translation>
+    </message>
+    <message>
         <source>Importing blocks from disk...</source>
         <translation>دریافت بلوک‌ها از دیسک...</translation>
     </message>
@@ -252,11 +296,11 @@
     </message>
     <message>
         <source>Send coins to a Litecoin address</source>
-        <translation>ارسال وجه به نشانی بیت‌کوین</translation>
+        <translation>ارسال وجه به نشانی Litecoin</translation>
     </message>
     <message>
         <source>Modify configuration options for Litecoin</source>
-        <translation>تغییر و اصلاح تنظیمات پیکربندی بیت‌کوین</translation>
+        <translation>تغییر و اصلاح تنظیمات پیکربندی Litecoin</translation>
     </message>
     <message>
         <source>Backup wallet to another location</source>
@@ -280,7 +324,7 @@
     </message>
     <message>
         <source>Litecoin</source>
-        <translation>بیت‌کوین</translation>
+        <translation>Litecoin</translation>
     </message>
     <message>
         <source>Wallet</source>
@@ -293,6 +337,10 @@
     <message>
         <source>&amp;Receive</source>
         <translation>&amp;دریافت</translation>
+    </message>
+    <message>
+        <source>Show information about Litecoin Core</source>
+        <translation>نمایش اطلاعات در مورد Litecoin</translation>
     </message>
     <message>
         <source>&amp;Show / Hide</source>
@@ -308,11 +356,11 @@
     </message>
     <message>
         <source>Sign messages with your Litecoin addresses to prove you own them</source>
-        <translation>برای اثبات اینکه پیام‌ها به شما تعلق دارند، آن‌ها را با نشانی بیت‌کوین خود امضا کنید</translation>
+        <translation>برای اثبات اینکه پیام‌ها به شما تعلق دارند، آن‌ها را با نشانی Litecoin خود امضا کنید</translation>
     </message>
     <message>
         <source>Verify messages to ensure they were signed with specified Litecoin addresses</source>
-        <translation>برای حصول اطمینان از اینکه پیام با نشانی بیت‌کوین مشخص شده امضا است یا خیر، پیام را شناسایی کنید</translation>
+        <translation>برای حصول اطمینان از اینکه پیام با نشانی Litecoin مشخص شده امضا است یا خیر، پیام را شناسایی کنید</translation>
     </message>
     <message>
         <source>&amp;File</source>
@@ -334,9 +382,21 @@
         <source>Litecoin Core</source>
         <translation> هسته Litecoin </translation>
     </message>
+    <message>
+        <source>&amp;About Litecoin Core</source>
+        <translation>درباره هسته ی Litecoin</translation>
+    </message>
+    <message>
+        <source>Show the list of used sending addresses and labels</source>
+        <translation>نمایش لیست آدرس های ارسال و لیبل ها</translation>
+    </message>
+    <message>
+        <source>Show the list of used receiving addresses and labels</source>
+        <translation>نمایش لیست آدرس های دریافت و لیبل ها</translation>
+    </message>
     <message numerus="yes">
         <source>%n active connection(s) to Litecoin network</source>
-        <translation><numerusform>%n ارتباط فعال با شبکهٔ بیت‌کوین</numerusform></translation>
+        <translation><numerusform>%n ارتباط فعال با شبکهٔ Litecoin</numerusform></translation>
     </message>
     <message>
         <source>No block source available...</source>
@@ -425,20 +485,72 @@ Address: %4
 <context>
     <name>CoinControlDialog</name>
     <message>
+        <source>Coin Selection</source>
+        <translation>انتخاب سکه</translation>
+    </message>
+    <message>
+        <source>Quantity:</source>
+        <translation>تعداد:</translation>
+    </message>
+    <message>
+        <source>Bytes:</source>
+        <translation>بایت ها:</translation>
+    </message>
+    <message>
         <source>Amount:</source>
         <translation>مبلغ:</translation>
+    </message>
+    <message>
+        <source>Priority:</source>
+        <translation>اولویت:</translation>
+    </message>
+    <message>
+        <source>Fee:</source>
+        <translation>هزینه:</translation>
+    </message>
+    <message>
+        <source>After Fee:</source>
+        <translation>هزینه ی پسین:</translation>
+    </message>
+    <message>
+        <source>Change:</source>
+        <translation>پول خورد:</translation>
+    </message>
+    <message>
+        <source>Tree mode</source>
+        <translation>مدل درختی</translation>
+    </message>
+    <message>
+        <source>List mode</source>
+        <translation>مدل لیست</translation>
     </message>
     <message>
         <source>Amount</source>
         <translation>مبلغ</translation>
     </message>
     <message>
+        <source>Received with label</source>
+        <translation>دریافت شده با برچسب</translation>
+    </message>
+    <message>
+        <source>Received with address</source>
+        <translation>دریافت شده با نشانی</translation>
+    </message>
+    <message>
         <source>Date</source>
         <translation>تاریخ</translation>
     </message>
     <message>
+        <source>Confirmations</source>
+        <translation>تاییدیه ها</translation>
+    </message>
+    <message>
         <source>Confirmed</source>
         <translation>تأیید شده</translation>
+    </message>
+    <message>
+        <source>Priority</source>
+        <translation>اولویت</translation>
     </message>
     <message>
         <source>Copy address</source>
@@ -457,6 +569,46 @@ Address: %4
         <translation>کپی شناسهٔ تراکنش</translation>
     </message>
     <message>
+        <source>highest</source>
+        <translation>بیشترین</translation>
+    </message>
+    <message>
+        <source>higher</source>
+        <translation>بیشتر</translation>
+    </message>
+    <message>
+        <source>high</source>
+        <translation>زیاد</translation>
+    </message>
+    <message>
+        <source>medium-high</source>
+        <translation>متوسط رو به بالا</translation>
+    </message>
+    <message>
+        <source>medium</source>
+        <translation>متوسط</translation>
+    </message>
+    <message>
+        <source>low-medium</source>
+        <translation>متوسط متمایل به کم</translation>
+    </message>
+    <message>
+        <source>low</source>
+        <translation>کم</translation>
+    </message>
+    <message>
+        <source>lower</source>
+        <translation>کمتر</translation>
+    </message>
+    <message>
+        <source>lowest</source>
+        <translation>کمترین</translation>
+    </message>
+    <message>
+        <source>none</source>
+        <translation>هیچکدام</translation>
+    </message>
+    <message>
         <source>yes</source>
         <translation>بله</translation>
     </message>
@@ -468,7 +620,11 @@ Address: %4
         <source>(no label)</source>
         <translation>(بدون برچسب)</translation>
     </message>
-    </context>
+    <message>
+        <source>(change)</source>
+        <translation>(تغییر)</translation>
+    </message>
+</context>
 <context>
     <name>EditAddressDialog</name>
     <message>
@@ -505,7 +661,7 @@ Address: %4
     </message>
     <message>
         <source>The entered address "%1" is not a valid Litecoin address.</source>
-        <translation>نشانی وارد شده «%1» یک نشانی معتبر بیت‌کوین نیست.</translation>
+        <translation>نشانی وارد شده «%1» یک نشانی معتبر Litecoin نیست.</translation>
     </message>
     <message>
         <source>Could not unlock wallet.</source>
@@ -550,6 +706,10 @@ Address: %4
         <translation>نسخه</translation>
     </message>
     <message>
+        <source>About Litecoin Core</source>
+        <translation>درباره هسته ی Litecoin</translation>
+    </message>
+    <message>
         <source>Command-line options</source>
         <translation>گزینه‌های خط‌فرمان</translation>
     </message>
@@ -589,6 +749,14 @@ Address: %4
         <translation>خوش‌آمدید</translation>
     </message>
     <message>
+        <source>Welcome to Litecoin Core.</source>
+        <translation>به هسته Litecoin خوش آمدید.</translation>
+    </message>
+    <message>
+        <source>As this is the first time the program is launched, you can choose where Litecoin Core will store its data.</source>
+        <translation>از آنجایی که این اولین اجرای برنامه است، شما می‌توانید مسیر ذخیرهٔ داده‌ها را انتخاب کنید.</translation>
+    </message>
+    <message>
         <source>Use the default data directory</source>
         <translation>استفاده از مسیر پیش‌فرض</translation>
     </message>
@@ -620,11 +788,11 @@ Address: %4
     </message>
     <message>
         <source>Automatically start Litecoin after logging in to the system.</source>
-        <translation>اجرای خودکار بیت‌کوین در زمان ورود به سیستم.</translation>
+        <translation>اجرای خودکار Litecoin در زمان ورود به سیستم.</translation>
     </message>
     <message>
         <source>&amp;Start Litecoin on system login</source>
-        <translation>&amp;اجرای بیت‌کوین با ورود به سیستم</translation>
+        <translation>&amp;اجرای Litecoin با ورود به سیستم</translation>
     </message>
     <message>
         <source>Reset all client options to default.</source>
@@ -644,7 +812,7 @@ Address: %4
     </message>
     <message>
         <source>Automatically open the Litecoin client port on the router. This only works when your router supports UPnP and it is enabled.</source>
-        <translation>باز کردن خودکار درگاه شبکهٔ بیت‌کوین روی روترها. تنها زمانی کار می‌کند که روتر از پروتکل UPnP پشتیبانی کند و این پروتکل فعال باشد.</translation>
+        <translation>باز کردن خودکار درگاه شبکهٔ Litecoin روی روترها. تنها زمانی کار می‌کند که روتر از پروتکل UPnP پشتیبانی کند و این پروتکل فعال باشد.</translation>
     </message>
     <message>
         <source>Map port using &amp;UPnP</source>
@@ -692,7 +860,7 @@ Address: %4
     </message>
     <message>
         <source>The user interface language can be set here. This setting will take effect after restarting Litecoin.</source>
-        <translation>زبان رابط کاربر می‌تواند در این‌جا تنظیم شود. تنظیمات بعد از ظروع مجدد بیت‌کوین اعمال خواهد شد.</translation>
+        <translation>زبان رابط کاربر می‌تواند در این‌جا تنظیم شود. تنظیمات بعد از ظروع مجدد Litecoin اعمال خواهد شد.</translation>
     </message>
     <message>
         <source>&amp;Unit to show amounts in:</source>
@@ -715,6 +883,10 @@ Address: %4
         <translation>پیش‌فرض</translation>
     </message>
     <message>
+        <source>none</source>
+        <translation>هیچکدام</translation>
+    </message>
+    <message>
         <source>Confirm options reset</source>
         <translation>تأییدِ بازنشانی گزینه‌ها</translation>
     </message>
@@ -735,7 +907,7 @@ Address: %4
     </message>
     <message>
         <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Litecoin network after a connection is established, but this process has not completed yet.</source>
-        <translation>اطلاعات نمایش‌داده شده ممکن است قدیمی باشند. بعد از این که یک اتصال با شبکه برقرار شد، کیف پول شما به‌صورت خودکار با شبکهٔ بیت‌کوین همگام‌سازی می‌شود. اما این روند هنوز کامل نشده است.</translation>
+        <translation>اطلاعات نمایش‌داده شده ممکن است قدیمی باشند. بعد از این که یک اتصال با شبکه برقرار شد، کیف پول شما به‌صورت خودکار با شبکهٔ Litecoin همگام‌سازی می‌شود. اما این روند هنوز کامل نشده است.</translation>
     </message>
     <message>
         <source>Available:</source>
@@ -758,12 +930,24 @@ Address: %4
         <translation>تراز استخراج شده از معدن که هنوز بالغ نشده است</translation>
     </message>
     <message>
+        <source>Balances</source>
+        <translation>تراز ها</translation>
+    </message>
+    <message>
         <source>Total:</source>
         <translation>جمع کل:</translation>
     </message>
     <message>
         <source>Your current total balance</source>
         <translation>تراز کل فعلی شما</translation>
+    </message>
+    <message>
+        <source>Spendable:</source>
+        <translation>:قابل خرج کردن</translation>
+    </message>
+    <message>
+        <source>Recent transactions</source>
+        <translation>تراکنش های اخیر</translation>
     </message>
     <message>
         <source>out of sync</source>
@@ -777,8 +961,16 @@ Address: %4
         <translation>مدیریت URI</translation>
     </message>
     <message>
+        <source>Payment request rejected</source>
+        <translation>درخواست پرداخت رد شد.</translation>
+    </message>
+    <message>
+        <source>Payment request error</source>
+        <translation>خطای درخواست پرداخت</translation>
+    </message>
+    <message>
         <source>Cannot start litecoin: click-to-pay handler</source>
-        <translation>نمی‌توان بیت‌کوین را اجرا کرد: کنترل‌کنندهٔ کلیک-و-پرداخت</translation>
+        <translation>نمی‌توان Litecoin را اجرا کرد: کنترل‌کنندهٔ کلیک-و-پرداخت</translation>
     </message>
     </context>
 <context>
@@ -789,6 +981,10 @@ Address: %4
     <message>
         <source>Amount</source>
         <translation>مبلغ</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation>هیچکدام</translation>
     </message>
     <message>
         <source>N/A</source>
@@ -849,6 +1045,22 @@ Address: %4
         <translation>تعداد فعلی بلوک‌ها</translation>
     </message>
     <message>
+        <source>Received</source>
+        <translation>دریافتی</translation>
+    </message>
+    <message>
+        <source>Sent</source>
+        <translation>ارسال شده</translation>
+    </message>
+    <message>
+        <source>Version</source>
+        <translation>نسخه</translation>
+    </message>
+    <message>
+        <source>Services</source>
+        <translation>سرویس ها</translation>
+    </message>
+    <message>
         <source>Last block time</source>
         <translation>زمان آخرین بلوک</translation>
     </message>
@@ -882,7 +1094,7 @@ Address: %4
     </message>
     <message>
         <source>Welcome to the Litecoin RPC console.</source>
-        <translation>به کنسور RPC بیت‌کوین خوش آمدید.</translation>
+        <translation>به کنسور RPC Litecoin خوش آمدید.</translation>
     </message>
     <message>
         <source>Use up and down arrows to navigate history, and &lt;b&gt;Ctrl-L&lt;/b&gt; to clear screen.</source>
@@ -902,6 +1114,14 @@ Address: %4
     <message>
         <source>&amp;Label:</source>
         <translation>&amp;برچسب:</translation>
+    </message>
+    <message>
+        <source>Show</source>
+        <translation>نمایش</translation>
+    </message>
+    <message>
+        <source>Remove</source>
+        <translation>حذف کردن</translation>
     </message>
     <message>
         <source>Copy label</source>
@@ -973,8 +1193,36 @@ Address: %4
         <translation>ارسال سکه</translation>
     </message>
     <message>
+        <source>Quantity:</source>
+        <translation>تعداد:</translation>
+    </message>
+    <message>
+        <source>Bytes:</source>
+        <translation>بایت ها:</translation>
+    </message>
+    <message>
         <source>Amount:</source>
         <translation>مبلغ:</translation>
+    </message>
+    <message>
+        <source>Priority:</source>
+        <translation>اولویت:</translation>
+    </message>
+    <message>
+        <source>Fee:</source>
+        <translation>هزینه:</translation>
+    </message>
+    <message>
+        <source>After Fee:</source>
+        <translation>هزینه ی پسین:</translation>
+    </message>
+    <message>
+        <source>Change:</source>
+        <translation>پول خورد:</translation>
+    </message>
+    <message>
+        <source>fast</source>
+        <translation>سریع</translation>
     </message>
     <message>
         <source>Send to multiple recipients at once</source>
@@ -1036,6 +1284,10 @@ Address: %4
         <source>(no label)</source>
         <translation>(بدون برچسب)</translation>
     </message>
+    <message>
+        <source>Are you sure you want to send?</source>
+        <translation>آیا مطمئن هستید که می خواهید ارسال کنید؟</translation>
+    </message>
     </context>
 <context>
     <name>SendCoinsEntry</name>
@@ -1056,6 +1308,18 @@ Address: %4
         <translation>&amp;برچسب:</translation>
     </message>
     <message>
+        <source>Choose previously used address</source>
+        <translation>انتخاب نشانی پیش‌تر استفاده شده</translation>
+    </message>
+    <message>
+        <source>This is a normal payment.</source>
+        <translation>این یک پرداخت عادی است</translation>
+    </message>
+    <message>
+        <source>The Litecoin address to send the payment to</source>
+        <translation>نشانی Litecoin برای ارسال پرداخت به آن</translation>
+    </message>
+    <message>
         <source>Alt+A</source>
         <translation>Alt+A</translation>
     </message>
@@ -1066,6 +1330,10 @@ Address: %4
     <message>
         <source>Alt+P</source>
         <translation>Alt+P</translation>
+    </message>
+    <message>
+        <source>Remove this entry</source>
+        <translation>حذف این مدخل</translation>
     </message>
     <message>
         <source>Message:</source>
@@ -1088,6 +1356,14 @@ Address: %4
     <message>
         <source>You can sign messages with your addresses to prove you own them. Be careful not to sign anything vague, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
         <translation>برای احراز اینکه پیام‌ها از جانب شما هستند، می‌توانید آن‌ها را با نشانی خودتان امضا کنید. مراقب باشید چیزی که بدان اطمینان ندارید را امضا نکنید زیرا حملات فیشینگ ممکن است بخواهند از.پیامی با امضای شما سوءاستفاده کنند. تنها مواردی را که حاوی اطلاعات دقیق و قابل قبول برای شما هستند امضا کنید.</translation>
+    </message>
+    <message>
+        <source>The Litecoin address to sign the message with</source>
+        <translation>نشانی Litecoin برای امضاء پیغام با آن</translation>
+    </message>
+    <message>
+        <source>Choose previously used address</source>
+        <translation>انتخاب نشانی پیش‌تر استفاده شده</translation>
     </message>
     <message>
         <source>Alt+A</source>
@@ -1138,8 +1414,12 @@ Address: %4
         <translation>برای شناسایی پیام، نشانیِ امضا کننده و متن پیام را وارد کنید. (مطمئن شوید که فاصله‌ها، تب‌ها و خطوط را عیناً کپی می‌کنید.) مراقب باشید در امضا چیزی بیشتر از آنچه در پیام می‌بینید وجود نداشته باشد تا فریب دزدان اینترنتی و حملات از نوع MITM را نخورید.</translation>
     </message>
     <message>
+        <source>The Litecoin address the message was signed with</source>
+        <translation>نشانی Litecoin که پیغام با آن امضاء شده</translation>
+    </message>
+    <message>
         <source>Verify the message to ensure it was signed with the specified Litecoin address</source>
-        <translation>برای حصول اطمینان از اینکه پیام با نشانی بیت‌کوین مشخص شده امضا است یا خیر، پیام را شناسایی کنید</translation>
+        <translation>برای حصول اطمینان از اینکه پیام با نشانی Litecoin مشخص شده امضا است یا خیر، پیام را شناسایی کنید</translation>
     </message>
     <message>
         <source>Verify &amp;Message</source>
@@ -1209,13 +1489,21 @@ Address: %4
         <translation> هسته Litecoin </translation>
     </message>
     <message>
+        <source>The Bitcoin Core developers</source>
+        <translation>توسعه‌دهندگان هسته بیت‌کوین</translation>
+    </message>
+    <message>
         <source>[testnet]</source>
         <translation>آزمایش شبکه</translation>
     </message>
 </context>
 <context>
     <name>TrafficGraphWidget</name>
-    </context>
+    <message>
+        <source>KB/s</source>
+        <translation>کیلوبایت</translation>
+    </message>
+</context>
 <context>
     <name>TransactionDesc</name>
     <message>
@@ -1520,6 +1808,10 @@ Address: %4
         <translation>استخراج انجام نشد</translation>
     </message>
     <message>
+        <source>Exporting Successful</source>
+        <translation>استخراج موفق</translation>
+    </message>
+    <message>
         <source>Comma separated file (*.csv)</source>
         <translation>پروندهٔ نوع CSV جداشونده با کاما (*.csv)</translation>
     </message>
@@ -1679,8 +1971,16 @@ Address: %4
         <translation>خطا در بازگشایی پایگاه داده ی بلوک</translation>
     </message>
     <message>
+        <source>Error: Disk space is low!</source>
+        <translation>خطا: فضای دیسک کم است!</translation>
+    </message>
+    <message>
         <source>Failed to listen on any port. Use -listen=0 if you want this.</source>
         <translation>شنیدن هر گونه درگاه انجام پذیر نیست. ازlisten=0  برای اینکار استفاده کیند.</translation>
+    </message>
+    <message>
+        <source>Importing...</source>
+        <translation>در حال پیاده‌سازی...</translation>
     </message>
     <message>
         <source>Verifying blocks...</source>
@@ -1689,6 +1989,10 @@ Address: %4
     <message>
         <source>Verifying wallet...</source>
         <translation>در حال بازبینی کیف پول...</translation>
+    </message>
+    <message>
+        <source>Warning: Please check that your computer's date and time are correct! If your clock is wrong Litecoin Core will not work properly.</source>
+        <translation>هشدار: تاریخ و ساعت کامپیوتر خود را بررسی کنید. اگر ساعت درست نباشد هسته Litecoin به درستی کار نخواهد کرد.</translation>
     </message>
     <message>
         <source>Information</source>

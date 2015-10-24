@@ -71,7 +71,7 @@
     </message>
     <message>
         <source>These are your Litecoin addresses for receiving payments. It is recommended to use a new receiving address for each transaction.</source>
-        <translation>これらは支払いを受け取るためのビットコインアドレスです。トランザクションごとに新しい受け取り用アドレスを作成することが推奨されます。</translation>
+        <translation>これらは支払いを受け取るためのライトコインアドレスです。トランザクションごとに新しい受け取り用アドレスを作成することが推奨されます。</translation>
     </message>
     <message>
         <source>Copy &amp;Label</source>
@@ -400,7 +400,7 @@
     </message>
     <message>
         <source>&amp;About Litecoin Core</source>
-        <translation>ビットコインコアについて (&amp;A)</translation>
+        <translation>ライトコインコアについて (&amp;A)</translation>
     </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>
@@ -893,7 +893,7 @@ Address: %4
     </message>
     <message>
         <source>Litecoin Core will download and store a copy of the Litecoin block chain. At least %1GB of data will be stored in this directory, and it will grow over time. The wallet will also be stored in this directory.</source>
-        <translation>Litecoin Coreは、ビットコインのブロックチェーンのコピーを、ダウンロードして保存します。少なくとも%1ギガバイトのデータが、このディレクトリに保存されます。そしてそれは時間と共に増加します。またウォレットもこのディレクトリに保存されます。</translation>
+        <translation>Litecoin Coreは、ライトコインのブロックチェーンのコピーを、ダウンロードして保存します。少なくとも%1ギガバイトのデータが、このディレクトリに保存されます。そしてそれは時間と共に増加します。またウォレットもこのディレクトリに保存されます。</translation>
     </message>
     <message>
         <source>Use the default data directory</source>
@@ -1992,8 +1992,8 @@ Address: %4
         <translation>釣り銭をコピー</translation>
     </message>
     <message>
-        <source>Total Amount %1 (= %2)</source>
-        <translation>総送金額 %1 (= %2)</translation>
+        <source>Total Amount %1&lt;span style='font-size:10pt;font-weight:normal;'&gt;&lt;br /&gt;(=%2)&lt;/span&gt;</source>
+        <translation>総額 %1&lt;span style='font-size:10pt;font-weight:normal;'&gt;&lt;br /&gt;(=%2)&lt;/span&gt;</translation>
     </message>
     <message>
         <source>or</source>
@@ -2935,10 +2935,6 @@ Address: %4
         <translation>ブロック データベースの開始エラー</translation>
     </message>
     <message>
-        <source>Error: A fatal internal error occured, see debug.log for details</source>
-        <translation>エラー：致命的な内部エラーが発生しました。詳細はdebug.logを参照してください</translation>
-    </message>
-    <message>
         <source>Error: Disk space is low!</source>
         <translation>エラー: ディスク容量不足!</translation>
     </message>
@@ -3167,6 +3163,10 @@ rpcpassword=%s
         <translation>データベースの読み込みエラー。シャットダウンします。</translation>
     </message>
     <message>
+        <source>Error: A fatal internal error occurred, see debug.log for details</source>
+        <translation>エラー：致命的な内部エラーが発生しました。詳細はdebug.logを参照してください</translation>
+    </message>
+    <message>
         <source>Error: Unsupported argument -tor found, use -onion.</source>
         <translation>エラー: サポートされていない引数 -tor が見つかりました。-onion を使用してください。</translation>
     </message>
@@ -3216,7 +3216,7 @@ rpcpassword=%s
     </message>
     <message>
         <source>RPC SSL options: (see the Litecoin Wiki for SSL setup instructions)</source>
-        <translation>RPC SSL オプション: (SSLのセットアップ手順はビットコインWikiを参照してください)</translation>
+        <translation>RPC SSL オプション: (SSLのセットアップ手順はライトコインWikiを参照してください)</translation>
     </message>
     <message>
         <source>RPC server options:</source>
@@ -3233,6 +3233,10 @@ rpcpassword=%s
     <message>
         <source>Randomly fuzz 1 of every &lt;n&gt; network messages</source>
         <translation>&lt;n&gt;個のネットワークメッセージごとにひとつをランダムに改変する</translation>
+    </message>
+    <message>
+        <source>Receive and display P2P network alerts (default: %u)</source>
+        <translation>P2Pネットワークのアラートの受け取りと表示を行う (デフォルト: %u)</translation>
     </message>
     <message>
         <source>Send trace/debug info to console instead of debug.log file</source>

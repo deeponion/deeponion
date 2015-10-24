@@ -102,7 +102,7 @@
     <name>AddressTableModel</name>
     <message>
         <source>Label</source>
-        <translation>Пазнака</translation>
+        <translation>Метка</translation>
     </message>
     <message>
         <source>Address</source>
@@ -165,7 +165,7 @@
     </message>
     <message>
         <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR LITECOINS&lt;/b&gt;!</source>
-        <translation>Увага: калі вы зашыфруеце свой гаманец і страціце парольную фразу, то &lt;b&gt;СТРАЦІЦЕ ЎСЕ СВАЕ БІТКОЙНЫ&lt;/b&gt;!</translation>
+        <translation>Увага: калі вы зашыфруеце свой гаманец і страціце парольную фразу, то &lt;b&gt;СТРАЦІЦЕ ЎСЕ СВАЕ LITECOINS&lt;/b&gt;!</translation>
     </message>
     <message>
         <source>Are you sure you wish to encrypt your wallet?</source>
@@ -383,8 +383,12 @@
         <translation>Дапамога</translation>
     </message>
     <message>
+        <source>Litecoin Core</source>
+        <translation>Litecoin Core</translation>
+    </message>
+    <message>
         <source>Request payments (generates QR codes and litecoin: URIs)</source>
-        <translation>Запатрабаваць плацёж (генеруецца QR-код для біткойн URI)</translation>
+        <translation>Запатрабаваць плацёж (генеруецца QR-код для litecoin URI)</translation>
     </message>
     <message>
         <source>&amp;About Litecoin Core</source>
@@ -399,8 +403,16 @@
         <translation>Паказаць спіс адрасоў і метак для прымання</translation>
     </message>
     <message>
+        <source>Open a litecoin: URI or payment request</source>
+        <translation>Адкрыць litecoin: URI ці запыт плацяжу</translation>
+    </message>
+    <message>
         <source>&amp;Command-line options</source>
         <translation>Опцыі каманднага радка</translation>
+    </message>
+    <message>
+        <source>Show the Litecoin Core help message to get a list with possible Litecoin command-line options</source>
+        <translation>Паказваць даведку Litecoin Core каб атрымаць спіс магчымых опцый каманднага радка</translation>
     </message>
     <message numerus="yes">
         <source>%n active connection(s) to Litecoin network</source>
@@ -409,6 +421,10 @@
     <message>
         <source>No block source available...</source>
         <translation>Крыніца блокаў недасяжная...</translation>
+    </message>
+    <message>
+        <source>%1 and %2</source>
+        <translation>%1 і %2</translation>
     </message>
     <message>
         <source>%1 behind</source>
@@ -481,6 +497,10 @@ Address: %4
 <context>
     <name>CoinControlDialog</name>
     <message>
+        <source>Quantity:</source>
+        <translation>Колькасць:</translation>
+    </message>
+    <message>
         <source>Bytes:</source>
         <translation>Байтаў:</translation>
     </message>
@@ -505,6 +525,10 @@ Address: %4
         <translation>Пасля камісіі:</translation>
     </message>
     <message>
+        <source>(un)select all</source>
+        <translation>(не)выбраць ўсё</translation>
+    </message>
+    <message>
         <source>Tree mode</source>
         <translation>Рэжым дрэва</translation>
     </message>
@@ -515,6 +539,14 @@ Address: %4
     <message>
         <source>Amount</source>
         <translation>Колькасць</translation>
+    </message>
+    <message>
+        <source>Received with label</source>
+        <translation>Прыняць праз метку</translation>
+    </message>
+    <message>
+        <source>Received with address</source>
+        <translation>Прыняць праз адрас</translation>
     </message>
     <message>
         <source>Date</source>
@@ -547,6 +579,38 @@ Address: %4
     <message>
         <source>Copy transaction ID</source>
         <translation>Капіяваць ID транзакцыі</translation>
+    </message>
+    <message>
+        <source>Lock unspent</source>
+        <translation>Замкнуць непатрачанае</translation>
+    </message>
+    <message>
+        <source>Unlock unspent</source>
+        <translation>Адамкнуць непатрачанае</translation>
+    </message>
+    <message>
+        <source>Copy quantity</source>
+        <translation>Капіяваць колькасць</translation>
+    </message>
+    <message>
+        <source>Copy fee</source>
+        <translation>Капіяваць камісію</translation>
+    </message>
+    <message>
+        <source>Copy after fee</source>
+        <translation>Капіяваць з выняткам камісіі</translation>
+    </message>
+    <message>
+        <source>Copy bytes</source>
+        <translation>Капіяваць байты</translation>
+    </message>
+    <message>
+        <source>Copy priority</source>
+        <translation>Капіяваць прыярытэт</translation>
+    </message>
+    <message>
+        <source>Copy dust</source>
+        <translation>Капіяваць пыл</translation>
     </message>
     <message>
         <source>highest</source>
@@ -593,6 +657,26 @@ Address: %4
         <translation>не</translation>
     </message>
     <message>
+        <source>This label turns red, if the transaction size is greater than 1000 bytes.</source>
+        <translation>Гэта метка стане чырвонай, калі транзакцыя перавысіць 1000 байт.</translation>
+    </message>
+    <message>
+        <source>This means a fee of at least %1 per kB is required.</source>
+        <translation>Гэта значыць патрэбную камісію мінімум %1 на Кб.</translation>
+    </message>
+    <message>
+        <source>Transactions with higher priority are more likely to get included into a block.</source>
+        <translation>Транзакцыя большага прыярытэту больш прываблівая для ўключэння ў блок.</translation>
+    </message>
+    <message>
+        <source>This label turns red, if the priority is smaller than "medium".</source>
+        <translation>Гэта метка стане чырвонай, калі прыярытэт меньш чым "сярэдні".</translation>
+    </message>
+    <message>
+        <source>This label turns red, if any recipient receives an amount smaller than %1.</source>
+        <translation>Гэта метка стане чырвонай, калі любы з адрасатаў атрымае меньш чым %1.</translation>
+    </message>
+    <message>
         <source>(no label)</source>
         <translation>непазначаны</translation>
     </message>
@@ -605,7 +689,7 @@ Address: %4
     </message>
     <message>
         <source>&amp;Label</source>
-        <translation>Пазнака</translation>
+        <translation>Метка</translation>
     </message>
     <message>
         <source>&amp;Address</source>
@@ -642,9 +726,25 @@ Address: %4
 </context>
 <context>
     <name>FreespaceChecker</name>
+    <message>
+        <source>A new data directory will be created.</source>
+        <translation>Будзе створаны новы каталог з данымі.</translation>
+    </message>
+    <message>
+        <source>name</source>
+        <translation>імя</translation>
+    </message>
+    <message>
+        <source>Directory already exists. Add %1 if you intend to create a new directory here.</source>
+        <translation>Каталог ужо існуе. Дадайце %1 калі вы збіраецеся стварыць тут новы каталог.</translation>
+    </message>
     </context>
 <context>
     <name>HelpMessageDialog</name>
+    <message>
+        <source>Litecoin Core</source>
+        <translation>Litecoin Core</translation>
+    </message>
     <message>
         <source>(%1-bit)</source>
         <translation>(%1-біт)</translation>
@@ -679,6 +779,10 @@ Address: %4
     <message>
         <source>Welcome to Litecoin Core.</source>
         <translation>Вітаем у Litecoin Core.</translation>
+    </message>
+    <message>
+        <source>Litecoin Core</source>
+        <translation>Litecoin Core</translation>
     </message>
     <message>
         <source>Error</source>
@@ -733,7 +837,7 @@ Address: %4
     <name>ReceiveCoinsDialog</name>
     <message>
         <source>&amp;Label:</source>
-        <translation>Пазнака:</translation>
+        <translation>Метка:</translation>
     </message>
     <message>
         <source>Copy label</source>
@@ -756,7 +860,7 @@ Address: %4
     </message>
     <message>
         <source>Label</source>
-        <translation>Пазнака</translation>
+        <translation>Метка</translation>
     </message>
     <message>
         <source>Message</source>
@@ -771,7 +875,7 @@ Address: %4
     </message>
     <message>
         <source>Label</source>
-        <translation>Пазнака</translation>
+        <translation>Метка</translation>
     </message>
     <message>
         <source>Message</source>
@@ -791,6 +895,10 @@ Address: %4
     <message>
         <source>Send Coins</source>
         <translation>Даслаць Манеты</translation>
+    </message>
+    <message>
+        <source>Quantity:</source>
+        <translation>Колькасць:</translation>
     </message>
     <message>
         <source>Bytes:</source>
@@ -833,8 +941,28 @@ Address: %4
         <translation>Пацвердзіць дасыланне манет</translation>
     </message>
     <message>
+        <source>Copy quantity</source>
+        <translation>Капіяваць колькасць</translation>
+    </message>
+    <message>
         <source>Copy amount</source>
         <translation>Капіяваць колькасць</translation>
+    </message>
+    <message>
+        <source>Copy fee</source>
+        <translation>Капіяваць камісію</translation>
+    </message>
+    <message>
+        <source>Copy after fee</source>
+        <translation>Капіяваць з выняткам камісіі</translation>
+    </message>
+    <message>
+        <source>Copy bytes</source>
+        <translation>Капіяваць байты</translation>
+    </message>
+    <message>
+        <source>Copy priority</source>
+        <translation>Капіяваць прыярытэт</translation>
     </message>
     <message>
         <source>The amount to pay must be larger than 0.</source>
@@ -843,6 +971,10 @@ Address: %4
     <message>
         <source>(no label)</source>
         <translation>непазначаны</translation>
+    </message>
+    <message>
+        <source>Copy dust</source>
+        <translation>Капіяваць пыл</translation>
     </message>
     </context>
 <context>
@@ -861,7 +993,7 @@ Address: %4
     </message>
     <message>
         <source>&amp;Label:</source>
-        <translation>Пазнака:</translation>
+        <translation>Метка:</translation>
     </message>
     <message>
         <source>Alt+A</source>
@@ -900,6 +1032,10 @@ Address: %4
     </context>
 <context>
     <name>SplashScreen</name>
+    <message>
+        <source>Litecoin Core</source>
+        <translation>Litecoin Core</translation>
+    </message>
     <message>
         <source>The Bitcoin Core developers</source>
         <translation>Распрацоўнікі Bitcoin Core</translation>
@@ -1145,7 +1281,7 @@ Address: %4
     </message>
     <message>
         <source>Label</source>
-        <translation>Пазнака</translation>
+        <translation>Метка</translation>
     </message>
     <message>
         <source>Address</source>
@@ -1229,10 +1365,6 @@ Address: %4
     <message>
         <source>Error opening block database</source>
         <translation>Памылка адчынення базы звестак блокаў</translation>
-    </message>
-    <message>
-        <source>Error: A fatal internal error occured, see debug.log for details</source>
-        <translation>Памылка: здарылася Фатальная унутраная памылка, глядзі debug.log для падрабязнасцяў</translation>
     </message>
     <message>
         <source>Error: Disk space is low!</source>

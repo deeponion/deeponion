@@ -6,7 +6,7 @@ suites:
 architectures:
 - "amd64"
 packages: 
-- "g++-multilib"
+- "g++"
 - "git-core"
 - "pkg-config"
 - "autoconf2.13"
@@ -18,16 +18,16 @@ packages:
 - "libcap-dev"
 - "libz-dev"
 - "libbz2-dev"
-reference_datetime: "2013-06-01 00:00:00"
+reference_datetime: "2015-10-01 00:00:00"
 remotes:
 - "url": "https://github.com/litecoin-project/litecoin.git"
   "dir": "litecoin"
 files:
-- "MacOSX10.7.sdk.tar.gz"
+- "MacOSX10.9.sdk.tar.gz"
 script: |
   WRAP_DIR=$HOME/wrapped
   HOSTS="x86_64-apple-darwin11"
-  CONFIGFLAGS="--enable-upnp-default GENISOIMAGE=$WRAP_DIR/genisoimage"
+  CONFIGFLAGS="GENISOIMAGE=$WRAP_DIR/genisoimage"
   FAKETIME_HOST_PROGS=""
   FAKETIME_PROGS="ar ranlib date dmg genisoimage"
 
@@ -72,7 +72,7 @@ script: |
   BASEPREFIX=`pwd`/depends
 
   mkdir -p ${BASEPREFIX}/SDKs
-  tar -C ${BASEPREFIX}/SDKs -xf ${BUILD_DIR}/MacOSX10.7.sdk.tar.gz
+  tar -C ${BASEPREFIX}/SDKs -xf ${BUILD_DIR}/MacOSX10.9.sdk.tar.gz
 
   # Build dependencies for each host
   for i in $HOSTS; do
