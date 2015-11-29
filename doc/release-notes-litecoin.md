@@ -46,6 +46,44 @@ This does not affect wallet forward or backward compatibility.
 Notable changes
 ===============
 
+BIP65 soft fork to enforce OP_CHECKLOCKTIMEVERIFY opcode
+--------------------------------------------------------
+
+This release includes several changes related to the [BIP65][] soft fork
+which redefines the existing OP_NOP2 opcode as OP_CHECKLOCKTIMEVERIFY
+(CLTV) so that a transaction output can be made unspendable until a
+specified point in the future.
+
+1. This release will only relay and mine transactions spending a CLTV
+   output if they comply with the BIP65 rules as provided in code.
+
+2. This release will produce version 4 blocks by default. Please see the
+   *notice to miners* below.
+
+3. Once 951 out of a sequence of 1,001 blocks on the local node's best block
+   chain contain version 4 (or higher) blocks, this release will no
+   longer accept new version 3 blocks and it will only accept version 4
+   blocks if they comply with the BIP65 rules for CLTV.
+
+**Notice to miners:** Litecoin Core’s block templates are now for
+version 4 blocks only, and any mining software relying on its
+getblocktemplate must be updated in parallel to use libblkmaker either
+version v0.4.3 or any version from v0.5.2 onward.
+
+- If you are solo mining, this will affect you the moment you upgrade
+  Litecoin Core, which must be done prior to BIP65 achieving its 951/1001
+  status.
+
+- If you are mining with the stratum mining protocol: this does not
+  affect you.
+
+- If you are mining with the getblocktemplate protocol to a pool: this
+  will affect you at the pool operator’s discretion, which must be no
+  later than BIP65 achieving its 951/1001 status.
+
+[BIP65]: https://github.com/bitcoin/bips/blob/master/bip-0065.mediawiki
+
+
 Fix buffer overflow in bundled upnp
 ------------------------------------
 
@@ -110,6 +148,7 @@ is included in as separate release-notes.  This section describes the Litecoin-s
 - Fixed make check testing suite.
 - Updated Qt translations.
 - Updated build instructions for OSX and Unix.
+- Add BIP65 CHECKLOCKTIMEVERIFY softfork.
 
 Credits
 =======
@@ -123,4 +162,5 @@ Thanks to everyone who directly contributed to this release:
 - Adrian Gallagher
 - Anton Yemelyanov
 - Warren Togami
+- BtcDrak
 
