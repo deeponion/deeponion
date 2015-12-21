@@ -125,6 +125,7 @@ public:
         nMinerThreads = 0;
         nTargetTimespan = 3.5 * 24 * 60 * 60; // 3.5 days
         nTargetSpacing = 2.5 * 60; // 2.5 minutes
+        nMaxTipAge = 24 * 60 * 60;
 
         /**
          * Build the genesis block. Note that the output of the genesis coinbase cannot
@@ -209,6 +210,7 @@ public:
         nMinerThreads = 0;
         nTargetTimespan = 3.5 * 24 * 60 * 60; // 3.5 days
         nTargetSpacing = 2.5 * 60; // 2.5 minutes
+        nMaxTipAge = 0x7fffffff;
 
         //! Modify the testnet genesis block so the timestamp is valid for a later start.
         genesis.nTime = 1317798646;
@@ -268,6 +270,7 @@ public:
         nTargetTimespan = 3.5 * 24 * 60 * 60; // 3.5 days
         nTargetSpacing = 2.5 * 60; // 2.5 minutes
         bnProofOfWorkLimit = ~uint256(0) >> 1;
+        nMaxTipAge = 24 * 60 * 60;
         genesis.nTime = 1296688602;
         genesis.nBits = 0x207fffff;
         genesis.nNonce = 0;
