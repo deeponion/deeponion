@@ -1,9 +1,7 @@
-Litecoin Core integration/staging tree
-=====================================
+This is DeepOnion Rebase Codebase from Litecoin
+================================================
 
-[![Build Status](https://travis-ci.org/litecoin-project/litecoin.svg?branch=master)](https://travis-ci.org/litecoin-project/litecoin)
-
-https://litecoin.org
+https://deeponion.org
 
 What is Litecoin?
 ----------------
