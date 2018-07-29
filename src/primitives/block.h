@@ -76,7 +76,8 @@ class CBlock : public CBlockHeader
 public:
     // network and disk
     std::vector<CTransactionRef> vtx;
-
+    std::vector<unsigned char> vchBlockSig;
+    
     // memory only
     mutable bool fChecked;
 
@@ -104,6 +105,7 @@ public:
         CBlockHeader::SetNull();
         vtx.clear();
         fChecked = false;
+        vchBlockSig.clear();
     }
 
     CBlockHeader GetBlockHeader() const

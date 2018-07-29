@@ -22,7 +22,9 @@ static CBlock CreateGenesisBlock(const char* pszTimestamp, const CScript& genesi
     txNew.vout.resize(1);
     txNew.vin[0].scriptSig = CScript() << 0 << CScriptNum(42) << std::vector<unsigned char>((const unsigned char*)pszTimestamp, (const unsigned char*)pszTimestamp + strlen(pszTimestamp));
     txNew.vout[0].nValue = genesisReward;
-    txNew.vout[0].scriptPubKey = genesisOutputScript;
+    // txNew.vout[0].scriptPubKey = genesisOutputScript;
+    txNew.vout[0].scriptPubKey.clear();
+
 
     CBlock genesis;
     genesis.nTime    = nTime;
