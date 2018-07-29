@@ -68,9 +68,12 @@ struct Params {
     BIP9Deployment vDeployments[MAX_VERSION_BITS_DEPLOYMENTS];
     /** Proof of work parameters */
     uint256 powLimit;
+    uint256 posLimit;
     bool fPowAllowMinDifficultyBlocks;
-    bool fPowNoRetargeting;
+    // bool fPowNoRetargeting;
+    // bool fPosNoRetargeting;
     int64_t nPowTargetSpacing;
+    int64_t nPosTargetSpacing;
     int64_t nPowTargetTimespan;
     int64_t DifficultyAdjustmentInterval() const { return nPowTargetTimespan / nPowTargetSpacing; }
     uint256 nMinimumChainWork;

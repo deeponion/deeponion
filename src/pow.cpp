@@ -11,9 +11,54 @@
 #include <uint256.h>
 #include <util.h>
 
-unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHeader *pblock, const Consensus::Params& params)
+// DeepOnion: find last block index up to pindex
+const CBlockIndex* GetLastBlockIndex(const CBlockIndex* pindex, bool fProofOfStake)
 {
-    assert(pindexLast != nullptr);
+    while (pindex && pindex->pprev && (pindex->IsProofOfStake() != fProofOfStake))
+        pindex = pindex->pprev;
+    return pindex;
+}
+
+
+unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHeader *pblock, const Consensus::Params& params, bool fProofOfStake)
+{
+	unsigned int nTargetLimit = UintToArith256(params.powLimit).GetCompact();
+
+	if (fProofOfStake)
+	{
+		nTargetLimit = UintToArith256(params.posLimit).GetCompact();
+	}
+	
+    // genesis block
+    if (pindexLast == NULL)
+        return nTargetLimit;
+
+    const CBlockIndex* pindexPrev = GetLastBlockIndex(pindexLast, fProofOfStake);   
+    if (pindexPrev->pprev == NULL)
+        return nTargetLimit;	// first block
+
+    const CBlockIndex* pindexPrevPrev = GetLastBlockIndex(pindexPrev->pprev, fProofOfStake);
+    if (pindexPrevPrev->pprev == NULL)
+        return nTargetLimit;	// second block
+    
+    // min difficulty
+    if (params.fPowAllowMinDifficultyBlocks)
+    {
+        // Special difficulty rule for testnet:
+        // If the new block's timestamp is more than 2 * 4 minutes
+        // then allow mining of a min-difficulty block.
+        if (pblock->GetBlockTime() > pindexLast->GetBlockTime() + params.nPowTargetSpacing * 2)
+            return nTargetLimit;
+        else
+        {
+            // Return the last non-special-min-difficulty-rules-block
+            const CBlockIndex* pindex = pindexLast;
+            while (pindex->pprev && pindex->nBits == nTargetLimit)
+                pindex = pindex->pprev;
+            return pindex->nBits;
+        }
+    }    
+    
     unsigned int nProofOfWorkLimit = UintToArith256(params.powLimit).GetCompact();
 
     // Only change once per difficulty adjustment interval
@@ -22,7 +67,7 @@ unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHead
         if (params.fPowAllowMinDifficultyBlocks)
         {
             // Special difficulty rule for testnet:
-            // If the new block's timestamp is more than 2* 10 minutes
+            // If the new block's timestamp is more than 2 * 4 minutes
             // then allow mining of a min-difficulty block.
             if (pblock->GetBlockTime() > pindexLast->GetBlockTime() + params.nPowTargetSpacing*2)
                 return nProofOfWorkLimit;
@@ -38,66 +83,63 @@ unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHead
         return pindexLast->nBits;
     }
 
-    // Go back by what we want to be 14 days worth of blocks
-    // DeepOnion: This fixes an issue where a 51% attack can change difficulty at will.
-    // Go back the full period unless it's the first retarget after genesis. Code courtesy of Art Forz
-    int blockstogoback = params.DifficultyAdjustmentInterval()-1;
-    if ((pindexLast->nHeight+1) != params.DifficultyAdjustmentInterval())
-        blockstogoback = params.DifficultyAdjustmentInterval();
-
-    // Go back by what we want to be 14 days worth of blocks
-    const CBlockIndex* pindexFirst = pindexLast;
-    for (int i = 0; pindexFirst && i < blockstogoback; i++)
-        pindexFirst = pindexFirst->pprev;
-
-    assert(pindexFirst);
-
-    return CalculateNextWorkRequired(pindexLast, pindexFirst->GetBlockTime(), params);
+    return CalculateNextWorkRequired(pindexPrev, pindexPrevPrev->GetBlockTime(), params, fProofOfStake);
 }
 
-unsigned int CalculateNextWorkRequired(const CBlockIndex* pindexLast, int64_t nFirstBlockTime, const Consensus::Params& params)
+
+unsigned int CalculateNextWorkRequired(const CBlockIndex* pindexLast, int64_t nFirstBlockTime, const Consensus::Params& params, bool fProofOfStake)
 {
-    if (params.fPowNoRetargeting)
-        return pindexLast->nBits;
+	const int64_t nInterval = 60;
+	arith_uint256 bnTargetLimit = UintToArith256(params.powLimit);
 
-    // Limit adjustment step
-    int64_t nActualTimespan = pindexLast->GetBlockTime() - nFirstBlockTime;
-    if (nActualTimespan < params.nPowTargetTimespan/4)
-        nActualTimespan = params.nPowTargetTimespan/4;
-    if (nActualTimespan > params.nPowTargetTimespan*4)
-        nActualTimespan = params.nPowTargetTimespan*4;
+	if (fProofOfStake)
+	{
+		bnTargetLimit = UintToArith256(params.posLimit);
+	}
 
-    // Retarget
-    arith_uint256 bnNew;
-    arith_uint256 bnOld;
-    bnNew.SetCompact(pindexLast->nBits);
-    bnOld = bnNew;
-    // DeepOnion: intermediate uint256 can overflow by 1 bit
-    const arith_uint256 bnPowLimit = UintToArith256(params.powLimit);
-    bool fShift = bnNew.bits() > bnPowLimit.bits() - 1;
-    if (fShift)
-        bnNew >>= 1;
-    bnNew *= nActualTimespan;
-    bnNew /= params.nPowTargetTimespan;
-    if (fShift)
-        bnNew <<= 1;
+	// Limit adjustment step
+	int64_t nTargetSpacing = params.nPowTargetSpacing;
+	if(fProofOfStake)
+		nTargetSpacing = params.nPosTargetSpacing;
 
-    if (bnNew > bnPowLimit)
-        bnNew = bnPowLimit;
+    int64_t nActualSpacing = pindexLast->GetBlockTime() - nFirstBlockTime;
+	if (nActualSpacing < nTargetSpacing / 4)
+		nActualSpacing = nTargetSpacing / 4;
+	if (nActualSpacing > nTargetSpacing * 4)
+		nActualSpacing = nTargetSpacing * 4;
 
-    return bnNew.GetCompact();
+	arith_uint256 bnNew;
+	bnNew.SetCompact(pindexLast->nBits);
+
+	bnNew *= ((nInterval - 1) * nTargetSpacing + nActualSpacing + nActualSpacing);
+	bnNew /= ((nInterval + 1) * nTargetSpacing);
+
+	/*
+	printf(">> Height = %d, fProofOfStake = %d, nInterval = %"PRI64d", nTargetSpacing = %"PRI64d", nActualSpacing = %"PRI64d"\n",
+	pindexPrev->nHeight, fProofOfStake, nInterval, nTargetSpacing, nActualSpacing);
+	printf(">> pindexPrev->GetBlockTime() = %"PRI64d", pindexPrev->nHeight = %d, pindexPrevPrev->GetBlockTime() = %"PRI64d", pindexPrevPrev->nHeight = %d\n",
+	pindexPrev->GetBlockTime(), pindexPrev->nHeight, pindexPrevPrev->GetBlockTime(), pindexPrevPrev->nHeight);
+	*/
+
+	if (bnNew <= 0 || bnNew > bnTargetLimit)
+		bnNew = bnTargetLimit;
+
+	return bnNew.GetCompact();
 }
 
-bool CheckProofOfWork(uint256 hash, unsigned int nBits, const Consensus::Params& params)
+bool CheckProofOfWork(uint256 hash, unsigned int nBits, const Consensus::Params& params, bool fProofOfStake)
 {
     bool fNegative;
     bool fOverflow;
     arith_uint256 bnTarget;
+    arith_uint256 bnTargetLimit = UintToArith256(params.powLimit);
+    if(fProofOfStake)
+    	bnTargetLimit = UintToArith256(params.posLimit);
 
     bnTarget.SetCompact(nBits, &fNegative, &fOverflow);
 
     // Check range
-    if (fNegative || bnTarget == 0 || fOverflow || bnTarget > UintToArith256(params.powLimit))
+    if (fNegative || bnTarget == 0 || fOverflow || bnTarget > bnTargetLimit)
         return false;
 
     // Check proof of work matches claimed amount
