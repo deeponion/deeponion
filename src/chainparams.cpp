@@ -18,6 +18,7 @@ static CBlock CreateGenesisBlock(const char* pszTimestamp, const CScript& genesi
 {
     CMutableTransaction txNew;
     txNew.nVersion = 1;
+    txNew.nTime = nTime;
     txNew.vin.resize(1);
     txNew.vout.resize(1);
     txNew.vin[0].scriptSig = CScript() << 0 << CScriptNum(42) << std::vector<unsigned char>((const unsigned char*)pszTimestamp, (const unsigned char*)pszTimestamp + strlen(pszTimestamp));
@@ -25,6 +26,7 @@ static CBlock CreateGenesisBlock(const char* pszTimestamp, const CScript& genesi
     // txNew.vout[0].scriptPubKey = genesisOutputScript;
     txNew.vout[0].scriptPubKey.clear();
 
+    LogPrintf(">> txNew = %s\n", txNew.GetHash().ToString().substr(0, 10)); 
 
     CBlock genesis;
     genesis.nTime    = nTime;
@@ -128,6 +130,13 @@ public:
 
         genesis = CreateGenesisBlock(1499843027, 3832541, 0x1e0fffff, 1, 0 * COIN);
         consensus.hashGenesisBlock = genesis.GetHash();
+
+        LogPrintf(">> block = %s\n", genesis.ToString()); 
+        LogPrintf(">> block.GetHash() == %s\n", genesis.GetHash().ToString().c_str());
+        LogPrintf(">> block.hashMerkleRoot == %s\n", genesis.hashMerkleRoot.ToString().c_str());
+        LogPrintf(">> block.nTime = %u \n", genesis.nTime);
+        LogPrintf(">> block.nNonce = %u \n", genesis.nNonce);
+
         assert(consensus.hashGenesisBlock == uint256S("0x000004e29458ef4f2e0abab544737b07344e6ff13718f7c2d12926166db07b5e"));
         assert(genesis.hashMerkleRoot == uint256S("0x48a457c277b124a06b568c0036d2c834e918d952c5b2dbf4035d173f50c8d14c"));
 
