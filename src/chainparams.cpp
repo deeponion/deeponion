@@ -242,7 +242,7 @@ public:
         nDefaultPort = 26550;
         nPruneAfterHeight = 1000;
 
-        genesis = CreateGenesisBlock(1530740000, 249570, 0x1e0ffff0, 1, 0 * COIN);
+        genesis = CreateGenesisBlock(1530740000, 249570, 0x1e0fffff, 1, 0 * COIN);
         consensus.hashGenesisBlock = genesis.GetHash();
         assert(consensus.hashGenesisBlock == uint256S("0x0000024e03c36fa1727092fd3093fc8526a126bd4607e3619fb04d3ab782fa0e"));
         assert(genesis.hashMerkleRoot == uint256S("0x0dff26605532ed8ec42a995c54216210feeeefe896e1469e9d599f9b5bbf8ead"));
@@ -271,7 +271,7 @@ public:
 
         checkpointData = (CCheckpointData) {
             {
-                {2056, uint256S("17748a31ba97afdc9a4f86837a39d287e3e7c7290a08a1d816c5969c78a83289")},
+                {2056, uint256S("17748a31ba97afdc9a4f86837a39d287e3e7c7290a08a1d816c5969c78a83289")},	// this will need to be updated
             }
         };
 
