@@ -151,6 +151,7 @@ BITCOIN_CORE_H = \
   threadinterrupt.h \
   timedata.h \
   torcontrol.h \
+  torservice.h \
   txdb.h \
   txmempool.h \
   ui_interface.h \
@@ -221,6 +222,7 @@ libbitcoin_server_a_SOURCES = \
   script/ismine.cpp \
   timedata.cpp \
   torcontrol.cpp \
+  torservice.cpp \
   txdb.cpp \
   txmempool.cpp \
   ui_interface.cpp \
@@ -425,6 +427,16 @@ DeepOniond_SOURCES += bitcoind-res.rc
 endif
 
 DeepOniond_LDADD = \
+  ../tor/src/or/libtor.a \
+  ../tor/src/common/libor.a \
+  ../tor/src/common/libor-ctime.a \
+  ../tor/src/common/libor-crypto.a \
+  ../tor/src/common/libor-event.a \
+  ../tor/src/trunnel/libor-trunnel.a \
+  ../tor/src/common/libcurve25519_donna.a \
+  ../tor/src/ext/ed25519/donna/libed25519_donna.a \
+  ../tor/src/ext/ed25519/ref10/libed25519_ref10.a \
+  ../tor/src/ext/keccak-tiny/libkeccak-tiny.a \
   $(LIBBITCOIN_SERVER) \
   $(LIBBITCOIN_COMMON) \
   $(LIBUNIVALUE) \
@@ -436,7 +448,8 @@ DeepOniond_LDADD = \
   $(LIBLEVELDB) \
   $(LIBLEVELDB_SSE42) \
   $(LIBMEMENV) \
-  $(LIBSECP256K1)
+  $(LIBSECP256K1) \
+  -lz
 
 DeepOniond_LDADD += $(BOOST_LIBS) $(BDB_LIBS) $(SSL_LIBS) $(CRYPTO_LIBS) $(MINIUPNPC_LIBS) $(EVENT_PTHREADS_LIBS) $(EVENT_LIBS) $(ZMQ_LIBS)
 

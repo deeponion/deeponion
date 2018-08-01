@@ -39,6 +39,7 @@
 #include <txdb.h>
 #include <txmempool.h>
 #include <torcontrol.h>
+#include <torservice.h>
 #include <ui_interface.h>
 #include <util.h>
 #include <utilmoneystr.h>
@@ -59,6 +60,8 @@
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/algorithm/string/split.hpp>
 #include <boost/bind.hpp>
+#include <boost/filesystem.hpp>
+#include <boost/filesystem/fstream.hpp>
 #include <boost/interprocess/sync/file_lock.hpp>
 #include <boost/thread.hpp>
 #include <openssl/crypto.h>
@@ -169,6 +172,7 @@ void Interrupt()
     InterruptRPC();
     InterruptREST();
     InterruptTorControl();
+    InterruptTor();
     if (g_connman)
         g_connman->Interrupt();
 }
@@ -205,6 +209,7 @@ void Shutdown()
     g_connman.reset();
 
     StopTorControl();
+    StopTor();
 
     // After everything has been shut down, but before things get flushed, stop the
     // CScheduler/checkqueue threadGroup
@@ -521,7 +526,7 @@ std::string HelpMessage(HelpMessageMode mode)
 
 std::string LicenseInfo()
 {
-    const std::string URL_SOURCE_CODE = "<https://github.com/DeepOnion-project/DeepOnion>";
+    const std::string URL_SOURCE_CODE = "<https://github.com/DeepOnion/DeepOnion>";
     const std::string URL_WEBSITE = "<https://DeepOnion.org>";
 
     return CopyrightHolders(strprintf(_("Copyright (C) %i-%i"), 2011, COPYRIGHT_YEAR) + " ") + "\n" +
@@ -1337,6 +1342,7 @@ bool AppInitMain()
     std::string proxyArg = gArgs.GetArg("-proxy", "");
     SetLimited(NET_TOR);
     if (proxyArg != "" && proxyArg != "0") {
+		printf("Adding no proxies\n"); // TODO: Remove
         CService proxyAddr;
         if (!Lookup(proxyArg.c_str(), proxyAddr, 9050, fNameLookup)) {
             return InitError(strprintf(_("Invalid -proxy address or hostname: '%s'"), proxyArg));
@@ -1371,19 +1377,74 @@ bool AppInitMain()
             SetProxy(NET_TOR, addrOnion);
             SetLimited(NET_TOR, false);
         }
-    }
+    } else {
+    		printf("Going Deep!\n"); // TODO: Remove
+    		// DeepOnion always uses Tor, if not specified, connect to our default Tor node.
+        CService onionProxy;
+        if (!Lookup("127.0.0.1", onionProxy, 9081, fNameLookup)) {
+            return InitError(strprintf(_("Invalid -onion address or hostname: '%s'"), onionArg));
+        }
+        proxyType addrOnion = proxyType(onionProxy, proxyRandomize);
+        if (!addrOnion.IsValid())
+            return InitError(strprintf(_("Invalid -onion address or hostname: '%s'"), onionArg));
+        SetProxy(NET_TOR, addrOnion);
+        SetLimited(NET_TOR, false);
+
+        // Tor Implementation - Start
+		if (gArgs.GetBoolArg("-listenonion", DEFAULT_LISTEN_ONION)) {
+			LogPrintf("StartTor");
+			StartTor(threadGroup, scheduler);
+
+			uiInterface.InitMessage("Initializing Tor Network...");
+			printf("Initializing Tor Network...\n"); // TODO: Put in logfile
+		}
+
+        // Tor Implementation - End
+    	}
 
     // see Step 2: parameter interactions for more information about these
     fListen = gArgs.GetBoolArg("-listen", DEFAULT_LISTEN);
     fDiscover = gArgs.GetBoolArg("-discover", true);
     fRelayTxes = !gArgs.GetBoolArg("-blocksonly", DEFAULT_BLOCKSONLY);
 
-    for (const std::string& strAddr : gArgs.GetArgs("-externalip")) {
+    if(gArgs.GetArgs("-externalip").size() > 0) {
+    		printf("Waiting For onion address %lU...\n", gArgs.GetArgs("-externalip").size()); // TODO: Put in logfile
+		for (const std::string& strAddr : gArgs.GetArgs("-externalip")) {
+			CService addrLocal;
+			if (Lookup(strAddr.c_str(), addrLocal, GetListenPort(), fNameLookup) && addrLocal.IsValid())
+				AddLocal(addrLocal, LOCAL_MANUAL);
+			else
+				return InitError(ResolveErrMsg("externalip", strAddr));
+		}
+    } else {
+    		// Find our onion address.
+		uiInterface.InitMessage("Waiting For onion address...");
+		printf("Waiting For onion address...\n"); // TODO: Put in logfile
+
+    		std::string automatic_onion;
+        boost::filesystem::path hostname_path = GetDataDir() / "tor" / "onion" / "hostname";
+
+        int attempts = 0;
+        while (1) {
+            if (boost::filesystem::exists(hostname_path))
+                break;
+            ++attempts;
+            boost::this_thread::sleep(boost::posix_time::seconds(2));
+            if (attempts > 8)
+                return InitError(_("Timed out waiting for onion hostname."));
+            printf("No onion hostname yet, will retry in 2 seconds... (%d/8)\n", attempts);
+        }
+
+        boost::filesystem::ifstream file(hostname_path.string().c_str());
+        file >> automatic_onion;
         CService addrLocal;
-        if (Lookup(strAddr.c_str(), addrLocal, GetListenPort(), fNameLookup) && addrLocal.IsValid())
-            AddLocal(addrLocal, LOCAL_MANUAL);
-        else
-            return InitError(ResolveErrMsg("externalip", strAddr));
+		if (Lookup(automatic_onion.c_str(), addrLocal, GetListenPort(), fNameLookup) && addrLocal.IsValid())
+			AddLocal(addrLocal, LOCAL_MANUAL);
+		else
+			return InitError(ResolveErrMsg("external onion", automatic_onion));
+
+//        AddLocal(CService(automatic_onion, GetListenPort(), fNameLookup), LOCAL_MANUAL);
+
     }
 
 #if ENABLE_ZMQ
@@ -1683,9 +1744,12 @@ bool AppInitMain()
         chain_active_height = chainActive.Height();
     }
     LogPrintf("nBestHeight = %d\n", chain_active_height);
-
-    if (gArgs.GetBoolArg("-listenonion", DEFAULT_LISTEN_ONION))
+//	DeepOnion Starts a Tor node in a previous step - Leaving this in gives
+//  users the option to connect to their own Tor setup (Tails integration - It already has a Tor node running.)
+    if (gArgs.GetBoolArg("-listenonion", DEFAULT_LISTEN_ONION)) {
+    		LogPrintf("StartTorControl");
         StartTorControl(threadGroup, scheduler);
+    }
 
     Discover(threadGroup);
 
@@ -1707,14 +1771,20 @@ bool AppInitMain()
 
     connOptions.nMaxOutboundTimeframe = nMaxOutboundTimeframe;
     connOptions.nMaxOutboundLimit = nMaxOutboundLimit;
-
-    for (const std::string& strBind : gArgs.GetArgs("-bind")) {
-        CService addrBind;
-        if (!Lookup(strBind.c_str(), addrBind, GetListenPort(), false)) {
-            return InitError(ResolveErrMsg("bind", strBind));
-        }
-        connOptions.vBinds.push_back(addrBind);
+//	DeepOnion should only ever bind to localhost 127.0.0.1 to avoid clearnet inbound connections. TODO: Clean up and remove this.
+//    for (const std::string& strBind : gArgs.GetArgs("-bind")) {
+//        CService addrBind;
+//        if (!Lookup(strBind.c_str(), addrBind, GetListenPort(), false)) {
+//            return InitError(ResolveErrMsg("bind", strBind));
+//        }
+//        connOptions.vBinds.push_back(addrBind);
+//    }
+    CService addrBind;
+    if (!Lookup("127.0.0.1", addrBind, GetListenPort(), false)) {
+        return InitError(ResolveErrMsg("Cannot bind to localhost: ", "127.0.0.1"));
     }
+    connOptions.vBinds.push_back(addrBind);
+
     for (const std::string& strBind : gArgs.GetArgs("-whitebind")) {
         CService addrBind;
         if (!Lookup(strBind.c_str(), addrBind, 0, false)) {
