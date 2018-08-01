@@ -16,4 +16,4 @@ autoreconf --install --force --warnings=all
 
 cd tor
 ./autogen.sh
-cd..
+cd ..
