@@ -45,6 +45,19 @@ bench_bench_DeepOnion_LDADD = \
   $(LIBSECP256K1) \
   $(LIBUNIVALUE)
 
+# Linking with Tor TODO: cap seccomp and z should be added using Autoconf really
+bench_bench_DeepOnion_LDADD += $(abs_top_builddir)/tor/src/or/libtor.a \
+        $(abs_top_builddir)/tor/src/common/libor.a \
+        $(abs_top_builddir)/tor/src/common/libor-ctime.a \
+        $(abs_top_builddir)/tor/src/common/libor-crypto.a \
+        $(abs_top_builddir)/tor/src/common/libor-event.a \
+        $(abs_top_builddir)/tor/src/trunnel/libor-trunnel.a \
+        $(abs_top_builddir)/tor/src/common/libcurve25519_donna.a \
+        $(abs_top_builddir)/tor/src/ext/ed25519/donna/libed25519_donna.a \
+        $(abs_top_builddir)/tor/src/ext/ed25519/ref10/libed25519_ref10.a \
+        $(abs_top_builddir)/tor/src/ext/keccak-tiny/libkeccak-tiny.a \
+        $(LIBSECCOMP_LIBS) $(LIBCAP_LIBS) $(ZLIB_LIBS)
+
 if ENABLE_ZMQ
 bench_bench_DeepOnion_LDADD += $(LIBBITCOIN_ZMQ) $(ZMQ_LIBS)
 endif

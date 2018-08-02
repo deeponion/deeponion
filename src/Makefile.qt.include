@@ -439,18 +439,17 @@ qt_DeepOnion_qt_LDADD += $(LIBBITCOIN_ZMQ) $(ZMQ_LIBS)
 endif
 qt_DeepOnion_qt_LDADD += $(LIBBITCOIN_CLI) $(LIBBITCOIN_COMMON) $(LIBBITCOIN_UTIL) $(LIBBITCOIN_CONSENSUS) $(LIBBITCOIN_CRYPTO) $(LIBUNIVALUE) $(LIBLEVELDB) $(LIBLEVELDB_SSE42) $(LIBMEMENV) \
   $(BOOST_LIBS) $(QT_LIBS) $(QT_DBUS_LIBS) $(QR_LIBS) $(PROTOBUF_LIBS) $(BDB_LIBS) \
-     ../tor/src/or/libtor.a \
-	../tor/src/common/libor.a \
-	../tor/src/common/libor-ctime.a \
-	../tor/src/common/libor-crypto.a \
-	../tor/src/common/libor-event.a \
-	../tor/src/trunnel/libor-trunnel.a \
-	../tor/src/common/libcurve25519_donna.a \
-	../tor/src/ext/ed25519/donna/libed25519_donna.a \
-	../tor/src/ext/ed25519/ref10/libed25519_ref10.a \
-	../tor/src/ext/keccak-tiny/libkeccak-tiny.a \
-	-lz \
-    $(SSL_LIBS) $(CRYPTO_LIBS) $(MINIUPNPC_LIBS) $(LIBSECP256K1) \
+  $(abs_top_builddir)/tor/src/or/libtor.a \
+  $(abs_top_builddir)/tor/src/common/libor.a \
+  $(abs_top_builddir)/tor/src/common/libor-ctime.a \
+  $(abs_top_builddir)/tor/src/common/libor-crypto.a \
+  $(abs_top_builddir)/tor/src/common/libor-event.a \
+  $(abs_top_builddir)/tor/src/trunnel/libor-trunnel.a \
+  $(abs_top_builddir)/tor/src/common/libcurve25519_donna.a \
+  $(abs_top_builddir)/tor/src/ext/ed25519/donna/libed25519_donna.a \
+  $(abs_top_builddir)/tor/src/ext/ed25519/ref10/libed25519_ref10.a \
+  $(abs_top_builddir)/tor/src/ext/keccak-tiny/libkeccak-tiny.a \
+  $(LIBSECCOMP_LIBS) $(LIBCAP_LIBS) $(ZLIB_LIBS) $(SSL_LIBS) $(CRYPTO_LIBS) $(MINIUPNPC_LIBS) $(LIBSECP256K1) \
   $(EVENT_PTHREADS_LIBS) $(EVENT_LIBS)
 qt_DeepOnion_qt_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(QT_LDFLAGS) $(LIBTOOL_APP_LDFLAGS)
 qt_DeepOnion_qt_LIBTOOLFLAGS = --tag CXX

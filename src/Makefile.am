@@ -31,6 +31,7 @@ LIBBITCOIN_UTIL=libbitcoin_util.a
 LIBBITCOIN_CRYPTO=crypto/libbitcoin_crypto.a
 LIBBITCOINQT=qt/libbitcoinqt.a
 LIBSECP256K1=secp256k1/libsecp256k1.la
+ZLIB_LIBS=-lz
 
 if ENABLE_ZMQ
 LIBBITCOIN_ZMQ=libbitcoin_zmq.a
@@ -427,16 +428,6 @@ DeepOniond_SOURCES += bitcoind-res.rc
 endif
 
 DeepOniond_LDADD = \
-  ../tor/src/or/libtor.a \
-  ../tor/src/common/libor.a \
-  ../tor/src/common/libor-ctime.a \
-  ../tor/src/common/libor-crypto.a \
-  ../tor/src/common/libor-event.a \
-  ../tor/src/trunnel/libor-trunnel.a \
-  ../tor/src/common/libcurve25519_donna.a \
-  ../tor/src/ext/ed25519/donna/libed25519_donna.a \
-  ../tor/src/ext/ed25519/ref10/libed25519_ref10.a \
-  ../tor/src/ext/keccak-tiny/libkeccak-tiny.a \
   $(LIBBITCOIN_SERVER) \
   $(LIBBITCOIN_COMMON) \
   $(LIBUNIVALUE) \
@@ -448,8 +439,20 @@ DeepOniond_LDADD = \
   $(LIBLEVELDB) \
   $(LIBLEVELDB_SSE42) \
   $(LIBMEMENV) \
-  $(LIBSECP256K1) \
-  -lz
+  $(LIBSECP256K1)
+
+# Linking with Tor TODO: cap seccomp and z should be added using Autoconf really
+DeepOniond_LDADD += $(abs_top_builddir)/tor/src/or/libtor.a \
+        $(abs_top_builddir)/tor/src/common/libor.a \
+        $(abs_top_builddir)/tor/src/common/libor-ctime.a \
+        $(abs_top_builddir)/tor/src/common/libor-crypto.a \
+        $(abs_top_builddir)/tor/src/common/libor-event.a \
+        $(abs_top_builddir)/tor/src/trunnel/libor-trunnel.a \
+        $(abs_top_builddir)/tor/src/common/libcurve25519_donna.a \
+        $(abs_top_builddir)/tor/src/ext/ed25519/donna/libed25519_donna.a \
+        $(abs_top_builddir)/tor/src/ext/ed25519/ref10/libed25519_ref10.a \
+        $(abs_top_builddir)/tor/src/ext/keccak-tiny/libkeccak-tiny.a \
+        $(LIBSECCOMP_LIBS) $(LIBCAP_LIBS) $(ZLIB_LIBS)
 
 DeepOniond_LDADD += $(BOOST_LIBS) $(BDB_LIBS) $(SSL_LIBS) $(CRYPTO_LIBS) $(MINIUPNPC_LIBS) $(EVENT_PTHREADS_LIBS) $(EVENT_LIBS) $(ZMQ_LIBS)
 
