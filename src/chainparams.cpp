@@ -141,11 +141,11 @@ public:
         assert(genesis.hashMerkleRoot == uint256S("0x48a457c277b124a06b568c0036d2c834e918d952c5b2dbf4035d173f50c8d14c"));
 
         // Note that of those with the service bits flag, most only support a subset of possible options
-        vSeeds.emplace_back("seed-a.DeepOnion.loshan.co.uk");
-        vSeeds.emplace_back("dnsseed.thrasher.io");
-        vSeeds.emplace_back("dnsseed.DeepOniontools.com");
-        vSeeds.emplace_back("dnsseed.DeepOnionpool.org");
-        vSeeds.emplace_back("dnsseed.koin-project.com");
+//        vSeeds.emplace_back("seed-a.DeepOnion.loshan.co.uk");
+//        vSeeds.emplace_back("dnsseed.thrasher.io");
+//        vSeeds.emplace_back("dnsseed.DeepOniontools.com");
+//        vSeeds.emplace_back("dnsseed.DeepOnionpool.org");
+//        vSeeds.emplace_back("dnsseed.koin-project.com");
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,31);
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,78);
@@ -250,9 +250,9 @@ public:
         vFixedSeeds.clear();
         vSeeds.clear();
         // nodes with support for servicebits filtering should be at the top
-        vSeeds.emplace_back("testnet-seed.DeepOniontools.com");
-        vSeeds.emplace_back("seed-b.DeepOnion.loshan.co.uk");
-        vSeeds.emplace_back("dnsseed-testnet.thrasher.io");
+//        vSeeds.emplace_back("testnet-seed.DeepOniontools.com");
+//        vSeeds.emplace_back("seed-b.DeepOnion.loshan.co.uk");
+//        vSeeds.emplace_back("dnsseed-testnet.thrasher.io");
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,111);
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,196);
