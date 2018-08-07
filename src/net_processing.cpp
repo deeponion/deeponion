@@ -294,7 +294,8 @@ void PushNodeVersion(CNode *pnode, CConnman* connman, int64_t nTime)
     CAddress addr = pnode->addr;
 
     CAddress addrYou = (addr.IsRoutable() && !IsProxy(addr) ? addr : CAddress(CService(), addr.nServices));
-    CAddress addrMe = CAddress(CService(), nLocalNodeServices);
+    // CAddress addrMe = CAddress(CService(), nLocalNodeServices);
+    CAddress addrMe = GetLocalAddress(&addr, nLocalNodeServices);
 
     connman->PushMessage(pnode, CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::VERSION, PROTOCOL_VERSION, (uint64_t)nLocalNodeServices, nTime, addrYou, addrMe,
             nonce, strSubVersion, nNodeStartingHeight, ::fRelayTxes));
@@ -303,8 +304,9 @@ void PushNodeVersion(CNode *pnode, CConnman* connman, int64_t nTime)
         LogPrint(BCLog::NET, "send version message: version %d, blocks=%d, us=%s, them=%s, peer=%d\n", PROTOCOL_VERSION, nNodeStartingHeight, addrMe.ToString(), addrYou.ToString(), nodeid);
         LogPrintf(">> send version message: version %d, blocks=%d, us=%s, them=%s, peer=%d\n", PROTOCOL_VERSION, nNodeStartingHeight, addrMe.ToString(), addrYou.ToString(), nodeid);
     } else {
-        LogPrint(BCLog::NET, "send version message: version %d, blocks=%d, us=%s, peer=%d\n", PROTOCOL_VERSION, nNodeStartingHeight, addrMe.ToString(), nodeid);
-        LogPrintf(">> send version message: version %d, blocks=%d, us=%s, peer=%d\n", PROTOCOL_VERSION, nNodeStartingHeight, addrMe.ToString(), nodeid);
+        LogPrint(BCLog::NET, "send version message: version %d, blocks=%d, us=%s, peer=%d, \n", PROTOCOL_VERSION, nNodeStartingHeight, addrMe.ToString(), nodeid);
+        LogPrintf(">> send version message: version %d, nLocalNodeServices=%u, nTime=%d, us=%s, them=%s, nonce=%u, strSubVersion=%s, block=%d, peer=%d\n", 
+        		PROTOCOL_VERSION, (uint64_t)nLocalNodeServices, nTime, addrMe.ToString(), addrYou.ToString(), nonce, strSubVersion, nNodeStartingHeight, nodeid);
     }
 }
 
@@ -3166,14 +3168,13 @@ public:
 
 bool PeerLogicValidation::SendMessages(CNode* pto, std::atomic<bool>& interruptMsgProc)
 {
-	LogPrintf(">> In PeerLogicValidation::SendMessages\n");
     const Consensus::Params& consensusParams = Params().GetConsensus();
     {
         // Don't send anything until the version handshake is complete
         if (!pto->fSuccessfullyConnected || pto->fDisconnect)
             return true;
 
-    	LogPrintf(">> SendMessages connected\n");
+    	LogPrintf(">> SendMessages: connected\n");
         // If we get here, the outgoing message serialization version is set and can't change.
         const CNetMsgMaker msgMaker(pto->GetSendVersion());
 
