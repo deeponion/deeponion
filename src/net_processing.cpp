@@ -305,7 +305,7 @@ void PushNodeVersion(CNode *pnode, CConnman* connman, int64_t nTime)
         LogPrintf(">> send version message: version %d, blocks=%d, us=%s, them=%s, peer=%d\n", PROTOCOL_VERSION, nNodeStartingHeight, addrMe.ToString(), addrYou.ToString(), nodeid);
     } else {
         LogPrint(BCLog::NET, "send version message: version %d, blocks=%d, us=%s, peer=%d, \n", PROTOCOL_VERSION, nNodeStartingHeight, addrMe.ToString(), nodeid);
-        LogPrintf(">> send version message: version %d, nLocalNodeServices=%u, nTime=%d, us=%s, them=%s, nonce=%u, strSubVersion=%s, block=%d, peer=%d\n", 
+        LogPrintf(">> send version message: version %d, nLocalNodeServices=%u, nTime=%d, us=%s, them=%s, nonce=%lu, strSubVersion=%s, block=%d, peer=%d\n", 
         		PROTOCOL_VERSION, (uint64_t)nLocalNodeServices, nTime, addrMe.ToString(), addrYou.ToString(), nonce, strSubVersion, nNodeStartingHeight, nodeid);
     }
 }
@@ -1737,6 +1737,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 
     if (strCommand == NetMsgType::VERACK)
     {
+    	LogPrintf(">> Processing Verack message.\n");
         pfrom->SetRecvVersion(std::min(pfrom->nVersion.load(), PROTOCOL_VERSION));
 
         if (!pfrom->fInbound) {
@@ -1768,6 +1769,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
             nCMPCTBLOCKVersion = 1;
             connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::SENDCMPCT, fAnnounceUsingCMPCTBLOCK, nCMPCTBLOCKVersion));
         }
+        LogPrintf(">> Verack message: successfully connected\n");
         pfrom->fSuccessfullyConnected = true;
     }
 
@@ -1784,6 +1786,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
     {
         std::vector<CAddress> vAddr;
         vRecv >> vAddr;
+        LogPrintf(">> Processing addr message. addr size = %d\n", vAddr.size());
 
         // Don't want addr from older versions unless seeding
         if (pfrom->nVersion < CADDR_TIME_VERSION && connman->GetAddressCount() > 1000)
@@ -1862,8 +1865,10 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 
     else if (strCommand == NetMsgType::INV)
     {
+    	LogPrintf(">> Processing inv message\n");
         std::vector<CInv> vInv;
         vRecv >> vInv;
+    	LogPrintf(">> inv message: inv size = %d\n", vInv.size());
         if (vInv.size() > MAX_INV_SZ)
         {
         	LogPrintf(">> inv message: vInv.size() > MAX_INV_SZ\n");
@@ -1872,7 +1877,6 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
             return error("message inv size() = %u", vInv.size());
         }
 
-        LogPrintf(">> inv message: ok\n");
         bool fBlocksOnly = !fRelayTxes;
 
         // Allow whitelisted peers to send data other than blocks in blocks only mode if whitelistrelay is true
@@ -2607,6 +2611,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 
     else if (strCommand == NetMsgType::HEADERS && !fImporting && !fReindex) // Ignore headers received while importing
     {
+        LogPrintf(">> Processing header message\n");
         std::vector<CBlockHeader> headers;
 
         // Bypass the normal CBlock deserialization, as we don't want to risk deserializing 2000 full blocks.
@@ -2617,9 +2622,17 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
             return error("headers message size = %u", nCount);
         }
         headers.resize(nCount);
+        LogPrintf(">> header: count=%d\n", nCount);
+        
+        char aa;
         for (unsigned int n = 0; n < nCount; n++) {
             vRecv >> headers[n];
-            ReadCompactSize(vRecv); // ignore tx count; assume it is 0.
+            vRecv >> aa;
+            vRecv >> aa;
+            if(n < 5)
+            	LogPrintf(">> header: %d, ver=%d, hashPrevBlock=%s, hashMerkleRoot=%s, nTime=%u, nBits=%08x, nNonce=%u\n", 
+            		n, headers[n].nVersion, headers[n].hashPrevBlock.ToString().c_str(), headers[n].hashMerkleRoot.ToString().c_str(), headers[n].nTime, headers[n].nBits, headers[n].nNonce);
+            // ReadCompactSize(vRecv); // ignore tx count; assume it is 0.
         }
 
         // Headers received via a HEADERS message should be valid, and reflect
@@ -2740,7 +2753,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 
         if (nAvail >= sizeof(nonce)) {
             vRecv >> nonce;
-
+             
             // Only process pong message if there is an outstanding ping (old ping without nonce should never pong)
             if (pfrom->nPingNonceSent != 0) {
                 if (nonce == pfrom->nPingNonceSent) {
@@ -2748,6 +2761,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
                     bPingFinished = true;
                     int64_t pingUsecTime = pingUsecEnd - pfrom->nPingUsecStart;
                     if (pingUsecTime > 0) {
+                    	LogPrintf(">> Pong: Successful ping time measurement\n");
                         // Successful ping time measurement, replace previous
                         pfrom->nPingUsecTime = pingUsecTime;
                         pfrom->nMinPingUsecTime = std::min(pfrom->nMinPingUsecTime.load(), pingUsecTime);
@@ -2774,6 +2788,12 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
         }
 
         if (!(sProblem.empty())) {
+            LogPrintf("pong peer=%d: %s, %x expected, %x received, %u bytes\n",
+                pfrom->GetId(),
+                sProblem,
+                pfrom->nPingNonceSent,
+                nonce,
+                nAvail);
             LogPrint(BCLog::NET, "pong peer=%d: %s, %x expected, %x received, %u bytes\n",
                 pfrom->GetId(),
                 sProblem,
@@ -3174,7 +3194,6 @@ bool PeerLogicValidation::SendMessages(CNode* pto, std::atomic<bool>& interruptM
         if (!pto->fSuccessfullyConnected || pto->fDisconnect)
             return true;
 
-    	LogPrintf(">> SendMessages: connected\n");
         // If we get here, the outgoing message serialization version is set and can't change.
         const CNetMsgMaker msgMaker(pto->GetSendVersion());
 
