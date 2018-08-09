@@ -134,6 +134,7 @@ unsigned int CalculateNextWorkRequired(const CBlockIndex* pindexLast, int64_t nF
 
 bool CheckProofOfWork(uint256 hash, unsigned int nBits, const Consensus::Params& params, bool fProofOfStake)
 {
+	LogPrintf(">> hash = %s\n\n", hash.ToString().c_str());
     bool fNegative;
     bool fOverflow;
     arith_uint256 bnTarget;
@@ -143,13 +144,25 @@ bool CheckProofOfWork(uint256 hash, unsigned int nBits, const Consensus::Params&
 
     bnTarget.SetCompact(nBits, &fNegative, &fOverflow);
 
+    if(fNegative)
+    	LogPrintf(">> fNegative\n");
+    if(fOverflow)
+    	LogPrintf(">> fOverflow\n");
+    if(bnTarget == 0)
+    	LogPrintf(">> bnTarget == 0\n");
+    if(bnTarget > bnTargetLimit)
+    	LogPrintf(">> bnTarget > bnTargetLimit\n");
+    
     // Check range
     if (fNegative || bnTarget == 0 || fOverflow || bnTarget > bnTargetLimit)
         return false;
 
     // Check proof of work matches claimed amount
-    if (UintToArith256(hash) > bnTarget)
+    if (UintToArith256(hash) > bnTarget) {
+    	LogPrintf(">> UintToArith256(hash) > bnTarget\n");
+    	LogPrintf(">> hash = %s, bnTarget256 = %s\n", hash.ToString().c_str(), ArithToUint256(bnTarget).ToString().c_str());
         return false;
+    }
 
     return true;
 }

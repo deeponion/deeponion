@@ -2954,9 +2954,13 @@ static bool FindUndoPos(CValidationState &state, int nFile, CDiskBlockPos &pos, 
 
 static bool CheckBlockHeader(const CBlockHeader& block, CValidationState& state, const Consensus::Params& consensusParams, bool fCheckPOW = true)
 {
-    // Check proof of work matches claimed amount
-    if (fCheckPOW && !CheckProofOfWork(block.GetPoWHash(), block.nBits, consensusParams))
+	LogPrintf(">> header info: ver=%d, hashPrevBlock=%s, hashMerkleRoot=%s, nTime=%u, nBits=%08x, nNonce=%u\n", 
+			block.nVersion, block.hashPrevBlock.ToString().c_str(), block.hashMerkleRoot.ToString().c_str(), block.nTime, block.nBits, block.nNonce);
+
+	// Check proof of work matches claimed amount
+    if (fCheckPOW && block.IsProofOfWork() && !CheckProofOfWork(block.GetPoWHash(), block.nBits, consensusParams)) {
         return state.DoS(50, false, REJECT_INVALID, "high-hash", false, "proof of work failed");
+    }
 
     return true;
 }
@@ -3102,8 +3106,15 @@ static bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationSta
     
     // Check proof of work
     const Consensus::Params& consensusParams = params.GetConsensus();
-    if (block.nBits != GetNextWorkRequired(pindexPrev, &block, consensusParams)) {
-    	LogPrintf(">> block.nBits=%08x, getwork = %08x\n", block.nBits, GetNextWorkRequired(pindexPrev, &block, consensusParams));
+    bool isProofOfStake = block.IsProofOfStake();
+    if(isProofOfStake)
+    	LogPrintf(">> PoS block\n");
+    else
+    	LogPrintf(">> PoW block\n");
+    
+    if (block.nBits != GetNextWorkRequired(pindexPrev, &block, consensusParams, isProofOfStake)) {
+    	LogPrintf(">> block.nBits=%08x, getwork = %08x, hash = %s\n", 
+    			block.nBits, GetNextWorkRequired(pindexPrev, &block, consensusParams, isProofOfStake), block.GetHash().ToString().c_str());
         return state.DoS(100, false, REJECT_INVALID, "bad-diffbits", false, "incorrect proof of work");
     }
 
@@ -3292,8 +3303,11 @@ bool ProcessNewBlockHeaders(const std::vector<CBlockHeader>& headers, CValidatio
     if (first_invalid != nullptr) first_invalid->SetNull();
     {
         LOCK(cs_main);
+        int count = 0;
         for (const CBlockHeader& header : headers) {
             CBlockIndex *pindex = nullptr; // Use a temp pindex instead of ppindex to avoid a const_cast
+            ++count;
+            LogPrintf(">> count = %d\n", count);
             if (!g_chainstate.AcceptBlockHeader(header, state, chainparams, &pindex)) {
                 if (first_invalid) *first_invalid = header;
                 return false;

@@ -60,6 +60,13 @@ public:
         return (nBits == 0);
     }
 
+    bool IsProofOfStake() const;
+
+    bool IsProofOfWork() const
+    {
+        return !IsProofOfStake();
+    }
+    
     uint256 GetHash() const;
 
     uint256 GetPoWHash() const;

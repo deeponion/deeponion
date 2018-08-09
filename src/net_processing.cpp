@@ -1379,6 +1379,8 @@ bool static ProcessHeadersMessage(CNode *pfrom, CConnman *connman, const std::ve
         }
     }
 
+    LogPrintf(">>>>> ProcessNewBlockHeaders done\n");
+    
     {
         LOCK(cs_main);
         CNodeState *nodestate = State(pfrom->GetId());
@@ -2629,9 +2631,6 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
             vRecv >> headers[n];
             vRecv >> aa;
             vRecv >> aa;
-            if(n < 5)
-            	LogPrintf(">> header: %d, ver=%d, hashPrevBlock=%s, hashMerkleRoot=%s, nTime=%u, nBits=%08x, nNonce=%u\n", 
-            		n, headers[n].nVersion, headers[n].hashPrevBlock.ToString().c_str(), headers[n].hashMerkleRoot.ToString().c_str(), headers[n].nTime, headers[n].nBits, headers[n].nNonce);
             // ReadCompactSize(vRecv); // ignore tx count; assume it is 0.
         }
 

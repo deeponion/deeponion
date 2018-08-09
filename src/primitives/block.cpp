@@ -20,6 +20,23 @@ uint256 CBlockHeader::GetPoWHash() const
     return HashX13(BEGIN(nVersion), END(nNonce));
 }
 
+bool CBlockHeader::IsProofOfStake() const
+{
+	// unfortunately with blockheader only it is difficult to determine if a block is pow or pos
+	// to determine if a block is pos we need to check its vin/vout
+	// thus the formal method will be in the block class
+	// here we just temporarily use a hack:
+	// pow blocks always has its hash starting with at least 5 "0"s.
+	// this is temporary, we should not check the headers, but should move all check functions
+	// to checkblock, like the old deeponion code does
+	std::string hashStr = GetHash().ToString();
+	if(hashStr.find("00000") == 0) {
+		return false;
+	}
+	
+	return true;
+}
+
 std::string CBlock::ToString() const
 {
     std::stringstream s;
