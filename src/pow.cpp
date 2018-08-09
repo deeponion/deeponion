@@ -44,6 +44,8 @@ unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHead
     // min difficulty
     if (params.fPowAllowMinDifficultyBlocks)
     {
+    	LogPrintf(">> Allow minimum diff\n");
+    	
         // Special difficulty rule for testnet:
         // If the new block's timestamp is more than 2 * 4 minutes
         // then allow mining of a min-difficulty block.
@@ -59,11 +61,13 @@ unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHead
         }
     }    
     
+    /*
     unsigned int nProofOfWorkLimit = UintToArith256(params.powLimit).GetCompact();
 
     // Only change once per difficulty adjustment interval
     if ((pindexLast->nHeight+1) % params.DifficultyAdjustmentInterval() != 0)
     {
+    	LogPrintf(">> Diff no need to be adjusted\n");
         if (params.fPowAllowMinDifficultyBlocks)
         {
             // Special difficulty rule for testnet:
@@ -82,7 +86,8 @@ unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHead
         }
         return pindexLast->nBits;
     }
-
+	*/
+    
     return CalculateNextWorkRequired(pindexPrev, pindexPrevPrev->GetBlockTime(), params, fProofOfStake);
 }
 
