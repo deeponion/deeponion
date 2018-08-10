@@ -270,11 +270,27 @@ public:
         SetNull();
     }
 
-    explicit CBlockIndex(const CBlock& block)
+    explicit CBlockIndex(const CBlockHeader& block)
     {
         SetNull();
 
         if (block.IsProofOfStake())
+        {
+        	nFlags |= BLOCK_PROOF_OF_STAKE;
+        }
+
+        nVersion       = block.nVersion;
+        hashMerkleRoot = block.hashMerkleRoot;
+        nTime          = block.nTime;
+        nBits          = block.nBits;
+        nNonce         = block.nNonce;
+    }
+
+    explicit CBlockIndex(const CBlock& block)
+    {
+        SetNull();
+
+        if (block.GetBlockHeader().IsProofOfStake())
         {
         	nFlags |= BLOCK_PROOF_OF_STAKE;
             prevoutStake = block.vtx[1]->vin[0].prevout;
@@ -287,6 +303,7 @@ public:
         nBits          = block.nBits;
         nNonce         = block.nNonce;
     }
+
 
     CDiskBlockPos GetBlockPos() const {
         CDiskBlockPos ret;
