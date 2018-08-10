@@ -206,6 +206,22 @@ public:
     //! Verification status of this block. See enum BlockStatus
     uint32_t nStatus;
 
+    unsigned int nFlags;  // DeepOnion: block index flags
+    enum  
+    {
+        BLOCK_PROOF_OF_STAKE = (1 << 0), // is proof-of-stake block
+        BLOCK_STAKE_ENTROPY  = (1 << 1), // entropy bit for stake modifier
+        BLOCK_STAKE_MODIFIER = (1 << 2), // regenerated stake modifier
+    };
+
+    uint64_t nStakeModifier; // hash modifier for proof-of-stake
+    unsigned int nStakeModifierChecksum; // checksum of index; in-memeory only
+
+    // proof-of-stake specific fields
+    COutPoint prevoutStake;
+    unsigned int nStakeTime;
+    uint256 hashProofOfStake;
+
     //! block header
     int32_t nVersion;
     uint256 hashMerkleRoot;
@@ -235,6 +251,13 @@ public:
         nSequenceId = 0;
         nTimeMax = 0;
 
+        nFlags = 0;
+        nStakeModifier = 0;
+        nStakeModifierChecksum = 0;
+        hashProofOfStake = uint256();
+        prevoutStake.SetNull();
+        nStakeTime = 0;
+        
         nVersion       = 0;
         hashMerkleRoot = uint256();
         nTime          = 0;
@@ -247,9 +270,16 @@ public:
         SetNull();
     }
 
-    explicit CBlockIndex(const CBlockHeader& block)
+    explicit CBlockIndex(const CBlock& block)
     {
         SetNull();
+
+        if (block.IsProofOfStake())
+        {
+        	nFlags |= BLOCK_PROOF_OF_STAKE;
+            prevoutStake = block.vtx[1]->vin[0].prevout;
+            nStakeTime = block.vtx[1]->nTime;
+        }
 
         nVersion       = block.nVersion;
         hashMerkleRoot = block.hashMerkleRoot;
@@ -325,25 +355,54 @@ public:
         return pbegin[(pend - pbegin)/2];
     }
 
-    bool IsProofOfWork() const 
+    bool IsProofOfWork() const
     {
-        return !IsProofOfStake();
+        return !(nFlags & BLOCK_PROOF_OF_STAKE);
     }
 
     bool IsProofOfStake() const
     {
-        // return !prevoutStake.IsNull();
-    	return false;
+        return (nFlags & BLOCK_PROOF_OF_STAKE);
+    }
+
+    unsigned int GetStakeEntropyBit() const
+    {
+        return ((nFlags & BLOCK_STAKE_ENTROPY) >> 1);
+    }
+
+    bool SetStakeEntropyBit(unsigned int nEntropyBit)
+    {
+        if (nEntropyBit > 1)
+            return false;
+        nFlags |= (nEntropyBit? BLOCK_STAKE_ENTROPY : 0);
+        return true;
+    }
+
+    bool GeneratedStakeModifier() const
+    {
+        return (nFlags & BLOCK_STAKE_MODIFIER);
+    }
+
+    void SetStakeModifier(uint64_t nModifier, bool fGeneratedStakeModifier)
+    {
+        nStakeModifier = nModifier;
+        if (fGeneratedStakeModifier)
+            nFlags |= BLOCK_STAKE_MODIFIER;
     }
     
     std::string ToString() const
     {
-        return strprintf("CBlockIndex(pprev=%p, nHeight=%d, merkle=%s, hashBlock=%s)",
-            pprev, nHeight,
+        return strprintf("CBlockIndex(pprev=%p, nHeight=%d, nFile=%d, nDataPos=%u, nFlags=(%s)(%d)(%s), nStakeModifier=%d, nStakeModifierChecksum=%08x, hashProofOfStake=%s, prevoutStake=(%s), nStakeTime=%d, merkle=%s, hashBlock=%s)",
+            pprev, nHeight, nFile, nDataPos,
+			GeneratedStakeModifier() ? "MOD" : "-", GetStakeEntropyBit(), IsProofOfStake()? "PoS" : "PoW",
+			nStakeModifier, nStakeModifierChecksum, 
+			hashProofOfStake.ToString().c_str(),
+			prevoutStake.ToString().c_str(), nStakeTime,
             hashMerkleRoot.ToString(),
             GetBlockHash().ToString());
     }
 
+    
     //! Check whether this block index entry is valid up to the passed validity level.
     bool IsValid(enum BlockStatus nUpTo = BLOCK_VALID_TRANSACTIONS) const
     {

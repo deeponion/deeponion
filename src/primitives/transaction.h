@@ -159,6 +159,11 @@ public:
     {
         return (nValue == -1);
     }
+    
+    bool IsEmpty() const
+    {
+        return (nValue == 0 && scriptPubKey.empty());
+    }
 
     friend bool operator==(const CTxOut& a, const CTxOut& b)
     {
@@ -344,8 +349,7 @@ public:
     bool IsCoinStake() const
     {
         // DeepOnion: the coin stake transaction is marked with the first output empty
-        // return (vin.size() > 0 && (!vin[0].prevout.IsNull()) && vout.size() >= 2 && vout[0].IsEmpty());
-    	return false;
+        return (vin.size() > 0 && (!vin[0].prevout.IsNull()) && vout.size() >= 2 && vout[0].IsEmpty());
     }
 
     friend bool operator==(const CTransaction& a, const CTransaction& b)
