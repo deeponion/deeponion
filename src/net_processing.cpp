@@ -305,7 +305,7 @@ void PushNodeVersion(CNode *pnode, CConnman* connman, int64_t nTime)
         LogPrintf(">> send version message: version %d, blocks=%d, us=%s, them=%s, peer=%d\n", PROTOCOL_VERSION, nNodeStartingHeight, addrMe.ToString(), addrYou.ToString(), nodeid);
     } else {
         LogPrint(BCLog::NET, "send version message: version %d, blocks=%d, us=%s, peer=%d, \n", PROTOCOL_VERSION, nNodeStartingHeight, addrMe.ToString(), nodeid);
-        LogPrintf(">> send version message: version %d, nLocalNodeServices=%u, nTime=%d, us=%s, them=%s, nonce=%lu, strSubVersion=%s, block=%d, peer=%d\n", 
+        LogPrintf(">> send version message: version %d, nLocalNodeServices=%u, nTime=%d, us=%s, them=%s, nonce=%lu, strSubVersion=%s, block=%d, peer=%d\n",
         		PROTOCOL_VERSION, (uint64_t)nLocalNodeServices, nTime, addrMe.ToString(), addrYou.ToString(), nonce, strSubVersion, nNodeStartingHeight, nodeid);
     }
 }
@@ -1273,10 +1273,28 @@ inline void static SendBlockTransactions(const CBlock& block, const BlockTransac
     connman->PushMessage(pfrom, msgMaker.Make(nSendFlags, NetMsgType::BLOCKTXN, resp));
 }
 
+// DeepOnion - Synchronise the get headers
+static bool fRequestingHeaders = false;
+static int64_t fLastHeaderReq = 0;
+
+void static PushGetHeaders(CNode *pfrom, CConnman *connman, CNetMsgMaker msgMaker, CBlockLocator pIndex, uint256 hash)
+{
+	// If for some reason we never get a positive response. Don't block after 60s
+	// This is can be optimised further, we still seem to requesting the same header set multiple times.
+	if(!fRequestingHeaders || (fLastHeaderReq - 60) > fLastHeaderReq ) {
+		fRequestingHeaders = true;
+		fLastHeaderReq = GetTime();
+		connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::GETHEADERS, pIndex, hash));
+	} else {
+		LogPrint(BCLog::NET, "PushGetHeaders: Not sending getheaders as already sent. %d", fLastHeaderReq);
+	}
+}
+
 bool static ProcessHeadersMessage(CNode *pfrom, CConnman *connman, const std::vector<CBlockHeader>& headers, const CChainParams& chainparams, bool punish_duplicate_invalid)
 {
     const CNetMsgMaker msgMaker(pfrom->GetSendVersion());
     size_t nCount = headers.size();
+    fRequestingHeaders = false;
 
     if (nCount == 0) {
         // Nothing interesting. Stop asking this peers for more headers.
@@ -1299,7 +1317,7 @@ bool static ProcessHeadersMessage(CNode *pfrom, CConnman *connman, const std::ve
         //   nUnconnectingHeaders gets reset back to 0.
         if (mapBlockIndex.find(headers[0].hashPrevBlock) == mapBlockIndex.end() && nCount < MAX_BLOCKS_TO_ANNOUNCE) {
             nodestate->nUnconnectingHeaders++;
-            connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::GETHEADERS, chainActive.GetLocator(pindexBestHeader), uint256()));
+            PushGetHeaders(pfrom, connman, msgMaker, chainActive.GetLocator(pindexBestHeader), uint256());
             LogPrint(BCLog::NET, "received header %s: missing prev block %s, sending getheaders (%d) to end (peer=%d, nUnconnectingHeaders=%d)\n",
                     headers[0].GetHash().ToString(),
                     headers[0].hashPrevBlock.ToString(),
@@ -1404,8 +1422,8 @@ bool static ProcessHeadersMessage(CNode *pfrom, CConnman *connman, const std::ve
             // Headers message had its maximum size; the peer may have more headers.
             // TODO: optimize: if pindexLast is an ancestor of chainActive.Tip or pindexBestHeader, continue
             // from there instead.
-            LogPrint(BCLog::NET, "more getheaders (%d) to end to peer=%d (startheight:%d)\n", pindexLast->nHeight, pfrom->GetId(), pfrom->nStartingHeight);
-            connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::GETHEADERS, chainActive.GetLocator(pindexLast), uint256()));
+            LogPrint(BCLog::NET, "more getheaders (%d) to end to peer=%d (startheight:%d) Thread:0x%04x\n", pindexLast->nHeight, pfrom->GetId(), pfrom->nStartingHeight, std::this_thread::get_id());
+            PushGetHeaders(pfrom, connman, msgMaker, chainActive.GetLocator(pindexBestHeader), uint256());
         }
 
         bool fCanDirectFetch = CanDirectFetch(chainparams.GetConsensus());
@@ -1910,8 +1928,9 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
                     // fell back to inv we probably have a reorg which we should get the headers for first,
                     // we now only provide a getheaders response here. When we receive the headers, we will
                     // then ask for the blocks we need.
+                    PushGetHeaders(pfrom, connman, msgMaker, chainActive.GetLocator(pindexBestHeader), inv.hash);
                     connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::GETHEADERS, chainActive.GetLocator(pindexBestHeader), inv.hash));
-                    LogPrint(BCLog::NET, "getheaders (%d) %s to peer=%d\n", pindexBestHeader->nHeight, inv.hash.ToString(), pfrom->GetId());
+                    LogPrint(BCLog::NET, "getheaders 1 (%d) %s to peer=%d\n", pindexBestHeader->nHeight, inv.hash.ToString(), pfrom->GetId());
                 }
             }
             else
@@ -2325,7 +2344,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
         if (mapBlockIndex.find(cmpctblock.header.hashPrevBlock) == mapBlockIndex.end()) {
             // Doesn't connect (or is genesis), instead of DoSing in AcceptBlockHeader, request deeper headers
             if (!IsInitialBlockDownload())
-                connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::GETHEADERS, chainActive.GetLocator(pindexBestHeader), uint256()));
+                PushGetHeaders(pfrom, connman, msgMaker, chainActive.GetLocator(pindexBestHeader), uint256());
             return true;
         }
 
@@ -3077,7 +3096,7 @@ void PeerLogicValidation::ConsiderEviction(CNode *pto, int64_t time_in_seconds)
             } else {
                 assert(state.m_chain_sync.m_work_header);
                 LogPrint(BCLog::NET, "sending getheaders to outbound peer=%d to verify chain work (current best known block:%s, benchmark blockhash: %s)\n", pto->GetId(), state.pindexBestKnownBlock != nullptr ? state.pindexBestKnownBlock->GetBlockHash().ToString() : "<none>", state.m_chain_sync.m_work_header->GetBlockHash().ToString());
-                connman->PushMessage(pto, msgMaker.Make(NetMsgType::GETHEADERS, chainActive.GetLocator(state.m_chain_sync.m_work_header->pprev), uint256()));
+                PushGetHeaders(pto, connman, msgMaker, chainActive.GetLocator(state.m_chain_sync.m_work_header->pprev), uint256());
                 state.m_chain_sync.m_sent_getheaders = true;
                 constexpr int64_t HEADERS_RESPONSE_TIME = 120; // 2 minutes
                 // Bump the timeout to allow a response, which could clear the timeout
@@ -3290,7 +3309,7 @@ bool PeerLogicValidation::SendMessages(CNode* pto, std::atomic<bool>& interruptM
                 if (pindexStart->pprev)
                     pindexStart = pindexStart->pprev;
                 LogPrint(BCLog::NET, "initial getheaders (%d) to peer=%d (startheight:%d)\n", pindexStart->nHeight, pto->GetId(), pto->nStartingHeight);
-                connman->PushMessage(pto, msgMaker.Make(NetMsgType::GETHEADERS, chainActive.GetLocator(pindexStart), uint256()));
+                PushGetHeaders(pto, connman, msgMaker, chainActive.GetLocator(pindexStart), uint256());
             }
         }
 
