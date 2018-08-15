@@ -134,13 +134,14 @@ unsigned int CalculateNextWorkRequired(const CBlockIndex* pindexLast, int64_t nF
 
 bool CheckProofOfWork(uint256 hash, unsigned int nBits, const Consensus::Params& params, bool fProofOfStake)
 {
-	// LogPrintf(">> hash = %s\n\n", hash.ToString().c_str());
+	// this function check only pow
+	if(fProofOfStake)
+		return true;
+	
     bool fNegative;
     bool fOverflow;
     arith_uint256 bnTarget;
     arith_uint256 bnTargetLimit = UintToArith256(params.powLimit);
-    if(fProofOfStake)
-    	bnTargetLimit = UintToArith256(params.posLimit);
 
     bnTarget.SetCompact(nBits, &fNegative, &fOverflow);
 
