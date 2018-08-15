@@ -473,12 +473,18 @@ void FindNextBlocksToDownload(NodeId nodeid, unsigned int count, std::vector<con
 
     // Make sure pindexBestKnownBlock is up to date, we'll need it.
     ProcessBlockAvailability(nodeid);
-
+    /*
+    if (state->pindexBestKnownBlock != nullptr && state->pindexBestKnownBlock->nChainWork >= chainActive.Tip()->nChainWork) 
+    {
+    	LogPrintf(">> state->pindexBestKnownBlock->nChainWork = %s\n", state->pindexBestKnownBlock->nChainWork.ToString().c_str());
+    }
+    */
+    
     if (state->pindexBestKnownBlock == nullptr || state->pindexBestKnownBlock->nChainWork < chainActive.Tip()->nChainWork || state->pindexBestKnownBlock->nChainWork < nMinimumChainWork) {
         // This peer has nothing interesting.
         return;
     }
-
+    
     if (state->pindexLastCommonBlock == nullptr) {
         // Bootstrap quickly by guessing a parent of our best tip is the forking point.
         // Guessing wrong in either direction is not a problem.
@@ -1407,7 +1413,7 @@ bool static ProcessHeadersMessage(CNode *pfrom, CConnman *connman, const std::ve
             connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::GETHEADERS, chainActive.GetLocator(pindexLast), uint256()));
         }
 
-        bool fCanDirectFetch = CanDirectFetch(chainparams.GetConsensus());
+        bool fCanDirectFetch = CanDirectFetch(chainparams.GetConsensus());        
         // If this set of headers is valid and ends in a block with at least as
         // much work as our tip, download as much as possible.
         if (fCanDirectFetch && pindexLast->IsValid(BLOCK_VALID_TREE) && chainActive.Tip()->nChainWork <= pindexLast->nChainWork) {
