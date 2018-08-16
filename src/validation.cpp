@@ -1776,6 +1776,7 @@ static int64_t nBlocksTotal = 0;
 bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pindex,
                   CCoinsViewCache& view, const CChainParams& chainparams, bool fJustCheck)
 {
+	LogPrintf(">> ConnectBlock\n");
     AssertLockHeld(cs_main);
     assert(pindex);
     // pindex->phashBlock can be null if called by CreateNewBlock/TestBlockValidity
@@ -1910,7 +1911,7 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
 
         nInputs += tx.vin.size();
 
-        if (!tx.IsCoinBase())
+        if (!tx.IsCoinBase() && !tx.IsCoinStake())
         {
             CAmount txfee = 0;
             if (!Consensus::CheckTxInputs(tx, state, view, pindex->nHeight, txfee)) {
@@ -3023,8 +3024,61 @@ bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::P
     if (fCheckPOW && fCheckMerkleRoot)
         block.fChecked = true;
 
+    // special check for pos blocks
+    if (block.IsProofOfStake())
+    {
+        // Coinbase output should be empty if proof-of-stake block
+		if (block.vtx[0]->vout.size() != 1 || !block.vtx[0]->vout[0].IsEmpty())
+			return state.DoS(100, false, REJECT_INVALID, "pos-blk-wrong", false, "coinbase output not empty for pos block");
+
+        // Second transaction must be coinstake, the rest must not be
+        if (block.vtx.empty() || !block.vtx[1]->IsCoinStake())
+            return state.DoS(100, false, REJECT_INVALID, "2ndtx-not-coinstake", false, "second tx is not coinstake");
+        for (unsigned int i = 2; i < block.vtx.size(); i++)
+            if (block.vtx[i]->IsCoinStake())
+                return state.DoS(100, false, REJECT_INVALID, "more-coinstakes", false, "more than one coinstake");
+
+        // Check coinstake timestamp
+        if (block.GetBlockTime() != (int64_t)block.vtx[1]->nTime)
+            return state.DoS(50, false, REJECT_INVALID, "coinstake-time-wrong", false, "coinstake timestamp violation not match block time");
+
+        // NovaCoin: check proof-of-stake block signature
+        if (!CheckBlockSignature(block))
+            return state.DoS(100, false, REJECT_INVALID, "pos-signature-wrong", false, "bad proof-of-stake block signature");
+    }
+
     return true;
 }
+
+// This function need to be fixed -- TODO
+bool CheckBlockSignature(const CBlock& block)
+{
+	/*
+    if (block.IsProofOfWork())
+        return block.vchBlockSig.empty();
+
+    std::vector<valtype> vSolutions;
+    txnouttype whichType;
+
+    const CTxOut& txout = block.vtx[1]->vout[1];
+
+    if (!Solver(txout.scriptPubKey, whichType, vSolutions))
+        return false;
+
+    if (whichType == TX_PUBKEY)
+    {
+        valtype& vchPubKey = vSolutions[0];
+        CKey key;
+        if (!key.SetPubKey(vchPubKey))
+            return false;
+        if (vchBlockSig.empty())
+            return false;
+        return key.Verify(GetHash(), vchBlockSig);
+    }
+	*/
+    return false;
+}
+
 
 bool IsWitnessEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params)
 {
@@ -3116,7 +3170,7 @@ static bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationSta
     if (block.nBits != GetNextWorkRequired(pindexPrev, &block, consensusParams, isProofOfStake)) {
     	LogPrintf(">> block.nBits=%08x, getwork = %08x, hash = %s\n", 
     			block.nBits, GetNextWorkRequired(pindexPrev, &block, consensusParams, isProofOfStake), block.GetHash().ToString().c_str());
-        return state.DoS(100, false, REJECT_INVALID, "bad-diffbits", false, "incorrect proof of work");
+        return state.DoS(100, false, REJECT_INVALID, "bad-diffbits", false, isProofOfStake ? "incorrect proof of stake" : "incorrect proof of work");
     }
 
     // Check against checkpoints
