@@ -1132,6 +1132,134 @@ bool ReadBlockFromDisk(CBlock& block, const CBlockIndex* pindex, const Consensus
     return true;
 }
 
+// DeepOnion: PoS Port *******************************************
+// TODO: Tidy up
+static const int NUM_OF_POW_CHECKPOINT = 21;
+static const int checkpointPoWHeight[NUM_OF_POW_CHECKPOINT][2] =
+{
+		{  9601,   4611},
+		{ 19767,   6631},
+		{ 41366,  10850},
+		{ 78842,  19751},
+		{102776,  25000},
+		{150006,  31600},
+		{200830,  44597},
+		{250008,  54582},
+		{300836,  64774},
+		{350003,  74350},
+		{375453,  79257},
+		{400494,  84066},
+		{434205,  90499},
+		{450225,  93657},
+		{475131,  98495},
+		{500001, 103315},
+		{526839, 108542},
+		{550004, 113079},
+		{575635, 118133},
+		{600014, 122831},
+		{621306, 126890},
+};
+
+int GetPowHeightTable(const CBlockIndex* pindex)
+{
+	int count = 0;
+	int height = pindex->nHeight;
+	int maxCheck = height;
+	int index = -1;
+
+	if (NUM_OF_POW_CHECKPOINT != 0)
+	{
+		for (int i = 1; i <= NUM_OF_POW_CHECKPOINT; i++)
+		{
+			if (height > checkpointPoWHeight[NUM_OF_POW_CHECKPOINT - i][0])
+			{
+				index = NUM_OF_POW_CHECKPOINT - i;
+				break;
+			}
+		}
+	}
+
+	if (index != -1)
+		maxCheck = height - checkpointPoWHeight[index][0];
+
+	for (int j = 0; j < maxCheck; j++)
+	{
+		if (!pindex->IsProofOfStake())
+			++count;
+
+		pindex = pindex->pprev;
+	}
+
+	if (index != -1)
+		count += checkpointPoWHeight[index][1];
+
+	++count;
+
+	// printf(">> Height = %d, Count = %d\n", height, count);
+	return count;
+}
+
+int GetPowHeight(const CBlockIndex* pindex)
+{
+	int powH = 0;
+	powH = GetPowHeightTable(pindex);
+	return powH;
+}
+
+int GetPosHeight(const CBlockIndex* pindex)
+{
+	int posH = pindex->nHeight - GetPowHeight(pindex);
+	return posH;
+}
+
+
+// miner's coin base reward
+CAmount GetProofOfWorkReward(int nHeight, const CBlockIndex* pindex)
+{
+	int64_t nSubsidy = 8 * COIN;
+
+	if (nHeight == 1)
+	{
+		nSubsidy = 18000000 * COIN;
+		return nSubsidy;
+	}
+
+	int nPoWHeight = GetPowHeight(pindex);
+	LogPrintf(">> nHeight = %d, nPoWHeight = %d\n", nHeight, nPoWHeight);
+	int mm = nPoWHeight / 131400;
+	nSubsidy >>= mm;
+
+	return nSubsidy;
+}
+
+// TODO: Tidy up
+static const int YEARLY_POS_BLOCK_COUNT = 525600;
+static const int64_t MAX_PROOF_OF_STAKE_STABLE = 0.01 * COIN;
+
+CAmount GetProofOfStakeReward(int64_t nCoinAge, const CBlockIndex* pindex)
+{
+	int64_t nRewardCoinYear = MAX_PROOF_OF_STAKE_STABLE;
+	int nPoSHeight = GetPosHeight(pindex);
+	int64_t nSubsidy = 0;
+
+	if (nPoSHeight < YEARLY_POS_BLOCK_COUNT)
+	{
+		nSubsidy = 10 * nRewardCoinYear * nCoinAge / 365;
+	}
+	else if (nPoSHeight < 2 * YEARLY_POS_BLOCK_COUNT)
+	{
+		nSubsidy = 5 * nRewardCoinYear * nCoinAge / 365;
+	}
+	else
+	{
+		nSubsidy = nRewardCoinYear * nCoinAge / 365;
+	}
+
+	return nSubsidy;
+}
+// DeepOnion: PoS Port *******************************************
+
+// TODO: Fix for miner.cpp:167 Use Above
 CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams)
 {
 	if(nHeight == 1) {
@@ -1969,12 +2097,28 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
     int64_t nTime3 = GetTimeMicros(); nTimeConnect += nTime3 - nTime2;
     LogPrint(BCLog::BENCH, "      - Connect %u transactions: %.2fms (%.3fms/tx, %.3fms/txin) [%.2fs (%.2fms/blk)]\n", (unsigned)block.vtx.size(), MILLI * (nTime3 - nTime2), MILLI * (nTime3 - nTime2) / block.vtx.size(), nInputs <= 1 ? 0 : MILLI * (nTime3 - nTime2) / (nInputs-1), nTimeConnect * MICRO, nTimeConnect * MILLI / nBlocksTotal);
 
-    CAmount blockReward = nFees + GetBlockSubsidy(pindex->nHeight, chainparams.GetConsensus());
-    if (block.vtx[0]->GetValueOut() > blockReward)
-        return state.DoS(100,
-                         error("ConnectBlock(): coinbase pays too much (actual=%d vs limit=%d)",
-                               block.vtx[0]->GetValueOut(), blockReward),
-                               REJECT_INVALID, "bad-cb-amount");
+    if(block.IsProofOfWork())
+    {
+		CAmount blockReward = nFees + GetProofOfWorkReward(pindex->nHeight, pindex);
+		if (block.vtx[0]->GetValueOut() > blockReward)
+			return state.DoS(100,
+							 error("ConnectBlock(): coinbase pays too much (actual=%d vs limit=%d)",
+								   block.vtx[0]->GetValueOut(), blockReward),
+								   REJECT_INVALID, "bad-cb-amount");
+    }
+    else if(block.IsProofOfStake())
+    {
+        // DeepOnion: coin stake tx earns reward instead of paying fee
+    		// TODO - FIX
+//        uint64_t nCoinAge;
+//        if (!vtx[1].GetCoinAge(txdb, nCoinAge))
+//            return error("ConnectBlock() : %s unable to get coin age for coinstake", vtx[1].GetHash().ToString().substr(0,10).c_str());
+//
+//		int64_t nCalculatedStakeReward = GetProofOfStakeReward(nCoinAge, pindex->pprev);
+//
+//        if (nStakeReward > nCalculatedStakeReward)
+//            return DoS(100, error("ConnectBlock() : coinstake pays too much(actual=%" PRId64 " vs calculated=%" PRId64 ")", nStakeReward, nCalculatedStakeReward));
+    }
 
     if (!control.Wait())
         return state.DoS(100, error("%s: CheckQueue failed", __func__), REJECT_INVALID, "block-validation-failed");
