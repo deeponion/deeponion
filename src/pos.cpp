@@ -6,6 +6,7 @@
 
 #include "pos.h"
 #include "txdb.h"
+#include "arith_uint256.h"
 
 using namespace std;
 
@@ -51,7 +52,6 @@ int64_t GetWeight(int64_t nIntervalBeginning, int64_t nIntervalEnd)
 // Get the last stake modifier and its generation time from a given block
 static bool GetLastStakeModifier(const CBlockIndex* pindex, uint64_t& nStakeModifier, int64_t& nModifierTime)
 {
-	/*
     if (!pindex)
         return error("GetLastStakeModifier: null pindex");
     while (pindex && pindex->pprev && !pindex->GeneratedStakeModifier())
@@ -61,8 +61,6 @@ static bool GetLastStakeModifier(const CBlockIndex* pindex, uint64_t& nStakeModi
     nStakeModifier = pindex->nStakeModifier;
     nModifierTime = pindex->GetBlockTime();
     return true;
-    */
-	return false;
 }
 
 // Get selection interval section (in seconds)
@@ -88,10 +86,9 @@ static bool SelectBlockFromCandidates(vector<pair<int64_t, uint256> >& vSortedBy
     int64_t nSelectionIntervalStop, uint64_t nStakeModifierPrev, const CBlockIndex** pindexSelected)
 {
     bool fSelected = false;
-    /*
-    uint256 hashBest = uint256();
+    arith_uint256 hashBest = arith_uint256();
     *pindexSelected = (const CBlockIndex*) 0;
-    
+
     for(const pair<int64_t, uint256>& item : vSortedByTimestamp)
     {
         if (!mapBlockIndex.count(item.second))
@@ -106,7 +103,7 @@ static bool SelectBlockFromCandidates(vector<pair<int64_t, uint256> >& vSortedBy
         uint256 hashProof = pindex->IsProofOfStake()? pindex->hashProofOfStake : pindex->GetBlockHash();
         CDataStream ss(SER_GETHASH, 0);
         ss << hashProof << nStakeModifierPrev;
-        uint256 hashSelection = Hash(ss.begin(), ss.end());
+        arith_uint256 hashSelection = UintToArith256(Hash(ss.begin(), ss.end()));
         // the selection hash is divided by 2**32 so that proof-of-stake block
         // is always favored over proof-of-work block. this is to preserve
         // the energy efficiency property
@@ -124,7 +121,7 @@ static bool SelectBlockFromCandidates(vector<pair<int64_t, uint256> >& vSortedBy
             *pindexSelected = (const CBlockIndex*) pindex;
         }
     }
-*/
+
     return fSelected;
 }
 
