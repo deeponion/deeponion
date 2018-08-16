@@ -178,6 +178,9 @@ bool CheckTransaction(const CTransaction& tx, CValidationState &state, bool fChe
         nValueOut += txout.nValue;
         if (!MoneyRange(nValueOut))
             return state.DoS(100, false, REJECT_INVALID, "bad-txns-txouttotal-toolarge");
+        
+        if (txout.IsEmpty() && !tx.IsCoinBase() && !tx.IsCoinStake())
+        	return state.DoS(100, false, REJECT_INVALID, "txout-empty-user-transaction");
     }
 
     // Check for duplicate inputs - note that this check is slow so we skip it in CheckBlock
