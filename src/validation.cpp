@@ -39,6 +39,7 @@
 #include <utilstrencodings.h>
 #include <validationinterface.h>
 #include <warnings.h>
+#include <key.h>
 
 #include <future>
 #include <sstream>
@@ -53,6 +54,8 @@
 
 #define MICRO 0.000001
 #define MILLI 0.001
+
+typedef std::vector<unsigned char> valtype;
 
 /**
  * Global state
@@ -3042,7 +3045,7 @@ bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::P
         if (block.GetBlockTime() != (int64_t)block.vtx[1]->nTime)
             return state.DoS(50, false, REJECT_INVALID, "coinstake-time-wrong", false, "coinstake timestamp violation not match block time");
 
-        // NovaCoin: check proof-of-stake block signature
+        // DeepOnion: check proof-of-stake block signature
         if (!CheckBlockSignature(block))
             return state.DoS(100, false, REJECT_INVALID, "pos-signature-wrong", false, "bad proof-of-stake block signature");
     }
@@ -3053,7 +3056,6 @@ bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::P
 // This function need to be fixed -- TODO
 bool CheckBlockSignature(const CBlock& block)
 {
-	/*
     if (block.IsProofOfWork())
         return block.vchBlockSig.empty();
 
@@ -3067,15 +3069,14 @@ bool CheckBlockSignature(const CBlock& block)
 
     if (whichType == TX_PUBKEY)
     {
-        valtype& vchPubKey = vSolutions[0];
+        CPubKey vchPubKey = CPubKey(vSolutions[0]);
         CKey key;
         if (!key.SetPubKey(vchPubKey))
             return false;
-        if (vchBlockSig.empty())
+        if (block.vchBlockSig.empty())
             return false;
-        return key.Verify(GetHash(), vchBlockSig);
+        return key.Verify(block.GetHash(), block.vchBlockSig);
     }
-	*/
     return false;
 }
 
