@@ -69,12 +69,10 @@ private:
 
 public:
     //! Construct an invalid private key.
-    CKey() : fValid(false), fCompressed(false)
+    CKey() : pkey(NULL), fSet(false), fCompressedPubKey(false), fValid(false), fCompressed(false)
     {
         // Important: vch must be 32 bytes in length to not break serialization
         keydata.resize(32);
-        pkey = NULL;
-        Reset();
     }
 
     ~CKey();
