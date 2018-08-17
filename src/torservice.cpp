@@ -189,7 +189,11 @@ void StopTor()
 {
     LogPrintf("torservice: StopTor\n");
     if (gBase) {
-    		torServiceThread.join();
+// Tests on OSX don't appear to have an issue with this, however other
+// systems appear to not have their Tor thread exit so the join never returns.
+// As we don't use the event base in it's intended way, we can probably remove it TODO:
+// for now lets just test that the application exits cleanly without waiting for the thread to finish.
+//    		torServiceThread.join();
         event_base_free(gBase);
         gBase = nullptr;
     }
