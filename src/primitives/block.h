@@ -9,6 +9,7 @@
 #include <primitives/transaction.h>
 #include <serialize.h>
 #include <uint256.h>
+#include <arith_uint256.h>
 
 /** Nodes collect new transactions into a block, hash them into a hash tree,
  * and scan through nonce values to make the block's hash satisfy proof-of-work
@@ -74,6 +75,14 @@ public:
     int64_t GetBlockTime() const
     {
         return (int64_t)nTime;
+    }
+    
+    // entropy bit for stake modifier if chosen by modifier
+    unsigned int GetStakeEntropyBit() const
+    {
+        // Take last bit of block hash as entropy bit
+        unsigned int nEntropyBit = (UintToArith256(GetHash()).Get64()) & 1llu;
+        return nEntropyBit;
     }
 };
 

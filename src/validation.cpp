@@ -21,6 +21,7 @@
 #include <policy/policy.h>
 #include <policy/rbf.h>
 #include <pow.h>
+#include <pos.h>
 #include <primitives/block.h>
 #include <primitives/transaction.h>
 #include <random.h>
@@ -2954,6 +2955,7 @@ CBlockIndex* CChainState::AddToBlockIndex(const CBlockHeader& block)
     }
     pindexNew->nTimeMax = (pindexNew->pprev ? std::max(pindexNew->pprev->nTimeMax, pindexNew->nTime) : pindexNew->nTime);
     pindexNew->nChainWork = (pindexNew->pprev ? pindexNew->pprev->nChainWork : 0) + GetBlockProof(*pindexNew);
+    
     pindexNew->RaiseValidity(BLOCK_VALID_TREE);
     if (pindexBestHeader == nullptr || pindexBestHeader->nChainWork < pindexNew->nChainWork)
         pindexBestHeader = pindexNew;
@@ -3197,7 +3199,7 @@ bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::P
     return true;
 }
 
-// This function need to be fixed -- TODO
+
 bool CheckBlockSignature(const CBlock& block)
 {
     if (block.IsProofOfWork())
@@ -3593,6 +3595,38 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CVali
         }
         return error("%s: %s", __func__, FormatStateMessage(state));
     }
+    
+    // process PoS block, add needed info to CBlockIndex
+    /*
+    if (block.IsProofOfStake())
+    {
+    	uint256 hashProofOfStake = uint256();
+    	uint256 targetProofOfStake = uint256();
+        if (!CheckProofOfStake(*pblocktree, pindex->pprev, state, block, hashProofOfStake, targetProofOfStake, *pcoinsTip))
+        {
+        	LogPrintf("ERROR: AcceptBlock(): check proof-of-stake failed for block %s\n", block.GetHash().ToString().c_str());
+            return false; 
+        }
+        
+        // DeepOnion: compute stake entropy bit for stake modifier
+        pindex->SetStakeEntropyBit(block.GetStakeEntropyBit());
+
+    	// DeepOnion: record proof-of-stake hash value
+		pindex->hashProofOfStake = hashProofOfStake;
+
+        // DeepOnion: compute stake modifier
+        uint64_t nStakeModifier = 0;
+        bool fGeneratedStakeModifier = false;
+        ComputeNextStakeModifier(pindex->pprev, nStakeModifier, fGeneratedStakeModifier);
+        pindex->SetStakeModifier(nStakeModifier, fGeneratedStakeModifier);
+        pindex->nStakeModifierChecksum = GetStakeModifierChecksum(pindex);
+        if (!CheckStakeModifierCheckpoints(pindex->nHeight, pindex->nStakeModifierChecksum))
+        {
+           LogPrintf("AddToBlockIndex() : Rejected by stake modifier checkpoint height=%d, modifier=%ul\n", pindex->nHeight, nStakeModifier);
+           return false; 
+        }
+    }  
+    */  
 
     // Header is valid/has work, merkle tree and segwit merkle tree are good...RELAY NOW
     // (but if it does not build on our best tip, let the SendMessages loop relay it)
