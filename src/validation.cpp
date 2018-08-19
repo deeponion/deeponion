@@ -2950,6 +2950,7 @@ CBlockIndex* CChainState::AddToBlockIndex(const CBlockHeader& block)
     if (miPrev != mapBlockIndex.end())
     {
         pindexNew->pprev = (*miPrev).second;
+        pindexNew->pprev->pnext = pindexNew;
         pindexNew->nHeight = pindexNew->pprev->nHeight + 1;
         pindexNew->BuildSkip();
     }
@@ -3597,12 +3598,15 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CVali
     }
     
     // process PoS block, add needed info to CBlockIndex
-    /*
     if (block.IsProofOfStake())
     {
+    	pindex->nFlags |= CBlockIndex::BLOCK_PROOF_OF_STAKE;
+    	pindex->prevoutStake = block.vtx[1]->vin[0].prevout;
+    	pindex->nStakeTime = block.vtx[1]->nTime;
+    	            
     	uint256 hashProofOfStake = uint256();
     	uint256 targetProofOfStake = uint256();
-        if (!CheckProofOfStake(*pblocktree, pindex->pprev, state, block, hashProofOfStake, targetProofOfStake, *pcoinsTip))
+        if (!CheckProofOfStake(*pblocktree, pindex->pprev, state, block, hashProofOfStake, targetProofOfStake, mapBlockIndex, *pcoinsTip))
         {
         	LogPrintf("ERROR: AcceptBlock(): check proof-of-stake failed for block %s\n", block.GetHash().ToString().c_str());
             return false; 
@@ -3617,7 +3621,7 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CVali
         // DeepOnion: compute stake modifier
         uint64_t nStakeModifier = 0;
         bool fGeneratedStakeModifier = false;
-        ComputeNextStakeModifier(pindex->pprev, nStakeModifier, fGeneratedStakeModifier);
+        ComputeNextStakeModifier(pindex->pprev, nStakeModifier, fGeneratedStakeModifier, chainparams.GetConsensus());
         pindex->SetStakeModifier(nStakeModifier, fGeneratedStakeModifier);
         pindex->nStakeModifierChecksum = GetStakeModifierChecksum(pindex);
         if (!CheckStakeModifierCheckpoints(pindex->nHeight, pindex->nStakeModifierChecksum))
@@ -3626,7 +3630,6 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CVali
            return false; 
         }
     }  
-    */  
 
     // Header is valid/has work, merkle tree and segwit merkle tree are good...RELAY NOW
     // (but if it does not build on our best tip, let the SendMessages loop relay it)
