@@ -232,8 +232,10 @@ public:
         std::string strValue;
         leveldb::Status status = pdb->Get(readoptions, slKey, &strValue);
         if (!status.ok()) {
-            if (status.IsNotFound())
+            if (status.IsNotFound()) 
+            {
                 return false;
+            }
             LogPrintf("LevelDB read failure: %s\n", status.ToString());
             dbwrapper_private::HandleError(status);
         }
@@ -241,7 +243,8 @@ public:
             CDataStream ssValue(strValue.data(), strValue.data() + strValue.size(), SER_DISK, CLIENT_VERSION);
             ssValue.Xor(obfuscate_key);
             ssValue >> value;
-        } catch (const std::exception&) {
+        } catch (const std::exception& e) {
+        	LogPrintf(">> LevelDB exception: %s\n", e.what());
             return false;
         }
         return true;

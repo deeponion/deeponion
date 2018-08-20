@@ -32,7 +32,7 @@ public:
     //! unspent transaction output
     CTxOut out;
 
-    //! whether containing transaction was a coinbase
+    //! whether containing transaction was a coinbase, or coinstake
     unsigned int fCoinBase : 1;
 
     //! at which height this containing transaction was included in the active block chain

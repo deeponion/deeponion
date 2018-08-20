@@ -177,6 +177,7 @@ public:
     bool ReplayBlocks(const CChainParams& params, CCoinsView* view);
     bool RewindBlockIndex(const CChainParams& params);
     bool LoadGenesisBlock(const CChainParams& chainparams);
+    bool ComputeStakeModifier(CBlockIndex* pindex, const CBlock& block, uint256& hashProofOfStake, const CChainParams& chainparams);
 
     void PruneBlockIndexCandidates();
 
@@ -1427,7 +1428,7 @@ void CChainState::InvalidBlockFound(CBlockIndex *pindex, const CValidationState 
 void UpdateCoins(const CTransaction& tx, CCoinsViewCache& inputs, CTxUndo &txundo, int nHeight)
 {
     // mark inputs spent
-    if (!tx.IsCoinBase()) {
+    if (!tx.IsCoinBase() && !tx.IsCoinStake()) {
         txundo.vprevout.reserve(tx.vin.size());
         for (const CTxIn &txin : tx.vin) {
             txundo.vprevout.emplace_back();
@@ -2079,7 +2080,7 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
                              REJECT_INVALID, "bad-blk-sigops");
 
         txdata.emplace_back(tx);
-        if (!tx.IsCoinBase())
+        if (!tx.IsCoinBase() && !tx.IsCoinStake())
         {
             std::vector<CScriptCheck> vChecks;
             bool fCacheResults = fJustCheck; /* Don't cache results if we're actually connecting blocks (still consult the cache, though) */
@@ -3473,7 +3474,7 @@ bool CChainState::AcceptBlockHeader(const CBlockHeader& block, CValidationState&
             return state.DoS(100, error("%s: prev block invalid", __func__), REJECT_INVALID, "bad-prevblk");
         if (!ContextualCheckBlockHeader(block, state, chainparams, pindexPrev, GetAdjustedTime()))
             return error("%s: Consensus::ContextualCheckBlockHeader: %s, %s", __func__, hash.ToString(), FormatStateMessage(state));
-
+        
         if (!pindexPrev->IsValid(BLOCK_VALID_SCRIPTS)) {
             for (const CBlockIndex* failedit : g_failed_blocks) {
                 if (pindexPrev->GetAncestor(failedit->nHeight) == failedit) {
@@ -3553,8 +3554,10 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CVali
     CBlockIndex *&pindex = ppindex ? *ppindex : pindexDummy;
 
     if (!AcceptBlockHeader(block, state, chainparams, &pindex))
-        return false;
+    	return false;
 
+	LogPrintf(">> Block-height = %d\n", pindex->nHeight);
+	
     // Try to process all requested blocks that we don't have, but only
     // process an unrequested block if it's new and has enough work to
     // advance our tip, and isn't too many blocks ahead.
@@ -3598,38 +3601,23 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CVali
     }
     
     // process PoS block, add needed info to CBlockIndex
+	uint256 hashProofOfStake = uint256();
+	uint256 targetProofOfStake = uint256();
     if (block.IsProofOfStake())
     {
     	pindex->nFlags |= CBlockIndex::BLOCK_PROOF_OF_STAKE;
     	pindex->prevoutStake = block.vtx[1]->vin[0].prevout;
     	pindex->nStakeTime = block.vtx[1]->nTime;
     	            
-    	uint256 hashProofOfStake = uint256();
-    	uint256 targetProofOfStake = uint256();
         if (!CheckProofOfStake(*pblocktree, pindex->pprev, state, block, hashProofOfStake, targetProofOfStake, mapBlockIndex, *pcoinsTip))
         {
-        	LogPrintf("ERROR: AcceptBlock(): check proof-of-stake failed for block %s\n", block.GetHash().ToString().c_str());
-            return false; 
+            return error("ERROR: AcceptBlock(): check proof-of-stake failed for block %s\n", block.GetHash().ToString().c_str()); 
         }
-        
-        // DeepOnion: compute stake entropy bit for stake modifier
-        pindex->SetStakeEntropyBit(block.GetStakeEntropyBit());
-
-    	// DeepOnion: record proof-of-stake hash value
-		pindex->hashProofOfStake = hashProofOfStake;
-
-        // DeepOnion: compute stake modifier
-        uint64_t nStakeModifier = 0;
-        bool fGeneratedStakeModifier = false;
-        ComputeNextStakeModifier(pindex->pprev, nStakeModifier, fGeneratedStakeModifier, chainparams.GetConsensus());
-        pindex->SetStakeModifier(nStakeModifier, fGeneratedStakeModifier);
-        pindex->nStakeModifierChecksum = GetStakeModifierChecksum(pindex);
-        if (!CheckStakeModifierCheckpoints(pindex->nHeight, pindex->nStakeModifierChecksum))
-        {
-           LogPrintf("AddToBlockIndex() : Rejected by stake modifier checkpoint height=%d, modifier=%ul\n", pindex->nHeight, nStakeModifier);
-           return false; 
-        }
-    }  
+    }
+    
+    if(!ComputeStakeModifier(pindex, block, hashProofOfStake, chainparams))
+    	return error("ERROR: AcceptBlock() : ComputeStakeModifier() failed");
+    
 
     // Header is valid/has work, merkle tree and segwit merkle tree are good...RELAY NOW
     // (but if it does not build on our best tip, let the SendMessages loop relay it)
@@ -3654,6 +3642,27 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CVali
 
     CheckBlockIndex(chainparams.GetConsensus());
 
+    return true;
+}
+
+bool CChainState::ComputeStakeModifier(CBlockIndex* pindex, const CBlock& block, uint256& hashProofOfStake, const CChainParams& chainparams)
+{
+    // DeepOnion: compute stake entropy bit for stake modifier
+    if (!pindex->SetStakeEntropyBit(block.GetStakeEntropyBit()))
+        return error("ERROR: AcceptBlock() : SetStakeEntropyBit() failed");
+   	
+  	// DeepOnion: record proof-of-stake hash value
+	pindex->hashProofOfStake = hashProofOfStake;
+
+    // DeepOnion: compute stake modifier
+    uint64_t nStakeModifier = 0;
+    bool fGeneratedStakeModifier = false;
+    ComputeNextStakeModifier(pindex->pprev, nStakeModifier, fGeneratedStakeModifier, chainparams.GetConsensus());
+    pindex->SetStakeModifier(nStakeModifier, fGeneratedStakeModifier);
+    pindex->nStakeModifierChecksum = GetStakeModifierChecksum(pindex);
+    if (!CheckStakeModifierCheckpoints(pindex->nHeight, pindex->nStakeModifierChecksum))
+    	return error("AddToBlockIndex() : Rejected by stake modifier checkpoint height=%d, modifier=%ul\n", pindex->nHeight, nStakeModifier);
+    
     return true;
 }
 
@@ -4446,6 +4455,9 @@ bool CChainState::LoadGenesisBlock(const CChainParams& chainparams)
         if (blockPos.IsNull())
             return error("%s: writing genesis block to disk failed", __func__);
         CBlockIndex *pindex = AddToBlockIndex(block);
+        uint256 hashProofOfStake = uint256();
+        if(!ComputeStakeModifier(pindex, block, hashProofOfStake, chainparams))
+        	return error("%s: genesis block ComputeStakeModifier failed", __func__);
         CValidationState state;
         if (!ReceivedBlockTransactions(block, state, pindex, blockPos, chainparams.GetConsensus()))
             return error("%s: genesis block not accepted", __func__);
