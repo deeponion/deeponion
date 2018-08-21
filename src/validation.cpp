@@ -153,6 +153,7 @@ public:
     BlockMap mapBlockIndex;
     std::multimap<CBlockIndex*, CBlockIndex*> mapBlocksUnlinked;
     CBlockIndex *pindexBestInvalid = nullptr;
+    std::map<int, CBlock*> mapSavedBlocks;
 
     bool LoadBlockIndex(const Consensus::Params& consensus_params, CBlockTreeDB& blocktree);
 
@@ -177,7 +178,7 @@ public:
     bool ReplayBlocks(const CChainParams& params, CCoinsView* view);
     bool RewindBlockIndex(const CChainParams& params);
     bool LoadGenesisBlock(const CChainParams& chainparams);
-    bool ComputeStakeModifier(CBlockIndex* pindex, const CBlock& block, uint256& hashProofOfStake, const CChainParams& chainparams);
+    bool ComputeStakeModifier(CBlockIndex* pindex, const CBlock& block, const CChainParams& chainparams);
 
     void PruneBlockIndexCandidates();
 
@@ -223,6 +224,8 @@ size_t nCoinCacheUsage = 5000 * 300;
 uint64_t nPruneTarget = 0;
 int64_t nMaxTipAge = DEFAULT_MAX_TIP_AGE;
 bool fEnableReplacement = DEFAULT_ENABLE_REPLACEMENT;
+
+int lastProcessedStakeModifierBlock = 0;
 
 uint256 hashAssumeValid;
 arith_uint256 nMinimumChainWork;
@@ -1194,8 +1197,6 @@ int GetPowHeightTable(const CBlockIndex* pindex)
 
 	if (index != -1)
 		count += checkpointPoWHeight[index][1];
-
-	++count;
 
 	// printf(">> Height = %d, Count = %d\n", height, count);
 	return count;
@@ -3601,22 +3602,80 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CVali
     }
     
     // process PoS block, add needed info to CBlockIndex
-	uint256 hashProofOfStake = uint256();
-	uint256 targetProofOfStake = uint256();
     if (block.IsProofOfStake())
     {
     	pindex->nFlags |= CBlockIndex::BLOCK_PROOF_OF_STAKE;
     	pindex->prevoutStake = block.vtx[1]->vin[0].prevout;
     	pindex->nStakeTime = block.vtx[1]->nTime;
-    	            
-        if (!CheckProofOfStake(*pblocktree, pindex->pprev, state, block, hashProofOfStake, targetProofOfStake, mapBlockIndex, *pcoinsTip))
-        {
-            return error("ERROR: AcceptBlock(): check proof-of-stake failed for block %s\n", block.GetHash().ToString().c_str()); 
-        }
     }
     
-    if(!ComputeStakeModifier(pindex, block, hashProofOfStake, chainparams))
-    	return error("ERROR: AcceptBlock() : ComputeStakeModifier() failed");
+  	// DeepOnion: record proof-of-stake hash value
+    CBlockIndex* pWalking = pindex->pprev;
+    bool flag = true;
+    
+    while(pWalking != nullptr && pWalking->nHeight > lastProcessedStakeModifierBlock)
+    {
+    	if(!pWalking->IsValid(BLOCK_VALID_TRANSACTIONS))
+    	{
+    		flag = false;
+    		break;
+    	}
+    	pWalking = pWalking->pprev;
+    }
+    
+	
+    LogPrintf(">> flag = %s\n", flag ? "true":"false");
+    LogPrintf(">> LastProcessedStakeModifierBlock = %d\n", lastProcessedStakeModifierBlock);
+    if(flag)
+    {
+    	pWalking = pWalking->pnext;
+    	int expectedHeight = pindex->nHeight;
+    	LogPrintf(">> Expected-Height = %d\n", expectedHeight);
+    	CBlock* pBlock0 = nullptr;
+    	
+    	while(pWalking != nullptr && pWalking->nHeight > lastProcessedStakeModifierBlock && pWalking->nHeight <= expectedHeight)
+    	{
+    		LogPrintf(">> pWalking->nHeight = %d\n", pWalking->nHeight);
+    		if(pWalking->nHeight != expectedHeight) 
+    		{
+    			pBlock0 = mapSavedBlocks[pWalking->nHeight];
+    		}
+    		else
+    		{
+    			pBlock0 = (CBlock*)&block;
+    		}
+    		
+    		LogPrintf(">> ok-1\n");
+    		uint256 hashProofOfStake = uint256();
+    		uint256 targetProofOfStake = uint256();
+    		
+    	    if (pBlock0->IsProofOfStake())
+    	    {
+        		CBlockIndex* pIndex0 = pWalking;
+    	        if (!CheckProofOfStake(*pblocktree, pIndex0->pprev, state, *pBlock0, hashProofOfStake, targetProofOfStake, mapBlockIndex, *pcoinsTip))
+    	        {
+    	            return error("ERROR: AcceptBlock(): check proof-of-stake failed for block %s\n", pBlock0->GetHash().ToString().c_str()); 
+    	        }   	    	
+    	    }
+    	    
+    		LogPrintf(">> ok-2\n");
+    	    pWalking->hashProofOfStake = hashProofOfStake;
+    		if(!ComputeStakeModifier(pWalking, *pBlock0, chainparams))
+    			return error("ERROR: AcceptBlock() : ComputeStakeModifier() failed");
+    		
+    		mapSavedBlocks.erase(pWalking->nHeight);
+    		pWalking = pWalking->pnext;
+    	}
+
+    	lastProcessedStakeModifierBlock = pindex->nHeight;
+        LogPrintf(">> LastProcessedStakeModifierBlock = %d\n", lastProcessedStakeModifierBlock);
+    }
+    else
+    {
+    	CBlock *pBlockCopy = new CBlock(block);
+    	pBlockCopy->vtx = block.vtx;
+    	mapSavedBlocks[pindex->nHeight] = pBlockCopy;
+    }
     
 
     // Header is valid/has work, merkle tree and segwit merkle tree are good...RELAY NOW
@@ -3645,15 +3704,15 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CVali
     return true;
 }
 
-bool CChainState::ComputeStakeModifier(CBlockIndex* pindex, const CBlock& block, uint256& hashProofOfStake, const CChainParams& chainparams)
+bool CChainState::ComputeStakeModifier(CBlockIndex* pindex, const CBlock& block, const CChainParams& chainparams)
 {
     // DeepOnion: compute stake entropy bit for stake modifier
-    if (!pindex->SetStakeEntropyBit(block.GetStakeEntropyBit()))
+	LogPrintf(">> GetStakeEntropyBit() = %u, Blockhash = %s\n", block.GetStakeEntropyBit(), block.GetHash().ToString().c_str());
+    if (!pindex->SetStakeEntropyBit(block.GetStakeEntropyBit())) 
+    {
         return error("ERROR: AcceptBlock() : SetStakeEntropyBit() failed");
+    }
    	
-  	// DeepOnion: record proof-of-stake hash value
-	pindex->hashProofOfStake = hashProofOfStake;
-
     // DeepOnion: compute stake modifier
     uint64_t nStakeModifier = 0;
     bool fGeneratedStakeModifier = false;
@@ -4455,8 +4514,10 @@ bool CChainState::LoadGenesisBlock(const CChainParams& chainparams)
         if (blockPos.IsNull())
             return error("%s: writing genesis block to disk failed", __func__);
         CBlockIndex *pindex = AddToBlockIndex(block);
+        pindex->nHeight = 0;
         uint256 hashProofOfStake = uint256();
-        if(!ComputeStakeModifier(pindex, block, hashProofOfStake, chainparams))
+        pindex->hashProofOfStake = hashProofOfStake;
+        if(!ComputeStakeModifier(pindex, block, chainparams))
         	return error("%s: genesis block ComputeStakeModifier failed", __func__);
         CValidationState state;
         if (!ReceivedBlockTransactions(block, state, pindex, blockPos, chainparams.GetConsensus()))
