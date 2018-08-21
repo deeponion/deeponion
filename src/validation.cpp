@@ -3676,7 +3676,6 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CVali
     	pBlockCopy->vtx = block.vtx;
     	mapSavedBlocks[pindex->nHeight] = pBlockCopy;
     }
-    
 
     // Header is valid/has work, merkle tree and segwit merkle tree are good...RELAY NOW
     // (but if it does not build on our best tip, let the SendMessages loop relay it)
@@ -3691,7 +3690,7 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CVali
             return false;
         }
         if (!ReceivedBlockTransactions(block, state, pindex, blockPos, chainparams.GetConsensus()))
-            return error("AcceptBlock(): ReceivedBlockTransactions failed");
+            return error("%s: ReceivedBlockTransactions failed", __func__);
     } catch (const std::runtime_error& e) {
         return AbortNode(state, std::string("System error: ") + e.what());
     }
@@ -3707,6 +3706,7 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CVali
 bool CChainState::ComputeStakeModifier(CBlockIndex* pindex, const CBlock& block, const CChainParams& chainparams)
 {
     // DeepOnion: compute stake entropy bit for stake modifier
+
 	LogPrintf(">> GetStakeEntropyBit() = %u, Blockhash = %s\n", block.GetStakeEntropyBit(), block.GetHash().ToString().c_str());
     if (!pindex->SetStakeEntropyBit(block.GetStakeEntropyBit())) 
     {
@@ -3720,7 +3720,7 @@ bool CChainState::ComputeStakeModifier(CBlockIndex* pindex, const CBlock& block,
     pindex->SetStakeModifier(nStakeModifier, fGeneratedStakeModifier);
     pindex->nStakeModifierChecksum = GetStakeModifierChecksum(pindex);
     if (!CheckStakeModifierCheckpoints(pindex->nHeight, pindex->nStakeModifierChecksum))
-    	return error("AddToBlockIndex() : Rejected by stake modifier checkpoint height=%d, modifier=%ul\n", pindex->nHeight, nStakeModifier);
+    	return error("%s : Rejected by stake modifier checkpoint height=%d, modifier=%ul\n", __func__, pindex->nHeight, nStakeModifier);
     
     return true;
 }
