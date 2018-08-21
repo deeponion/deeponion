@@ -3611,12 +3611,12 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CVali
     	            
         if (!CheckProofOfStake(*pblocktree, pindex->pprev, state, block, hashProofOfStake, targetProofOfStake, mapBlockIndex, *pcoinsTip))
         {
-            return error("ERROR: AcceptBlock(): check proof-of-stake failed for block %s\n", block.GetHash().ToString().c_str()); 
+            return error("ERROR: %s: check proof-of-stake failed for block %s\n", __func__, block.GetHash().ToString().c_str()); 
         }
     }
     
     if(!ComputeStakeModifier(pindex, block, hashProofOfStake, chainparams))
-    	return error("ERROR: AcceptBlock() : ComputeStakeModifier() failed");
+    	return error("ERROR: %s : ComputeStakeModifier() failed", __func__);
     
 
     // Header is valid/has work, merkle tree and segwit merkle tree are good...RELAY NOW
@@ -3632,7 +3632,7 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CVali
             return false;
         }
         if (!ReceivedBlockTransactions(block, state, pindex, blockPos, chainparams.GetConsensus()))
-            return error("AcceptBlock(): ReceivedBlockTransactions failed");
+            return error("%s: ReceivedBlockTransactions failed", __func__);
     } catch (const std::runtime_error& e) {
         return AbortNode(state, std::string("System error: ") + e.what());
     }
@@ -3648,9 +3648,10 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CVali
 bool CChainState::ComputeStakeModifier(CBlockIndex* pindex, const CBlock& block, uint256& hashProofOfStake, const CChainParams& chainparams)
 {
     // DeepOnion: compute stake entropy bit for stake modifier
-    if (!pindex->SetStakeEntropyBit(block.GetStakeEntropyBit()))
-        return error("ERROR: AcceptBlock() : SetStakeEntropyBit() failed");
-   	
+    if (!pindex->SetStakeEntropyBit(block.GetStakeEntropyBit())){
+        return error("ERROR: %s : SetStakeEntropyBit() failed", __func__);
+   	}
+    
   	// DeepOnion: record proof-of-stake hash value
 	pindex->hashProofOfStake = hashProofOfStake;
 
@@ -3661,7 +3662,7 @@ bool CChainState::ComputeStakeModifier(CBlockIndex* pindex, const CBlock& block,
     pindex->SetStakeModifier(nStakeModifier, fGeneratedStakeModifier);
     pindex->nStakeModifierChecksum = GetStakeModifierChecksum(pindex);
     if (!CheckStakeModifierCheckpoints(pindex->nHeight, pindex->nStakeModifierChecksum))
-    	return error("AddToBlockIndex() : Rejected by stake modifier checkpoint height=%d, modifier=%ul\n", pindex->nHeight, nStakeModifier);
+    	return error("%s : Rejected by stake modifier checkpoint height=%d, modifier=%ul\n", __func__, pindex->nHeight, nStakeModifier);
     
     return true;
 }
