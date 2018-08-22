@@ -47,6 +47,7 @@
 
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/algorithm/string/join.hpp>
+#include <boost/foreach.hpp>
 #include <boost/thread.hpp>
 
 #if defined(NDEBUG)
@@ -1894,6 +1895,53 @@ static unsigned int GetBlockScriptFlags(const CBlockIndex* pindex, const Consens
     return flags;
 }
 
+// DeepOnion: total coin age spent in transaction, in the unit of coin-days.
+// Only those coins meeting minimum age requirement counts. As those
+// transactions not in main chain are not currently indexed so we
+// might not find out about their coin age. Older transactions are
+// guaranteed to be in main chain by sync-checkpoint. This rule is
+// introduced to help nodes establish a consistent view of the coin
+// age (trust score) of competing branches.
+bool GetCoinAge(uint64_t& nCoinAge, const CTransaction *tx)
+{
+	arith_uint256 bnCentSecond = 0;  // coin age in the unit of cent-seconds
+    nCoinAge = 0;
+
+    if (tx->IsCoinBase())
+        return true;
+
+    BOOST_FOREACH(const CTxIn& txin, tx->vin)
+    {
+        // First try finding the previous transaction in database
+        CTransactionRef txPrev;
+        //CTxIndex txindex;
+        uint256 hashBlock;
+        GetTransaction(txin.prevout.hash, txPrev, Params().GetConsensus(), hashBlock, true, NULL);
+        if (txPrev == NULL)
+            continue;  // previous transaction not in main chain
+        if (tx->nTime < txPrev.get()->nTime)
+            return false;  // Transaction timestamp violation
+
+        // Read block header
+        CBlock block;
+        CBlockIndex* pblockindex = mapBlockIndex[hashBlock];
+        if (!ReadBlockFromDisk(block, pblockindex, Params().GetConsensus()))
+            return false; // unable to read block of previous transaction
+        if (block.GetBlockTime() + nStakeMinAge > tx->nTime)
+            continue; // only count coins meeting min age requirement
+
+        int64_t nValueIn = txPrev.get()->vout[txin.prevout.n].nValue;
+        arith_uint256 a256ValueIn(nValueIn);
+        bnCentSecond += a256ValueIn * (tx->nTime-txPrev.get()->nTime) / CENT;
+
+        LogPrint(BCLog::ALL, "coin age nValueIn=%d nTimeDiff=%d bnCentSecond=%s\n", a256ValueIn.Get64(), tx->nTime - txPrev.get()->nTime, bnCentSecond.ToString().c_str());
+    }
+
+    arith_uint256 bnCoinDay = bnCentSecond * CENT / COIN / (24 * 60 * 60);
+    nCoinAge = bnCoinDay.Get64();
+    LogPrint(BCLog::ALL, ">> coin age bnCoinDay=%d\n", nCoinAge);
+    return true;
+}
 
 
 static int64_t nTimeCheck = 0;
@@ -2040,6 +2088,7 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
     blockundo.vtxundo.reserve(block.vtx.size() - 1);
     std::vector<PrecomputedTransactionData> txdata;
     txdata.reserve(block.vtx.size()); // Required so that pointers to individual PrecomputedTransactionData don't get invalidated
+    int64_t nStakeReward = 0;
     for (unsigned int i = 0; i < block.vtx.size(); i++)
     {
         const CTransaction &tx = *(block.vtx[i]);
@@ -2092,6 +2141,10 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
             control.Add(vChecks);
         }
 
+        if (tx.IsCoinStake()) {
+        	    nStakeReward =  tx.GetValueOut() - view.GetValueIn(tx);
+        }
+
         CTxUndo undoDummy;
         if (i > 0) {
             blockundo.vtxundo.push_back(CTxUndo());
@@ -2113,15 +2166,14 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
     else if(block.IsProofOfStake())
     {
         // DeepOnion: coin stake tx earns reward instead of paying fee
-    		// TODO - FIX
-//        uint64_t nCoinAge;
-//        if (!vtx[1].GetCoinAge(txdb, nCoinAge))
-//            return error("ConnectBlock() : %s unable to get coin age for coinstake", vtx[1].GetHash().ToString().substr(0,10).c_str());
-//
-//		int64_t nCalculatedStakeReward = GetProofOfStakeReward(nCoinAge, pindex->pprev);
-//
-//        if (nStakeReward > nCalculatedStakeReward)
-//            return DoS(100, error("ConnectBlock() : coinstake pays too much(actual=%" PRId64 " vs calculated=%" PRId64 ")", nStakeReward, nCalculatedStakeReward));
+        uint64_t nCoinAge;
+        if (!GetCoinAge(nCoinAge, block.vtx[1].get()))
+            return error("ConnectBlock() : %s unable to get coin age for coinstake", block.vtx[1]->GetHash().ToString().substr(0,10).c_str());
+
+        int64_t nCalculatedStakeReward = GetProofOfStakeReward(nCoinAge, pindex->pprev);
+        LogPrint(BCLog::ALL, ">> coinstake actual=%d vs calculated=%d\n", nStakeReward, nCalculatedStakeReward);
+        if (nStakeReward > nCalculatedStakeReward)
+            return state.DoS(100, error("ConnectBlock() : coinstake pays too much(actual=%d vs calculated=%d)", nStakeReward, nCalculatedStakeReward));
     }
 
     if (!control.Wait())
