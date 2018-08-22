@@ -204,6 +204,7 @@ private:
 
 
 CCriticalSection cs_main;
+CCriticalSection cs_stakeHandling;
 
 BlockMap& mapBlockIndex = g_chainstate.mapBlockIndex;
 CChain& chainActive = g_chainstate.chainActive;
@@ -3609,72 +3610,80 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CVali
     	pindex->nStakeTime = block.vtx[1]->nTime;
     }
     
-  	// DeepOnion: record proof-of-stake hash value
-    CBlockIndex* pWalking = pindex->pprev;
-    bool flag = true;
-    
-    while(pWalking != nullptr && pWalking->nHeight > lastProcessedStakeModifierBlock)
     {
-    	if(!pWalking->IsValid(BLOCK_VALID_TRANSACTIONS))
+    	LOCK(cs_stakeHandling);
+
+      	// DeepOnion: record proof-of-stake hash value
+        CBlockIndex* pWalking = pindex->pprev;
+        bool flag = true;
+        
+    	while(pWalking != nullptr && pWalking->nHeight > lastProcessedStakeModifierBlock)
     	{
-    		flag = false;
-    		break;
+    		if(!pWalking->IsValid(BLOCK_VALID_TRANSACTIONS))
+    		{
+    			flag = false;
+    			break;
+    		}
+    		pWalking = pWalking->pprev;
     	}
-    	pWalking = pWalking->pprev;
-    }
     
 	
-    LogPrintf(">> flag = %s\n", flag ? "true":"false");
-    LogPrintf(">> LastProcessedStakeModifierBlock = %d\n", lastProcessedStakeModifierBlock);
-    if(flag)
-    {
-    	pWalking = pWalking->pnext;
-    	int expectedHeight = pindex->nHeight;
-    	LogPrintf(">> Expected-Height = %d\n", expectedHeight);
-    	CBlock* pBlock0 = nullptr;
-    	
-    	while(pWalking != nullptr && pWalking->nHeight > lastProcessedStakeModifierBlock && pWalking->nHeight <= expectedHeight)
+    	LogPrintf(">> flag = %s\n", flag ? "true":"false");
+    	LogPrintf(">> LastProcessedStakeModifierBlock = %d\n", lastProcessedStakeModifierBlock);
+    	if(flag)
     	{
-    		LogPrintf(">> pWalking->nHeight = %d\n", pWalking->nHeight);
-    		if(pWalking->nHeight != expectedHeight) 
-    		{
-    			pBlock0 = mapSavedBlocks[pWalking->nHeight];
-    		}
-    		else
-    		{
-    			pBlock0 = (CBlock*)&block;
-    		}
-    		
-    		LogPrintf(">> ok-1\n");
-    		uint256 hashProofOfStake = uint256();
-    		uint256 targetProofOfStake = uint256();
-    		
-    	    if (pBlock0->IsProofOfStake())
-    	    {
-        		CBlockIndex* pIndex0 = pWalking;
-    	        if (!CheckProofOfStake(*pblocktree, pIndex0->pprev, state, *pBlock0, hashProofOfStake, targetProofOfStake, mapBlockIndex, *pcoinsTip))
-    	        {
-    	            return error("ERROR: AcceptBlock(): check proof-of-stake failed for block %s\n", pBlock0->GetHash().ToString().c_str()); 
-    	        }   	    	
-    	    }
-    	    
-    		LogPrintf(">> ok-2\n");
-    	    pWalking->hashProofOfStake = hashProofOfStake;
-    		if(!ComputeStakeModifier(pWalking, *pBlock0, chainparams))
-    			return error("ERROR: AcceptBlock() : ComputeStakeModifier() failed");
-    		
-    		mapSavedBlocks.erase(pWalking->nHeight);
+    	
     		pWalking = pWalking->pnext;
-    	}
+    		int expectedHeight = pindex->nHeight;
+    		LogPrintf(">> Expected-Height = %d\n", expectedHeight);
+    		CBlock* pBlock0 = nullptr;
+    	
+    		while(pWalking != nullptr && pWalking->nHeight > lastProcessedStakeModifierBlock && pWalking->nHeight <= expectedHeight)
+    		{
+    			LogPrintf(">> pWalking->nHeight = %d\n", pWalking->nHeight);
+    			if(pWalking->nHeight != expectedHeight) 
+    			{
+    				pBlock0 = mapSavedBlocks[pWalking->nHeight];
+    			}
+    			else
+    			{
+    				pBlock0 = (CBlock*)&block;
+    			}
+    		
+    			if(pBlock0 == nullptr)
+    				return error("ERROR. Unexpected pBlock0 == nullptr\n");
+    		
+    			uint256 hashProofOfStake = uint256();
+    			uint256 targetProofOfStake = uint256();
+    		
+    			if (pBlock0->IsProofOfStake())
+    			{
+    				CBlockIndex* pIndex0 = pWalking;
+    				if (!CheckProofOfStake(*pblocktree, pIndex0->pprev, state, *pBlock0, hashProofOfStake, targetProofOfStake, mapBlockIndex, *pcoinsTip))
+    				{
+    					return error("ERROR: AcceptBlock(): check proof-of-stake failed for block %s\n", pBlock0->GetHash().ToString().c_str()); 
+    				}   	    	
+    			}
+    	    
+    			pWalking->hashProofOfStake = hashProofOfStake;
+    			if(!ComputeStakeModifier(pWalking, *pBlock0, chainparams))
+    				return error("ERROR: AcceptBlock() : ComputeStakeModifier() failed");
+    		
+    			mapSavedBlocks.erase(pWalking->nHeight);
+    			LogPrintf(">> Block at height %d is removed from the list\n", pWalking->nHeight);
+    			pWalking = pWalking->pnext;
+    		}
 
-    	lastProcessedStakeModifierBlock = pindex->nHeight;
-        LogPrintf(">> LastProcessedStakeModifierBlock = %d\n", lastProcessedStakeModifierBlock);
-    }
-    else
-    {
-    	CBlock *pBlockCopy = new CBlock(block);
-    	pBlockCopy->vtx = block.vtx;
-    	mapSavedBlocks[pindex->nHeight] = pBlockCopy;
+    		lastProcessedStakeModifierBlock = pindex->nHeight;
+    		LogPrintf(">> LastProcessedStakeModifierBlock = %d\n", lastProcessedStakeModifierBlock);
+    	}
+    	else
+    	{
+    		CBlock *pBlockCopy = new CBlock(block);
+    		pBlockCopy->vtx = block.vtx;
+    		mapSavedBlocks[pindex->nHeight] = pBlockCopy;
+    		LogPrintf(">> Block at height %d is saved to the list\n", pindex->nHeight);
+    	}
     }
 
     // Header is valid/has work, merkle tree and segwit merkle tree are good...RELAY NOW

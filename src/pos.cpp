@@ -335,7 +335,7 @@ bool CheckProofOfStake(CBlockTreeDB& blockTreeDB, CBlockIndex* pindexPrev, CVali
 	if (blockTreeDB.ReadTxIndex(txin.prevout.hash, txindex)) 
 	{
 		CBlockHeader headerPrev;
-		nTxPrevOffset = txindex.nTxOffset;
+		nTxPrevOffset = txindex.nTxOffset + 80;	// nTxOffset counts after header
 		LogPrintf(">> nTxPrevOffset = %u\n", nTxPrevOffset);
         CAutoFile file(OpenBlockFile(txindex, true), SER_DISK, CLIENT_VERSION);
         if (file.IsNull())
