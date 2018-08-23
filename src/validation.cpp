@@ -228,6 +228,8 @@ bool fEnableReplacement = DEFAULT_ENABLE_REPLACEMENT;
 
 int lastProcessedStakeModifierBlock = 0;
 
+bool fDebugDetail = false;
+
 uint256 hashAssumeValid;
 arith_uint256 nMinimumChainWork;
 
@@ -3559,6 +3561,8 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CVali
     	return false;
 
 	LogPrintf(">> Block-height = %d\n", pindex->nHeight);
+	if(!fDebugDetail && pindex->nHeight > 1500)
+		fDebugDetail = true;
 	
     // Try to process all requested blocks that we don't have, but only
     // process an unrequested block if it's new and has enough work to
@@ -3629,14 +3633,16 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CVali
     
 	
     	LogPrintf(">> flag = %s\n", flag ? "true":"false");
-    	LogPrintf(">> LastProcessedStakeModifierBlock = %d\n", lastProcessedStakeModifierBlock);
+    	LogPrintf(">> Current LastProcessedStakeModifierBlock = %d\n", lastProcessedStakeModifierBlock);
     	if(flag)
     	{
-    	
     		pWalking = pWalking->pnext;
     		int expectedHeight = pindex->nHeight;
     		LogPrintf(">> Expected-Height = %d\n", expectedHeight);
     		CBlock* pBlock0 = nullptr;
+    		if(pWalking == nullptr)
+    			LogPrintf(">> ERROR pWalking == nullptr\n\n\n");
+    		LogPrintf(">> starting pWalking->nHeight = %d\n", pWalking->nHeight);
     	
     		while(pWalking != nullptr && pWalking->nHeight > lastProcessedStakeModifierBlock && pWalking->nHeight <= expectedHeight)
     		{

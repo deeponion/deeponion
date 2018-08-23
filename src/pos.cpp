@@ -16,6 +16,8 @@ unsigned int nStakeMinAge = 60 * 60 * 24 * 1;			// minimum age for coin age: 1d
 unsigned int nStakeMaxAge = 60 * 60 * 24 * 30;	        // stake age of full weight: 30d
 unsigned int nModifierInterval = 8 * 60;				// time to elapse before new modifier is computed
 
+extern bool fDebugDetail;
+
 // Hard checkpoints of stake modifiers to ensure they are deterministic
 static std::map<int, unsigned int> mapStakeModifierCheckpoints =
     boost::assign::map_list_of
@@ -98,16 +100,27 @@ static bool SelectBlockFromCandidates(vector<pair<int64_t, uint256> >& vSortedBy
         if (!mapBlockIndex.count(item.second))
             return error("SelectBlockFromCandidates: failed to find block index for candidate block %s", item.second.ToString().c_str());
         const CBlockIndex* pindex = mapBlockIndex[item.second];
+        if(fDebugDetail)
+        	LogPrintf(">> Select: h = %d, %s\n", pindex->nHeight, pindex->IsProofOfStake() ? "true":"false");
         if (fSelected && pindex->GetBlockTime() > nSelectionIntervalStop)
             break;
         if (mapSelectedBlocks.count(pindex->GetBlockHash()) > 0)
+        {
+        	if(fDebugDetail)
+        		LogPrintf(">> continue\n");
             continue;
+        }
         // compute the selection hash by hashing its proof-hash and the
         // previous proof-of-stake modifier
         uint256 hashProof = pindex->IsProofOfStake()? pindex->hashProofOfStake : pindex->GetBlockHash();
         CDataStream ss(SER_GETHASH, 0);
         ss << hashProof << nStakeModifierPrev;
         arith_uint256 hashSelection = UintToArith256(Hash(ss.begin(), ss.end()));
+        if(fDebugDetail) {
+        	LogPrintf(">> hashProof = %s, nStakeModifierPrev = 0x%016x, hashSelection = %s\n", 
+            		hashProof.ToString().c_str(), nStakeModifierPrev, hashSelection.ToString().c_str());
+        }
+
         // the selection hash is divided by 2**32 so that proof-of-stake block
         // is always favored over proof-of-work block. this is to preserve
         // the energy efficiency property
@@ -123,7 +136,11 @@ static bool SelectBlockFromCandidates(vector<pair<int64_t, uint256> >& vSortedBy
             fSelected = true;
             hashBest = hashSelection;
             *pindexSelected = (const CBlockIndex*) pindex;
+            if(fDebugDetail)
+            	LogPrintf(">> fSelected true\n");
         }
+        if(fDebugDetail)
+        	LogPrintf(">> HP = %s, HS = %s, HB = %s\n", hashProof.ToString().c_str(), hashSelection.ToString().c_str(), hashBest.ToString().c_str());
     }
 
     return fSelected;
@@ -158,7 +175,7 @@ bool ComputeNextStakeModifier(const CBlockIndex* pindexPrev, uint64_t& nStakeMod
         return error("ComputeNextStakeModifier: unable to get last modifier");
 
     std::string timeStr0 = DateTimeStrFormat("%Y-%m-%d %H:%M:%S", nModifierTime);
-    LogPrintf("ComputeNextStakeModifier: prev modifier=0x%016x, time=%s\n", nStakeModifier, timeStr0.c_str());
+    LogPrintf("Compute: prev modifier=0x%016x, time=%s\n", nStakeModifier, timeStr0.c_str());
     if (nModifierTime / nModifierInterval >= pindexPrev->GetBlockTime() / nModifierInterval)
         return true;
 
@@ -192,10 +209,10 @@ bool ComputeNextStakeModifier(const CBlockIndex* pindexPrev, uint64_t& nStakeMod
         nStakeModifierNew |= (((uint64_t)pindex->GetStakeEntropyBit()) << nRound);
         // add the selected block from candidates to selected list
         mapSelectedBlocks.insert(make_pair(pindex->GetBlockHash(), pindex));
-        LogPrintf("ComputeNextStakeModifier: selected round %d stop=%s height=%d bit=%d\n", nRound, DateTimeStrFormat("%Y-%m-%d %H:%M:%S", nSelectionIntervalStop).c_str(), pindex->nHeight, pindex->GetStakeEntropyBit());
+        LogPrintf("Compute: selected round %d stop=%s height=%d bit=%d\n", nRound, DateTimeStrFormat("%Y-%m-%d %H:%M:%S", nSelectionIntervalStop).c_str(), pindex->nHeight, pindex->GetStakeEntropyBit());
     }
 
-    LogPrintf("ComputeNextStakeModifier: new modifier=0x%016x, time=%s\n", nStakeModifierNew, DateTimeStrFormat("%Y-%m-%d %H:%M:%S", pindexPrev->GetBlockTime()).c_str());
+    LogPrintf("Compute: new modifier=0x%016x, time=%s\n", nStakeModifierNew, DateTimeStrFormat("%Y-%m-%d %H:%M:%S", pindexPrev->GetBlockTime()).c_str());
 
     nStakeModifier = nStakeModifierNew;
     fGeneratedStakeModifier = true;
