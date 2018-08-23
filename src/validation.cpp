@@ -229,8 +229,6 @@ bool fEnableReplacement = DEFAULT_ENABLE_REPLACEMENT;
 
 int lastProcessedStakeModifierBlock = 0;
 
-bool fDebugDetail = false;
-
 uint256 hashAssumeValid;
 arith_uint256 nMinimumChainWork;
 
@@ -3172,7 +3170,7 @@ static bool CheckBlockHeader(const CBlockHeader& block, CValidationState& state,
 
 bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::Params& consensusParams, bool fCheckPOW, bool fCheckMerkleRoot)
 {
-	LogPrintf(">> CheckBlock\n");
+	// LogPrintf(">> CheckBlock\n");
     // These are checks that are independent of context.
 
     if (block.fChecked)
@@ -3613,8 +3611,6 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CVali
     	return false;
 
 	LogPrintf(">> Block-height = %d\n", pindex->nHeight);
-	if(!fDebugDetail && pindex->nHeight > 1500)
-		fDebugDetail = true;
 	
     // Try to process all requested blocks that we don't have, but only
     // process an unrequested block if it's new and has enough work to
@@ -3728,7 +3724,7 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CVali
     				return error("ERROR: AcceptBlock() : ComputeStakeModifier() failed");
     		
     			mapSavedBlocks.erase(pWalking->nHeight);
-    			LogPrintf(">> Block at height %d is removed from the list\n", pWalking->nHeight);
+    			// LogPrintf(">> Block at height %d is removed from the list\n", pWalking->nHeight);
     			pWalking = pWalking->pnext;
     		}
 
@@ -3740,7 +3736,7 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CVali
     		CBlock *pBlockCopy = new CBlock(block);
     		pBlockCopy->vtx = block.vtx;
     		mapSavedBlocks[pindex->nHeight] = pBlockCopy;
-    		LogPrintf(">> Block at height %d is saved to the list\n", pindex->nHeight);
+    		// LogPrintf(">> Block at height %d is saved to the list\n", pindex->nHeight);
     	}
     }
 
@@ -3774,7 +3770,7 @@ bool CChainState::ComputeStakeModifier(CBlockIndex* pindex, const CBlock& block,
 {
     // DeepOnion: compute stake entropy bit for stake modifier
 
-	LogPrintf(">> GetStakeEntropyBit() = %u, Blockhash = %s\n", block.GetStakeEntropyBit(), block.GetHash().ToString().c_str());
+	// LogPrintf(">> GetStakeEntropyBit() = %u, Blockhash = %s\n", block.GetStakeEntropyBit(), block.GetHash().ToString().c_str());
     if (!pindex->SetStakeEntropyBit(block.GetStakeEntropyBit())) 
     {
         return error("ERROR: AcceptBlock() : SetStakeEntropyBit() failed");
@@ -3794,7 +3790,7 @@ bool CChainState::ComputeStakeModifier(CBlockIndex* pindex, const CBlock& block,
 
 bool ProcessNewBlock(const CChainParams& chainparams, const std::shared_ptr<const CBlock> pblock, bool fForceProcessing, bool *fNewBlock)
 {
-	LogPrintf(">> ProcessNewBlock\n");
+	// LogPrintf(">> ProcessNewBlock\n");
     AssertLockNotHeld(cs_main);
 
     {

@@ -504,7 +504,7 @@ void FindNextBlocksToDownload(NodeId nodeid, unsigned int count, std::vector<con
     // download that next block if the window were 1 larger.
     int nWindowEnd = state->pindexLastCommonBlock->nHeight + BLOCK_DOWNLOAD_WINDOW;
     int nMaxHeight = std::min<int>(state->pindexBestKnownBlock->nHeight, nWindowEnd + 1);
-    LogPrintf(">> nMaxHeight = %d, nWindowEnd = %d\n", nMaxHeight, nWindowEnd);
+    // LogPrintf(">> nMaxHeight = %d, nWindowEnd = %d\n", nMaxHeight, nWindowEnd);
     NodeId waitingfor = -1;
     while (pindexWalk->nHeight < nMaxHeight) {
         // Read up to 128 (or more, if more blocks than that are needed) successors of pindexWalk (towards
