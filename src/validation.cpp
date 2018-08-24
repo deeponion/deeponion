@@ -180,7 +180,6 @@ public:
     bool RewindBlockIndex(const CChainParams& params);
     bool LoadGenesisBlock(const CChainParams& chainparams);
     bool ComputeStakeModifier(CBlockIndex* pindex, const CBlock& block, const CChainParams& chainparams);
-    bool EraseSavedBlock(int height);
 
     void PruneBlockIndexCandidates();
 
@@ -3726,7 +3725,7 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CVali
     			if(!ComputeStakeModifier(pWalking, *pBlock0, chainparams))
     				return error("AcceptBlock() : ComputeStakeModifier() failed");
     		
-    			mapSavedBlocks.erase(height);
+    			mapSavedBlocks.erase(pWalking->nHeight);
     			// LogPrintf(">> Block at height %d is removed from the list\n", pWalking->nHeight);
     			pWalking = pWalking->pnext;
     		}
@@ -3758,7 +3757,7 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CVali
     			if(!ComputeStakeModifier(pWalking, *pBlock0, chainparams))
     				return error("AcceptBlock() : ComputeStakeModifier() failed");
 
-    			mapSavedBlocks.erase(height);
+    			mapSavedBlocks.erase(pWalking->nHeight);
     			// LogPrintf(">> Block at height %d is removed from the list\n", pWalking->nHeight);
     			
     			lastProcessedStakeModifierBlock = pWalking->nHeight;
