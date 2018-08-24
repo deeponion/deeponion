@@ -180,11 +180,6 @@ bool ComputeNextStakeModifier(const CBlockIndex* pindexPrev, uint64_t& nStakeMod
     int nHeightFirstCandidate = pindex ? (pindex->nHeight + 1) : 0;
     reverse(vSortedByTimestamp.begin(), vSortedByTimestamp.end());
     sort(vSortedByTimestamp.begin(), vSortedByTimestamp.end());
-/*
-    sort(vSortedByTimestamp.begin(), vSortedByTimestamp.end(), [](const pair<int64_t, uint256> &a, const pair<int64_t, uint256> &b) {
-        return a.first < b.first;
-    });
-    */
     
     // Select 64 blocks from candidate blocks to generate stake modifier
     uint64_t nStakeModifierNew = 0;

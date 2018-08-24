@@ -180,6 +180,7 @@ public:
     bool RewindBlockIndex(const CChainParams& params);
     bool LoadGenesisBlock(const CChainParams& chainparams);
     bool ComputeStakeModifier(CBlockIndex* pindex, const CBlock& block, const CChainParams& chainparams);
+    bool EraseSavedBlock(int height);
 
     void PruneBlockIndexCandidates();
 
@@ -1245,6 +1246,7 @@ CAmount GetProofOfStakeReward(int64_t nCoinAge, const CBlockIndex* pindex)
 {
 	int64_t nRewardCoinYear = MAX_PROOF_OF_STAKE_STABLE;
 	int nPoSHeight = GetPosHeight(pindex);
+	LogPrintf(">> nHeight = %d, nPoSHeight = %d\n", pindex->nHeight, nPoSHeight);
 	int64_t nSubsidy = 0;
 
 	if (nPoSHeight < YEARLY_POS_BLOCK_COUNT)
@@ -1262,7 +1264,7 @@ CAmount GetProofOfStakeReward(int64_t nCoinAge, const CBlockIndex* pindex)
 
 	return nSubsidy;
 }
-// DeepOnion: PoS Port *******************************************
+
 
 // TODO: Fix for miner.cpp:167 Use Above
 CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams)
@@ -3595,6 +3597,7 @@ static CDiskBlockPos SaveBlockToDisk(const CBlock& block, int nHeight, const CCh
     return blockPos;
 }
 
+
 /** Store block on disk. If dbp is non-nullptr, the file is known to already reside on disk */
 bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CValidationState& state, const CChainParams& chainparams, CBlockIndex** ppindex, bool fRequested, const CDiskBlockPos* dbp, bool* fNewBlock)
 {
@@ -3689,8 +3692,8 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CVali
     		LogPrintf(">> Expected-Height = %d\n", expectedHeight);
     		CBlock* pBlock0 = nullptr;
     		if(pWalking == nullptr)
-    			LogPrintf(">> ERROR pWalking == nullptr\n\n\n");
-    		LogPrintf(">> starting pWalking->nHeight = %d\n", pWalking->nHeight);
+    			return error("AcceptBlock(): pWalking == nullptr\n");
+    		// LogPrintf(">> starting pWalking->nHeight = %d\n", pWalking->nHeight);
     	
     		while(pWalking != nullptr && pWalking->nHeight > lastProcessedStakeModifierBlock && pWalking->nHeight <= expectedHeight)
     		{
@@ -3705,7 +3708,7 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CVali
     			}
     		
     			if(pBlock0 == nullptr)
-    				return error("ERROR. Unexpected pBlock0 == nullptr\n");
+    				return error("AcceptBlock(): Unexpected pBlock0 == nullptr\n");
     		
     			uint256 hashProofOfStake = uint256();
     			uint256 targetProofOfStake = uint256();
@@ -3715,21 +3718,54 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CVali
     				CBlockIndex* pIndex0 = pWalking;
     				if (!CheckProofOfStake(*pblocktree, pIndex0->pprev, state, *pBlock0, hashProofOfStake, targetProofOfStake, mapBlockIndex, *pcoinsTip))
     				{
-    					return error("ERROR: AcceptBlock(): check proof-of-stake failed for block %s\n", pBlock0->GetHash().ToString().c_str()); 
+    					return error("AcceptBlock(): check proof-of-stake failed for block %s\n", pBlock0->GetHash().ToString().c_str()); 
     				}   	    	
     			}
     	    
     			pWalking->hashProofOfStake = hashProofOfStake;
     			if(!ComputeStakeModifier(pWalking, *pBlock0, chainparams))
-    				return error("ERROR: AcceptBlock() : ComputeStakeModifier() failed");
+    				return error("AcceptBlock() : ComputeStakeModifier() failed");
     		
-    			mapSavedBlocks.erase(pWalking->nHeight);
+    			mapSavedBlocks.erase(height);
     			// LogPrintf(">> Block at height %d is removed from the list\n", pWalking->nHeight);
     			pWalking = pWalking->pnext;
     		}
 
     		lastProcessedStakeModifierBlock = pindex->nHeight;
     		LogPrintf(">> LastProcessedStakeModifierBlock = %d\n", lastProcessedStakeModifierBlock);
+    		
+    		/*
+    		// catch up as much as possible
+    		while(pWalking != nullptr && pWalking->IsValid(BLOCK_VALID_TRANSACTIONS))
+    		{
+    			pBlock0 = mapSavedBlocks[pWalking->nHeight];
+    			if(pBlock0 == nullptr)
+    				break;
+ 
+    			LogPrintf(">> catchup pWalking->nHeight = %d\n", pWalking->nHeight);
+    			uint256 hashProofOfStake = uint256();
+    			uint256 targetProofOfStake = uint256();
+    			if (pBlock0->IsProofOfStake())
+    			{
+    				CBlockIndex* pIndex0 = pWalking;
+    				if (!CheckProofOfStake(*pblocktree, pIndex0->pprev, state, *pBlock0, hashProofOfStake, targetProofOfStake, mapBlockIndex, *pcoinsTip))
+    				{
+    					return error("AcceptBlock(): check proof-of-stake failed for block %s\n", pBlock0->GetHash().ToString().c_str()); 
+    				}   	    	
+    			}
+    	    
+    			pWalking->hashProofOfStake = hashProofOfStake;
+    			if(!ComputeStakeModifier(pWalking, *pBlock0, chainparams))
+    				return error("AcceptBlock() : ComputeStakeModifier() failed");
+
+    			mapSavedBlocks.erase(height);
+    			// LogPrintf(">> Block at height %d is removed from the list\n", pWalking->nHeight);
+    			
+    			lastProcessedStakeModifierBlock = pWalking->nHeight;
+    			LogPrintf(">> LastProcessedStakeModifierBlock = %d\n", lastProcessedStakeModifierBlock);
+    			pWalking = pWalking->pnext;
+    		}
+    		*/
     	}
     	else
     	{
@@ -3773,7 +3809,7 @@ bool CChainState::ComputeStakeModifier(CBlockIndex* pindex, const CBlock& block,
 	// LogPrintf(">> GetStakeEntropyBit() = %u, Blockhash = %s\n", block.GetStakeEntropyBit(), block.GetHash().ToString().c_str());
     if (!pindex->SetStakeEntropyBit(block.GetStakeEntropyBit())) 
     {
-        return error("ERROR: AcceptBlock() : SetStakeEntropyBit() failed");
+        return error("ComputeStakeModifier() : SetStakeEntropyBit() failed");
     }
    	
     // DeepOnion: compute stake modifier

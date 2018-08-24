@@ -1864,7 +1864,6 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
     {
         std::vector<CInv> vInv;
         vRecv >> vInv;
-    	LogPrintf(">> inv message: inv size = %d\n", vInv.size());
         if (vInv.size() > MAX_INV_SZ)
         {
         	LogPrintf(">> inv message: vInv.size() > MAX_INV_SZ\n");
@@ -2617,7 +2616,6 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
             return error("headers message size = %u", nCount);
         }
         headers.resize(nCount);
-        LogPrintf(">> header: count=%d\n", nCount);
         
         char aa;
         for (unsigned int n = 0; n < nCount; n++) {
@@ -2753,7 +2751,6 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
                     bPingFinished = true;
                     int64_t pingUsecTime = pingUsecEnd - pfrom->nPingUsecStart;
                     if (pingUsecTime > 0) {
-                    	LogPrintf(">> Pong: Successful ping time measurement\n");
                         // Successful ping time measurement, replace previous
                         pfrom->nPingUsecTime = pingUsecTime;
                         pfrom->nMinPingUsecTime = std::min(pfrom->nMinPingUsecTime.load(), pingUsecTime);
