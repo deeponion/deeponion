@@ -2171,7 +2171,7 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
         if (!GetCoinAge(nCoinAge, block.vtx[1].get()))
             return error("ConnectBlock() : %s unable to get coin age for coinstake", block.vtx[1]->GetHash().ToString().substr(0,10).c_str());
 
-        int64_t nCalculatedStakeReward = GetProofOfStakeReward(nCoinAge, pindex->pprev);
+        int64_t nCalculatedStakeReward = GetProofOfStakeReward(nCoinAge, pindex);
         LogPrint(BCLog::ALL, ">> coinstake actual=%d vs calculated=%d\n", nStakeReward, nCalculatedStakeReward);
         if (nStakeReward > nCalculatedStakeReward)
             return state.DoS(100, error("ConnectBlock() : coinstake pays too much(actual=%d vs calculated=%d)", nStakeReward, nCalculatedStakeReward));
