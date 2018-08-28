@@ -34,6 +34,8 @@ static const int MAX_SCRIPT_SIZE = 10000;
 // Maximum number of values on script interpreter stack
 static const int MAX_STACK_SIZE = 1000;
 
+extern std::string scripterrorstr;
+
 // Threshold for nLockTime: below this value it is interpreted as block number,
 // otherwise as UNIX timestamp.
 static const unsigned int LOCKTIME_THRESHOLD = 500000000; // Tue Nov  5 00:53:20 1985 UTC

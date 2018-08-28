@@ -341,8 +341,6 @@ libbitcoin_consensus_a_SOURCES = \
   pubkey.cpp \
   pubkey.h \
   script/bitcoinconsensus.cpp \
-  script/interpreter.cpp \
-  script/interpreter.h \
   script/script.cpp \
   script/script.h \
   script/script_error.cpp \
@@ -367,6 +365,8 @@ libbitcoin_common_a_SOURCES = \
   core_read.cpp \
   core_write.cpp \
   key.cpp \
+  script/interpreter.cpp \
+  script/interpreter.h \
   keystore.cpp \
   netaddress.cpp \
   netbase.cpp \

@@ -8,6 +8,7 @@
 #include <crypto/ripemd160.h>
 #include <crypto/sha1.h>
 #include <crypto/sha256.h>
+#include <key.h>
 #include <pubkey.h>
 #include <script/script.h>
 #include <uint256.h>
@@ -248,7 +249,7 @@ bool static CheckMinimalPush(const valtype& data, opcodetype opcode) {
     return true;
 }
 
-bool EvalScript(std::vector<std::vector<unsigned char> >& stack, const CScript& script, unsigned int flags, const BaseSignatureChecker& checker, SigVersion sigversion, ScriptError* serror)
+bool EvalScript(std::vector<std::vector<unsigned char> >& stack, const CScript& script, unsigned int flags, const BaseSignatureChecker& checker, SigVersion sigversion, ScriptError* serror, int* pCode)
 {
     static const CScriptNum bnZero(0);
     static const CScriptNum bnOne(1);
@@ -285,6 +286,10 @@ bool EvalScript(std::vector<std::vector<unsigned char> >& stack, const CScript& 
             if (vchPushValue.size() > MAX_SCRIPT_ELEMENT_SIZE)
                 return set_error(serror, SCRIPT_ERR_PUSH_SIZE);
 
+            if(pCode != nullptr) {
+            	*pCode = opcode;
+            }
+            
             // Note how OP_RESERVED does not count towards the opcode limit.
             if (opcode > OP_16 && ++nOpCount > MAX_OPS_PER_SCRIPT)
                 return set_error(serror, SCRIPT_ERR_OP_COUNT);
@@ -903,6 +908,8 @@ bool EvalScript(std::vector<std::vector<unsigned char> >& stack, const CScript& 
 
                     popstack(stack);
                     popstack(stack);
+                    std::string ffff = fSuccess ? "true":"false";
+                    scripterrorstr += ". fSuccess = " + ffff;
                     stack.push_back(fSuccess ? vchTrue : vchFalse);
                     if (opcode == OP_CHECKSIGVERIFY)
                     {
@@ -1009,7 +1016,7 @@ bool EvalScript(std::vector<std::vector<unsigned char> >& stack, const CScript& 
                     if ((flags & SCRIPT_VERIFY_NULLDUMMY) && stacktop(-1).size())
                         return set_error(serror, SCRIPT_ERR_SIG_NULLDUMMY);
                     popstack(stack);
-
+                    
                     stack.push_back(fSuccess ? vchTrue : vchFalse);
 
                     if (opcode == OP_CHECKMULTISIGVERIFY)
@@ -1253,21 +1260,42 @@ bool TransactionSignatureChecker::VerifySignature(const std::vector<unsigned cha
 bool TransactionSignatureChecker::CheckSig(const std::vector<unsigned char>& vchSigIn, const std::vector<unsigned char>& vchPubKey, const CScript& scriptCode, SigVersion sigversion) const
 {
     CPubKey pubkey(vchPubKey);
-    if (!pubkey.IsValid())
+    if (!pubkey.IsValid()) {
+    	scripterrorstr += ". pubkey not valid";
         return false;
+    }
 
     // Hash type is one byte tacked on to the end of the signature
     std::vector<unsigned char> vchSig(vchSigIn);
-    if (vchSig.empty())
+    if (vchSig.empty()) {
+    	scripterrorstr += ". vchSig empty";
         return false;
+    }
     int nHashType = vchSig.back();
     vchSig.pop_back();
 
     uint256 sighash = SignatureHash(scriptCode, *txTo, nIn, nHashType, amount, sigversion, this->txdata);
 
-    if (!VerifySignature(vchSig, pubkey, sighash))
+    CKey key;
+    if (!key.SetPubKey(pubkey)) {
+    	scripterrorstr += ". key.SetPubKey false";
         return false;
+    }
 
+    if (!key.Verify(sighash, vchSig)) {
+    	scripterrorstr += ". key.Verify false";
+        return false;
+    }
+    
+    /* this function causes issue and should be replaced by the above...
+    
+    if (!VerifySignature(vchSig, pubkey, sighash)) {
+    	scripterrorstr += ". VerifySignature returns false";
+        return false;
+    }
+    */
+
+    scripterrorstr += ". CheckSig returns true";
     return true;
 }
 
@@ -1406,8 +1434,10 @@ static bool VerifyWitnessProgram(const CScriptWitness& witness, int witversion, 
     return true;
 }
 
-bool VerifyScript(const CScript& scriptSig, const CScript& scriptPubKey, const CScriptWitness* witness, unsigned int flags, const BaseSignatureChecker& checker, ScriptError* serror)
+bool VerifyScript(const CScript& scriptSig, const CScript& scriptPubKey, const CScriptWitness* witness, unsigned int flags, const BaseSignatureChecker& checker, ScriptError* serror, int* pCode)
 {
+	scripterrorstr = "";
+	
     static const CScriptWitness emptyWitness;
     if (witness == nullptr) {
         witness = &emptyWitness;
@@ -1421,18 +1451,24 @@ bool VerifyScript(const CScript& scriptSig, const CScript& scriptPubKey, const C
     }
 
     std::vector<std::vector<unsigned char> > stack, stackCopy;
-    if (!EvalScript(stack, scriptSig, flags, checker, SIGVERSION_BASE, serror))
+    if (!EvalScript(stack, scriptSig, flags, checker, SIGVERSION_BASE, serror, pCode))
         // serror is set
         return false;
     if (flags & SCRIPT_VERIFY_P2SH)
         stackCopy = stack;
-    if (!EvalScript(stack, scriptPubKey, flags, checker, SIGVERSION_BASE, serror))
+    if (!EvalScript(stack, scriptPubKey, flags, checker, SIGVERSION_BASE, serror, pCode))
         // serror is set
         return false;
     if (stack.empty())
+    {
         return set_error(serror, SCRIPT_ERR_EVAL_FALSE);
+    }
     if (CastToBool(stack.back()) == false)
+    {
+    	scripterrorstr += ", CastToBool(stack.back()) == false";
         return set_error(serror, SCRIPT_ERR_EVAL_FALSE);
+    }
+
 
     // Bare witness programs
     int witnessversion;
@@ -1472,13 +1508,17 @@ bool VerifyScript(const CScript& scriptSig, const CScript& scriptPubKey, const C
         CScript pubKey2(pubKeySerialized.begin(), pubKeySerialized.end());
         popstack(stack);
 
-        if (!EvalScript(stack, pubKey2, flags, checker, SIGVERSION_BASE, serror))
+        if (!EvalScript(stack, pubKey2, flags, checker, SIGVERSION_BASE, serror, pCode))
             // serror is set
             return false;
         if (stack.empty())
+        {
             return set_error(serror, SCRIPT_ERR_EVAL_FALSE);
+        }
         if (!CastToBool(stack.back()))
+        {
             return set_error(serror, SCRIPT_ERR_EVAL_FALSE);
+        }
 
         // P2SH witness program
         if (flags & SCRIPT_VERIFY_WITNESS) {
