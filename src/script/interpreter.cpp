@@ -8,7 +8,7 @@
 #include <crypto/ripemd160.h>
 #include <crypto/sha1.h>
 #include <crypto/sha256.h>
-#include <key.h>
+#include <key0.h>
 #include <pubkey.h>
 #include <script/script.h>
 #include <uint256.h>
@@ -1276,7 +1276,7 @@ bool TransactionSignatureChecker::CheckSig(const std::vector<unsigned char>& vch
 
     uint256 sighash = SignatureHash(scriptCode, *txTo, nIn, nHashType, amount, sigversion, this->txdata);
 
-    CKey key;
+    CKey0 key;
     if (!key.SetPubKey(pubkey)) {
     	scripterrorstr += ". key.SetPubKey false";
         return false;

@@ -351,6 +351,10 @@ libbitcoin_consensus_a_SOURCES = \
   uint256.h \
   utilstrencodings.cpp \
   utilstrencodings.h \
+  key0.cpp \
+  key0.h \
+  script/interpreter.cpp \
+  script/interpreter.h \
   version.h
 
 # common: shared between bitcoind, and bitcoin-qt and non-server tools
@@ -365,8 +369,6 @@ libbitcoin_common_a_SOURCES = \
   core_read.cpp \
   core_write.cpp \
   key.cpp \
-  script/interpreter.cpp \
-  script/interpreter.h \
   keystore.cpp \
   netaddress.cpp \
   netbase.cpp \
