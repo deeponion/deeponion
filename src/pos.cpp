@@ -376,10 +376,8 @@ bool CheckProofOfStake(CBlockTreeDB& blockTreeDB, CBlockIndex* pindexPrev, CVali
     }
    
     // Verify signature
-    /*
     if (!VerifySignature(coinPrev, txin.prevout.hash, tx, 0, SCRIPT_VERIFY_NONE))
         return state.DoS(100, error("CheckProofOfStake() : VerifySignature failed on coinstake %s", tx.GetHash().ToString()));
-    */
        
     if (!CheckStakeKernelHash(nBits, pBlockFrom, state, txPrevRef, nTxPrevOffset, txin.prevout, tx.nTime, hashProofOfStake, targetProofOfStake))
         return state.DoS(100, error("CheckProofOfStake() : INFO: check kernel failed on coinstake %s, hashProof=%s", tx.GetHash().ToString().c_str(), hashProofOfStake.ToString().c_str())); 

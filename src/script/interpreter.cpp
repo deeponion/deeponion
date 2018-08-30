@@ -1131,6 +1131,8 @@ public:
     void Serialize(S &s) const {
         // Serialize nVersion
         ::Serialize(s, txTo.nVersion);
+        // Serialize nTime
+        ::Serialize(s, txTo.nTime);
         // Serialize vin
         unsigned int nInputs = fAnyoneCanPay ? 1 : txTo.vin.size();
         ::WriteCompactSize(s, nInputs);
@@ -1276,6 +1278,7 @@ bool TransactionSignatureChecker::CheckSig(const std::vector<unsigned char>& vch
 
     uint256 sighash = SignatureHash(scriptCode, *txTo, nIn, nHashType, amount, sigversion, this->txdata);
 
+    /*
     CKey0 key;
     if (!key.SetPubKey(pubkey)) {
     	scripterrorstr += ". key.SetPubKey false";
@@ -1286,14 +1289,12 @@ bool TransactionSignatureChecker::CheckSig(const std::vector<unsigned char>& vch
     	scripterrorstr += ". key.Verify false";
         return false;
     }
-    
-    /* this function causes issue and should be replaced by the above...
+    */
     
     if (!VerifySignature(vchSig, pubkey, sighash)) {
     	scripterrorstr += ". VerifySignature returns false";
         return false;
     }
-    */
 
     scripterrorstr += ". CheckSig returns true";
     return true;
@@ -1437,6 +1438,11 @@ static bool VerifyWitnessProgram(const CScriptWitness& witness, int witversion, 
 bool VerifyScript(const CScript& scriptSig, const CScript& scriptPubKey, const CScriptWitness* witness, unsigned int flags, const BaseSignatureChecker& checker, ScriptError* serror, int* pCode)
 {
 	scripterrorstr = "";
+	const CTransaction* tx = ((TransactionSignatureChecker&)checker).txTo;
+	if(tx != nullptr)
+	{
+		scripterrorstr += "tx hash = " + tx->GetHash().ToString();
+	}
 	
     static const CScriptWitness emptyWitness;
     if (witness == nullptr) {
@@ -1451,14 +1457,36 @@ bool VerifyScript(const CScript& scriptSig, const CScript& scriptPubKey, const C
     }
 
     std::vector<std::vector<unsigned char> > stack, stackCopy;
-    if (!EvalScript(stack, scriptSig, flags, checker, SIGVERSION_BASE, serror, pCode))
+    if (!EvalScript(stack, scriptSig, flags, checker, SIGVERSION_BASE, serror, pCode)) {
         // serror is set
+    	scripterrorstr += ", 1st EvalScript failed";
         return false;
-    if (flags & SCRIPT_VERIFY_P2SH)
+    }
+    else
+    {
+    	scripterrorstr += ", 1st EvalScript ok";
+    }
+    
+    if (flags & SCRIPT_VERIFY_P2SH) 
+    {
+    	scripterrorstr += ", copy is set";
         stackCopy = stack;
-    if (!EvalScript(stack, scriptPubKey, flags, checker, SIGVERSION_BASE, serror, pCode))
+    }
+    else
+    {
+    	scripterrorstr += ", copy is not set";
+    }
+    
+    if (!EvalScript(stack, scriptPubKey, flags, checker, SIGVERSION_BASE, serror, pCode)) {
         // serror is set
+    	scripterrorstr += ", 2nd EvalScript failed";
         return false;
+    }
+    else
+    {
+    	scripterrorstr += ", 2nd EvalScript ok";
+    }
+    
     if (stack.empty())
     {
         return set_error(serror, SCRIPT_ERR_EVAL_FALSE);

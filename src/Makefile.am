@@ -351,8 +351,6 @@ libbitcoin_consensus_a_SOURCES = \
   uint256.h \
   utilstrencodings.cpp \
   utilstrencodings.h \
-  key0.cpp \
-  key0.h \
   script/interpreter.cpp \
   script/interpreter.h \
   version.h

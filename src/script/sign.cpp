@@ -11,7 +11,7 @@
 #include <primitives/transaction.h>
 #include <script/standard.h>
 #include <uint256.h>
-
+#include <util.h>
 
 typedef std::vector<unsigned char> valtype;
 
@@ -235,7 +235,16 @@ bool VerifySignature(const Coin& coin, const uint256 txFromHash, const CTransact
     if (txin.prevout.hash != txFromHash)
         return false;
 		
-    return VerifyScript(txin.scriptSig, txout.scriptPubKey, NULL, flags, checker);
+    int opcode;
+    ScriptError error;
+    bool b = VerifyScript(txin.scriptSig, txout.scriptPubKey, NULL, flags, checker, &error, &opcode);
+    if(b == false)
+    {
+    	LogPrintf(">> CScriptCheck: error = %d, opcode = %#x\n", error, opcode);
+    	LogPrintf(">> scripterrorstr = %s\n", scripterrorstr.c_str());
+    }
+    
+    return b;
 }
 
 static std::vector<valtype> CombineMultisig(const CScript& scriptPubKey, const BaseSignatureChecker& checker,
