@@ -8,7 +8,6 @@
 #include <crypto/ripemd160.h>
 #include <crypto/sha1.h>
 #include <crypto/sha256.h>
-#include <key0.h>
 #include <pubkey.h>
 #include <script/script.h>
 #include <uint256.h>
