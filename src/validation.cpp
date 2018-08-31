@@ -1213,7 +1213,9 @@ int GetPowHeight(const CBlockIndex* pindex)
 
 int GetPosHeight(const CBlockIndex* pindex)
 {
-	int posH = pindex->nHeight - GetPowHeight(pindex);
+	int powH = GetPowHeight(pindex);
+	int posH = pindex->nHeight - powH;
+	LogPrintf(">> nHeight = %d, nPoWHeight = %d\n", pindex->nHeight, powH);
 	return posH;
 }
 
@@ -1238,7 +1240,7 @@ CAmount GetProofOfWorkReward(int nHeight, const CBlockIndex* pindex)
 }
 
 // TODO: Tidy up
-static const int YEARLY_POS_BLOCK_COUNT = 525600;
+static const int YEARLY_POS_BLOCK_COUNT = 525602; // FIXME: Rebase code thinks PoS height is 525602 when halving occurrd.
 static const int64_t MAX_PROOF_OF_STAKE_STABLE = 0.01 * COIN;
 
 CAmount GetProofOfStakeReward(int64_t nCoinAge, const CBlockIndex* pindex)
@@ -3280,12 +3282,9 @@ bool CheckBlockSignature(const CBlock& block)
     if (whichType == TX_PUBKEY)
     {
         CPubKey vchPubKey = CPubKey(vSolutions[0]);
-        CKey key;
-        if (!key.SetPubKey(vchPubKey))
-            return false;
         if (block.vchBlockSig.empty())
             return false;
-        return key.Verify(block.GetHash(), block.vchBlockSig);
+        return vchPubKey.Verify(block.GetHash(), block.vchBlockSig);
     }
     return false;
 }
