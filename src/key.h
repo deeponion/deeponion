@@ -15,8 +15,6 @@
 #include <stdexcept>
 #include <vector>
 
-#include <openssl/ec.h> // for EC_KEY definition - DeepOnion: Ported
-
 class key_error : public std::runtime_error
 {
 public:
@@ -33,12 +31,6 @@ typedef std::vector<unsigned char, secure_allocator<unsigned char> > CPrivKey;
 /** An encapsulated private key. */
 class CKey
 {
-protected:
-	// DeepOnion: Port for PoS
-	EC_KEY* pkey;
-    bool fSet;
-    bool fCompressedPubKey;
-
 public:
     /**
      * secp256k1:
@@ -69,13 +61,11 @@ private:
 
 public:
     //! Construct an invalid private key.
-    CKey() : pkey(NULL), fSet(false), fCompressedPubKey(false), fValid(false), fCompressed(false)
+	CKey() : fValid(false), fCompressed(false)
     {
         // Important: vch must be 32 bytes in length to not break serialization
         keydata.resize(32);
     }
-
-    ~CKey();
 
     friend bool operator==(const CKey& a, const CKey& b)
     {
@@ -151,12 +141,6 @@ public:
 
     //! Load private key and check that public key matches.
     bool Load(const CPrivKey& privkey, const CPubKey& vchPubKey, bool fSkipCheck);
-
-    // DeepOnion: Ported for PoS Signature checking.
-    bool SetPubKey(const CPubKey& vchPubKey);
-    bool Verify(uint256 hash, const std::vector<unsigned char>& vchSig);
-    void Reset();
-
 };
 
 struct CExtKey {
