@@ -8,8 +8,6 @@
 #include <tinyformat.h>
 #include <utilstrencodings.h>
 
-std::string scripterrorstr = "";
-
 const char* GetOpName(opcodetype opcode)
 {
     switch (opcode)

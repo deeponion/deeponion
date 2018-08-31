@@ -235,14 +235,7 @@ bool VerifySignature(const Coin& coin, const uint256 txFromHash, const CTransact
     if (txin.prevout.hash != txFromHash)
         return false;
 		
-    int opcode;
-    ScriptError error;
-    bool b = VerifyScript(txin.scriptSig, txout.scriptPubKey, NULL, flags, checker, &error, &opcode);
-    if(b == false)
-    {
-    	LogPrintf(">> CScriptCheck: error = %d, opcode = %#x\n", error, opcode);
-    	LogPrintf(">> scripterrorstr = %s\n", scripterrorstr.c_str());
-    }
+    bool b = VerifyScript(txin.scriptSig, txout.scriptPubKey, NULL, flags, checker);
     
     return b;
 }
