@@ -1200,6 +1200,8 @@ int GetPowHeightTable(const CBlockIndex* pindex)
 	if (index != -1)
 		count += checkpointPoWHeight[index][1];
 
+	++count;
+	
 	// printf(">> Height = %d, Count = %d\n", height, count);
 	return count;
 }
@@ -1244,8 +1246,8 @@ static const int64_t MAX_PROOF_OF_STAKE_STABLE = 0.01 * COIN;
 CAmount GetProofOfStakeReward(int64_t nCoinAge, const CBlockIndex* pindex)
 {
 	int64_t nRewardCoinYear = MAX_PROOF_OF_STAKE_STABLE;
-	int nPoSHeight = GetPosHeight(pindex) - 1;
-	LogPrintf(">> nHeight = %d, nPoSHeight = %d\n", pindex->nHeight, nPoSHeight);
+	int nPoSHeight = GetPosHeight(pindex);
+	LogPrintf(">> nHeight = %d, nPoSHeight = %d\n", pindex->nHeight + 1, nPoSHeight + 1);
 	int64_t nSubsidy = 0;
 
 	if (nPoSHeight < YEARLY_POS_BLOCK_COUNT)
@@ -2162,7 +2164,7 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
 
     if(block.IsProofOfWork())
     {
-		CAmount blockReward = nFees + GetProofOfWorkReward(pindex->nHeight, pindex);
+		CAmount blockReward = nFees + GetProofOfWorkReward(pindex->nHeight, pindex->pprev);
 		if (block.vtx[0]->GetValueOut() > blockReward)
 			return state.DoS(100,
 							 error("ConnectBlock(): coinbase pays too much (actual=%d vs limit=%d)",
@@ -2176,7 +2178,7 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
         if (!GetCoinAge(nCoinAge, block.vtx[1].get()))
             return error("ConnectBlock() : %s unable to get coin age for coinstake", block.vtx[1]->GetHash().ToString().substr(0,10).c_str());
 
-        int64_t nCalculatedStakeReward = GetProofOfStakeReward(nCoinAge, pindex);
+        int64_t nCalculatedStakeReward = GetProofOfStakeReward(nCoinAge, pindex->pprev);
         LogPrint(BCLog::ALL, ">> coinstake actual=%d vs calculated=%d\n", nStakeReward, nCalculatedStakeReward);
         if (nStakeReward > nCalculatedStakeReward)
             return state.DoS(100, error("ConnectBlock() : coinstake pays too much(actual=%d vs calculated=%d)", nStakeReward, nCalculatedStakeReward));
@@ -3620,6 +3622,8 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CVali
     	return false;
 
 	LogPrintf(">> Block-height = %d\n", pindex->nHeight);
+	if(pindex->nHeight > 600000)
+		logCategories = 1;
 	
     // Try to process all requested blocks that we don't have, but only
     // process an unrequested block if it's new and has enough work to
