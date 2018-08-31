@@ -1944,12 +1944,12 @@ bool GetCoinAge(uint64_t& nCoinAge, const CTransaction *tx)
         arith_uint256 a256ValueIn(nValueIn);
         bnCentSecond += a256ValueIn * (tx->nTime-txPrev.get()->nTime) / CENT;
 
-        LogPrint(BCLog::ALL, "coin age nValueIn=%d nTimeDiff=%d bnCentSecond=%s\n", a256ValueIn.Get64(), tx->nTime - txPrev.get()->nTime, bnCentSecond.ToString().c_str());
+        // LogPrint(BCLog::ALL, "coin age nValueIn=%d nTimeDiff=%d bnCentSecond=%s\n", a256ValueIn.Get64(), tx->nTime - txPrev.get()->nTime, bnCentSecond.ToString().c_str());
     }
 
     arith_uint256 bnCoinDay = bnCentSecond * CENT / COIN / (24 * 60 * 60);
     nCoinAge = bnCoinDay.Get64();
-    LogPrint(BCLog::ALL, ">> coin age bnCoinDay=%d\n", nCoinAge);
+    // LogPrint(BCLog::ALL, ">> coin age bnCoinDay=%d\n", nCoinAge);
     return true;
 }
 
