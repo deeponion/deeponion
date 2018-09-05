@@ -1241,8 +1241,8 @@ CAmount GetProofOfWorkReward(int nHeight, const CBlockIndex* pindex)
 	return nSubsidy;
 }
 
-// TODO: Tidy up
-static const int YEARLY_POS_BLOCK_COUNT = 525602; // FIXME: Rebase code thinks PoS height is 525602 when halving occurrd.
+
+static const int YEARLY_POS_BLOCK_COUNT = 525600; 
 static const int64_t MAX_PROOF_OF_STAKE_STABLE = 0.01 * COIN;
 
 CAmount GetProofOfStakeReward(int64_t nCoinAge, const CBlockIndex* pindex)
@@ -1709,6 +1709,7 @@ DisconnectResult CChainState::DisconnectBlock(const CBlock& block, const CBlockI
     }
 
     if (blockUndo.vtxundo.size() + 1 != block.vtx.size()) {
+    	LogPrintf(">> blockUndo.vtxundo.size() = %d, block.vtx.size() = %d\n", blockUndo.vtxundo.size(), block.vtx.size());
         error("DisconnectBlock(): block and undo data inconsistent");
         return DISCONNECT_FAILED;
     }
@@ -1718,6 +1719,7 @@ DisconnectResult CChainState::DisconnectBlock(const CBlock& block, const CBlockI
         const CTransaction &tx = *(block.vtx[i]);
         uint256 hash = tx.GetHash();
         bool is_coinbase = tx.IsCoinBase();
+        bool is_coinstake = tx.IsCoinStake();
 
         // Check that all outputs are available and match the outputs in the block itself
         // exactly.
@@ -1726,16 +1728,17 @@ DisconnectResult CChainState::DisconnectBlock(const CBlock& block, const CBlockI
                 COutPoint out(hash, o);
                 Coin coin;
                 bool is_spent = view.SpendCoin(out, &coin);
-                if (!is_spent || tx.vout[o] != coin.out || pindex->nHeight != coin.nHeight || is_coinbase != coin.fCoinBase) {
+                if (!is_spent || tx.vout[o] != coin.out || pindex->nHeight != coin.nHeight || (is_coinbase || is_coinstake) != coin.fCoinBase) {
                     fClean = false; // transaction output mismatch
                 }
             }
         }
 
         // restore inputs
-        if (i > 0) { // not coinbases
+        if (i > 0 && !is_coinstake) { // not coinbases
             CTxUndo &txundo = blockUndo.vtxundo[i-1];
             if (txundo.vprevout.size() != tx.vin.size()) {
+            	LogPrintf(">> i>0 case: txundo.vprevout.size() = %d, tx.vin.size() = %d\n", txundo.vprevout.size(), tx.vin.size());
                 error("DisconnectBlock(): transaction and undo data inconsistent");
                 return DISCONNECT_FAILED;
             }
@@ -1785,7 +1788,8 @@ static bool WriteUndoDataForBlock(const CBlockUndo& blockundo, CValidationState&
     // Write undo information to disk
     if (pindex->GetUndoPos().IsNull()) {
         CDiskBlockPos _pos;
-        if (!FindUndoPos(state, pindex->nFile, _pos, ::GetSerializeSize(blockundo, SER_DISK, CLIENT_VERSION) + 40))
+        // if (!FindUndoPos(state, pindex->nFile, _pos, ::GetSerializeSize(blockundo, SER_DISK, CLIENT_VERSION) + 40))
+        if (!FindUndoPos(state, pindex->nFile, _pos, ::GetSerializeSize(blockundo, SER_DISK, CLIENT_VERSION) + 44))
             return error("ConnectBlock(): FindUndoPos failed");
         if (!UndoWriteToDisk(blockundo, _pos, pindex->pprev->GetBlockHash(), chainparams.MessageStart()))
             return AbortNode(state, "Failed to write undo data");
