@@ -2185,7 +2185,7 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
             return error("ConnectBlock() : %s unable to get coin age for coinstake", block.vtx[1]->GetHash().ToString().substr(0,10).c_str());
 
         int64_t nCalculatedStakeReward = GetProofOfStakeReward(nCoinAge, pindex->pprev);
-        LogPrint(BCLog::ALL, ">> coinstake actual=%d vs calculated=%d\n", nStakeReward, nCalculatedStakeReward);
+        // LogPrint(BCLog::ALL, ">> coinstake actual=%d vs calculated=%d\n", nStakeReward, nCalculatedStakeReward);
         if (nStakeReward > nCalculatedStakeReward)
             return state.DoS(100, error("ConnectBlock() : coinstake pays too much(actual=%d vs calculated=%d)", nStakeReward, nCalculatedStakeReward));
     }
@@ -3625,8 +3625,6 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CVali
     	return false;
 
 	LogPrintf(">> Block-height = %d\n", pindex->nHeight);
-	if(pindex->nHeight > 600000)
-		logCategories = 1;
 	
     // Try to process all requested blocks that we don't have, but only
     // process an unrequested block if it's new and has enough work to
@@ -3694,12 +3692,11 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CVali
     		}
     		pWalking = pWalking->pprev;
     	}
-    
 	
-    	LogPrintf(">> flag = %s\n", flag ? "true":"false");
-    	LogPrintf(">> Current LastProcessedStakeModifierBlock = %d\n", lastProcessedStakeModifierBlock);
+    	// LogPrintf(">> flag = %s\n", flag ? "true":"false");
     	if(flag)
     	{
+    		// LogPrintf(">> Current LastProcessedStakeModifierBlock = %d\n", lastProcessedStakeModifierBlock);
     		pWalking = pWalking->pnext;
     		int expectedHeight = pindex->nHeight;
     		LogPrintf(">> Expected-Height = %d\n", expectedHeight);
