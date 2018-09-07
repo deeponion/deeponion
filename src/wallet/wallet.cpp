@@ -2746,6 +2746,7 @@ bool CWallet::CreateTransaction(const std::vector<CRecipient>& vecSend, CWalletT
     // now we ensure code won't be written that makes assumptions about
     // nLockTime that preclude a fix later.
     txNew.nLockTime = chainActive.Height();
+    txNew.nTime = GetAdjustedTime();
 
     // Secondly occasionally randomly pick a nLockTime even further back, so
     // that transactions that are delayed after signing for whatever reason,
