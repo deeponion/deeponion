@@ -1657,7 +1657,11 @@ bool AppInitMain()
     }
     if (fLoaded) {
         LogPrintf(" block index %15dms\n", GetTimeMillis() - nStart);
-        lastProcessedStakeModifierBlock = chainActive.Tip()->nHeight;
+        if(chainActive.Tip() == nullptr)
+        	lastProcessedStakeModifierBlock = 0;
+        else
+        	lastProcessedStakeModifierBlock = chainActive.Tip()->nHeight;
+        
         LogPrintf(">> LastProcessedStakeModifierBlock = %d\n", lastProcessedStakeModifierBlock);
     }
 
