@@ -79,6 +79,8 @@ static const bool DEFAULT_PROXYRANDOMIZE = true;
 static const bool DEFAULT_REST_ENABLE = false;
 static const bool DEFAULT_STOPAFTERBLOCKIMPORT = false;
 
+int lastProcessedStakeModifierBlock = 0;
+
 std::unique_ptr<CConnman> g_connman;
 std::unique_ptr<PeerLogicValidation> peerLogic;
 
@@ -1655,6 +1657,8 @@ bool AppInitMain()
     }
     if (fLoaded) {
         LogPrintf(" block index %15dms\n", GetTimeMillis() - nStart);
+        lastProcessedStakeModifierBlock = chainActive.Tip()->nHeight;
+        LogPrintf(">> LastProcessedStakeModifierBlock = %d\n", lastProcessedStakeModifierBlock);
     }
 
     fs::path est_path = GetDataDir() / FEE_ESTIMATES_FILENAME;

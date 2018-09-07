@@ -227,7 +227,7 @@ uint64_t nPruneTarget = 0;
 int64_t nMaxTipAge = DEFAULT_MAX_TIP_AGE;
 bool fEnableReplacement = DEFAULT_ENABLE_REPLACEMENT;
 
-int lastProcessedStakeModifierBlock = 0;
+extern int lastProcessedStakeModifierBlock;
 
 uint256 hashAssumeValid;
 arith_uint256 nMinimumChainWork;
@@ -2190,10 +2190,21 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
             return state.DoS(100, error("ConnectBlock() : coinstake pays too much(actual=%d vs calculated=%d)", nStakeReward, nCalculatedStakeReward));
     }
 
+    if(pindex->nHeight > lastProcessedStakeModifierBlock)
+    {
+    	if(mapSavedBlocks.find(pindex->nHeight) == mapSavedBlocks.end()) 
+    	{
+    		CBlock *pBlockCopy = new CBlock(block);
+    		pBlockCopy->vtx = block.vtx;
+    		mapSavedBlocks[pindex->nHeight] = pBlockCopy;
+    	}
+    }
+    
     if (!control.Wait())
         return state.DoS(100, error("%s: CheckQueue failed", __func__), REJECT_INVALID, "block-validation-failed");
     int64_t nTime4 = GetTimeMicros(); nTimeVerify += nTime4 - nTime2;
     LogPrint(BCLog::BENCH, "    - Verify %u txins: %.2fms (%.3fms/txin) [%.2fs (%.2fms/blk)]\n", nInputs - 1, MILLI * (nTime4 - nTime2), nInputs <= 1 ? 0 : MILLI * (nTime4 - nTime2) / (nInputs-1), nTimeVerify * MICRO, nTimeVerify * MILLI / nBlocksTotal);
+
 
     if (fJustCheck)
         return true;
@@ -3511,6 +3522,8 @@ static bool ContextualCheckBlock(const CBlock& block, CValidationState& state, c
 
 bool CChainState::AcceptBlockHeader(const CBlockHeader& block, CValidationState& state, const CChainParams& chainparams, CBlockIndex** ppindex)
 {
+	// LogPrintf(">> AcceptBlockHeader\n");
+	
     AssertLockHeld(cs_main);
     // Check for duplicate
     uint256 hash = block.GetHash();
@@ -3520,6 +3533,7 @@ bool CChainState::AcceptBlockHeader(const CBlockHeader& block, CValidationState&
 
         if (miSelf != mapBlockIndex.end()) {
             // Block header is already known.
+        	// LogPrintf(">> Block header is already known. miSelf->nHeight = %d\n", miSelf->second->nHeight);
             pindex = miSelf->second;
             if (ppindex)
                 *ppindex = pindex;
@@ -3557,8 +3571,10 @@ bool CChainState::AcceptBlockHeader(const CBlockHeader& block, CValidationState&
             }
         }
     }
-    if (pindex == nullptr)
+    if (pindex == nullptr) {
         pindex = AddToBlockIndex(block);
+        // LogPrintf(">> Add to block index. height = %d\n", pindex->nHeight);
+    }
 
     if (ppindex)
         *ppindex = pindex;
@@ -3612,7 +3628,7 @@ static CDiskBlockPos SaveBlockToDisk(const CBlock& block, int nHeight, const CCh
 /** Store block on disk. If dbp is non-nullptr, the file is known to already reside on disk */
 bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CValidationState& state, const CChainParams& chainparams, CBlockIndex** ppindex, bool fRequested, const CDiskBlockPos* dbp, bool* fNewBlock)
 {
-	LogPrintf(">> AcceptBlock\n");
+	// LogPrintf(">> AcceptBlock\n");
     const CBlock& block = *pblock;
 
     if (fNewBlock) *fNewBlock = false;
@@ -4153,8 +4169,11 @@ bool CChainState::LoadBlockIndex(const Consensus::Params& consensus_params, CBlo
             setBlockIndexCandidates.insert(pindex);
         if (pindex->nStatus & BLOCK_FAILED_MASK && (!pindexBestInvalid || pindex->nChainWork > pindexBestInvalid->nChainWork))
             pindexBestInvalid = pindex;
-        if (pindex->pprev)
+        if (pindex->pprev) 
+        {
             pindex->BuildSkip();
+            pindex->pprev->pnext = pindex;
+        }
         if (pindex->IsValid(BLOCK_VALID_TREE) && (pindexBestHeader == nullptr || CBlockIndexWorkComparator()(pindexBestHeader, pindex)))
             pindexBestHeader = pindex;
     }
