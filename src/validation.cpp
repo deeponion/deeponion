@@ -3840,6 +3840,13 @@ bool CChainState::ComputeStakeModifier(CBlockIndex* pindex, const CBlock& block,
         return error("ComputeStakeModifier() : SetStakeEntropyBit() failed");
     }
    	
+    // Speacial case when wallet was restarted before reaching first modifier checkpoint
+    if(pindex->pprev != nullptr && pindex->pprev->nHeight == 0 && pindex->pprev->nStakeModifierChecksum == 0)
+    {
+    	pindex->pprev->nStakeModifierChecksum = GetStakeModifierChecksum(pindex->pprev);
+    	LogPrintf(">> Reset genesis block nStakeModifierChecksum to %x\n", pindex->pprev->nStakeModifierChecksum);
+    }
+
     // DeepOnion: compute stake modifier
     uint64_t nStakeModifier = 0;
     bool fGeneratedStakeModifier = false;
