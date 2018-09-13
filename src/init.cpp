@@ -1656,25 +1656,7 @@ bool AppInitMain()
         return false;
     }
     if (fLoaded) {
-        LogPrintf(" block index %15dms\n", GetTimeMillis() - nStart);
-        if(chainActive.Tip() == nullptr)
-        	lastProcessedStakeModifierBlock = 0;
-        else
-        {
-        	CBlockIndex* pI = chainActive.Tip();
-        	while(pI != nullptr && pI->nStakeModifier == 0)
-        		pI = pI->pprev;
-        	
-        	if(pI != nullptr)
-        	{
-        		lastProcessedStakeModifierBlock = pI->nHeight;
-        		LogPrintf(">> nStakeModifier = %d\n", pI->nStakeModifier);
-        	}
-        	else
-        		lastProcessedStakeModifierBlock = 0;
-        }
-        
-        LogPrintf(">> LastProcessedStakeModifierBlock = %d\n", lastProcessedStakeModifierBlock);
+        LogPrintf(" block index %15dms\n", GetTimeMillis() - nStart);        
     }
 
     fs::path est_path = GetDataDir() / FEE_ESTIMATES_FILENAME;

@@ -3734,7 +3734,14 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CVali
     			}
     		
     			if(pBlock0 == nullptr)
-    				return error("AcceptBlock(): Unexpected pBlock0 == nullptr\n");
+    			{
+    				// See if we have the block before failing.
+    				CBlock block0;
+    				if (!ReadBlockFromDisk(block0, pWalking, chainparams.GetConsensus()))
+    					return error("AcceptBlock(): Unexpected pBlock0 == nullptr\n");
+    				pBlock0 = &block0;
+    				LogPrintf(">> Block read from disk pBlock0->hash = %s\n", pBlock0->GetHash().ToString().c_str());
+    			}
     		
     			uint256 hashProofOfStake = uint256();
     			uint256 targetProofOfStake = uint256();
@@ -3840,19 +3847,13 @@ bool CChainState::ComputeStakeModifier(CBlockIndex* pindex, const CBlock& block,
         return error("ComputeStakeModifier() : SetStakeEntropyBit() failed");
     }
    	
-    // Speacial case when wallet was restarted before reaching first modifier checkpoint
-    if(pindex->pprev != nullptr && pindex->pprev->nHeight == 0 && pindex->pprev->nStakeModifierChecksum == 0)
-    {
-    	pindex->pprev->nStakeModifierChecksum = GetStakeModifierChecksum(pindex->pprev);
-    	LogPrintf(">> Reset genesis block nStakeModifierChecksum to %x\n", pindex->pprev->nStakeModifierChecksum);
-    }
-
     // DeepOnion: compute stake modifier
     uint64_t nStakeModifier = 0;
     bool fGeneratedStakeModifier = false;
     ComputeNextStakeModifier(pindex->pprev, nStakeModifier, fGeneratedStakeModifier, chainparams.GetConsensus());
     pindex->SetStakeModifier(nStakeModifier, fGeneratedStakeModifier);
     pindex->nStakeModifierChecksum = GetStakeModifierChecksum(pindex);
+    LogPrintf(">> nStakeModifier = 0x%016x, nStakeModifierChecksum = 0x%016x\n", nStakeModifier, pindex->nStakeModifierChecksum);
     if (!CheckStakeModifierCheckpoints(pindex->nHeight, pindex->nStakeModifierChecksum))
     	return error("%s : Rejected by stake modifier checkpoint height=%d, modifier=%ul\n", __func__, pindex->nHeight, nStakeModifier);
     
@@ -4185,7 +4186,21 @@ bool CChainState::LoadBlockIndex(const Consensus::Params& consensus_params, CBlo
         }
         if (pindex->IsValid(BLOCK_VALID_TREE) && (pindexBestHeader == nullptr || CBlockIndexWorkComparator()(pindexBestHeader, pindex)))
             pindexBestHeader = pindex;
+        
+        // DeepOnion: calculate stake modifier checksum
+        if(pindex->nStakeModifier != 0 || pindex->nHeight < 2) 
+        {
+        	pindex->nStakeModifierChecksum = GetStakeModifierChecksum(pindex);
+        	LogPrintf(">> h = %d, checksum = 0x%016x, nStakeModifier = 0x%016x\n", pindex->nHeight, pindex->nStakeModifierChecksum, pindex->nStakeModifier);
+        	if (!CheckStakeModifierCheckpoints(pindex->nHeight, pindex->nStakeModifierChecksum))
+        	{
+        		LogPrintf("LoadBlockIndex() : Failed stake modifier checkpoint height=%d, modifier=0x%016x", pindex->nHeight, pindex->nStakeModifier);
+        		return false; 
+        	}
+        	lastProcessedStakeModifierBlock = pindex->nHeight;
+        }
     }
+    LogPrintf(">> lastProcessedStakeModifierBlock = %d\n", lastProcessedStakeModifierBlock);
 
     return true;
 }
