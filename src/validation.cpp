@@ -3709,10 +3709,10 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CVali
     		pWalking = pWalking->pprev;
     	}
 	
-    	// LogPrintf(">> flag = %s\n", flag ? "true":"false");
+    	LogPrintf(">> flag = %s\n", flag ? "true":"false");
     	if(flag)
     	{
-    		// LogPrintf(">> Current LastProcessedStakeModifierBlock = %d\n", lastProcessedStakeModifierBlock);
+    		LogPrintf(">> Current LastProcessedStakeModifierBlock = %d\n", lastProcessedStakeModifierBlock);
     		pWalking = pWalking->pnext;
     		int expectedHeight = pindex->nHeight;
     		LogPrintf(">> Expected-Height = %d\n", expectedHeight);
@@ -3753,6 +3753,8 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CVali
     				return error("AcceptBlock() : ComputeStakeModifier() failed");
     		
     			mapSavedBlocks.erase(pWalking->nHeight);
+    			lastProcessedStakeModifierBlock = pWalking->nHeight;
+    			LogPrintf(">> updated LastProcessedStakeModifierBlock = %d\n", lastProcessedStakeModifierBlock);
     			// LogPrintf(">> Block at height %d is removed from the list\n", pWalking->nHeight);
     			pWalking = pWalking->pnext;
     		}
