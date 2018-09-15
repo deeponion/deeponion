@@ -1788,8 +1788,8 @@ static bool WriteUndoDataForBlock(const CBlockUndo& blockundo, CValidationState&
     // Write undo information to disk
     if (pindex->GetUndoPos().IsNull()) {
         CDiskBlockPos _pos;
-        // if (!FindUndoPos(state, pindex->nFile, _pos, ::GetSerializeSize(blockundo, SER_DISK, CLIENT_VERSION) + 40))
-        if (!FindUndoPos(state, pindex->nFile, _pos, ::GetSerializeSize(blockundo, SER_DISK, CLIENT_VERSION) + 44))
+        if (!FindUndoPos(state, pindex->nFile, _pos, ::GetSerializeSize(blockundo, SER_DISK, CLIENT_VERSION) + 40))
+        // if (!FindUndoPos(state, pindex->nFile, _pos, ::GetSerializeSize(blockundo, SER_DISK, CLIENT_VERSION) + 44))
             return error("ConnectBlock(): FindUndoPos failed");
         if (!UndoWriteToDisk(blockundo, _pos, pindex->pprev->GetBlockHash(), chainparams.MessageStart()))
             return AbortNode(state, "Failed to write undo data");
@@ -3733,14 +3733,15 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CVali
     				pBlock0 = (CBlock*)&block;
     			}
     		
+				CBlock block0;
     			if(pBlock0 == nullptr)
     			{
     				// See if we have the block before failing.
-    				CBlock block0;
     				if (!ReadBlockFromDisk(block0, pWalking, chainparams.GetConsensus()))
     					return error("AcceptBlock(): Unexpected pBlock0 == nullptr\n");
     				pBlock0 = &block0;
-    				LogPrintf(">> Block read from disk pBlock0->hash = %s\n", pBlock0->GetHash().ToString().c_str());
+    				// LogPrintf(">> Block read from disk pBlock0->hash = %s, nFile = %d, nPos = %u\n", 
+    				//		pBlock0->GetHash().ToString().c_str(), pWalking->GetBlockPos().nFile, pWalking->GetBlockPos().nPos);
     			}
     		
     			uint256 hashProofOfStake = uint256();
@@ -3748,6 +3749,42 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CVali
     		
     			if (pBlock0->IsProofOfStake())
     			{
+    				/*
+    				LogPrintf(">> check the block details...\n");
+    				
+    				LogPrintf(">> block header: nVersion = %d, hashPrevBlock = %s, hashMerkleRoot = %s, nTime = %u, nBits = %u, nNonce = %u\n",
+    						pBlock0->nVersion, pBlock0->hashPrevBlock.ToString().c_str(), pBlock0->hashMerkleRoot.ToString().c_str(), 
+							pBlock0->nTime, pBlock0->nBits, pBlock0->nNonce);
+    				LogPrintf(">> vtx size = %d, vchBlockSig = %s\n", pBlock0->vtx.size(), 
+    						HexStr(pBlock0->vchBlockSig.begin(), pBlock0->vchBlockSig.end()).c_str());
+    				for(int i = 0; i < pBlock0->vtx.size(); i++)
+    				{
+    					CTransactionRef tref = pBlock0->vtx[i];
+    					LogPrintf(">> i = %d, vin size = %d, vout size = %d\n", i, tref->vin.size(), tref->vout.size());
+    				}
+    				
+    				for(int i1 = 0; i1 < pBlock0->vtx.size(); i1++)
+    				{
+    					CTransactionRef tref = pBlock0->vtx[i1];
+    					LogPrintf(">> i = %d, ver=%d, time = %d, locktime = %u\n", i1, tref->nVersion, tref->nTime, tref->nLockTime);
+    					
+    					for(int j = 0; j < tref->vin.size(); j++)
+    					{
+    						CTxIn txin = tref->vin[j];
+    						LogPrintf(">> vin %d: prevout n = %d, hash = %s\n", j, txin.prevout.n, txin.prevout.hash.ToString().c_str());
+    					}
+    					
+    					for(int j1 = 0; j1 < tref->vout.size(); j1++)
+    					{
+    						CTxOut txout = tref->vout[j1];
+    						LogPrintf(">> vout %d: value = %l\n\n", j1, txout.nValue);
+    					}
+    					
+    					LogPrintf(">> tx = %s\n", tref->ToString().c_str());    					
+    				}
+    				LogPrintf(">> Block = %s\n", pBlock0->ToString().c_str());
+					*/
+    				
     				CBlockIndex* pIndex0 = pWalking;
     				if (!CheckProofOfStake(*pblocktree, pIndex0->pprev, state, *pBlock0, hashProofOfStake, targetProofOfStake, mapBlockIndex, *pcoinsTip))
     				{
@@ -3761,6 +3798,7 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CVali
     		
     			mapSavedBlocks.erase(pWalking->nHeight);
     			lastProcessedStakeModifierBlock = pWalking->nHeight;
+    			setDirtyBlockIndex.insert(pWalking);
     			LogPrintf(">> updated LastProcessedStakeModifierBlock = %d\n", lastProcessedStakeModifierBlock);
     			// LogPrintf(">> Block at height %d is removed from the list\n", pWalking->nHeight);
     			pWalking = pWalking->pnext;
@@ -4152,6 +4190,9 @@ bool CChainState::LoadBlockIndex(const Consensus::Params& consensus_params, CBlo
         vSortedByHeight.push_back(std::make_pair(pindex->nHeight, pindex));
     }
     sort(vSortedByHeight.begin(), vSortedByHeight.end());
+    
+    int hi = 0;
+    bool b = false;
     for (const std::pair<int, CBlockIndex*>& item : vSortedByHeight)
     {
         CBlockIndex* pindex = item.second;
@@ -4191,7 +4232,7 @@ bool CChainState::LoadBlockIndex(const Consensus::Params& consensus_params, CBlo
         if(pindex->nStakeModifier != 0 || pindex->nHeight < 2) 
         {
         	pindex->nStakeModifierChecksum = GetStakeModifierChecksum(pindex);
-        	LogPrintf(">> h = %d, checksum = 0x%016x, nStakeModifier = 0x%016x\n", pindex->nHeight, pindex->nStakeModifierChecksum, pindex->nStakeModifier);
+        	// LogPrintf(">> h = %d, checksum = 0x%016x, nStakeModifier = 0x%016x\n", pindex->nHeight, pindex->nStakeModifierChecksum, pindex->nStakeModifier);
         	if (!CheckStakeModifierCheckpoints(pindex->nHeight, pindex->nStakeModifierChecksum))
         	{
         		LogPrintf("LoadBlockIndex() : Failed stake modifier checkpoint height=%d, modifier=0x%016x", pindex->nHeight, pindex->nStakeModifier);
@@ -4199,8 +4240,14 @@ bool CChainState::LoadBlockIndex(const Consensus::Params& consensus_params, CBlo
         	}
         	lastProcessedStakeModifierBlock = pindex->nHeight;
         }
+        else if(b == false) 
+        {
+        	hi = pindex->nHeight;
+        	b = true;
+        }
     }
     LogPrintf(">> lastProcessedStakeModifierBlock = %d\n", lastProcessedStakeModifierBlock);
+    LogPrintf(">> first value with nStakeModifier = 0 is %d\n", hi);
 
     return true;
 }
