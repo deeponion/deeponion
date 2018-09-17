@@ -4229,10 +4229,10 @@ bool CChainState::LoadBlockIndex(const Consensus::Params& consensus_params, CBlo
             pindexBestHeader = pindex;
         
         // DeepOnion: calculate stake modifier checksum
-        if(pindex->nStakeModifier != 0 || pindex->nHeight < 2) 
+        if((pindex->nStakeModifier != 0 || pindex->nHeight < 2) && pindex->nTx > 0 )
         {
         	pindex->nStakeModifierChecksum = GetStakeModifierChecksum(pindex);
-        	// LogPrintf(">> h = %d, checksum = 0x%016x, nStakeModifier = 0x%016x\n", pindex->nHeight, pindex->nStakeModifierChecksum, pindex->nStakeModifier);
+//        	LogPrintf(">> h = %d, checksum = 0x%016x, nStakeModifier = 0x%016x pindex->nTx %d\n", pindex->nHeight, pindex->nStakeModifierChecksum, pindex->nStakeModifier, pindex->nTx);
         	if (!CheckStakeModifierCheckpoints(pindex->nHeight, pindex->nStakeModifierChecksum))
         	{
         		LogPrintf("LoadBlockIndex() : Failed stake modifier checkpoint height=%d, modifier=0x%016x", pindex->nHeight, pindex->nStakeModifier);
