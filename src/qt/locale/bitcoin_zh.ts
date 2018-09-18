@@ -111,7 +111,7 @@
         <translation>仅支付全额的%1</translation>
     </message>
     <message>
-        <source>Warning: Invalid Litecoin address</source>
+        <source>Warning: Invalid DeepOnion address</source>
         <translation>警告：莱特币地址无效</translation>
     </message>
     </context>

@@ -58,12 +58,12 @@
         <translation>Alamat menerima</translation>
     </message>
     <message>
-        <source>These are your Litecoin addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
-        <translation>Ini adalah alamat Litecoin anda untuk mengirim pembayaran. Selalu periksa jumlah dan alamat penerima sebelum mengirim koin</translation>
+        <source>These are your DeepOnion addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
+        <translation>Ini adalah alamat DeepOnion anda untuk mengirim pembayaran. Selalu periksa jumlah dan alamat penerima sebelum mengirim koin</translation>
     </message>
     <message>
-        <source>These are your Litecoin addresses for receiving payments. It is recommended to use a new receiving address for each transaction.</source>
-        <translation>Ini adalah alamat Litecoin anda untuk menerima pembayaran. Disarankan untuk menggunakan alamat penerimaan baru untuk setiap transaksi</translation>
+        <source>These are your DeepOnion addresses for receiving payments. It is recommended to use a new receiving address for each transaction.</source>
+        <translation>Ini adalah alamat DeepOnion anda untuk menerima pembayaran. Disarankan untuk menggunakan alamat penerimaan baru untuk setiap transaksi</translation>
     </message>
     <message>
         <source>&amp;Copy Address</source>
@@ -160,7 +160,7 @@
         <translation>Konfirmasi proses enkripsi wallet</translation>
     </message>
     <message>
-        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR LITECOINS&lt;/b&gt;!</source>
+        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR ONIONS&lt;/b&gt;!</source>
         <translation>Peringatan:  Jika anda mengenkripsi wallet anda dan lupa/hilang passphrase anda, anda akan ‭&lt;b&gt; KEHILANGAN SEMUA LITECOIN ANDA &lt;/b&gt;!</translation>
     </message>
     <message>
@@ -290,8 +290,8 @@
         <translation>Klik untuk mengaktifkan kembali network</translation>
     </message>
     <message>
-        <source>Send coins to a Litecoin address</source>
-        <translation>Kirim koin ke alamat Litecoin</translation>
+        <source>Send coins to a DeepOnion address</source>
+        <translation>Kirim koin ke alamat DeepOnion</translation>
     </message>
     <message>
         <source>Backup wallet to another location</source>
@@ -314,8 +314,8 @@
         <translation>&amp;Verifikasi pesan...</translation>
     </message>
     <message>
-        <source>Litecoin</source>
-        <translation>Litecoin</translation>
+        <source>DeepOnion</source>
+        <translation>DeepOnion</translation>
     </message>
     <message>
         <source>Wallet</source>
@@ -342,12 +342,12 @@
         <translation>Enkripsi private keys wallet anda</translation>
     </message>
     <message>
-        <source>Sign messages with your Litecoin addresses to prove you own them</source>
-        <translation>Tambahkan pesan di alamat Litecoin untuk membuktikan bahwa anda pemiliknya</translation>
+        <source>Sign messages with your DeepOnion addresses to prove you own them</source>
+        <translation>Tambahkan pesan di alamat DeepOnion untuk membuktikan bahwa anda pemiliknya</translation>
     </message>
     <message>
-        <source>Verify messages to ensure they were signed with specified Litecoin addresses</source>
-        <translation>Verifikasi pesan untuk memastikan bahwa telah ditanda tangani dengan alamat Litecoin tertentu</translation>
+        <source>Verify messages to ensure they were signed with specified DeepOnion addresses</source>
+        <translation>Verifikasi pesan untuk memastikan bahwa telah ditanda tangani dengan alamat DeepOnion tertentu</translation>
     </message>
     <message>
         <source>&amp;File</source>
@@ -389,8 +389,8 @@
 <context>
     <name>Intro</name>
     <message>
-        <source>Litecoin</source>
-        <translation>Litecoin</translation>
+        <source>DeepOnion</source>
+        <translation>DeepOnion</translation>
     </message>
     </context>
 <context>

@@ -62,12 +62,12 @@
         <translation>Mottagaradresser</translation>
     </message>
     <message>
-        <source>These are your Litecoin addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
-        <translation>Detta är dina Litecoin adresser för att skicka betalningar. Kolla alltid summan och den mottagande adressen innan du skickar Litecoins.</translation>
+        <source>These are your DeepOnion addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
+        <translation>Detta är dina DeepOnion adresser för att skicka betalningar. Kolla alltid summan och den mottagande adressen innan du skickar DeepOnions.</translation>
     </message>
     <message>
-        <source>These are your Litecoin addresses for receiving payments. It is recommended to use a new receiving address for each transaction.</source>
-        <translation>Detta är dina Litecoin adresser för att ta emot betalningar. Det rekommenderas att använda en ny mottagningsadress för varje transaktion.</translation>
+        <source>These are your DeepOnion addresses for receiving payments. It is recommended to use a new receiving address for each transaction.</source>
+        <translation>Detta är dina DeepOnion adresser för att ta emot betalningar. Det rekommenderas att använda en ny mottagningsadress för varje transaktion.</translation>
     </message>
     <message>
         <source>&amp;Copy Address</source>
@@ -173,7 +173,7 @@ Var vänlig och försök igen.</translation>
         <translation>Bekräfta kryptering av plånbok</translation>
     </message>
     <message>
-        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR LITECOINS&lt;/b&gt;!</source>
+        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR ONIONS&lt;/b&gt;!</source>
         <translation>VARNING: Om du krypterar din plånbok och glömmer ditt lösenord, kommer du att &lt;b&gt;FÖRLORA ALLA DINA LITECOIN&lt;/b&gt;!</translation>
     </message>
     <message>
@@ -185,7 +185,7 @@ Var vänlig och försök igen.</translation>
         <translation>Plånbok krypterad</translation>
     </message>
     <message>
-        <source>%1 will close now to finish the encryption process. Remember that encrypting your wallet cannot fully protect your litecoins from being stolen by malware infecting your computer.</source>
+        <source>%1 will close now to finish the encryption process. Remember that encrypting your wallet cannot fully protect your DeepOnions from being stolen by malware infecting your computer.</source>
         <translation>%1 kommer nu att stänga ner för att färdigställa krypteringen. Tänk på att en krypterad plånbok inte skyddar mot stöld om din dator är infekterad med en keylogger.</translation>
     </message>
     <message>
@@ -343,8 +343,8 @@ Var vänlig och försök igen.</translation>
         <translation>Återindexerar block på disken...</translation>
     </message>
     <message>
-        <source>Send coins to a Litecoin address</source>
-        <translation>Skicka litecoins till en Litecoin-adress</translation>
+        <source>Send coins to a DeepOnion address</source>
+        <translation>Skicka DeepOnions till en DeepOnion-adress</translation>
     </message>
     <message>
         <source>Backup wallet to another location</source>
@@ -367,8 +367,8 @@ Var vänlig och försök igen.</translation>
         <translation>&amp;Verifiera meddelande...</translation>
     </message>
     <message>
-        <source>Litecoin</source>
-        <translation>Litecoin</translation>
+        <source>DeepOnion</source>
+        <translation>DeepOnion</translation>
     </message>
     <message>
         <source>Wallet</source>
@@ -395,12 +395,12 @@ Var vänlig och försök igen.</translation>
         <translation>Kryptera de privata nycklar som tillhör din plånbok</translation>
     </message>
     <message>
-        <source>Sign messages with your Litecoin addresses to prove you own them</source>
-        <translation>Signera meddelanden med din Litecoin-adress för att bevisa att du äger dem</translation>
+        <source>Sign messages with your DeepOnion addresses to prove you own them</source>
+        <translation>Signera meddelanden med din DeepOnion-adress för att bevisa att du äger dem</translation>
     </message>
     <message>
-        <source>Verify messages to ensure they were signed with specified Litecoin addresses</source>
-        <translation>Verifiera meddelanden för att vara säker på att de var signerade med specificerade Litecoin-adresser</translation>
+        <source>Verify messages to ensure they were signed with specified DeepOnion addresses</source>
+        <translation>Verifiera meddelanden för att vara säker på att de var signerade med specificerade DeepOnion-adresser</translation>
     </message>
     <message>
         <source>&amp;File</source>
@@ -419,8 +419,8 @@ Var vänlig och försök igen.</translation>
         <translation>Verktygsfält för tabbar</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and litecoin: URIs)</source>
-        <translation>Begär betalning (genererar QR-koder och litecoin-URI)</translation>
+        <source>Request payments (generates QR codes and DeepOnion: URIs)</source>
+        <translation>Begär betalning (genererar QR-koder och DeepOnion-URI)</translation>
     </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>
@@ -431,16 +431,16 @@ Var vänlig och försök igen.</translation>
         <translation>Visa listan av använda mottagningsadresser och etiketter</translation>
     </message>
     <message>
-        <source>Open a litecoin: URI or payment request</source>
-        <translation>Öppna en litecoin: URI eller betalningsbegäran</translation>
+        <source>Open a DeepOnion: URI or payment request</source>
+        <translation>Öppna en DeepOnion: URI eller betalningsbegäran</translation>
     </message>
     <message>
         <source>&amp;Command-line options</source>
         <translation>&amp;Kommandoradsalternativ</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Litecoin network</source>
-        <translation><numerusform>%n aktiva anslutningar till Litecoin-nätverket.</numerusform><numerusform>%n aktiva anslutningar till Litecoin-nätverket.</numerusform></translation>
+        <source>%n active connection(s) to DeepOnion network</source>
+        <translation><numerusform>%n aktiva anslutningar till DeepOnion-nätverket.</numerusform><numerusform>%n aktiva anslutningar till DeepOnion-nätverket.</numerusform></translation>
     </message>
     <message>
         <source>Indexing blocks on disk...</source>
@@ -483,8 +483,8 @@ Var vänlig och försök igen.</translation>
         <translation>Uppdaterad</translation>
     </message>
     <message>
-        <source>Show the %1 help message to get a list with possible Litecoin command-line options</source>
-        <translation>Visa %1 hjälpmeddelande för att få en lista med möjliga Litecoin kommandoradsalternativ.</translation>
+        <source>Show the %1 help message to get a list with possible DeepOnion command-line options</source>
+        <translation>Visa %1 hjälpmeddelande för att få en lista med möjliga DeepOnion kommandoradsalternativ.</translation>
     </message>
     <message>
         <source>%1 client</source>
@@ -553,8 +553,8 @@ Var vänlig och försök igen.</translation>
         <translation>Denna plånbok är &lt;b&gt;krypterad&lt;/b&gt; och för närvarande &lt;b&gt;låst&lt;/b&gt;</translation>
     </message>
     <message>
-        <source>A fatal error occurred. Litecoin can no longer continue safely and will quit.</source>
-        <translation>Ett kritiskt fel uppstod. Litecoin kan inte fortsätta att köra säkert och kommer att avslutas.</translation>
+        <source>A fatal error occurred. DeepOnion can no longer continue safely and will quit.</source>
+        <translation>Ett kritiskt fel uppstod. DeepOnion kan inte fortsätta att köra säkert och kommer att avslutas.</translation>
     </message>
 </context>
 <context>
@@ -747,8 +747,8 @@ Var vänlig och försök igen.</translation>
         <translation>Redigera avsändaradress</translation>
     </message>
     <message>
-        <source>The entered address "%1" is not a valid Litecoin address.</source>
-        <translation>Den angivna adressen "%1" är inte en giltig Litecoin-adress.</translation>
+        <source>The entered address "%1" is not a valid DeepOnion address.</source>
+        <translation>Den angivna adressen "%1" är inte en giltig DeepOnion-adress.</translation>
     </message>
     <message>
         <source>The entered address "%1" is already in the address book.</source>
@@ -868,8 +868,8 @@ Var vänlig och försök igen.</translation>
         <translation>Använd en anpassad datakatalog:</translation>
     </message>
     <message>
-        <source>Litecoin</source>
-        <translation>Litecoin</translation>
+        <source>DeepOnion</source>
+        <translation>DeepOnion</translation>
     </message>
     <message>
         <source>At least %1 GB of data will be stored in this directory, and it will grow over time.</source>
@@ -880,8 +880,8 @@ Var vänlig och försök igen.</translation>
         <translation>Ungefär %1 GB data kommer att lagras i den här katalogen.</translation>
     </message>
     <message>
-        <source>%1 will download and store a copy of the Litecoin block chain.</source>
-        <translation>%1 kommer att hämta och lagra en kopia av Litecoin-blockkedjan.</translation>
+        <source>%1 will download and store a copy of the DeepOnion block chain.</source>
+        <translation>%1 kommer att hämta och lagra en kopia av DeepOnion-blockkedjan.</translation>
     </message>
     <message>
         <source>The wallet will also be stored in this directory.</source>
@@ -911,12 +911,12 @@ Var vänlig och försök igen.</translation>
         <translation>Formulär</translation>
     </message>
     <message>
-        <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the litecoin network, as detailed below.</source>
-        <translation>Nyligen gjorda transaktioner visas inte korrekt och därför kan din plånboks saldo visas felaktigt. Denna information kommer att visas korrekt så snart din plånbok har synkroniserat klart med litecoin nätverket enligt detaljer nedan.</translation>
+        <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the DeepOnion network, as detailed below.</source>
+        <translation>Nyligen gjorda transaktioner visas inte korrekt och därför kan din plånboks saldo visas felaktigt. Denna information kommer att visas korrekt så snart din plånbok har synkroniserat klart med DeepOnion nätverket enligt detaljer nedan.</translation>
     </message>
     <message>
-        <source>Attempting to spend litecoins that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
-        <translation>Försöka sig på att spendera litecoins som påverkas av transaktioner som ännu inte visas kommer inte bli accepterade av nätverket. </translation>
+        <source>Attempting to spend DeepOnions that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
+        <translation>Försöka sig på att spendera DeepOnions som påverkas av transaktioner som ännu inte visas kommer inte bli accepterade av nätverket. </translation>
     </message>
     <message>
         <source>Number of blocks left</source>
@@ -1073,16 +1073,16 @@ Var vänlig och försök igen.</translation>
         <translation>&amp;Spendera obekräftad växel</translation>
     </message>
     <message>
-        <source>Automatically open the Litecoin client port on the router. This only works when your router supports UPnP and it is enabled.</source>
-        <translation>Öppna automatiskt Litecoin-klientens port på routern. Detta fungerar endast om din router har UPnP aktiverat.</translation>
+        <source>Automatically open the DeepOnion client port on the router. This only works when your router supports UPnP and it is enabled.</source>
+        <translation>Öppna automatiskt DeepOnion-klientens port på routern. Detta fungerar endast om din router har UPnP aktiverat.</translation>
     </message>
     <message>
         <source>Map port using &amp;UPnP</source>
         <translation>Tilldela port med hjälp av &amp;UPnP</translation>
     </message>
     <message>
-        <source>Connect to the Litecoin network through a SOCKS5 proxy.</source>
-        <translation>Anslut till Litecoin-nätverket genom en SOCKS5-proxy.</translation>
+        <source>Connect to the DeepOnion network through a SOCKS5 proxy.</source>
+        <translation>Anslut till DeepOnion-nätverket genom en SOCKS5-proxy.</translation>
     </message>
     <message>
         <source>&amp;Connect through SOCKS5 proxy (default proxy):</source>
@@ -1117,8 +1117,8 @@ Var vänlig och försök igen.</translation>
         <translation>Tor</translation>
     </message>
     <message>
-        <source>Connect to the Litecoin network through a separate SOCKS5 proxy for Tor hidden services.</source>
-        <translation>Anslut till Litecoin-nätverket genom en separat SOCKS5-proxy för dolda tjänster i Tor.</translation>
+        <source>Connect to the DeepOnion network through a separate SOCKS5 proxy for Tor hidden services.</source>
+        <translation>Anslut till DeepOnion-nätverket genom en separat SOCKS5-proxy för dolda tjänster i Tor.</translation>
     </message>
     <message>
         <source>&amp;Window</source>
@@ -1220,8 +1220,8 @@ Var vänlig och försök igen.</translation>
         <translation>Formulär</translation>
     </message>
     <message>
-        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Litecoin network after a connection is established, but this process has not completed yet.</source>
-        <translation>Den visade informationen kan vara inaktuell. Plånboken synkroniseras automatiskt med Litecoin-nätverket efter att anslutningen är upprättad, men denna process har inte slutförts ännu.</translation>
+        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the DeepOnion network after a connection is established, but this process has not completed yet.</source>
+        <translation>Den visade informationen kan vara inaktuell. Plånboken synkroniseras automatiskt med DeepOnion-nätverket efter att anslutningen är upprättad, men denna process har inte slutförts ännu.</translation>
     </message>
     <message>
         <source>Watch-only:</source>
@@ -1295,8 +1295,8 @@ Var vänlig och försök igen.</translation>
         <translation>Fel vid betalningsbegäran</translation>
     </message>
     <message>
-        <source>Cannot start litecoin: click-to-pay handler</source>
-        <translation>Kan inte starta litecoin: klicka-och-betala handhavare</translation>
+        <source>Cannot start DeepOnion: click-to-pay handler</source>
+        <translation>Kan inte starta DeepOnion: klicka-och-betala handhavare</translation>
     </message>
     <message>
         <source>URI handling</source>
@@ -1311,8 +1311,8 @@ Var vänlig och försök igen.</translation>
         <translation>Ogiltig betalningsadress %1</translation>
     </message>
     <message>
-        <source>URI cannot be parsed! This can be caused by an invalid Litecoin address or malformed URI parameters.</source>
-        <translation>URI kan inte tolkas! Detta kan orsakas av en ogiltig Litecoin-adress eller felaktiga URI parametrar.</translation>
+        <source>URI cannot be parsed! This can be caused by an invalid DeepOnion address or malformed URI parameters.</source>
+        <translation>URI kan inte tolkas! Detta kan orsakas av en ogiltig DeepOnion-adress eller felaktiga URI parametrar.</translation>
     </message>
     <message>
         <source>Payment request file handling</source>
@@ -1413,8 +1413,8 @@ Var vänlig och försök igen.</translation>
         <translation>Mängd</translation>
     </message>
     <message>
-        <source>Enter a Litecoin address (e.g. %1)</source>
-        <translation>Ange en Litecoin-adress (t.ex. %1)</translation>
+        <source>Enter a DeepOnion address (e.g. %1)</source>
+        <translation>Ange en DeepOnion-adress (t.ex. %1)</translation>
     </message>
     <message>
         <source>%1 d</source>
@@ -1825,8 +1825,8 @@ Var vänlig och försök igen.</translation>
         <translation>&amp;Meddelande:</translation>
     </message>
     <message>
-        <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Litecoin network.</source>
-        <translation>Ett frivilligt meddelande att bifoga betalningsbegäran, vilket visas när begäran öppnas. NB: Meddelandet kommer inte att sändas med betalningen över Litecoinnätverket.</translation>
+        <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the DeepOnion network.</source>
+        <translation>Ett frivilligt meddelande att bifoga betalningsbegäran, vilket visas när begäran öppnas. NB: Meddelandet kommer inte att sändas med betalningen över DeepOnionnätverket.</translation>
     </message>
     <message>
         <source>An optional label to associate with the new receiving address.</source>
@@ -2058,8 +2058,8 @@ Var vänlig och försök igen.</translation>
         <translation>Göm</translation>
     </message>
     <message>
-        <source>Paying only the minimum fee is just fine as long as there is less transaction volume than space in the blocks. But be aware that this can end up in a never confirming transaction once there is more demand for litecoin transactions than the network can process.</source>
-        <translation>Att betala endast den minsta avgiften är bara bra så länge det är mindre transaktionsvolym än utrymme i blocken. Men tänk på att det kan hamna i en aldrig bekräftar transaktion när det finns mer efterfrågan på litecoin transaktioner än nätverket kan bearbeta.</translation>
+        <source>Paying only the minimum fee is just fine as long as there is less transaction volume than space in the blocks. But be aware that this can end up in a never confirming transaction once there is more demand for DeepOnion transactions than the network can process.</source>
+        <translation>Att betala endast den minsta avgiften är bara bra så länge det är mindre transaktionsvolym än utrymme i blocken. Men tänk på att det kan hamna i en aldrig bekräftar transaktion när det finns mer efterfrågan på DeepOnion transaktioner än nätverket kan bearbeta.</translation>
     </message>
     <message>
         <source>(read the tooltip)</source>
@@ -2214,8 +2214,8 @@ Var vänlig och försök igen.</translation>
         <translation><numerusform>Uppskattas till att påbörja bekräftelse inom %n block.</numerusform><numerusform>Uppskattas till att påbörja bekräftelse inom %n block.</numerusform></translation>
     </message>
     <message>
-        <source>Warning: Invalid Litecoin address</source>
-        <translation>Varning: Felaktig Litecoinadress</translation>
+        <source>Warning: Invalid DeepOnion address</source>
+        <translation>Varning: Felaktig DeepOnionadress</translation>
     </message>
     <message>
         <source>Warning: Unknown change address</source>
@@ -2257,8 +2257,8 @@ Var vänlig och försök igen.</translation>
         <translation>Detta är en normal betalning.</translation>
     </message>
     <message>
-        <source>The Litecoin address to send the payment to</source>
-        <translation>Litecoinadress att sända betalning till</translation>
+        <source>The DeepOnion address to send the payment to</source>
+        <translation>DeepOnionadress att sända betalning till</translation>
     </message>
     <message>
         <source>Alt+A</source>
@@ -2277,8 +2277,8 @@ Var vänlig och försök igen.</translation>
         <translation>Radera denna post</translation>
     </message>
     <message>
-        <source>The fee will be deducted from the amount being sent. The recipient will receive less litecoins than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</source>
-        <translation>Avgiften dras från beloppet som skickas. Mottagaren kommer att få mindre litecoins än du angivit i belopp-fältet. Om flera mottagare valts kommer avgiften delas jämt.</translation>
+        <source>The fee will be deducted from the amount being sent. The recipient will receive less DeepOnions than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</source>
+        <translation>Avgiften dras från beloppet som skickas. Mottagaren kommer att få mindre DeepOnions än du angivit i belopp-fältet. Om flera mottagare valts kommer avgiften delas jämt.</translation>
     </message>
     <message>
         <source>S&amp;ubtract fee from amount</source>
@@ -2301,8 +2301,8 @@ Var vänlig och försök igen.</translation>
         <translation>Ange en etikett för denna adress att adderas till listan över använda adresser</translation>
     </message>
     <message>
-        <source>A message that was attached to the litecoin: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Litecoin network.</source>
-        <translation>Ett meddelande som bifogades litecoin-URI, vilket lagras med transaktionen som referens. NB: Meddelandet kommer inte att sändas över Litecoinnätverket.</translation>
+        <source>A message that was attached to the DeepOnion: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the DeepOnion network.</source>
+        <translation>Ett meddelande som bifogades DeepOnion-URI, vilket lagras med transaktionen som referens. NB: Meddelandet kommer inte att sändas över DeepOnionnätverket.</translation>
     </message>
     <message>
         <source>Pay To:</source>
@@ -2346,12 +2346,12 @@ Var vänlig och försök igen.</translation>
         <translation>&amp;Signera Meddelande</translation>
     </message>
     <message>
-        <source>You can sign messages/agreements with your addresses to prove you can receive litecoins sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
-        <translation>Du kan underteckna meddelanden/avtal med dina adresser för att bevisa att du kan ta emot litecoins som skickats till dem. Var försiktig så du inte undertecknar något oklart eller konstigt, eftersom phishing-angrepp kan försöka få dig att underteckna din identitet till dem. Underteckna endast väldetaljerade meddelanden som du godkänner.</translation>
+        <source>You can sign messages/agreements with your addresses to prove you can receive DeepOnions sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
+        <translation>Du kan underteckna meddelanden/avtal med dina adresser för att bevisa att du kan ta emot DeepOnions som skickats till dem. Var försiktig så du inte undertecknar något oklart eller konstigt, eftersom phishing-angrepp kan försöka få dig att underteckna din identitet till dem. Underteckna endast väldetaljerade meddelanden som du godkänner.</translation>
     </message>
     <message>
-        <source>The Litecoin address to sign the message with</source>
-        <translation>Litecoinadress att signera meddelandet med</translation>
+        <source>The DeepOnion address to sign the message with</source>
+        <translation>DeepOnionadress att signera meddelandet med</translation>
     </message>
     <message>
         <source>Choose previously used address</source>
@@ -2382,7 +2382,7 @@ Var vänlig och försök igen.</translation>
         <translation>Kopiera signaturen till systemets Urklipp</translation>
     </message>
     <message>
-        <source>Sign the message to prove you own this Litecoin address</source>
+        <source>Sign the message to prove you own this DeepOnion address</source>
         <translation>Signera meddelandet för att bevisa att du äger denna adress</translation>
     </message>
     <message>
@@ -2406,12 +2406,12 @@ Var vänlig och försök igen.</translation>
         <translation>Ange mottagarens adress, meddelande (kopiera radbrytningar, mellanrum, flikar, etc. exakt) och signatur nedan för att verifiera meddelandet. Undvik att läsa in mera information i signaturen än vad som stod i själva undertecknade meddelandet, för att undvika ett man-in-the-middle-angrepp. Notera att detta endast bevisar att undertecknad tar emot med adressen, det bevisar inte vem som skickat transaktionen!</translation>
     </message>
     <message>
-        <source>The Litecoin address the message was signed with</source>
-        <translation>Litecoinadressen som meddelandet signerades med</translation>
+        <source>The DeepOnion address the message was signed with</source>
+        <translation>DeepOnionadressen som meddelandet signerades med</translation>
     </message>
     <message>
-        <source>Verify the message to ensure it was signed with the specified Litecoin address</source>
-        <translation>Verifiera meddelandet för att vara säker på att den var signerad med den angivna Litecoin-adressen</translation>
+        <source>Verify the message to ensure it was signed with the specified DeepOnion address</source>
+        <translation>Verifiera meddelandet för att vara säker på att den var signerad med den angivna DeepOnion-adressen</translation>
     </message>
     <message>
         <source>Verify &amp;Message</source>
@@ -2958,7 +2958,7 @@ Var vänlig och försök igen.</translation>
     <name>WalletModel</name>
     <message>
         <source>Send Coins</source>
-        <translation>Skicka Litecoins</translation>
+        <translation>Skicka DeepOnions</translation>
     </message>
     <message>
         <source>Increasing transaction fee failed</source>
@@ -3087,8 +3087,8 @@ Var vänlig och försök igen.</translation>
         <translation>Kunde inte starta HTTP-server. Se avlusningsloggen för detaljer.</translation>
     </message>
     <message>
-        <source>Litecoin Core</source>
-        <translation>Litecoin Core</translation>
+        <source>DeepOnion Core</source>
+        <translation>DeepOnion Core</translation>
     </message>
     <message>
         <source>The %s developers</source>
@@ -3884,7 +3884,7 @@ Var vänlig och försök igen.</translation>
     </message>
     <message>
         <source>Insufficient funds</source>
-        <translation>Otillräckligt med litecoins</translation>
+        <translation>Otillräckligt med DeepOnions</translation>
     </message>
     <message>
         <source>Loading block index...</source>

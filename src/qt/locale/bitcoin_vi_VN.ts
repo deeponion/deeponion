@@ -315,8 +315,8 @@ Ví của bạn chưa được mã hóa.</translation>
         <translation>Đánh chỉ số (indexing) lại các khối (blocks) trên ổ đĩa ...</translation>
     </message>
     <message>
-        <source>Send coins to a Litecoin address</source>
-        <translation>Gửi coins đến tài khoản Litecoin</translation>
+        <source>Send coins to a DeepOnion address</source>
+        <translation>Gửi coins đến tài khoản DeepOnion</translation>
     </message>
     <message>
         <source>Backup wallet to another location</source>
@@ -339,8 +339,8 @@ Ví của bạn chưa được mã hóa.</translation>
         <translation>&amp;Tin nhắn xác thực</translation>
     </message>
     <message>
-        <source>Litecoin</source>
-        <translation>Litecoin</translation>
+        <source>DeepOnion</source>
+        <translation>DeepOnion</translation>
     </message>
     <message>
         <source>Wallet</source>
@@ -367,12 +367,12 @@ Ví của bạn chưa được mã hóa.</translation>
         <translation>Mã hoá các khoá bí mật trong Ví của bạn.</translation>
     </message>
     <message>
-        <source>Sign messages with your Litecoin addresses to prove you own them</source>
-        <translation>Dùng địa chỉ Litecoin của bạn ký các tin nhắn để xác minh những nội dung tin nhắn đó là của bạn.</translation>
+        <source>Sign messages with your DeepOnion addresses to prove you own them</source>
+        <translation>Dùng địa chỉ DeepOnion của bạn ký các tin nhắn để xác minh những nội dung tin nhắn đó là của bạn.</translation>
     </message>
     <message>
-        <source>Verify messages to ensure they were signed with specified Litecoin addresses</source>
-        <translation>Kiểm tra các tin nhắn để chắc chắn rằng chúng được ký bằng các địa chỉ Litecoin xác định.</translation>
+        <source>Verify messages to ensure they were signed with specified DeepOnion addresses</source>
+        <translation>Kiểm tra các tin nhắn để chắc chắn rằng chúng được ký bằng các địa chỉ DeepOnion xác định.</translation>
     </message>
     <message>
         <source>&amp;File</source>
@@ -391,8 +391,8 @@ Ví của bạn chưa được mã hóa.</translation>
         <translation>Thanh công cụ (toolbar)</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and litecoin: URIs)</source>
-        <translation>Yêu cầu thanh toán(tạo mã QR và địa chỉ Litecoin: URLs)</translation>
+        <source>Request payments (generates QR codes and DeepOnion: URIs)</source>
+        <translation>Yêu cầu thanh toán(tạo mã QR và địa chỉ DeepOnion: URLs)</translation>
     </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>
@@ -403,16 +403,16 @@ Ví của bạn chưa được mã hóa.</translation>
         <translation>Hiện thỉ danh sách các địa chỉ và nhãn đã dùng để nhận.</translation>
     </message>
     <message>
-        <source>Open a litecoin: URI or payment request</source>
-        <translation>Mở litecoin:URL hoặc yêu cầu thanh toán</translation>
+        <source>Open a DeepOnion: URI or payment request</source>
+        <translation>Mở DeepOnion:URL hoặc yêu cầu thanh toán</translation>
     </message>
     <message>
         <source>&amp;Command-line options</source>
         <translation>7Tùy chọn dòng lệnh</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Litecoin network</source>
-        <translation><numerusform>%n liên kết hoạt động với mạng lưới Litecoin</numerusform></translation>
+        <source>%n active connection(s) to DeepOnion network</source>
+        <translation><numerusform>%n liên kết hoạt động với mạng lưới DeepOnion</numerusform></translation>
     </message>
     <message>
         <source>Indexing blocks on disk...</source>
@@ -455,8 +455,8 @@ Ví của bạn chưa được mã hóa.</translation>
         <translation>Đã cập nhật</translation>
     </message>
     <message>
-        <source>Show the %1 help message to get a list with possible Litecoin command-line options</source>
-        <translation>Hiển thị tin nhắn trợ giúp %1 để có được danh sách với các tùy chọn dòng lệnh Litecoin.</translation>
+        <source>Show the %1 help message to get a list with possible DeepOnion command-line options</source>
+        <translation>Hiển thị tin nhắn trợ giúp %1 để có được danh sách với các tùy chọn dòng lệnh DeepOnion.</translation>
     </message>
     <message>
         <source>Connecting to peers...</source>
@@ -636,8 +636,8 @@ Ví của bạn chưa được mã hóa.</translation>
         <translation>Sử dụng vị trí dữ liệu mặc định</translation>
     </message>
     <message>
-        <source>Litecoin</source>
-        <translation>Litecoin</translation>
+        <source>DeepOnion</source>
+        <translation>DeepOnion</translation>
     </message>
     <message>
         <source>Error</source>
@@ -689,8 +689,8 @@ Ví của bạn chưa được mã hóa.</translation>
         <translation>Ví</translation>
     </message>
     <message>
-        <source>Connect to the Litecoin network through a SOCKS5 proxy.</source>
-        <translation>Kết nối đến máy chủ Litecoin thông qua SOCKS5 proxy.</translation>
+        <source>Connect to the DeepOnion network through a SOCKS5 proxy.</source>
+        <translation>Kết nối đến máy chủ DeepOnion thông qua SOCKS5 proxy.</translation>
     </message>
     <message>
         <source>Proxy &amp;IP:</source>
@@ -1207,8 +1207,8 @@ Ví của bạn chưa được mã hóa.</translation>
         <translation>Lựa chọn:</translation>
     </message>
     <message>
-        <source>Litecoin Core</source>
-        <translation>Litecoin Core</translation>
+        <source>DeepOnion Core</source>
+        <translation>DeepOnion Core</translation>
     </message>
     <message>
         <source>(default: %u)</source>
