@@ -84,6 +84,7 @@ private:
     QLabel *labelWalletEncryptionIcon;
     QLabel *labelWalletHDStatusIcon;
     QLabel *connectionsControl;
+    QLabel *labelOnionIcon;
     QLabel *labelBlocksIcon;
     QLabel *progressBarLabel;
     QProgressBar *progressBar;
@@ -146,6 +147,8 @@ private:
 
     /** Update UI with latest network info from model. */
     void updateNetworkState();
+    
+    void updateOnionIcon();
 
     void updateHeadersSyncProgressLabel();
 

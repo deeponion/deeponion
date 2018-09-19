@@ -83,6 +83,7 @@ BitcoinGUI::BitcoinGUI(const PlatformStyle *_platformStyle, const NetworkStyle *
     labelWalletEncryptionIcon(0),
     labelWalletHDStatusIcon(0),
     connectionsControl(0),
+    
     labelBlocksIcon(0),
     progressBarLabel(0),
     progressBar(0),
@@ -200,6 +201,7 @@ BitcoinGUI::BitcoinGUI(const PlatformStyle *_platformStyle, const NetworkStyle *
     labelWalletEncryptionIcon = new QLabel();
     labelWalletHDStatusIcon = new QLabel();
     connectionsControl = new GUIUtil::ClickableLabel();
+    labelOnionIcon = new QLabel();
     labelBlocksIcon = new GUIUtil::ClickableLabel();
     if(enableWallet)
     {
@@ -209,6 +211,8 @@ BitcoinGUI::BitcoinGUI(const PlatformStyle *_platformStyle, const NetworkStyle *
         frameBlocksLayout->addWidget(labelWalletEncryptionIcon);
         frameBlocksLayout->addWidget(labelWalletHDStatusIcon);
     }
+    frameBlocksLayout->addStretch();
+    frameBlocksLayout->addWidget(labelOnionIcon);
     frameBlocksLayout->addStretch();
     frameBlocksLayout->addWidget(connectionsControl);
     frameBlocksLayout->addStretch();
@@ -254,6 +258,13 @@ BitcoinGUI::BitcoinGUI(const PlatformStyle *_platformStyle, const NetworkStyle *
         connect(progressBar, SIGNAL(clicked(QPoint)), this, SLOT(showModalOverlay()));
     }
 #endif
+    
+    QTimer *timerOnionIcon = new QTimer(labelOnionIcon);
+    connect(timerOnionIcon, SIGNAL(timeout()), this, SLOT(updateOnionIcon()));
+    timerOnionIcon->start(30 * 1000);
+    updateOnionIcon();
+
+
 }
 
 BitcoinGUI::~BitcoinGUI()
@@ -743,6 +754,28 @@ void BitcoinGUI::updateNetworkState()
     connectionsControl->setPixmap(platformStyle->SingleColorIcon(icon).pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
 }
 
+void BitcoinGUI::updateOnionIcon()
+{
+    //~ std::string ipaddress = addrSeenByPeer.ToStringIP();
+    //~ // printf(">>> addrSeenByPeer = %s\n", ipaddress.c_str());
+    QString icon;
+    icon = ":/icons/tor_active";
+    labelOnionIcon->setPixmap(platformStyle->SingleColorIcon(icon).pixmap(STATUSBAR_ICONSIZE, STATUSBAR_ICONSIZE));
+    labelOnionIcon->setToolTip(tr("Connected over the Tor Network"));
+    
+    //~ if (ipaddress == std::string("0.0.0.0"))
+    //~ {
+        //~ labelOnionIcon->setPixmap(platformStyle->SingleColorIcon(icon).pixmap(STATUSBAR_ICONSIZE, STATUSBAR_ICONSIZE));
+        //~ labelOnionIcon->setToolTip(tr("Connecting over the Tor Network"));
+    //~ }
+    //~ else
+    //~ {
+        //~ std::string display = std::string("Connected over the Tor Network. IP: ") + ipaddress;
+        //~ labelOnionIcon->setPixmap(QIcon(":/icons/tor_active").pixmap(STATUSBAR_ICONSIZE, STATUSBAR_ICONSIZE));
+        //~ labelOnionIcon->setToolTip(tr(display.c_str()));
+    //~ }
+}
+
 void BitcoinGUI::setNumConnections(int count)
 {
     updateNetworkState();
@@ -751,6 +784,7 @@ void BitcoinGUI::setNumConnections(int count)
 void BitcoinGUI::setNetworkActive(bool networkActive)
 {
     updateNetworkState();
+    updateOnionIcon();
 }
 
 void BitcoinGUI::updateHeadersSyncProgressLabel()
