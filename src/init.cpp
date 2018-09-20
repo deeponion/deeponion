@@ -1344,7 +1344,6 @@ bool AppInitMain()
     std::string proxyArg = gArgs.GetArg("-proxy", "");
     SetLimited(NET_TOR);
     if (proxyArg != "" && proxyArg != "0") {
-		printf("Adding no proxies\n"); // TODO: Remove
         CService proxyAddr;
         if (!Lookup(proxyArg.c_str(), proxyAddr, 9050, fNameLookup)) {
             return InitError(strprintf(_("Invalid -proxy address or hostname: '%s'"), proxyArg));
@@ -1365,9 +1364,11 @@ bool AppInitMain()
     // -noonion (or -onion=0) disables connecting to .onion entirely
     // An empty string is used to not override the onion proxy (in which case it defaults to -proxy set above, or none)
     std::string onionArg = gArgs.GetArg("-onion", "");
+    bool usingInternalTor = true;
     if (onionArg != "") {
         if (onionArg == "0") { // Handle -noonion/-onion=0
             SetLimited(NET_TOR); // set onions as unreachable
+            usingInternalTor = false;
         } else {
             CService onionProxy;
             if (!Lookup(onionArg.c_str(), onionProxy, 9050, fNameLookup)) {
@@ -1380,7 +1381,6 @@ bool AppInitMain()
             SetLimited(NET_TOR, false);
         }
     } else {
-    		printf("Going Deep!\n"); // TODO: Remove
     		// DeepOnion always uses Tor, if not specified, connect to our default Tor node.
         CService onionProxy;
         if (!Lookup("127.0.0.1", onionProxy, 9081, fNameLookup)) {
@@ -1398,7 +1398,7 @@ bool AppInitMain()
 			StartTor(threadGroup, scheduler);
 
 			uiInterface.InitMessage("Initializing Tor Network...");
-			printf("Initializing Tor Network...\n"); // TODO: Put in logfile
+			LogPrintf("Initializing Tor Network...\n");
 		}
 
         // Tor Implementation - End
@@ -1410,7 +1410,7 @@ bool AppInitMain()
     fRelayTxes = !gArgs.GetBoolArg("-blocksonly", DEFAULT_BLOCKSONLY);
 
     if(gArgs.GetArgs("-externalip").size() > 0) {
-    		printf("Waiting For onion address %lU...\n", gArgs.GetArgs("-externalip").size()); // TODO: Put in logfile
+    		LogPrintf("Waiting For onion address %lU...\n", gArgs.GetArgs("-externalip").size());
 		for (const std::string& strAddr : gArgs.GetArgs("-externalip")) {
 			CService addrLocal;
 			if (Lookup(strAddr.c_str(), addrLocal, GetListenPort(), fNameLookup) && addrLocal.IsValid())
@@ -1421,7 +1421,7 @@ bool AppInitMain()
     } else {
     		// Find our onion address.
 		uiInterface.InitMessage("Waiting For onion address...");
-		printf("Waiting For onion address...\n"); // TODO: Put in logfile
+		LogPrintf("Waiting For onion address...\n");
 
     		std::string automatic_onion;
         boost::filesystem::path hostname_path = GetDataDir() / "tor" / "onion" / "hostname";
@@ -1434,7 +1434,7 @@ bool AppInitMain()
             boost::this_thread::sleep(boost::posix_time::seconds(2));
             if (attempts > 8)
                 return InitError(_("Timed out waiting for onion hostname."));
-            printf("No onion hostname yet, will retry in 2 seconds... (%d/8)\n", attempts);
+            LogPrintf("No onion hostname yet, will retry in 2 seconds... (%d/8)\n", attempts);
         }
 
         boost::filesystem::ifstream file(hostname_path.string().c_str());
@@ -1748,7 +1748,7 @@ bool AppInitMain()
     LogPrintf("nBestHeight = %d\n", chain_active_height);
 //	DeepOnion Starts a Tor node in a previous step - Leaving this in gives
 //  users the option to connect to their own Tor setup (Tails integration - It already has a Tor node running.)
-    if (gArgs.GetBoolArg("-listenonion", DEFAULT_LISTEN_ONION)) {
+    if (!usingInternalTor && gArgs.GetBoolArg("-listenonion", DEFAULT_LISTEN_ONION)) {
     		LogPrintf("StartTorControl");
         StartTorControl(threadGroup, scheduler);
     }

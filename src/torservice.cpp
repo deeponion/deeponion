@@ -14,6 +14,7 @@
 #include <deque>
 #include <set>
 #include <stdlib.h>
+#include <sys/stat.h>
 
 #include <boost/bind.hpp>
 #include <boost/signals2/signal.hpp>
@@ -32,41 +33,41 @@ int tor_main(int argc, char *argv[]);
 }
 
 
-//void SetupPluggableTransport(boost::optional<std::string> &plugin, struct stat *sb)
-//{
-//    std::string torPlugin = GetArg("-torplugin", "");
-//    std::string torPluginPath = GetArg("-torpluginpath", "");
-//    if (torPlugin == "meek")
-//    {
-//        printf("Using Tor with Pluggable Transport => MEEK\n");
-//#ifdef WIN32
-//        if (stat("meek-client.exe", sb) == 0 && (*sb).st_mode & S_IXUSR)
-//        {
-//            plugin = std::string("meek exec ") + std::string(torPluginPath);
-//        }
-//#else
-//        if ((stat("meek-client", sb) == 0 && (*sb).st_mode & S_IXUSR) || !std::system("which meek-client"))
-//        {
-//            plugin = std::string("meek exec ") + std::string(torPluginPath);
-//        }
-//#endif
-//    }
-//    else if (torPlugin == "obfs4")
-//    {
-//        printf("Using Tor with Pluggable Transport => OBFS4\n");
-//#ifdef WIN32
-//        if (stat("obfs4proxy.exe", sb) == 0 && (*sb).st_mode & S_IXUSR)
-//        {
-//            plugin = std::string("obfs4 exec ") + std::string(torPluginPath);
-//        }
-//#else
-//        if ((stat("obfs4proxy", sb) == 0 && (*sb).st_mode & S_IXUSR) || !std::system("which obfs4proxy"))
-//        {
-//            plugin = std::string("obfs4 exec ") + std::string(torPluginPath);
-//        }
-//#endif
-//    }
-//}
+void SetupPluggableTransport(boost::optional<std::string> &plugin, struct stat *sb)
+{
+    std::string torPlugin = gArgs.GetArg("-torplugin", "");
+    std::string torPluginPath = gArgs.GetArg("-torpluginpath", "");
+    if (torPlugin == "meek")
+    {
+        LogPrintf("Using Tor with Pluggable Transport => MEEK\n");
+#ifdef WIN32
+        if (stat("meek-client.exe", sb) == 0 && (*sb).st_mode & S_IXUSR)
+        {
+            plugin = std::string("meek exec ") + std::string(torPluginPath);
+        }
+#else
+        if ((stat("meek-client", sb) == 0 && (*sb).st_mode & S_IXUSR) || !std::system("which meek-client"))
+        {
+            plugin = std::string("meek exec ") + std::string(torPluginPath);
+        }
+#endif
+    }
+    else if (torPlugin == "obfs4")
+    {
+    	LogPrintf("Using Tor with Pluggable Transport => OBFS4\n");
+#ifdef WIN32
+        if (stat("obfs4proxy.exe", sb) == 0 && (*sb).st_mode & S_IXUSR)
+        {
+            plugin = std::string("obfs4 exec ") + std::string(torPluginPath);
+        }
+#else
+        if ((stat("obfs4proxy", sb) == 0 && (*sb).st_mode & S_IXUSR) || !std::system("which obfs4proxy"))
+        {
+            plugin = std::string("obfs4 exec ") + std::string(torPluginPath);
+        }
+#endif
+    }
+}
 
 static char *convert_str(const std::string &s)
 {
@@ -94,9 +95,9 @@ TorService::TorService(struct event_base* _base):
 {
     LogPrintf("torservice: TorService in\n");
 	bool fTestNet = gArgs.GetBoolArg("-testnet", false);
-//    boost::optional<std::string> clientTransportPlugin;
-//    struct stat sb;
-//    SetupPluggableTransport(clientTransportPlugin, &sb);
+    boost::optional<std::string> clientTransportPlugin;
+    struct stat sb;
+    SetupPluggableTransport(clientTransportPlugin, &sb);
 
     fs::path tor_dir = GetDataDir() / "tor";
     fs::create_directory(tor_dir);
@@ -126,13 +127,13 @@ TorService::TorService(struct event_base* _base):
     else
         argv.push_back("17570");
 
-//    if (clientTransportPlugin)
-//    {
-//        argv.push_back("--ClientTransportPlugin");
-//        argv.push_back(*clientTransportPlugin);
-//        argv.push_back("--UseBridges");
-//        argv.push_back("1");
-//    }
+    if (clientTransportPlugin)
+    {
+        argv.push_back("--ClientTransportPlugin");
+        argv.push_back(*clientTransportPlugin);
+        argv.push_back("--UseBridges");
+        argv.push_back("1");
+    }
 
     std::vector<char *> argv_c;
     std::transform(argv.begin(), argv.end(), std::back_inserter(argv_c), convert_str);
