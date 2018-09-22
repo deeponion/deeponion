@@ -16,11 +16,6 @@
 #include "script/sign.h"
 #include "consensus/consensus.h"
 
-// MODIFIER_INTERVAL: time to elapse before new modifier is computed
-extern unsigned int nModifierInterval;
-
-extern unsigned int nStakeMinAge;
-extern unsigned int nStakeMaxAge;
 
 // MODIFIER_INTERVAL_RATIO:
 // ratio of group interval length between the last group and the first group

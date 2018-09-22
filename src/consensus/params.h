@@ -78,6 +78,13 @@ struct Params {
     int64_t DifficultyAdjustmentInterval() const { return nPowTargetTimespan / nPowTargetSpacing; }
     uint256 nMinimumChainWork;
     uint256 defaultAssumeValid;
+    // DeepOnion: Net differences in these values, so easier to add them here.
+    unsigned int nStakeMinAge;
+    unsigned int nStakeMaxAge;
+    //// MODIFIER_INTERVAL: time to elapse before new modifier is computed
+	unsigned int nModifierInterval;
+	/** Coinbase transaction outputs can only be spent after this number of new blocks (network rule) */
+	int nCoinbaseMaturity;
 };
 } // namespace Consensus
 

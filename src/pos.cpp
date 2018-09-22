@@ -12,37 +12,6 @@ using namespace std;
 
 typedef std::map<int, unsigned int> MapModifierCheckpoints;
 
-unsigned int nStakeMinAge = 60 * 60 * 24 * 1;			// minimum age for coin age: 1d
-unsigned int nStakeMaxAge = 60 * 60 * 24 * 30;	        // stake age of full weight: 30d
-unsigned int nModifierInterval = 8 * 60;				// time to elapse before new modifier is computed
-
-// Hard checkpoints of stake modifiers to ensure they are deterministic
-static std::map<int, unsigned int> mapStakeModifierCheckpoints =
-    boost::assign::map_list_of
-    (     0, 0xfd11f4e7u)
-    (  1000, 0x353653feu)
-    ( 10000, 0x8c341084u)
-    ( 50008, 0x9f0053f2u)
-    (100000, 0xaf212909u)
-    (150006, 0x3883af95u)
-    (200830, 0xf2daec0au)
-    (250008, 0x76bd1777u)
-    (300836, 0x18dbac5eu)
-    (350003, 0x17223fa8u)
-    (400002, 0xd1662b8fu)
-    (450000, 0x0fc0c8d3u)
-    (500001, 0x17ac1811u)
-    (550004, 0xcfb3340fu)
-    (600014, 0x74d7cf8cu)
-    (621306, 0x4890a081u)
-	;
-
-// Hard checkpoints of stake modifiers to ensure they are deterministic (testNet)
-static std::map<int, unsigned int> mapStakeModifierCheckpointsTestNet =
-    boost::assign::map_list_of
-    ( 0, 0xfd11f4e7u )
-    ;
-
 // Get time weight
 int64_t GetWeight(int64_t nIntervalBeginning, int64_t nIntervalEnd)
 {
@@ -50,7 +19,7 @@ int64_t GetWeight(int64_t nIntervalBeginning, int64_t nIntervalEnd)
     // this change increases active coins participating the hash and helps
     // to secure the network when proof-of-stake difficulty is low
 
-    return min(nIntervalEnd - nIntervalBeginning - nStakeMinAge, (int64_t)nStakeMaxAge);
+    return min(nIntervalEnd - nIntervalBeginning - Params().GetConsensus().nStakeMinAge, (int64_t)Params().GetConsensus().nStakeMaxAge);
 }
 
 // Get the last stake modifier and its generation time from a given block
@@ -71,7 +40,7 @@ static bool GetLastStakeModifier(const CBlockIndex* pindex, uint64_t& nStakeModi
 static int64_t GetStakeModifierSelectionIntervalSection(int nSection)
 {
     assert (nSection >= 0 && nSection < 64);
-    return (nModifierInterval * 63 / (63 + ((63 - nSection) * (MODIFIER_INTERVAL_RATIO - 1))));
+    return (Params().GetConsensus().nModifierInterval * 63 / (63 + ((63 - nSection) * (MODIFIER_INTERVAL_RATIO - 1))));
 }
 
 // Get stake modifier selection interval (in seconds)
@@ -163,14 +132,14 @@ bool ComputeNextStakeModifier(const CBlockIndex* pindexPrev, uint64_t& nStakeMod
 
     std::string timeStr0 = DateTimeStrFormat("%Y-%m-%d %H:%M:%S", nModifierTime);
     // LogPrintf("Compute: prev modifier=0x%016x, time=%s\n", nStakeModifier, timeStr0.c_str());
-    if (nModifierTime / nModifierInterval >= pindexPrev->GetBlockTime() / nModifierInterval)
+    if (nModifierTime / Params().GetConsensus().nModifierInterval >= pindexPrev->GetBlockTime() / Params().GetConsensus().nModifierInterval)
         return true;
 
     // Sort candidate blocks by timestamp
     vector<pair<int64_t, arith_uint256> > vSortedByTimestamp;
-    vSortedByTimestamp.reserve(64 * nModifierInterval / consensusParams.nPosTargetSpacing);
+    vSortedByTimestamp.reserve(64 * Params().GetConsensus().nModifierInterval / consensusParams.nPosTargetSpacing);
     int64_t nSelectionInterval = GetStakeModifierSelectionInterval();
-    int64_t nSelectionIntervalStart = (pindexPrev->GetBlockTime() / nModifierInterval) * nModifierInterval - nSelectionInterval;
+    int64_t nSelectionIntervalStart = (pindexPrev->GetBlockTime() / Params().GetConsensus().nModifierInterval) * Params().GetConsensus().nModifierInterval - nSelectionInterval;
     const CBlockIndex* pindex = pindexPrev;
     while (pindex && pindex->GetBlockTime() >= nSelectionIntervalStart)
     {
@@ -223,7 +192,7 @@ static bool GetKernelStakeModifier(CBlockIndex* pindexFrom, uint64_t& nStakeModi
     {    	
         if (pindex->pnext == nullptr)
         {   // reached best block; may happen if node is behind on block chain
-            if (pindex->GetBlockTime() + nStakeMinAge - nStakeModifierSelectionInterval > GetAdjustedTime())
+            if (pindex->GetBlockTime() + Params().GetConsensus().nStakeMinAge - nStakeModifierSelectionInterval > GetAdjustedTime())
                 return error("GetKernelStakeModifier() : reached best block %s at height %d from block %s",
                     pindex->GetBlockHash().ToString().c_str(), pindex->nHeight, pindexFrom->GetBlockHash().ToString().c_str());
             else
@@ -270,7 +239,7 @@ bool CheckStakeKernelHash(unsigned int nBits, CBlockIndex* pBlockFrom, CValidati
         return state.DoS(100, error("CheckStakeKernelHash() : nTime violation"));
 
     unsigned int nTimeBlockFrom = pBlockFrom->nTime;
-    if (nTimeBlockFrom + nStakeMinAge > nTimeTx) // Min age requirement
+    if (nTimeBlockFrom + Params().GetConsensus().nStakeMinAge > nTimeTx) // Min age requirement
     	return state.DoS(100, error("CheckStakeKernelHash() : min age violation"));
 
     arith_uint256 bnTargetPerCoinDay;
@@ -367,8 +336,8 @@ bool CheckProofOfStake(CBlockTreeDB& blockTreeDB, CBlockIndex* pindexPrev, CVali
         return state.DoS(100, error("CheckProofOfStake() : Stake prevout does not exist %s", txin.prevout.hash.ToString()));
     }
 
-    if(pindexPrev->nHeight + 1 - coinPrev.nHeight < COINBASE_MATURITY){
-        return state.DoS(100, error("CheckProofOfStake() : Stake prevout is not mature, expecting %i and only matured to %i", COINBASE_MATURITY, pindexPrev->nHeight + 1 - coinPrev.nHeight));
+    if(pindexPrev->nHeight + 1 - coinPrev.nHeight < Params().GetConsensus().nCoinbaseMaturity){
+        return state.DoS(100, error("CheckProofOfStake() : Stake prevout is not mature, expecting %i and only matured to %i", Params().GetConsensus().nCoinbaseMaturity, pindexPrev->nHeight + 1 - coinPrev.nHeight));
     }
     CBlockIndex* blockFrom = pindexPrev->GetAncestor(coinPrev.nHeight);
     if(!blockFrom) {
@@ -410,10 +379,10 @@ unsigned int GetStakeModifierChecksum(const CBlockIndex* pindex)
 bool CheckStakeModifierCheckpoints(int nHeight, unsigned int nStakeModifierChecksum)
 {
 	// LogPrintf(">> Height = %d, nStakeModifierChecksum = %x\n", nHeight, nStakeModifierChecksum);
-    MapModifierCheckpoints& checkpoints = mapStakeModifierCheckpoints;
+	const std::map<int, unsigned int>& checkpoints = Params().GetMapStakeModifierCheckpoints();
 
     if (checkpoints.count(nHeight))
-        return nStakeModifierChecksum == checkpoints[nHeight];
+        return nStakeModifierChecksum == checkpoints.at(nHeight);
     
     return true;
 }

@@ -1941,7 +1941,7 @@ bool GetCoinAge(uint64_t& nCoinAge, const CTransaction *tx)
         CBlockIndex* pblockindex = mapBlockIndex[hashBlock];
         if (!ReadBlockFromDisk(block, pblockindex, Params().GetConsensus()))
             return false; // unable to read block of previous transaction
-        if (block.GetBlockTime() + nStakeMinAge > tx->nTime)
+        if (block.GetBlockTime() + Params().GetConsensus().nStakeMinAge > tx->nTime)
             continue; // only count coins meeting min age requirement
 
         int64_t nValueIn = txPrev.get()->vout[txin.prevout.n].nValue;

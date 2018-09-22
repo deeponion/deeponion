@@ -91,6 +91,10 @@ public:
         consensus.nPowTargetSpacing = 240;
         consensus.nPosTargetSpacing = 60;
         consensus.fPowAllowMinDifficultyBlocks = false;
+        consensus.nStakeMinAge = 60 * 60 * 24 * 1;			// minimum age for coin age: 1d
+        consensus.nStakeMaxAge = 60 * 60 * 24 * 30;	        // stake age of full weight: 30d
+        consensus.nModifierInterval = 8 * 60;				// time to elapse before new modifier is computed
+        consensus.nCoinbaseMaturity = 40;					// 40 Blocks maturity
         // disable NoRetargeting. NoRetargeting is always false
         // consensus.fPowNoRetargeting = false;
         // consensus.fPosNoRetargeting = false;
@@ -189,6 +193,23 @@ public:
                     //   (the tx=... number in the SetBestChain debug.log lines)
             0.046    // * estimated number of transactions per second after that timestamp
         };
+
+        mapStakeModifierCheckpoints.insert(std::pair<int, unsigned int>(0, 0xfd11f4e7u));
+        mapStakeModifierCheckpoints.insert(std::pair<int, unsigned int>(1000, 0x353653feu));
+        mapStakeModifierCheckpoints.insert(std::pair<int, unsigned int>(10000, 0x8c341084u));
+        mapStakeModifierCheckpoints.insert(std::pair<int, unsigned int>(50008, 0x9f0053f2u));
+        mapStakeModifierCheckpoints.insert(std::pair<int, unsigned int>(100000, 0xaf212909u));
+        mapStakeModifierCheckpoints.insert(std::pair<int, unsigned int>(150006, 0x3883af95u));
+        mapStakeModifierCheckpoints.insert(std::pair<int, unsigned int>(200830, 0xf2daec0au));
+        mapStakeModifierCheckpoints.insert(std::pair<int, unsigned int>(250008, 0x76bd1777u));
+        mapStakeModifierCheckpoints.insert(std::pair<int, unsigned int>(300836, 0x18dbac5eu));
+        mapStakeModifierCheckpoints.insert(std::pair<int, unsigned int>(350003, 0x17223fa8u));
+        mapStakeModifierCheckpoints.insert(std::pair<int, unsigned int>(400002, 0xd1662b8fu));
+        mapStakeModifierCheckpoints.insert(std::pair<int, unsigned int>(450000, 0x0fc0c8d3u));
+        mapStakeModifierCheckpoints.insert(std::pair<int, unsigned int>(500001, 0x17ac1811u));
+        mapStakeModifierCheckpoints.insert(std::pair<int, unsigned int>(550004, 0xcfb3340fu));
+        mapStakeModifierCheckpoints.insert(std::pair<int, unsigned int>(600014, 0x74d7cf8cu));
+        mapStakeModifierCheckpoints.insert(std::pair<int, unsigned int>(621306, 0x4890a081u));
     }
 };
 
@@ -210,9 +231,13 @@ public:
         consensus.nPowTargetTimespan = 14400; 
         consensus.nPowTargetSpacing = 240;
         consensus.nPosTargetSpacing = 60;
-        consensus.fPowAllowMinDifficultyBlocks = true;
+        consensus.fPowAllowMinDifficultyBlocks = false;
         // consensus.fPowNoRetargeting = false;
         // consensus.fPosNoRetargeting = false;
+        consensus.nStakeMinAge = 20 * 60;					// minimum age for coin age: 20 Minutes
+        consensus.nStakeMaxAge = 60 * 60 * 24 * 30;	        // stake age of full weight: 30d
+        consensus.nModifierInterval = 60;					// time to elapse before new modifier is computed
+        consensus.nCoinbaseMaturity = 10;					// Blocks maturity
         consensus.nRuleChangeActivationThreshold = 45; // 75% for testchains
         consensus.nMinerConfirmationWindow = 60; // nPowTargetTimespan / nPowTargetSpacing
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].bit = 28;
@@ -230,22 +255,22 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].nTimeout = 1517356801; // January 31st, 2018
 
         // The best chain should have at least this much work.
-        consensus.nMinimumChainWork = uint256S("0x0000000000000000000000000000000000000000000000000007d006a402163e");
+        consensus.nMinimumChainWork = uint256S("0x0000000000000000000000000000000000000000000000000000000000000000");
 
         // By default assume that the signatures in ancestors of this block are valid.
         consensus.defaultAssumeValid = uint256S("0xa0afbded94d4be233e191525dc2d467af5c7eab3143c852c3cd549831022aad6"); //343833
 
 		pchMessageStart[0] = 0xa1;
-		pchMessageStart[1] = 0xa0;
-		pchMessageStart[2] = 0xa2;
+		pchMessageStart[1] = 0xa2;
+		pchMessageStart[2] = 0xa0;
 		pchMessageStart[3] = 0xf3;
         nDefaultPort = 26550;
         nPruneAfterHeight = 1000;
 
-        genesis = CreateGenesisBlock(1530740000, 249570, 0x1e0fffff, 1, 0 * COIN);
+        genesis = CreateGenesisBlock(1537396257, 446047, 0x1e0fffff, 1, 0 * COIN);
         consensus.hashGenesisBlock = genesis.GetHash();
-        assert(consensus.hashGenesisBlock == uint256S("0x0000024e03c36fa1727092fd3093fc8526a126bd4607e3619fb04d3ab782fa0e"));
-        assert(genesis.hashMerkleRoot == uint256S("0x0dff26605532ed8ec42a995c54216210feeeefe896e1469e9d599f9b5bbf8ead"));
+        assert(consensus.hashGenesisBlock == uint256S("0x0000064baedecff7fe74ce415cdad1949632c4433b16a4467ceebeaf195e404a"));
+        assert(genesis.hashMerkleRoot == uint256S("0x61cdd3474ff5015d5507a508fde4dd79375aa22d8ea963e2b4a9088023400628"));
 
         vFixedSeeds.clear();
         vSeeds.clear();
@@ -256,7 +281,7 @@ public:
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,111);
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,196);
-        base58Prefixes[SCRIPT_ADDRESS2] = std::vector<unsigned char>(1,58);
+        base58Prefixes[SCRIPT_ADDRESS2] = std::vector<unsigned char>(1,196);
         base58Prefixes[SECRET_KEY] =     std::vector<unsigned char>(1,239);
         base58Prefixes[EXT_PUBLIC_KEY] = {0x04, 0x35, 0x87, 0xCF};
         base58Prefixes[EXT_SECRET_KEY] = {0x04, 0x35, 0x83, 0x94};
@@ -271,7 +296,7 @@ public:
 
         checkpointData = (CCheckpointData) {
             {
-                {2056, uint256S("17748a31ba97afdc9a4f86837a39d287e3e7c7290a08a1d816c5969c78a83289")},	// this will need to be updated
+            	{  1000, uint256S("d6ee31197c5d271cf4cd16f15c6ae35ed2e6e545ba78407c559f6c746143eb9c")}
             }
         };
 
@@ -282,6 +307,7 @@ public:
             0.01
         };
 
+        mapStakeModifierCheckpoints.insert(std::pair<int, unsigned int>(0, 0xfd11f4e7u));
     }
 };
 
@@ -306,6 +332,10 @@ public:
         consensus.fPowAllowMinDifficultyBlocks = true;
         // consensus.fPowNoRetargeting = true;
         // consensus.fPosNoRetargeting = true;
+        consensus.nStakeMinAge = 60 * 60 * 24 * 1;			// minimum age for coin age: 1d
+        consensus.nStakeMaxAge = 60 * 60 * 24 * 30;	        // stake age of full weight: 30d
+        consensus.nModifierInterval = 8 * 60;				// time to elapse before new modifier is computed
+        consensus.nCoinbaseMaturity = 40;					// 40 Blocks maturity
         consensus.nRuleChangeActivationThreshold = 45; // 75% for testchains
         consensus.nMinerConfirmationWindow = 60; // Faster than normal for regtest (144 instead of 2016)
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].bit = 28;
@@ -363,6 +393,9 @@ public:
         base58Prefixes[EXT_SECRET_KEY] = {0x04, 0x35, 0x83, 0x94};
 
         bech32_hrp = "rdpn";
+
+        mapStakeModifierCheckpoints.insert(std::pair<int, unsigned int>(0, 0xfd11f4e7u));
+
     }
 };
 
