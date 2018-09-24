@@ -10,7 +10,6 @@
 #endif
 
 #include <amount.h>
-#include <net.h>
 
 #include <QLabel>
 #include <QMainWindow>

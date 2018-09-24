@@ -809,23 +809,31 @@ void BitcoinGUI::updateStakingIcon()
 
 void BitcoinGUI::updateOnionIcon()
 {
-    
+    std::string ipaddress;
+
+    LOCK(cs_mapLocalHost);
+    for (const std::pair<CNetAddr, LocalServiceInfo> &item : mapLocalHost)
+    {
+        ipaddress = item.first.ToString();
+    }
+        
     QString icon;
-    icon = ":/icons/tor_active";
-    labelOnionIcon->setPixmap(platformStyle->SingleColorIcon(icon).pixmap(STATUSBAR_ICONSIZE, STATUSBAR_ICONSIZE));
-    labelOnionIcon->setToolTip(tr("Connected over the Tor Network"));
+    std::string display;
+   
+    //if (ipaddress == std::string("0.0.0.0"))
+    if (ipaddress == "")
+    {
+        icon = ":/icons/tor_inactive";
+        display = std::string("Connecting over the Tor Network");
+    }
+    else
+    {
+        icon = ":/icons/tor_active";
+        display = std::string("Connected over the Tor Network. IP: ") + ipaddress;
+    }
     
-    //~ if (ipaddress == std::string("0.0.0.0"))
-    //~ {
-        //~ labelOnionIcon->setPixmap(platformStyle->SingleColorIcon(icon).pixmap(STATUSBAR_ICONSIZE, STATUSBAR_ICONSIZE));
-        //~ labelOnionIcon->setToolTip(tr("Connecting over the Tor Network"));
-    //~ }
-    //~ else
-    //~ {
-        //~ std::string display = std::string("Connected over the Tor Network. IP: ") + ipaddress;
-        //~ labelOnionIcon->setPixmap(QIcon(":/icons/tor_active").pixmap(STATUSBAR_ICONSIZE, STATUSBAR_ICONSIZE));
-        //~ labelOnionIcon->setToolTip(tr(display.c_str()));
-    //~ }
+    labelOnionIcon->setPixmap(platformStyle->SingleColorIcon(icon).pixmap(STATUSBAR_ICONSIZE, STATUSBAR_ICONSIZE));
+    labelOnionIcon->setToolTip(tr(display.c_str()));
 }
 
 void BitcoinGUI::setNumConnections(int count)
