@@ -201,8 +201,9 @@ BitcoinGUI::BitcoinGUI(const PlatformStyle *_platformStyle, const NetworkStyle *
     labelWalletEncryptionIcon = new QLabel();
     labelWalletHDStatusIcon = new QLabel();
     connectionsControl = new GUIUtil::ClickableLabel();
-    labelOnionIcon = new QLabel();
     labelBlocksIcon = new GUIUtil::ClickableLabel();
+    labelStakingIcon = new QLabel();
+    labelOnionIcon = new QLabel();    
     if(enableWallet)
     {
         frameBlocksLayout->addStretch();
@@ -212,6 +213,8 @@ BitcoinGUI::BitcoinGUI(const PlatformStyle *_platformStyle, const NetworkStyle *
         frameBlocksLayout->addWidget(labelWalletHDStatusIcon);
     }
     frameBlocksLayout->addStretch();
+    frameBlocksLayout->addWidget(labelStakingIcon);
+    frameBlocksLayout->addStretch();    
     frameBlocksLayout->addWidget(labelOnionIcon);
     frameBlocksLayout->addStretch();
     frameBlocksLayout->addWidget(connectionsControl);
@@ -219,6 +222,20 @@ BitcoinGUI::BitcoinGUI(const PlatformStyle *_platformStyle, const NetworkStyle *
     frameBlocksLayout->addWidget(labelBlocksIcon);
     frameBlocksLayout->addStretch();
 
+    // Stacking icon 
+    QTimer *timerStakingIcon = new QTimer(labelStakingIcon);
+    connect(timerStakingIcon, SIGNAL(timeout()), this, SLOT(updateStakingIcon()));
+    timerStakingIcon->start(30 * 1000);
+    updateStakingIcon();
+   
+    // TOR icon
+    QTimer *timerOnionIcon = new QTimer(labelOnionIcon);
+    connect(timerOnionIcon, SIGNAL(timeout()), this, SLOT(updateOnionIcon()));
+    //QTimer::singleShot(1000, this, SLOT(updateOnionIcon()));
+    timerOnionIcon->start(30 * 1000);
+    updateOnionIcon();
+
+    
     // Progress bar and label for blocks download
     progressBarLabel = new QLabel();
     progressBarLabel->setVisible(false);
@@ -259,12 +276,6 @@ BitcoinGUI::BitcoinGUI(const PlatformStyle *_platformStyle, const NetworkStyle *
     }
 #endif
     
-    QTimer *timerOnionIcon = new QTimer(labelOnionIcon);
-    connect(timerOnionIcon, SIGNAL(timeout()), this, SLOT(updateOnionIcon()));
-    timerOnionIcon->start(30 * 1000);
-    updateOnionIcon();
-
-
 }
 
 BitcoinGUI::~BitcoinGUI()
@@ -752,12 +763,53 @@ void BitcoinGUI::updateNetworkState()
     connectionsControl->setToolTip(tooltip);
 
     connectionsControl->setPixmap(platformStyle->SingleColorIcon(icon).pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
+
+
+    updateOnionIcon();
+}
+
+
+void BitcoinGUI::updateStakingIcon()
+{
+    QString icon;
+    icon = ":/icons/staking_off";
+    labelStakingIcon->setPixmap(platformStyle->SingleColorIcon(icon).pixmap(STATUSBAR_ICONSIZE, STATUSBAR_ICONSIZE));
+    labelStakingIcon->setToolTip(tr("Not staking"));
+    
+    // TODO: add logic to stacking icon
+    /*
+    uint64_t nMinWeight = 0, nMaxWeight = 0, nWeight = 0;
+    if (pwalletMain)
+        pwalletMain->GetStakeWeight(*pwalletMain, nMinWeight, nMaxWeight, nWeight);
+
+    if (nLastCoinStakeSearchInterval && nWeight)
+    {
+        uint64_t nNetworkWeight = GetPoSKernelPS();
+
+        labelStakingIcon->setPixmap(QIcon(":/icons/staking_on").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
+        labelStakingIcon->setToolTip(tr("Staking.<br>Your weight is %1<br>Network weight is %2").arg(nWeight).arg(nNetworkWeight));
+    }
+    else
+    {
+        labelStakingIcon->setPixmap(QIcon(":/icons/staking_off").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
+        if (pwalletMain && pwalletMain->IsLocked())
+            labelStakingIcon->setToolTip(tr("Not staking because wallet is locked"));
+        else if (vNodes.empty())
+            labelStakingIcon->setToolTip(tr("Not staking because wallet is offline"));
+        else if (IsInitialBlockDownload())
+            labelStakingIcon->setToolTip(tr("Not staking because wallet is syncing"));
+        else if (!nWeight)
+            labelStakingIcon->setToolTip(tr("Not staking because you don't have mature coins"));
+        else
+            labelStakingIcon->setToolTip(tr("Not staking"));
+    }
+    */    
+    
 }
 
 void BitcoinGUI::updateOnionIcon()
 {
-    //~ std::string ipaddress = addrSeenByPeer.ToStringIP();
-    //~ // printf(">>> addrSeenByPeer = %s\n", ipaddress.c_str());
+    
     QString icon;
     icon = ":/icons/tor_active";
     labelOnionIcon->setPixmap(platformStyle->SingleColorIcon(icon).pixmap(STATUSBAR_ICONSIZE, STATUSBAR_ICONSIZE));

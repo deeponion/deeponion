@@ -10,6 +10,7 @@
 #endif
 
 #include <amount.h>
+#include <net.h>
 
 #include <QLabel>
 #include <QMainWindow>
@@ -84,6 +85,7 @@ private:
     QLabel *labelWalletEncryptionIcon;
     QLabel *labelWalletHDStatusIcon;
     QLabel *connectionsControl;
+    QLabel *labelStakingIcon;
     QLabel *labelOnionIcon;
     QLabel *labelBlocksIcon;
     QLabel *progressBarLabel;
@@ -147,8 +149,12 @@ private:
 
     /** Update UI with latest network info from model. */
     void updateNetworkState();
-    
+   
+    /** Update staking icon **/
+    void updateStakingIcon();
+    /** Update TOR icon **/
     void updateOnionIcon();
+    
 
     void updateHeadersSyncProgressLabel();
 
