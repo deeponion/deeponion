@@ -1381,7 +1381,7 @@ bool AppInitMain()
             SetLimited(NET_TOR, false);
         }
     } else {
-    		// DeepOnion always uses Tor, if not specified, connect to our default Tor node.
+        // DeepOnion always uses Tor, if not specified, connect to our default Tor node.
         CService onionProxy;
         if (!Lookup("127.0.0.1", onionProxy, 9081, fNameLookup)) {
             return InitError(strprintf(_("Invalid -onion address or hostname: '%s'"), onionArg));
@@ -1419,11 +1419,11 @@ bool AppInitMain()
 				return InitError(ResolveErrMsg("externalip", strAddr));
 		}
     } else {
-    		// Find our onion address.
+        // Find our onion address.
 		uiInterface.InitMessage("Waiting For onion address...");
 		LogPrintf("Waiting For onion address...\n");
 
-    		std::string automatic_onion;
+        std::string automatic_onion;
         boost::filesystem::path hostname_path = GetDataDir() / "tor" / "onion" / "hostname";
 
         int attempts = 0;

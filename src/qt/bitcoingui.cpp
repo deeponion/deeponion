@@ -817,20 +817,17 @@ void BitcoinGUI::updateOnionIcon()
         ipaddress = item.first.ToString();
     }
         
-    QString icon;
     std::string display;
-   
-    //if (ipaddress == std::string("0.0.0.0"))
-    if (ipaddress == "")
+
+    if (!fTorEnabled)
     {
-        icon = ":/icons/tor_inactive";
-        labelOnionIcon->setPixmap(QIcon(icon).pixmap(STATUSBAR_ICONSIZE, STATUSBAR_ICONSIZE));
+        labelOnionIcon->setPixmap(QIcon(":/icons/tor_inactive").pixmap(STATUSBAR_ICONSIZE, STATUSBAR_ICONSIZE)); //default icon color
         display = std::string("Connecting over the Tor Network");
     }
     else
     {
-        icon = ":/icons/tor_active";
-        labelOnionIcon->setPixmap(platformStyle->SingleColorIcon(icon).pixmap(STATUSBAR_ICONSIZE, STATUSBAR_ICONSIZE));
+        labelOnionIcon->setPixmap(platformStyle->SingleColorIcon(":/icons/tor_active").pixmap(STATUSBAR_ICONSIZE, STATUSBAR_ICONSIZE));
+        //labelOnionIcon->setPixmap(QIcon(":/icons/tor_active").pixmap(STATUSBAR_ICONSIZE, STATUSBAR_ICONSIZE)); //default icon color
         display = std::string("Connected over the Tor Network. IP: ") + ipaddress;
     }
 
