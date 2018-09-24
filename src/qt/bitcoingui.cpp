@@ -773,7 +773,7 @@ void BitcoinGUI::updateStakingIcon()
 {
     QString icon;
     icon = ":/icons/staking_off";
-    labelStakingIcon->setPixmap(platformStyle->SingleColorIcon(icon).pixmap(STATUSBAR_ICONSIZE, STATUSBAR_ICONSIZE));
+    labelStakingIcon->setPixmap(QIcon(":/icons/staking_off").pixmap(STATUSBAR_ICONSIZE, STATUSBAR_ICONSIZE));
     labelStakingIcon->setToolTip(tr("Not staking"));
     
     // TODO: add logic to stacking icon
