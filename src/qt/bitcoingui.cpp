@@ -824,15 +824,16 @@ void BitcoinGUI::updateOnionIcon()
     if (ipaddress == "")
     {
         icon = ":/icons/tor_inactive";
+        labelOnionIcon->setPixmap(QIcon(icon).pixmap(STATUSBAR_ICONSIZE, STATUSBAR_ICONSIZE));
         display = std::string("Connecting over the Tor Network");
     }
     else
     {
         icon = ":/icons/tor_active";
+        labelOnionIcon->setPixmap(platformStyle->SingleColorIcon(icon).pixmap(STATUSBAR_ICONSIZE, STATUSBAR_ICONSIZE));
         display = std::string("Connected over the Tor Network. IP: ") + ipaddress;
     }
-    
-    labelOnionIcon->setPixmap(platformStyle->SingleColorIcon(icon).pixmap(STATUSBAR_ICONSIZE, STATUSBAR_ICONSIZE));
+
     labelOnionIcon->setToolTip(tr(display.c_str()));
 }
 
