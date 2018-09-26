@@ -187,7 +187,7 @@ UniValue generatetoaddress(const JSONRPCRequest& request)
 
 UniValue getmininginfo(const JSONRPCRequest& request)
 {
-    if (request.fHelp || request.params.size() != 0)
+	if (request.fHelp || request.params.size() != 0)
         throw std::runtime_error(
             "getmininginfo\n"
             "\nReturns a json object containing mining-related information."
@@ -376,6 +376,7 @@ UniValue getblocktemplate(const JSONRPCRequest& request)
     UniValue lpval = NullUniValue;
     std::set<std::string> setClientRules;
     int64_t nMaxVersionPreVB = -1;
+	
     if (!request.params[0].isNull())
     {
         const UniValue& oparam = request.params[0].get_obj();
@@ -545,30 +546,39 @@ UniValue getblocktemplate(const JSONRPCRequest& request)
     UniValue transactions(UniValue::VARR);
     std::map<uint256, int64_t> setTxIndex;
     int i = 0;
+    LogPrintf(">> start transaction data\n");
     for (const auto& it : pblock->vtx) {
         const CTransaction& tx = *it;
         uint256 txHash = tx.GetHash();
         setTxIndex[txHash] = i++;
 
-        if (tx.IsCoinBase())
+        if (tx.IsCoinBase() || tx.IsCoinStake())
             continue;
 
+        LogPrintf(">>>> tx # %d\n", i);
         UniValue entry(UniValue::VOBJ);
 
         entry.push_back(Pair("data", EncodeHexTx(tx)));
         entry.push_back(Pair("txid", txHash.GetHex()));
         entry.push_back(Pair("hash", tx.GetWitnessHash().GetHex()));
+        
+        printf(">>>> data = %s\n", EncodeHexTx(tx).c_str());
+        printf(">>>> hash = %s\n", txHash.GetHex().c_str());
 
         UniValue deps(UniValue::VARR);
         for (const CTxIn &in : tx.vin)
         {
             if (setTxIndex.count(in.prevout.hash))
+            {
                 deps.push_back(setTxIndex[in.prevout.hash]);
+                LogPrintf(">>>>>>>> depends = %lld\n", setTxIndex[in.prevout.hash]);
+            }
         }
         entry.push_back(Pair("depends", deps));
 
         int index_in_template = i - 1;
         entry.push_back(Pair("fee", pblocktemplate->vTxFees[index_in_template]));
+        LogPrintf(">>>>>> fee = %lld\n", pblocktemplate->vTxFees[index_in_template]);
         int64_t nTxSigOps = pblocktemplate->vTxSigOpsCost[index_in_template];
         if (fPreSegWit) {
             assert(nTxSigOps % WITNESS_SCALE_FACTOR == 0);
@@ -645,6 +655,7 @@ UniValue getblocktemplate(const JSONRPCRequest& request)
         // Because BIP 34 changed how the generation transaction is serialized, we can only use version/force back to v2 blocks
         // This is safe to do [otherwise-]unconditionally only because we are throwing an exception above if a non-force deployment gets activated
         // Note that this can probably also be removed entirely after the first BIP9 non-force deployment (ie, probably segwit) gets activated
+    	
         aMutable.push_back("version/force");
     }
 
@@ -677,6 +688,21 @@ UniValue getblocktemplate(const JSONRPCRequest& request)
     if (!pblocktemplate->vchCoinbaseCommitment.empty() && fSupportsSegwit) {
         result.push_back(Pair("default_witness_commitment", HexStr(pblocktemplate->vchCoinbaseCommitment.begin(), pblocktemplate->vchCoinbaseCommitment.end())));
     }
+    
+    LogPrintf(">> version = %d\n", pblock->nVersion);
+    LogPrintf(">> previousblockhash = %s\n", pblock->hashPrevBlock.GetHex().c_str());
+    LogPrintf(">> transactions\n");
+    LogPrintf(">> coinbaseaux - flags= %s\n", HexStr(COINBASE_FLAGS.begin(), COINBASE_FLAGS.end()).c_str());
+    LogPrintf(">> coinbasevalue = %lld\n", (int64_t)pblock->vtx[0]->vout[0].nValue);
+    LogPrintf(">> target = %s\n", hashTarget.GetHex().c_str());
+    LogPrintf(">> mintime = %lld\n", (int64_t)pindexPrev->GetMedianTimePast()+1);
+    LogPrintf(">> mutable = time, transactions, prevblock\n");
+    LogPrintf(">> noncerange = 00000000ffffffff\n");
+    LogPrintf(">> sigoplimit = %lld\n", nSigOpLimit);
+    LogPrintf(">> sizelimit = %lld\n", nSizeLimit);
+    LogPrintf(">> curtime = %lld\n", pblock->GetBlockTime());
+    LogPrintf(">> bits = %s\n", strprintf("%08x", pblock->nBits));
+    LogPrintf(">> height = %d\n", pindexPrev->nHeight+1);    
 
     return result;
 }

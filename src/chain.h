@@ -262,7 +262,7 @@ public:
         prevoutStake.SetNull();
         nStakeTime = 0;
         
-        nVersion       = 0;
+        nVersion       = CBlockHeader::CURRENT_VERSION;
         hashMerkleRoot = uint256();
         nTime          = 0;
         nBits          = 0;
