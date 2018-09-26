@@ -11,6 +11,10 @@
 
 #include <amount.h>
 
+#ifdef ENABLE_WALLET
+#include <wallet/wallet.h>
+#endif // ENABLE_WALLET
+
 #include <QLabel>
 #include <QMainWindow>
 #include <QMap>
@@ -30,12 +34,15 @@ class WalletFrame;
 class WalletModel;
 class HelpMessageDialog;
 class ModalOverlay;
+class CWallet;
 
 QT_BEGIN_NAMESPACE
 class QAction;
 class QProgressBar;
 class QProgressDialog;
 QT_END_NAMESPACE
+
+//typedef CWallet* CWalletRef;
 
 /**
   Bitcoin GUI main class. This class represents the main window of the Bitcoin UI. It communicates with both the client and
@@ -84,10 +91,10 @@ private:
     QLabel *labelWalletEncryptionIcon;
     QLabel *labelWalletHDStatusIcon;
     QLabel *connectionsControl;
-    QLabel *labelStakingIcon;
-    QLabel *labelOnionIcon;
     QLabel *labelBlocksIcon;
     QLabel *progressBarLabel;
+    QLabel *labelStakingIcon;
+    QLabel *labelOnionIcon;    
     QProgressBar *progressBar;
     QProgressDialog *progressDialog;
 
@@ -149,12 +156,6 @@ private:
     /** Update UI with latest network info from model. */
     void updateNetworkState();
    
-    /** Update staking icon **/
-    void updateStakingIcon();
-    /** Update TOR icon **/
-    void updateOnionIcon();
-    
-
     void updateHeadersSyncProgressLabel();
 
 Q_SIGNALS:
@@ -247,8 +248,18 @@ private Q_SLOTS:
 
     /** Toggle networking */
     void toggleNetworkActive();
-
+    
+    /** Update staking icon **/
+    void updateStakingIcon();
+    /** Update TOR icon **/
+    void updateOnionIcon();
+    
     void showModalOverlay();
+    
+private:
+    /** Update the current weight of the wallet **/
+    void updateWeight(CWalletRef pwalletMain);    
+    
 };
 
 class UnitDisplayStatusBarControl : public QLabel
