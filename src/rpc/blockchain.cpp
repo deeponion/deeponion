@@ -79,31 +79,6 @@ double GetDifficulty(const CChain& chain, const CBlockIndex* blockindex)
     return dDiff;
 }
 
-double GetPoWMHashPS()
-{
-    int nPoWInterval = 240;
-    int64_t nTargetSpacingWorkMin = 60, nTargetSpacingWork = 60;
-    
-    CBlockIndex* pindexGenesisBlock = chainActive.Genesis();
-    CBlockIndex* pindex = pindexGenesisBlock;
-    CBlockIndex* pindexPrevWork = pindexGenesisBlock;
-
-    while (pindex)
-    {
-        if (pindex->IsProofOfWork())
-        {
-            int64_t nActualSpacingWork = pindex->GetBlockTime() - pindexPrevWork->GetBlockTime();
-            nTargetSpacingWork = ((nPoWInterval - 1) * nTargetSpacingWork + nActualSpacingWork + nActualSpacingWork) / (nPoWInterval + 1);
-            nTargetSpacingWork = std::max(nTargetSpacingWork, nTargetSpacingWorkMin);
-            pindexPrevWork = pindex;
-        }
-
-        pindex = pindex->pnext;
-    }
-
-    return GetDifficulty() * 4294.967296 / nTargetSpacingWork;
-}
-
 double GetPoSKernelPS()
 {
     int nPoSInterval = 60;
