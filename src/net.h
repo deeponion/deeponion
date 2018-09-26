@@ -499,7 +499,7 @@ bool IsReachable(enum Network net);
 bool IsReachable(const CNetAddr &addr);
 CAddress GetLocalAddress(const CNetAddr *paddrPeer, ServiceFlags nLocalServices);
 
-
+extern bool fTorEnabled;
 extern bool fDiscover;
 extern bool fListen;
 extern bool fRelayTxes;

@@ -77,9 +77,11 @@ static const uint64_t RANDOMIZER_ID_LOCALHOSTNONCE = 0xd93e69e2bbfa5735ULL; // S
 //
 // Global state variables
 //
+bool fTorEnabled = false;
 bool fDiscover = true;
 bool fListen = true;
 bool fRelayTxes = true;
+
 CCriticalSection cs_mapLocalHost;
 std::map<CNetAddr, LocalServiceInfo> mapLocalHost;
 static bool vfLimited[NET_MAX] = {};
@@ -211,6 +213,7 @@ bool AddLocal(const CService& addr, int nScore)
         return false;
 
     LogPrintf("AddLocal(%s,%i)\n", addr.ToString(), nScore);
+    fTorEnabled = true;
 
     {
         LOCK(cs_mapLocalHost);
