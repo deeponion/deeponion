@@ -31,6 +31,10 @@
 #include <queue>
 #include <utility>
 
+#include <boost/thread.hpp>
+#include <boost/bind.hpp>
+
+
 //////////////////////////////////////////////////////////////////////////////
 //
 // BitcoinMiner
@@ -459,4 +463,41 @@ void IncrementExtraNonce(CBlock* pblock, const CBlockIndex* pindexPrev, unsigned
 
     pblock->vtx[0] = MakeTransactionRef(std::move(txCoinbase));
     pblock->hashMerkleRoot = BlockMerkleRoot(*pblock);
+}
+
+void StakeMiner()
+{
+    try {
+    	LogPrint(BCLog::BENCH, "StakeMiner(): Starting Stake miner loop.\n");
+        while (true) {
+            MilliSleep(60000);
+        }
+    }
+	catch (const boost::thread_interrupted&)
+	{
+		LogPrint(BCLog::BENCH, "StakeMiner(): Stake miner loop interrupted.\n");
+	}
+	LogPrint(BCLog::BENCH, "StakeMiner(): Stake miner loop finished.\n");
+}
+
+static std::unique_ptr<boost::thread> upnp_thread;
+void StartThreadStakeMiner()
+{
+	LogPrint(BCLog::BENCH, "StartThreadStakeMiner(): Starting Stake miner.\n");
+	if (upnp_thread) {
+		upnp_thread->interrupt();
+		upnp_thread->join();
+	}
+	upnp_thread.reset(new boost::thread(boost::bind(&TraceThread<void (*)()>, "stake_miner", &StakeMiner)));
+	LogPrint(BCLog::BENCH, "StartThreadStakeMiner(): Started Stake miner.\n");
+}
+
+void StopThreadStakeMiner()
+{
+	LogPrint(BCLog::BENCH, "StopThreadStakeMiner(): Stopping Stake miner.\n");
+	if (upnp_thread) {
+		upnp_thread->interrupt();
+		upnp_thread->join();
+	}
+	LogPrint(BCLog::BENCH, "StopThreadStakeMiner(): Stopped Stake miner.\n");
 }

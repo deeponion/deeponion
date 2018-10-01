@@ -212,6 +212,7 @@ void Shutdown()
 
     StopTorControl();
     StopTor();
+    StopThreadStakeMiner();
 
     // After everything has been shut down, but before things get flushed, stop the
     // CScheduler/checkqueue threadGroup
@@ -1820,6 +1821,12 @@ bool AppInitMain()
         return false;
     }
 
+    // Mine proof-of-stake blocks in the background
+    if (!gArgs.GetArg("-staking", true))
+        LogPrintf("Staking disabled\n");
+    else {
+    	StartThreadStakeMiner();
+    }
     // ********************************************************* Step 12: finished
 
     SetRPCWarmupFinished();
