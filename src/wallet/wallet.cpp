@@ -2309,25 +2309,63 @@ void CWallet::AvailableCoins(std::vector<COutput> &vCoins, bool fOnlySafe, const
     }
 }
 
-void CWallet::AvailableCoinsMinConf(std::vector<COutput>& vCoins, int nConf) const
+/*void CWallet::AvailableCoinsMinConf(vector<COutput>& vCoins, int nConf) const
 {
     vCoins.clear();
 
     {
         LOCK(cs_wallet);
-        for (std::map<uint256, CWalletTx>::const_iterator it = mapWallet.begin(); it != mapWallet.end(); ++it)
+        for (map<uint256, CWalletTx>::const_iterator it = mapWallet.begin(); it != mapWallet.end(); ++it)
         {
             const CWalletTx* pcoin = &(*it).second;
 
-            //~ if (!pcoin->IsFinal())
-                //~ continue;
+            if (!pcoin->IsFinal())
+                continue;
 
             if(pcoin->GetDepthInMainChain() < nConf)
                 continue;
 
-            //~ for (unsigned int i = 0; i < pcoin->vout.size(); i++)
-                //~ if (!(pcoin->IsSpent(i)) && IsMine(pcoin->vout[i]) && pcoin->vout[i].nValue >= nMinimumInputValue)
-                    //~ vCoins.push_back(COutput(pcoin, i, pcoin->GetDepthInMainChain()));
+            for (unsigned int i = 0; i < pcoin->vout.size(); i++)
+                if (!(pcoin->IsSpent(i)) && IsMine(pcoin->vout[i]) && pcoin->vout[i].nValue >= nMinimumInputValue)
+                    vCoins.push_back(COutput(pcoin, i, pcoin->GetDepthInMainChain()));
+        }
+    }
+}
+*/
+
+
+void CWallet::AvailableCoinsMinConf(std::vector<COutput>& vCoins, int nConf) const
+{
+    vCoins.clear();
+
+    {
+        LOCK2(cs_main, cs_wallet);
+        for (std::map<uint256, CWalletTx>::const_iterator it = mapWallet.begin(); it != mapWallet.end(); ++it)
+        {
+            const uint256& wtxid = it->first;
+            const CWalletTx* pcoin = &(*it).second;
+            
+            if (!CheckFinalTx(*pcoin->tx))
+                continue;
+            
+            int nDepth = pcoin->GetDepthInMainChain();
+
+            //if (nDepth < 1)
+            //    continue;
+
+            if (nDepth < nConf)
+                continue;
+
+            //if (pcoin->GetBlocksToMaturity() > 0)
+            //    continue;
+
+            for (unsigned int i = 0; i < pcoin->tx->vout.size(); i++) {
+                isminetype mine = IsMine(pcoin->tx->vout[i]);
+                bool fSpendableIn = ((mine & ISMINE_SPENDABLE) != ISMINE_NO) || (mine & ISMINE_WATCH_SOLVABLE) != ISMINE_NO;
+                bool fSolvableIn = (mine & (ISMINE_SPENDABLE | ISMINE_WATCH_SOLVABLE)) != ISMINE_NO;
+                if (!(IsSpent(wtxid, i)) && mine != ISMINE_NO && pcoin->tx->vout[i].nValue >= 0)
+                    vCoins.push_back(COutput(pcoin, i, nDepth, fSpendableIn, fSolvableIn, pcoin->IsTrusted()));
+            }
         }
     }
 }
@@ -2625,7 +2663,6 @@ bool CWallet::SelectCoinsSimple(int64_t nTargetValue, unsigned int nSpendTime, i
     setCoinsRet.clear();
     nValueRet = 0;
 
-    //BOOST_FOREACH(COutput output, vCoins)
     for(COutput output : vCoins)
     {
         const CWalletTx *pcoin = output.tx;
@@ -2634,12 +2671,12 @@ bool CWallet::SelectCoinsSimple(int64_t nTargetValue, unsigned int nSpendTime, i
         // Stop if we've chosen enough inputs
         if (nValueRet >= nTargetValue)
             break;
-/*
+
         // Follow the timestamp rules
-        if (pcoin->nTime > nSpendTime)
+        if (!output.fSpendable)
             continue;
 
-        int64_t n = pcoin->vout[i].nValue;
+        int64_t n = pcoin->tx->vout[i].nValue;
 
         std::pair<int64_t,std::pair<const CWalletTx*,unsigned int> > coin = std::make_pair(n,std::make_pair(pcoin, i));
         if (n >= nTargetValue)
@@ -2655,7 +2692,6 @@ bool CWallet::SelectCoinsSimple(int64_t nTargetValue, unsigned int nSpendTime, i
             setCoinsRet.insert(coin.second);
             nValueRet += coin.first;
         }
-        */
     }
 
     return true;
@@ -3191,15 +3227,17 @@ bool CWallet::GetStakeWeight(const CKeyStore& keystore, uint64_t& nMinWeight, ui
 
     std::set<std::pair<const CWalletTx*,unsigned int> > setCoins;
     int64_t nValueIn = 0;
-/*
-    if (!SelectCoinsSimple(nBalance - nReserveBalance, GetTime(), nCoinbaseMaturity + 10, setCoins, nValueIn))
+
+    if (!SelectCoinsSimple(nBalance - nReserveBalance, GetTime(), Params().GetConsensus().nCoinbaseMaturity + 10, setCoins, nValueIn))
         return false;
 
     if (setCoins.empty())
         return false;
-
+ 
+    /*
     CTxDB txdb("r");
-    BOOST_FOREACH(PAIRTYPE(const CWalletTx*, unsigned int) pcoin, setCoins)
+    //BOOST_FOREACH(PAIRTYPE(const CWalletTx*, unsigned int) pcoin, setCoins)
+    for(std::pair<const CWalletTx*,unsigned int> pcoin : setCoins)
     {
         CTxIndex txindex;
         {
@@ -3229,10 +3267,9 @@ bool CWallet::GetStakeWeight(const CKeyStore& keystore, uint64_t& nMinWeight, ui
             nMaxWeight += bnCoinDayWeight.getuint64();
         }
     }
-
+/*
     return true;
-    */
-    return false;
+
 }
 
 bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int64_t nSearchInterval, int64_t nFees, CTransaction& txNew, CKey& key)
