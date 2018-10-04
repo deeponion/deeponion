@@ -13,11 +13,12 @@
 class CSHA256
 {
 private:
-    uint32_t s[8];
     unsigned char buf[64];
     uint64_t bytes;
 
 public:
+    uint32_t s[8];
+    
     static const size_t OUTPUT_SIZE = 32;
 
     CSHA256();

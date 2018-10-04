@@ -10,6 +10,7 @@
 #include <consensus/consensus.h>
 #include <consensus/params.h>
 #include <consensus/validation.h>
+#include <consensus/merkle.h>
 #include <core_io.h>
 #include <init.h>
 #include <validation.h>
@@ -28,6 +29,28 @@
 
 #include <memory>
 #include <stdint.h>
+
+#define BEGIN(a)            ((char*)&(a))
+#define END(a)              ((char*)&((&(a))[1]))
+
+class submitblock_StateCatcher : public CValidationInterface
+{
+public:
+    uint256 hash;
+    bool found;
+    CValidationState state;
+
+    explicit submitblock_StateCatcher(const uint256 &hashIn) : hash(hashIn), found(false), state() {}
+
+protected:
+    void BlockChecked(const CBlock& block, const CValidationState& stateIn) override {
+        if (block.GetHash() != hash)
+            return;
+        found = true;
+        state = stateIn;
+    }
+};
+
 
 unsigned int ParseConfirmTarget(const UniValue& value)
 {
@@ -266,18 +289,32 @@ UniValue prioritisetransaction(const JSONRPCRequest& request)
 // NOTE: Assumes a conclusive result; if result is inconclusive, it must be handled by caller
 static UniValue BIP22ValidationResult(const CValidationState& state)
 {
+	LogPrintf(">> BIP22ValidationResult ok1\n");
     if (state.IsValid())
-        return NullUniValue;
+        return true;
 
     std::string strRejectReason = state.GetRejectReason();
+	LogPrintf(">> BIP22ValidationResult ok2, strRejectReason = %s\n", strRejectReason.c_str());
+
     if (state.IsError())
         throw JSONRPCError(RPC_VERIFY_ERROR, strRejectReason);
+    
+	LogPrintf(">> BIP22ValidationResult ok3\n");
+
     if (state.IsInvalid())
     {
+    	LogPrintf(">> BIP22ValidationResult ok40\n");
+
         if (strRejectReason.empty())
             return "rejected";
+        
+    	LogPrintf(">> BIP22ValidationResult ok4a\n");
+
         return strRejectReason;
     }
+    
+	LogPrintf(">> BIP22ValidationResult ok4\n");
+
     // Should be impossible
     return "valid?";
 }
@@ -291,8 +328,210 @@ std::string gbt_vb_name(const Consensus::DeploymentPos pos) {
     return s;
 }
 
+
+UniValue getwork(const JSONRPCRequest& request)
+{
+	LogPrintf("** getwork\n");
+	
+	if (request.fHelp || request.params.size() > 1)
+        throw std::runtime_error(
+            "getwork [data]\n"
+            "If [data] is not specified, returns formatted hash data to work on:\n"
+            "  \"midstate\" : precomputed hash state after hashing the first half of the data (DEPRECATED)\n" // deprecated
+            "  \"data\" : block data\n"
+            "  \"hash1\" : formatted hash buffer for second hash (DEPRECATED)\n" // deprecated
+            "  \"target\" : little endian hash target\n"
+            "If [data] is specified, tries to solve the block and returns true if it was successful.");
+
+    if (g_connman->GetNodeCount(CConnman::CONNECTIONS_ALL) == 0)
+        throw JSONRPCError(RPC_CLIENT_NOT_CONNECTED, "DeepOnion is not connected!");
+
+    if (IsInitialBlockDownload())
+        throw JSONRPCError(RPC_CLIENT_IN_INITIAL_DOWNLOAD, "DeepOnion is downloading blocks...");
+    
+    typedef std::map<uint256, std::pair<CBlock*, CScript>> mapNewBlock_t;
+    static mapNewBlock_t mapNewBlock;    // FIXME: thread safety
+    static std::vector<CBlock*> vNewBlock;
+    // static CReserveKey reservekey(pwalletMain);
+
+    if (request.params.size() == 0)
+    {
+    	LogPrintf(">> request.params.size() == 0\n");
+        const struct VBDeploymentInfo& segwit_info = VersionBitsDeploymentInfo[Consensus::DEPLOYMENT_SEGWIT];
+
+        // Update block
+        static unsigned int nTransactionsUpdatedLast;
+        static CBlockIndex* pindexPrev;
+        static int64_t nStart;
+        static std::unique_ptr<CBlockTemplate> pblocktemplate;
+        // Cache whether the last invocation was with segwit support, to avoid returning
+        // a segwit-block to a non-segwit caller.
+        static bool fLastTemplateSupportsSegwit = true;
+        if (pindexPrev != chainActive.Tip() ||
+        	(mempool.GetTransactionsUpdated() != nTransactionsUpdatedLast && GetTime() - nStart > 60))
+        {
+            if (pindexPrev != chainActive.Tip())
+            {
+                // Deallocate old blocks since they're obsolete now
+                mapNewBlock.clear();
+                for(CBlock* pblock: vNewBlock)
+                    delete pblock;
+                vNewBlock.clear();
+            }
+
+            // Clear pindexPrev so future getworks make a new block, despite any failures from here on
+            pindexPrev = nullptr;
+
+            // Store the pindexBest used before CreateNewBlock, to avoid races
+            nTransactionsUpdatedLast = mempool.GetTransactionsUpdated();
+            CBlockIndex* pindexPrevNew = chainActive.Tip();
+            nStart = GetTime();
+
+            // Create new block
+            CScript scriptDummy = CScript() << OP_TRUE;
+            pblocktemplate = BlockAssembler(Params()).CreateNewBlock(scriptDummy, false);
+            if (!pblocktemplate)
+                throw JSONRPCError(RPC_OUT_OF_MEMORY, "Out of memory");
+
+            // Need to update only after we know CreateNewBlock succeeded
+            pindexPrev = pindexPrevNew;
+        }
+
+        CBlock* pblock = &(pblocktemplate->block); // pointer for convenience
+        const Consensus::Params& consensusParams = Params().GetConsensus();
+
+        // Update nTime
+        UpdateTime(pblock, consensusParams, pindexPrev);
+        pblock->nNonce = 0;
+
+        // Update nExtraNonce
+        static unsigned int nExtraNonce = 0;
+        IncrementExtraNonce(pblock, pindexPrev, nExtraNonce);
+
+        // Save
+        mapNewBlock[pblock->hashMerkleRoot] = std::make_pair(pblock, pblock->vtx[0]->vin[0].scriptSig);
+
+        // Pre-build hash buffers
+        char pmidstate[32];
+        char pdata[128];
+        char phash1[64];
+        FormatHashBuffers(pblock, pmidstate, pdata, phash1);
+
+        arith_uint256 hashTarget0;
+        hashTarget0.SetCompact(pblock->nBits);
+        arith_uint256 hashTarget = hashTarget0;
+        LogPrintf(">> pblock->nBits = %08x\n", pblock->nBits);
+        
+        UniValue result(UniValue::VOBJ);
+        result.push_back(Pair("midstate", HexStr(BEGIN(pmidstate), END(pmidstate)))); 		// deprecated
+        result.push_back(Pair("data",     HexStr(BEGIN(pdata), END(pdata))));
+        result.push_back(Pair("hash1",    HexStr(BEGIN(phash1), END(phash1)))); 			// deprecated
+        result.push_back(Pair("target",   HexStr(BEGIN(hashTarget), END(hashTarget))));
+        
+        LogPrintf(">> midstate = %s\n", HexStr(BEGIN(pmidstate), END(pmidstate)).c_str());
+        LogPrintf(">> data = %s\n", HexStr(BEGIN(pdata), END(pdata)).c_str());
+        LogPrintf(">> hash1 = %s\n", HexStr(BEGIN(phash1), END(phash1)).c_str());
+        LogPrintf(">> target = %s\n", HexStr(BEGIN(hashTarget), END(hashTarget)).c_str());
+        
+        return result;
+    }
+    else
+    {
+    	LogPrintf(">> request.params.size() > 0\n");
+        // Parse parameters
+        std::vector<unsigned char> vchData = ParseHex(request.params[0].get_str());
+        if (vchData.size() != 128)
+            throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid parameter");
+        CBlock* pdata = (CBlock*)&vchData[0];
+        
+        // Byte reverse
+        for (int i = 0; i < 128/4; i++)
+            ((unsigned int*)pdata)[i] = ByteReverse(((unsigned int*)pdata)[i]);
+
+        // Get saved block
+        if (!mapNewBlock.count(pdata->hashMerkleRoot))
+            return false;
+        
+        CBlock* pblock = mapNewBlock[pdata->hashMerkleRoot].first;
+        pblock->nTime = pdata->nTime;
+        pblock->nNonce = pdata->nNonce;
+        CTxIn* pVin1 = (CTxIn*)(&pblock->vtx[0]->vin[0]);
+        pVin1->scriptSig = mapNewBlock[pdata->hashMerkleRoot].second;
+        pblock->hashMerkleRoot = BlockMerkleRoot(*pblock);
+
+        LogPrintf(">> Block version = %d\n", pblock->nVersion);
+        LogPrintf(">> Block hashPrevBlock = %s\n", pblock->hashPrevBlock.ToString().c_str());
+        LogPrintf(">> Block hashMerkleRoot = %s\n", pblock->hashMerkleRoot.ToString().c_str());
+        LogPrintf(">> Block nTime = %u\n", pblock->nTime);
+        LogPrintf(">> Block nBits = %08x\n", pblock->nBits);
+        LogPrintf(">> Block nNonce = %u\n", pblock->nNonce);
+        LogPrintf(">> Block vtx size = %d\n", pblock->vtx.size());
+        LogPrintf(">> Block vtx[0] = %s\n", pblock->vtx[0]->ToString().c_str());
+
+
+        if (pblock->vtx.empty() || !pblock->vtx[0]->IsCoinBase()) {
+        	LogPrintf("***** RPC_DESERIALIZATION_ERROR. Block does not start with a coinbase\n");
+            throw JSONRPCError(RPC_DESERIALIZATION_ERROR, "Block does not start with a coinbase");
+        }
+        
+        uint256 hash = pblock->GetHash();
+        LogPrintf(">> Block hash = %s\n", hash.ToString().c_str());
+        
+        bool fBlockPresent = false;
+        {
+            LOCK(cs_main);
+            BlockMap::iterator mi = mapBlockIndex.find(hash);
+            if (mi != mapBlockIndex.end()) {
+                CBlockIndex *pindex = mi->second;
+                if (pindex->IsValid(BLOCK_VALID_SCRIPTS)) {
+                    return "duplicate";
+                }
+                if (pindex->nStatus & BLOCK_FAILED_MASK) {
+                    return "duplicate-invalid";
+                }
+                // Otherwise, we might only have the header - process the block before returning
+                fBlockPresent = true;
+            }
+        }
+        LogPrintf(">> ok1 \n");
+
+        {
+            LOCK(cs_main);
+            BlockMap::iterator mi = mapBlockIndex.find(pblock->hashPrevBlock);
+            if (mi != mapBlockIndex.end()) {
+                UpdateUncommittedBlockStructures(*pblock, mi->second, Params().GetConsensus());
+            }
+        }
+
+        submitblock_StateCatcher sc(pblock->GetHash());
+        RegisterValidationInterface(&sc);
+        
+        std::shared_ptr<CBlock> blockptr = std::make_shared<CBlock>(*pblock);
+        bool fAccepted = ProcessNewBlock(Params(), (std::shared_ptr<const CBlock>)pblock, true, nullptr);
+        UnregisterValidationInterface(&sc);
+        LogPrintf(">> ok2 \n");
+        if (fBlockPresent) {
+            if (fAccepted && !sc.found) {
+                return "duplicate-inconclusive";
+            }
+            return "duplicate";
+        }
+        LogPrintf(">> ok3 \n");
+        if (!sc.found) {
+            return "inconclusive";
+        }
+        
+        LogPrintf(">> ok4 \n");
+        // return true;
+        return BIP22ValidationResult(sc.state);
+    }
+}
+
+
 UniValue getblocktemplate(const JSONRPCRequest& request)
 {
+	LogPrintf("** getblocktemplate\n");
+	
     if (request.fHelp || request.params.size() > 1)
         throw std::runtime_error(
             "getblocktemplate ( TemplateRequest )\n"
@@ -707,23 +946,6 @@ UniValue getblocktemplate(const JSONRPCRequest& request)
     return result;
 }
 
-class submitblock_StateCatcher : public CValidationInterface
-{
-public:
-    uint256 hash;
-    bool found;
-    CValidationState state;
-
-    explicit submitblock_StateCatcher(const uint256 &hashIn) : hash(hashIn), found(false), state() {}
-
-protected:
-    void BlockChecked(const CBlock& block, const CValidationState& stateIn) override {
-        if (block.GetHash() != hash)
-            return;
-        found = true;
-        state = stateIn;
-    }
-};
 
 UniValue submitblock(const JSONRPCRequest& request)
 {
@@ -1007,6 +1229,7 @@ static const CRPCCommand commands[] =
     { "mining",             "getmininginfo",          &getmininginfo,          {} },
     { "mining",             "prioritisetransaction",  &prioritisetransaction,  {"txid","dummy","fee_delta"} },
     { "mining",             "getblocktemplate",       &getblocktemplate,       {"template_request"} },
+    { "mining",             "getwork",                &getwork,                {"getwork","work"} },
     { "mining",             "submitblock",            &submitblock,            {"hexdata","dummy"} },
 
 
