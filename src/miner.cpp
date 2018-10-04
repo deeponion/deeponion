@@ -32,6 +32,10 @@
 #include <queue>
 #include <utility>
 
+#include <boost/thread.hpp>
+#include <boost/bind.hpp>
+
+
 //////////////////////////////////////////////////////////////////////////////
 //
 // BitcoinMiner
@@ -45,6 +49,7 @@
 
 uint64_t nLastBlockTx = 0;
 uint64_t nLastBlockWeight = 0;
+int64_t nLastCoinStakeSearchInterval = 0;
 
 int64_t UpdateTime(CBlockHeader* pblock, const Consensus::Params& consensusParams, const CBlockIndex* pindexPrev)
 {
@@ -461,7 +466,6 @@ void IncrementExtraNonce(CBlock* pblock, const CBlockIndex* pindexPrev, unsigned
     pblock->hashMerkleRoot = BlockMerkleRoot(*pblock);
 }
 
-
 void SHA256Transform(void* pstate, void* pinput)
 {
     CSHA256 sha256;
@@ -534,5 +538,43 @@ void FormatHashBuffers(CBlock* pblock, char* pmidstate, char* pdata, char* phash
 
     memcpy(pdata, &tmp.block, 128);
     memcpy(phash1, &tmp.hash1, 64);
+}
+
+
+void StakeMiner()
+{
+    try {
+    	LogPrint(BCLog::BENCH, "StakeMiner(): Starting Stake miner loop.\n");
+        while (true) {
+            MilliSleep(60000);
+        }
+    }
+	catch (const boost::thread_interrupted&)
+	{
+		LogPrint(BCLog::BENCH, "StakeMiner(): Stake miner loop interrupted.\n");
+	}
+	LogPrint(BCLog::BENCH, "StakeMiner(): Stake miner loop finished.\n");
+}
+
+static std::unique_ptr<boost::thread> upnp_thread;
+void StartThreadStakeMiner()
+{
+	LogPrint(BCLog::BENCH, "StartThreadStakeMiner(): Starting Stake miner.\n");
+	if (upnp_thread) {
+		upnp_thread->interrupt();
+		upnp_thread->join();
+	}
+	upnp_thread.reset(new boost::thread(boost::bind(&TraceThread<void (*)()>, "stake_miner", &StakeMiner)));
+	LogPrint(BCLog::BENCH, "StartThreadStakeMiner(): Started Stake miner.\n");
+}
+
+void StopThreadStakeMiner()
+{
+	LogPrint(BCLog::BENCH, "StopThreadStakeMiner(): Stopping Stake miner.\n");
+	if (upnp_thread) {
+		upnp_thread->interrupt();
+		upnp_thread->join();
+	}
+	LogPrint(BCLog::BENCH, "StopThreadStakeMiner(): Stopped Stake miner.\n");
 }
 

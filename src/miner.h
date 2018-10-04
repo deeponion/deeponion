@@ -199,5 +199,7 @@ int64_t UpdateTime(CBlockHeader* pblock, const Consensus::Params& consensusParam
 /** Do mining precalculation */
 void FormatHashBuffers(CBlock* pblock, char* pmidstate, char* pdata, char* phash1);
 
+void StartThreadStakeMiner();
+void StopThreadStakeMiner();
 
 #endif // BITCOIN_MINER_H
