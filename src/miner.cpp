@@ -31,6 +31,14 @@
 #include <queue>
 #include <utility>
 
+//#ifdef ENABLE_WALLET  FIXME: UNCOMMENT
+#include <wallet/wallet.h>
+//#endif FIXME: UNCOMMENT
+
+#include <boost/thread.hpp>
+#include <boost/bind.hpp>
+
+
 //////////////////////////////////////////////////////////////////////////////
 //
 // BitcoinMiner
@@ -459,4 +467,101 @@ void IncrementExtraNonce(CBlock* pblock, const CBlockIndex* pindexPrev, unsigned
 
     pblock->vtx[0] = MakeTransactionRef(std::move(txCoinbase));
     pblock->hashMerkleRoot = BlockMerkleRoot(*pblock);
+}
+
+void StakeMiner()
+{
+//#ifdef ENABLE_WALLET  FIXME: UNCOMMENT
+	bool fTryToSync = true;
+
+    try {
+    	LogPrint(BCLog::BENCH, "StakeMiner(): Starting Stake miner loop.\n");
+        SetThreadPriority(THREAD_PRIORITY_LOWEST);
+        while (true) {
+
+            while (vpwallets.empty() || vpwallets[0]->IsLocked())
+            {
+                nLastCoinStakeSearchInterval = 0;
+                MilliSleep(1000);
+            }
+
+            while (g_connman->GetNodeCount(CConnman::CONNECTIONS_ALL) == 0 || IsInitialBlockDownload())
+            {
+                nLastCoinStakeSearchInterval = 0;
+                fTryToSync = true;
+                MilliSleep(1000);
+            }
+
+            if (fTryToSync)
+            {
+            	CMedianFilter<int> cPeerBlockCounts(5, 0);
+            	g_connman->ForEachNode([&cPeerBlockCounts](CNode* pnode)
+            	    {
+            	        cPeerBlockCounts.input(pnode->nStartingHeight);
+            	    });
+
+                fTryToSync = false;
+                if (g_connman->GetNodeCount(CConnman::CONNECTIONS_ALL) < 3 || chainActive.Height() < std::max(cPeerBlockCounts.median(), Params().Checkpoints().mapCheckpoints.rbegin()->first))
+                {
+                    MilliSleep(60000);
+                    continue;
+                }
+            }
+
+            //
+            // Create new block
+            //
+// FIXME            int64_t nFees;
+//            auto_ptr<CBlock> pblock(CreateNewBlock(pwallet, true, &nFees));
+//            if (!pblock.get())
+//                return;
+
+            // Trying to sign a block
+// FIXME            if (pblock->SignBlock(*pwallet, nFees))
+            {
+                SetThreadPriority(THREAD_PRIORITY_NORMAL);
+// FIXME                CheckStake(pblock.get(), *pwallet);
+                SetThreadPriority(THREAD_PRIORITY_LOWEST);
+                MilliSleep(500);
+            }
+// FIXME            else
+//                MilliSleep(nMinerSleep);
+
+            // TODO: REMOVE THIS SLEEP!
+            MilliSleep(60000);
+        }
+    }
+	catch (const boost::thread_interrupted&)
+	{
+		LogPrint(BCLog::BENCH, "StakeMiner(): Stake miner loop interrupted.\n");
+	}
+	catch (const std::exception& e)
+	{
+		LogPrint(BCLog::BENCH, "StakeMiner() Got Error: %s\n", e.what());
+	}
+
+	LogPrint(BCLog::BENCH, "StakeMiner(): Stake miner loop finished.\n");
+// #endif FIXME: UNCOMMENT
+}
+
+static std::unique_ptr<boost::thread> stake_thread;
+void StartThreadStakeMiner()
+{
+	LogPrint(BCLog::BENCH, "StartThreadStakeMiner(): Starting Stake miner.\n");
+	if (stake_thread) {
+		stake_thread->interrupt();
+		stake_thread->join();
+	}
+	stake_thread.reset(new boost::thread(boost::bind(&TraceThread<void (*)()>, "DeepOnion-miner", &StakeMiner)));
+	LogPrint(BCLog::BENCH, "StartThreadStakeMiner(): Started Stake miner.\n");
+}
+
+void StopThreadStakeMiner()
+{
+	LogPrint(BCLog::BENCH, "StopThreadStakeMiner(): Stopping Stake miner.\n");
+	if (stake_thread) {
+		stake_thread->interrupt();
+		stake_thread->join();
+	}
+	LogPrint(BCLog::BENCH, "StopThreadStakeMiner(): Stopped Stake miner.\n");
 }
