@@ -1709,7 +1709,6 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
         int64_t nTimeOffset = nTime - GetTime();
         pfrom->nTimeOffset = nTimeOffset;
         AddTimeData(pfrom->addr, nTimeOffset);
-        }
 
         // Feeler connections exist only to verify if address is online.
         if (pfrom->fFeeler) {
