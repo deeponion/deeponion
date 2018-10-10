@@ -26,6 +26,8 @@
 #include <utilstrencodings.h>
 #include <validationinterface.h>
 #include <warnings.h>
+#include <wallet/rpcwallet.h>
+#include <wallet/wallet.h>
 
 #include <memory>
 #include <stdint.h>
@@ -289,32 +291,24 @@ UniValue prioritisetransaction(const JSONRPCRequest& request)
 // NOTE: Assumes a conclusive result; if result is inconclusive, it must be handled by caller
 static UniValue BIP22ValidationResult(const CValidationState& state)
 {
-	LogPrintf(">> BIP22ValidationResult ok1\n");
+	LogPrintf(">> BIP22ValidationResult\n");
     if (state.IsValid())
         return true;
 
     std::string strRejectReason = state.GetRejectReason();
-	LogPrintf(">> BIP22ValidationResult ok2, strRejectReason = %s\n", strRejectReason.c_str());
+	LogPrintf(">> BIP22ValidationResult strRejectReason = %s\n", strRejectReason.c_str());
 
     if (state.IsError())
         throw JSONRPCError(RPC_VERIFY_ERROR, strRejectReason);
     
-	LogPrintf(">> BIP22ValidationResult ok3\n");
-
     if (state.IsInvalid())
     {
-    	LogPrintf(">> BIP22ValidationResult ok40\n");
-
         if (strRejectReason.empty())
             return "rejected";
-        
-    	LogPrintf(">> BIP22ValidationResult ok4a\n");
 
         return strRejectReason;
     }
     
-	LogPrintf(">> BIP22ValidationResult ok4\n");
-
     // Should be impossible
     return "valid?";
 }
@@ -349,10 +343,13 @@ UniValue getwork(const JSONRPCRequest& request)
     if (IsInitialBlockDownload())
         throw JSONRPCError(RPC_CLIENT_IN_INITIAL_DOWNLOAD, "DeepOnion is downloading blocks...");
     
+    LOCK(cs_main);
+    
+    CWallet * const pwallet = GetWalletForJSONRPCRequest(request);
+    
     typedef std::map<uint256, std::pair<CBlock*, CScript>> mapNewBlock_t;
     static mapNewBlock_t mapNewBlock;    // FIXME: thread safety
     static std::vector<CBlock*> vNewBlock;
-    // static CReserveKey reservekey(pwalletMain);
 
     if (request.params.size() == 0)
     {
@@ -364,15 +361,22 @@ UniValue getwork(const JSONRPCRequest& request)
         static CBlockIndex* pindexPrev;
         static int64_t nStart;
         static std::unique_ptr<CBlockTemplate> pblocktemplate;
+        
         // Cache whether the last invocation was with segwit support, to avoid returning
         // a segwit-block to a non-segwit caller.
         static bool fLastTemplateSupportsSegwit = true;
         if (pindexPrev != chainActive.Tip() ||
         	(mempool.GetTransactionsUpdated() != nTransactionsUpdatedLast && GetTime() - nStart > 60))
         {
+        	LogPrintf(">> Need update pindexPrev etc\n");
+        	if(pindexPrev != nullptr)
+        		LogPrintf(">> pindexPrev.Tip() height is %d\n", pindexPrev->nHeight);
+        	if(chainActive.Tip() != nullptr)
+        		LogPrintf(">> chainActive.Tip() height is %d\n", chainActive.Tip()->nHeight);
             if (pindexPrev != chainActive.Tip())
             {
                 // Deallocate old blocks since they're obsolete now
+            	LogPrintf(">> Deallocate old blocks since they're obsolete now\n");
                 mapNewBlock.clear();
                 for(CBlock* pblock: vNewBlock)
                     delete pblock;
@@ -388,8 +392,13 @@ UniValue getwork(const JSONRPCRequest& request)
             nStart = GetTime();
 
             // Create new block
-            CScript scriptDummy = CScript() << OP_TRUE;
-            pblocktemplate = BlockAssembler(Params()).CreateNewBlock(scriptDummy, false);
+            CReserveKey reservekey(pwallet);
+            CPubKey vchPubKey;
+            if (!reservekey.GetReservedKey(vchPubKey, true))
+                throw JSONRPCError(RPC_WALLET_KEYPOOL_RAN_OUT, "Error: Keypool ran out, please call keypoolrefill first");
+            
+            CScript script0 = CScript() << OP_DUP << OP_HASH160 << vchPubKey.GetID() << OP_EQUALVERIFY << OP_CHECKSIG;
+            pblocktemplate = BlockAssembler(Params()).CreateNewBlock(script0, false);
             if (!pblocktemplate)
                 throw JSONRPCError(RPC_OUT_OF_MEMORY, "Out of memory");
 
@@ -410,6 +419,7 @@ UniValue getwork(const JSONRPCRequest& request)
 
         // Save
         mapNewBlock[pblock->hashMerkleRoot] = std::make_pair(pblock, pblock->vtx[0]->vin[0].scriptSig);
+        LogPrintf(">> pblock->vtx[0]->vin[0].scriptSig = %s\n", pblock->vtx[0]->vin[0].scriptSig.ToString().c_str());
 
         // Pre-build hash buffers
         char pmidstate[32];
@@ -417,10 +427,18 @@ UniValue getwork(const JSONRPCRequest& request)
         char phash1[64];
         FormatHashBuffers(pblock, pmidstate, pdata, phash1);
 
-        arith_uint256 hashTarget0;
-        hashTarget0.SetCompact(pblock->nBits);
-        arith_uint256 hashTarget = hashTarget0;
-        LogPrintf(">> pblock->nBits = %08x\n", pblock->nBits);
+        arith_uint256 hashTarget;
+        hashTarget.SetCompact(pblock->nBits);
+
+        LogPrintf(">> Block version = %d\n", pblock->nVersion);
+        LogPrintf(">> Block hashPrevBlock = %s\n", pblock->hashPrevBlock.ToString().c_str());
+        LogPrintf(">> Block hashMerkleRoot = %s\n", pblock->hashMerkleRoot.ToString().c_str());
+        LogPrintf(">> Block nTime = %u\n", pblock->nTime);
+        LogPrintf(">> Block nBits = %08x\n", pblock->nBits);
+        LogPrintf(">> Block nNonce = %u\n", pblock->nNonce);
+        LogPrintf(">> Block vtx size = %d\n", pblock->vtx.size());
+        LogPrintf(">> Block vtx[0] = %s\n", pblock->vtx[0]->ToString().c_str());
+        LogPrintf(">> Block hashTarget = %s\n", hashTarget.ToString().c_str());
         
         UniValue result(UniValue::VOBJ);
         result.push_back(Pair("midstate", HexStr(BEGIN(pmidstate), END(pmidstate)))); 		// deprecated
@@ -455,8 +473,11 @@ UniValue getwork(const JSONRPCRequest& request)
         CBlock* pblock = mapNewBlock[pdata->hashMerkleRoot].first;
         pblock->nTime = pdata->nTime;
         pblock->nNonce = pdata->nNonce;
-        CTxIn* pVin1 = (CTxIn*)(&pblock->vtx[0]->vin[0]);
-        pVin1->scriptSig = mapNewBlock[pdata->hashMerkleRoot].second;
+        std::shared_ptr<const CTransaction> pVtx0 = pblock->vtx[0];
+        CMutableTransaction cmtv0(*pVtx0); 
+        cmtv0.vin[0].scriptSig = mapNewBlock[pdata->hashMerkleRoot].second;
+        pblock->vtx[0] = MakeTransactionRef(std::move(cmtv0));
+        LogPrintf(">> pblock->vtx[0]->vin[0].scriptSig = %s\n", pblock->vtx[0]->vin[0].scriptSig.ToString().c_str());
         pblock->hashMerkleRoot = BlockMerkleRoot(*pblock);
 
         LogPrintf(">> Block version = %d\n", pblock->nVersion);
@@ -467,7 +488,6 @@ UniValue getwork(const JSONRPCRequest& request)
         LogPrintf(">> Block nNonce = %u\n", pblock->nNonce);
         LogPrintf(">> Block vtx size = %d\n", pblock->vtx.size());
         LogPrintf(">> Block vtx[0] = %s\n", pblock->vtx[0]->ToString().c_str());
-
 
         if (pblock->vtx.empty() || !pblock->vtx[0]->IsCoinBase()) {
         	LogPrintf("***** RPC_DESERIALIZATION_ERROR. Block does not start with a coinbase\n");
@@ -493,7 +513,6 @@ UniValue getwork(const JSONRPCRequest& request)
                 fBlockPresent = true;
             }
         }
-        LogPrintf(">> ok1 \n");
 
         {
             LOCK(cs_main);
@@ -509,20 +528,18 @@ UniValue getwork(const JSONRPCRequest& request)
         std::shared_ptr<CBlock> blockptr = std::make_shared<CBlock>(*pblock);
         bool fAccepted = ProcessNewBlock(Params(), (std::shared_ptr<const CBlock>)pblock, true, nullptr);
         UnregisterValidationInterface(&sc);
-        LogPrintf(">> ok2 \n");
+
         if (fBlockPresent) {
             if (fAccepted && !sc.found) {
                 return "duplicate-inconclusive";
             }
             return "duplicate";
         }
-        LogPrintf(">> ok3 \n");
+
         if (!sc.found) {
             return "inconclusive";
         }
         
-        LogPrintf(">> ok4 \n");
-        // return true;
         return BIP22ValidationResult(sc.state);
     }
 }
@@ -735,6 +752,8 @@ UniValue getblocktemplate(const JSONRPCRequest& request)
         // TODO: Maybe recheck connections/IBD and (if something wrong) send an expires-immediately template to stop miners?
     }
 
+    CWallet * const pwallet = GetWalletForJSONRPCRequest(request);
+
     const struct VBDeploymentInfo& segwit_info = VersionBitsDeploymentInfo[Consensus::DEPLOYMENT_SEGWIT];
     // If the caller is indicating segwit support, then allow CreateNewBlock()
     // to select witness transactions, after segwit activates (otherwise
@@ -762,8 +781,13 @@ UniValue getblocktemplate(const JSONRPCRequest& request)
         fLastTemplateSupportsSegwit = fSupportsSegwit;
 
         // Create new block
-        CScript scriptDummy = CScript() << OP_TRUE;
-        pblocktemplate = BlockAssembler(Params()).CreateNewBlock(scriptDummy, fSupportsSegwit);
+        CReserveKey reservekey(pwallet);
+        CPubKey vchPubKey;
+        if (!reservekey.GetReservedKey(vchPubKey, true))
+            throw JSONRPCError(RPC_WALLET_KEYPOOL_RAN_OUT, "Error: Keypool ran out, please call keypoolrefill first");
+        
+        CScript script0 = CScript() << OP_DUP << OP_HASH160 << vchPubKey.GetID() << OP_EQUALVERIFY << OP_CHECKSIG;
+        pblocktemplate = BlockAssembler(Params()).CreateNewBlock(script0, fSupportsSegwit);
         if (!pblocktemplate)
             throw JSONRPCError(RPC_OUT_OF_MEMORY, "Out of memory");
 

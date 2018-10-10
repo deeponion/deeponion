@@ -9,6 +9,8 @@
 #include <crypto/common.h>
 #include <prevector.h>
 #include <serialize.h>
+#include <utilstrencodings.h>
+#include <uint256.h>
 
 #include <assert.h>
 #include <climits>
@@ -385,6 +387,7 @@ private:
  */
 typedef prevector<28, unsigned char> CScriptBase;
 
+
 /** Serialized script, used inside transaction inputs and outputs */
 class CScript : public CScriptBase
 {
@@ -405,6 +408,7 @@ protected:
         }
         return *this;
     }
+    
 public:
     CScript() { }
     CScript(const_iterator pbegin, const_iterator pend) : CScriptBase(pbegin, pend) { }
@@ -418,6 +422,7 @@ public:
         READWRITE(static_cast<CScriptBase&>(*this));
     }
 
+    
     CScript& operator+=(const CScript& b)
     {
         reserve(size() + b.size());
@@ -438,7 +443,6 @@ public:
     explicit CScript(const CScriptNum& b) { operator<<(b); }
     explicit CScript(const std::vector<unsigned char>& b) { operator<<(b); }
 
-
     CScript& operator<<(int64_t b) { return push_int64(b); }
 
     CScript& operator<<(opcodetype opcode)
@@ -452,6 +456,13 @@ public:
     CScript& operator<<(const CScriptNum& b)
     {
         *this << b.getvch();
+        return *this;
+    }
+
+    CScript& operator<<(const uint160& b)
+    {
+        insert(end(), sizeof(b));
+        insert(end(), (unsigned char*)&b, (unsigned char*)&b + sizeof(b));
         return *this;
     }
 
@@ -666,6 +677,29 @@ public:
         // The default prevector::clear() does not release memory
         CScriptBase::clear();
         shrink_to_fit();
+    }
+    
+    std::string ToString() const
+    {
+        std::string str;
+        opcodetype opcode;
+        std::vector<unsigned char> vch;
+        const_iterator pc = begin();
+        while (pc < end())
+        {
+            if (!str.empty())
+                str += " ";
+            if (!GetOp(pc, opcode, vch))
+            {
+                str += "[error]";
+                return str;
+            }
+            if (0 <= opcode && opcode <= OP_PUSHDATA4)
+            	str += HexStr(vch);
+            else
+                str += GetOpName(opcode);
+        }
+        return str;
     }
 };
 
