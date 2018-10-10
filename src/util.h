@@ -19,6 +19,7 @@
 #include <sync.h>
 #include <tinyformat.h>
 #include <utiltime.h>
+#include <sys/resource.h>
 
 #include <atomic>
 #include <exception>
