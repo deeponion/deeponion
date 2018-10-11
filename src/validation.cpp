@@ -1217,7 +1217,7 @@ int GetPosHeight(const CBlockIndex* pindex)
 {
 	int powH = GetPowHeight(pindex);
 	int posH = pindex->nHeight - powH;
-	LogPrintf(">> nHeight = %d, nPoWHeight = %d\n", pindex->nHeight, powH);
+	// LogPrintf(">> nHeight = %d, nPoWHeight = %d\n", pindex->nHeight, powH);
 	return posH;
 }
 
@@ -3197,7 +3197,7 @@ static bool CheckBlockHeader(const CBlockHeader& block, CValidationState& state,
 
 bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::Params& consensusParams, bool fCheckPOW, bool fCheckMerkleRoot)
 {
-	// LogPrintf(">> CheckBlock\n");
+	LogPrintf(">> CheckBlock\n");
     // These are checks that are independent of context.
 
     if (block.fChecked)
@@ -3525,7 +3525,6 @@ static bool ContextualCheckBlock(const CBlock& block, CValidationState& state, c
 bool CChainState::AcceptBlockHeader(const CBlockHeader& block, CValidationState& state, const CChainParams& chainparams, CBlockIndex** ppindex)
 {
 	// LogPrintf(">> AcceptBlockHeader\n");
-	
     AssertLockHeld(cs_main);
     // Check for duplicate
     uint256 hash = block.GetHash();
@@ -3575,7 +3574,7 @@ bool CChainState::AcceptBlockHeader(const CBlockHeader& block, CValidationState&
     }
     if (pindex == nullptr) {
         pindex = AddToBlockIndex(block);
-        // LogPrintf(">> Add to block index. height = %d\n", pindex->nHeight);
+        LogPrintf(">> Add to block index. height = %d\n", pindex->nHeight);
     }
 
     if (ppindex)
@@ -3630,7 +3629,7 @@ static CDiskBlockPos SaveBlockToDisk(const CBlock& block, int nHeight, const CCh
 /** Store block on disk. If dbp is non-nullptr, the file is known to already reside on disk */
 bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CValidationState& state, const CChainParams& chainparams, CBlockIndex** ppindex, bool fRequested, const CDiskBlockPos* dbp, bool* fNewBlock)
 {
-	// LogPrintf(">> AcceptBlock\n");
+	LogPrintf(">> AcceptBlock\n");
     const CBlock& block = *pblock;
 
     if (fNewBlock) *fNewBlock = false;
@@ -3642,7 +3641,7 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CVali
     if (!AcceptBlockHeader(block, state, chainparams, &pindex))
     	return false;
 
-	LogPrintf(">> Block-height = %d\n", pindex->nHeight);
+	LogPrintf(">> AcceptBlock: Block-height = %d\n", pindex->nHeight);
 	
     // Try to process all requested blocks that we don't have, but only
     // process an unrequested block if it's new and has enough work to
@@ -3689,10 +3688,13 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CVali
     // process PoS block, add needed info to CBlockIndex
     if (block.IsProofOfStake())
     {
+    	LogPrintf(">> Block is PoS\n");
     	pindex->nFlags |= CBlockIndex::BLOCK_PROOF_OF_STAKE;
     	pindex->prevoutStake = block.vtx[1]->vin[0].prevout;
     	pindex->nStakeTime = block.vtx[1]->nTime;
     }
+    else
+    	LogPrintf(">> Block is PoW\n");
     
     {
     	LOCK(cs_stakeHandling);
@@ -3717,7 +3719,7 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CVali
     		LogPrintf(">> Current LastProcessedStakeModifierBlock = %d\n", lastProcessedStakeModifierBlock);
     		pWalking = pWalking->pnext;
     		int expectedHeight = pindex->nHeight;
-    		LogPrintf(">> Expected-Height = %d\n", expectedHeight);
+    		LogPrintf(">> Expected-Height (current height) = %d\n", expectedHeight);
     		CBlock* pBlock0 = nullptr;
     		if(pWalking == nullptr)
     			return error("AcceptBlock(): pWalking == nullptr\n");
@@ -3853,8 +3855,10 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CVali
 
     // Header is valid/has work, merkle tree and segwit merkle tree are good...RELAY NOW
     // (but if it does not build on our best tip, let the SendMessages loop relay it)
-    if (!IsInitialBlockDownload() && chainActive.Tip() == pindex->pprev)
+    if (!IsInitialBlockDownload() && chainActive.Tip() == pindex->pprev) {
+    	LogPrintf(">> calling GetMainSignals().NewPoWValidBlock(pindex, pblock).")
         GetMainSignals().NewPoWValidBlock(pindex, pblock);
+    }
 
     // Write block to history file
     try {
@@ -3873,6 +3877,7 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CVali
         FlushStateToDisk(chainparams, state, FLUSH_STATE_NONE); // we just allocated more disk space for block files
 
     CheckBlockIndex(chainparams.GetConsensus());
+	LogPrintf(">> Exit AcceptBlock\n");
 
     return true;
 }
@@ -3902,7 +3907,8 @@ bool CChainState::ComputeStakeModifier(CBlockIndex* pindex, const CBlock& block,
 
 bool ProcessNewBlock(const CChainParams& chainparams, const std::shared_ptr<const CBlock> pblock, bool fForceProcessing, bool *fNewBlock)
 {
-	// LogPrintf(">> ProcessNewBlock\n");
+	LogPrintf(">> ProcessNewBlock\n");
+    LogPrintf(">> ProcessNewBlock, start chainActive height = %d\n", chainActive.Tip()->nHeight);    
     AssertLockNotHeld(cs_main);
 
     {
@@ -3924,13 +3930,16 @@ bool ProcessNewBlock(const CChainParams& chainparams, const std::shared_ptr<cons
             return error("%s: AcceptBlock FAILED (%s)", __func__, state.GetDebugMessage());
         }
     }
-
+    
+    LogPrintf(">> ProcessNewBlock, about NotifyHeaderTip\n");
     NotifyHeaderTip();
 
     CValidationState state; // Only used to report errors, not invalidity - ignore it
     if (!g_chainstate.ActivateBestChain(state, chainparams, pblock))
         return error("%s: ActivateBestChain failed", __func__);
 
+    LogPrintf(">> ProcessNewBlock, end chainActive height = %d\n", chainActive.Tip()->nHeight);    
+    LogPrintf(">> ProcessNewBlock, completed\n");
     return true;
 }
 

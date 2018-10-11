@@ -890,6 +890,14 @@ void PeerLogicValidation::NewPoWValidBlock(const CBlockIndex *pindex, const std:
             connman->PushMessage(pnode, msgMaker.Make(NetMsgType::CMPCTBLOCK, *pcmpctblock));
             state.pindexBestHeaderSent = pindex;
         }
+        
+        // for old client send inv message
+        if(pnode->nVersion < PROTOCOL_VERSION) 
+        {
+            std::vector<CInv> vInv;
+            vInv.push_back(CInv(MSG_BLOCK, chainActive.Tip()->GetBlockHash()));
+            connman->PushMessage(pnode, msgMaker.Make(NetMsgType::INV, vInv));
+        }
     });
 }
 
@@ -1123,7 +1131,9 @@ void static ProcessGetBlockData(CNode* pfrom, const Consensus::Params& consensus
             pblock = pblockRead;
         }
         if (inv.type == MSG_BLOCK)
+        {
             connman->PushMessage(pfrom, msgMaker.Make(SERIALIZE_TRANSACTION_NO_WITNESS, NetMsgType::BLOCK, *pblock));
+        }
         else if (inv.type == MSG_WITNESS_BLOCK)
             connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::BLOCK, *pblock));
         else if (inv.type == MSG_FILTERED_BLOCK)
