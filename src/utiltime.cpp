@@ -85,3 +85,9 @@ std::string DateTimeStrFormat(const char* pszFormat, int64_t nTime)
     ss << boost::posix_time::from_time_t(nTime);
     return ss.str();
 }
+
+int64_t PastDrift(int64_t nTime)
+{
+	return nTime - 2 * 60 * 60;
+}
+

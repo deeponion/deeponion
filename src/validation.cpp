@@ -47,7 +47,6 @@
 
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/algorithm/string/join.hpp>
-#include <boost/foreach.hpp>
 #include <boost/thread.hpp>
 
 #if defined(NDEBUG)
@@ -1924,7 +1923,7 @@ bool GetCoinAge(uint64_t& nCoinAge, const CTransaction *tx)
     if (tx->IsCoinBase())
         return true;
 
-    BOOST_FOREACH(const CTxIn& txin, tx->vin)
+    for(const CTxIn& txin : tx->vin)
     {
         // First try finding the previous transaction in database
         CTransactionRef txPrev;

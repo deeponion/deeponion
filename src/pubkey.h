@@ -112,6 +112,27 @@ public:
         return a.vch[0] == b.vch[0] &&
                memcmp(a.vch, b.vch, a.size()) == 0;
     }
+
+    friend bool operator==(const CPubKey& a, const std::vector<unsigned char>& b)
+    {
+    	if(a.size() != b.size()) {
+    		return false;
+    	}
+
+    	for (unsigned int i = 0; i < a.size(); i++) {
+    	    if(a.vch[i] != b[i])
+			{
+    	    	return false;
+			}
+    	}
+        return true;
+    }
+
+    friend bool operator!=(const CPubKey& a, const std::vector<unsigned char>& b)
+    {
+    	return !(a == b);
+    }
+
     friend bool operator!=(const CPubKey& a, const CPubKey& b)
     {
         return !(a == b);

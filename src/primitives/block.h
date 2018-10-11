@@ -151,6 +151,16 @@ public:
     }
 
     std::string ToString() const;
+
+    // DeepOnion: get max transaction timestamp
+    int64_t GetMaxTransactionTime() const
+    {
+        int64_t maxTransactionTime = 0;
+        for(const CTransactionRef& tx : vtx)
+            maxTransactionTime = std::max(maxTransactionTime, (int64_t)tx->nTime);
+        return maxTransactionTime;
+    }
+
 };
 
 /** Describes a place in the block chain to another node such that if the

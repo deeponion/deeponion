@@ -16,6 +16,7 @@
 #include <hash.h>
 #include <crypto/scrypt.h>
 #include <validation.h>
+#include <merkleblock.h>
 #include <net.h>
 #include <policy/feerate.h>
 #include <policy/policy.h>
@@ -26,6 +27,8 @@
 #include <util.h>
 #include <utilmoneystr.h>
 #include <validationinterface.h>
+#include <utiltime.h>
+
 
 #include <algorithm>
 #include <queue>
@@ -115,7 +118,7 @@ void BlockAssembler::resetBlock()
     nFees = 0;
 }
 
-std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bool fMineWitnessTx)
+std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bool fMineWitnessTx, bool fProofOfStake, CAmount* pFees)
 {
     int64_t nTimeStart = GetTimeMicros();
 
@@ -173,12 +176,23 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
     coinbaseTx.vin.resize(1);
     coinbaseTx.vin[0].prevout.SetNull();
     coinbaseTx.vout.resize(1);
-    coinbaseTx.vout[0].scriptPubKey = scriptPubKeyIn;
-    coinbaseTx.vout[0].nValue = nFees + GetBlockSubsidy(nHeight, chainparams.GetConsensus());
-    coinbaseTx.vin[0].scriptSig = CScript() << nHeight << OP_0;
-    pblock->vtx[0] = MakeTransactionRef(std::move(coinbaseTx));
+    coinbaseTx.vout[0].nValue = 0;
+	coinbaseTx.vout[0].scriptPubKey = scriptPubKeyIn;
+
+	if(!fProofOfStake) {
+		coinbaseTx.vout[0].nValue = nFees + GetBlockSubsidy(nHeight, chainparams.GetConsensus());
+		coinbaseTx.vin[0].scriptSig = CScript() << nHeight << OP_0;
+	}
+
+	// TODO: DeepOnion: CHECK THIS
+	pblock->vtx[0] = MakeTransactionRef(std::move(coinbaseTx));
     pblocktemplate->vchCoinbaseCommitment = GenerateCoinbaseCommitment(*pblock, pindexPrev, chainparams.GetConsensus());
-    pblocktemplate->vTxFees[0] = -nFees;
+
+    if(!fProofOfStake) {
+    	pblocktemplate->vTxFees[0] = -nFees;
+    } else if (pFees) {
+    	*pFees = nFees;
+    }
 
     LogPrintf("CreateNewBlock(): block weight: %u txs: %u fees: %ld sigops %d\n", GetBlockWeight(*pblock), nBlockTx, nFees, nBlockSigOpsCost);
 
@@ -469,13 +483,65 @@ void IncrementExtraNonce(CBlock* pblock, const CBlockIndex* pindexPrev, unsigned
     pblock->hashMerkleRoot = BlockMerkleRoot(*pblock);
 }
 
+// DeepOnion: attempt to generate suitable proof-of-stake
+bool SignBlock(CBlock& block, CWallet& wallet, CAmount nFees)
+{
+    // if we are trying to sign
+    //    something except proof-of-stake block template
+    if (!block.vtx[0]->vout[0].IsEmpty())
+        return false;
+
+    // if we are trying to sign
+    //    a complete proof-of-stake block
+    if (block.IsProofOfStake())
+        return true;
+
+    static int64_t nLastCoinStakeSearchTime = GetAdjustedTime(); // startup timestamp
+
+    CKey key;
+    CMutableTransaction txCoinStake;
+    int64_t nSearchTime = txCoinStake.nTime; // search to current time
+
+    if (nSearchTime > nLastCoinStakeSearchTime)
+    {
+        if (wallet.CreateCoinStake(wallet, block.nBits, nSearchTime-nLastCoinStakeSearchTime, nFees, txCoinStake, key))
+        {
+            if (txCoinStake.nTime >= std::max(pindexBestHeader->GetPastTimeLimit()+1, PastDrift(pindexBestHeader->GetBlockTime())))
+            {
+            	CMutableTransaction input0(*block.vtx[0]);
+                // make sure coinstake would meet timestamp protocol
+                //    as it would be the same as the block timestamp
+            	input0.nTime = block.nTime = txCoinStake.nTime;
+            	block.vtx[0] = MakeTransactionRef(std::move(input0));
+            	block.nTime = std::max(pindexBestHeader->GetPastTimeLimit()+1, block.GetMaxTransactionTime());
+            	block.nTime = std::max(block.GetBlockTime(), PastDrift(pindexBestHeader->GetBlockTime()));
+
+                // we have to make sure that we have no future timestamps in
+                //    our transactions set
+                for (std::vector<CTransactionRef>::iterator it = block.vtx.begin(); it != block.vtx.end();)
+                    if (it->get()->nTime > block.nTime) { it = block.vtx.erase(it); } else { ++it; }
+
+                block.vtx.insert(block.vtx.begin() + 1, MakeTransactionRef(std::move(txCoinStake)));
+                block.hashMerkleRoot = BlockMerkleRoot(block);
+
+                // append a signature to our block
+                return key.Sign(block.GetHash(), block.vchBlockSig);
+            }
+        }
+        nLastCoinStakeSearchInterval = nSearchTime - nLastCoinStakeSearchTime;
+        nLastCoinStakeSearchTime = nSearchTime;
+    }
+
+    return false;
+}
+
 void StakeMiner()
 {
 //#ifdef ENABLE_WALLET  FIXME: UNCOMMENT
 	bool fTryToSync = true;
 
     try {
-    	LogPrint(BCLog::BENCH, "StakeMiner(): Starting Stake miner loop.\n");
+    	LogPrint(BCLog::POS, "StakeMiner(): Starting Stake miner loop.\n");
         SetThreadPriority(THREAD_PRIORITY_LOWEST);
         while (true) {
 
@@ -511,13 +577,27 @@ void StakeMiner()
             //
             // Create new block
             //
-// FIXME            int64_t nFees;
-//            auto_ptr<CBlock> pblock(CreateNewBlock(pwallet, true, &nFees));
-//            if (!pblock.get())
-//                return;
+            CAmount nFees;
+
+            // DeepOnion: This appears to obtain a reserved script in
+            // the same way as the old code does in the CreateNewBlock function.
+            std::shared_ptr<CReserveScript> coinbase_script;
+            vpwallets[0]->GetScriptForMining(coinbase_script);
+
+            // If the keypool is exhausted, no script is returned at all.  Catch this.
+            if (!coinbase_script || coinbase_script->reserveScript.empty()) {
+            	MilliSleep(1000);
+            	continue;
+            }
+
+
+            std::unique_ptr<CBlockTemplate> pblocktemplate(BlockAssembler(Params()).CreateNewBlock(coinbase_script->reserveScript, true, true, &nFees));
+
+            if (!pblocktemplate.get())
+                return;
 
             // Trying to sign a block
-// FIXME            if (pblock->SignBlock(*pwallet, nFees))
+            if (SignBlock(pblocktemplate->block, *vpwallets[0], nFees))
             {
                 SetThreadPriority(THREAD_PRIORITY_NORMAL);
 // FIXME                CheckStake(pblock.get(), *pwallet);
@@ -533,35 +613,35 @@ void StakeMiner()
     }
 	catch (const boost::thread_interrupted&)
 	{
-		LogPrint(BCLog::BENCH, "StakeMiner(): Stake miner loop interrupted.\n");
+		LogPrint(BCLog::POS, "StakeMiner(): Stake miner loop interrupted.\n");
 	}
 	catch (const std::exception& e)
 	{
-		LogPrint(BCLog::BENCH, "StakeMiner() Got Error: %s\n", e.what());
+		LogPrint(BCLog::POS, "StakeMiner() Got Error: %s\n", e.what());
 	}
 
-	LogPrint(BCLog::BENCH, "StakeMiner(): Stake miner loop finished.\n");
+	LogPrint(BCLog::POS, "StakeMiner(): Stake miner loop finished.\n");
 // #endif FIXME: UNCOMMENT
 }
 
 static std::unique_ptr<boost::thread> stake_thread;
 void StartThreadStakeMiner()
 {
-	LogPrint(BCLog::BENCH, "StartThreadStakeMiner(): Starting Stake miner.\n");
+	LogPrint(BCLog::POS, "StartThreadStakeMiner(): Starting Stake miner.\n");
 	if (stake_thread) {
 		stake_thread->interrupt();
 		stake_thread->join();
 	}
 	stake_thread.reset(new boost::thread(boost::bind(&TraceThread<void (*)()>, "DeepOnion-miner", &StakeMiner)));
-	LogPrint(BCLog::BENCH, "StartThreadStakeMiner(): Started Stake miner.\n");
+	LogPrint(BCLog::POS, "StartThreadStakeMiner(): Started Stake miner.\n");
 }
 
 void StopThreadStakeMiner()
 {
-	LogPrint(BCLog::BENCH, "StopThreadStakeMiner(): Stopping Stake miner.\n");
+	LogPrint(BCLog::POS, "StopThreadStakeMiner(): Stopping Stake miner.\n");
 	if (stake_thread) {
 		stake_thread->interrupt();
 		stake_thread->join();
 	}
-	LogPrint(BCLog::BENCH, "StopThreadStakeMiner(): Stopped Stake miner.\n");
+	LogPrint(BCLog::POS, "StopThreadStakeMiner(): Stopped Stake miner.\n");
 }
