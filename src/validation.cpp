@@ -3258,6 +3258,7 @@ bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::P
     // special check for pos blocks
     if (block.IsProofOfStake())
     {
+    	LogPrint(BCLog::POS, "CheckBlock(): block.vtx[0]->vout.size() %d block.IsProofOfStake() block.vtx[0]->vout[0].nValue %d block.vtx[0]->vout[0].scriptPubKey.empty() %s block.vtx[0]->vout[0].IsEmpty() %s \n", block.vtx[0]->vout.size(), block.vtx[0]->vout[0].nValue, block.vtx[0]->vout[0].scriptPubKey.empty() ? "EMPTY" : "NOT EMPTY", block.vtx[0]->vout[0].IsEmpty() ? "EMPTY" : "NOT EMPTY");
         // Coinbase output should be empty if proof-of-stake block
 		if (block.vtx[0]->vout.size() != 1 || !block.vtx[0]->vout[0].IsEmpty())
 			return state.DoS(100, false, REJECT_INVALID, "pos-blk-wrong", false, "coinbase output not empty for pos block");
@@ -3284,24 +3285,37 @@ bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::P
 
 bool CheckBlockSignature(const CBlock& block)
 {
-    if (block.IsProofOfWork())
+	LogPrint(BCLog::POS, "CheckBlock(): CheckBlockSignature 1\n");
+    if (block.IsProofOfWork()) {
+    	LogPrint(BCLog::POS, "CheckBlock(): CheckBlockSignature 2\n");
         return block.vchBlockSig.empty();
+    }
+	LogPrint(BCLog::POS, "CheckBlock(): CheckBlockSignature 3\n");
 
     std::vector<valtype> vSolutions;
     txnouttype whichType;
 
     const CTxOut& txout = block.vtx[1]->vout[1];
 
-    if (!Solver(txout.scriptPubKey, whichType, vSolutions))
+	LogPrint(BCLog::POS, "CheckBlock(): CheckBlockSignature 4\n");
+    if (!Solver(txout.scriptPubKey, whichType, vSolutions)) {
+    	LogPrint(BCLog::POS, "CheckBlock(): CheckBlockSignature 4b\n");
         return false;
+    }
+	LogPrint(BCLog::POS, "CheckBlock(): CheckBlockSignature 5\n");
 
     if (whichType == TX_PUBKEY)
     {
+    	LogPrint(BCLog::POS, "CheckBlock(): CheckBlockSignature 6\n");
         CPubKey vchPubKey = CPubKey(vSolutions[0]);
-        if (block.vchBlockSig.empty())
+        if (block.vchBlockSig.empty()) {
+        	LogPrint(BCLog::POS, "CheckBlock(): CheckBlockSignature 7\n");
             return false;
+        }
+    	LogPrint(BCLog::POS, "CheckBlock(): CheckBlockSignature 8\n");
         return vchPubKey.Verify(block.GetHash(), block.vchBlockSig);
     }
+	LogPrint(BCLog::POS, "CheckBlock(): CheckBlockSignature 9\n");
     return false;
 }
 
@@ -3341,13 +3355,18 @@ void UpdateUncommittedBlockStructures(CBlock& block, const CBlockIndex* pindexPr
 
 std::vector<unsigned char> GenerateCoinbaseCommitment(CBlock& block, const CBlockIndex* pindexPrev, const Consensus::Params& consensusParams)
 {
+    LogPrintf("GenerateCoinbaseCommitment(): block.vtx[0].vout.size(): %d 0\n", block.vtx[0]->vout.size());
     std::vector<unsigned char> commitment;
     int commitpos = GetWitnessCommitmentIndex(block);
+    LogPrintf("GenerateCoinbaseCommitment(): block.vtx[0].vout.size(): %d 1\n", block.vtx[0]->vout.size());
     std::vector<unsigned char> ret(32, 0x00);
     if (consensusParams.vDeployments[Consensus::DEPLOYMENT_SEGWIT].nTimeout != 0) {
+        LogPrintf("GenerateCoinbaseCommitment(): block.vtx[0].vout.size(): %d 2\n", block.vtx[0]->vout.size());
         if (commitpos == -1) {
             uint256 witnessroot = BlockWitnessMerkleRoot(block, nullptr);
+            LogPrintf("GenerateCoinbaseCommitment(): block.vtx[0].vout.size(): %d 3\n", block.vtx[0]->vout.size());
             CHash256().Write(witnessroot.begin(), 32).Write(ret.data(), 32).Finalize(witnessroot.begin());
+            LogPrintf("GenerateCoinbaseCommitment(): block.vtx[0].vout.size(): %d 4\n", block.vtx[0]->vout.size());
             CTxOut out;
             out.nValue = 0;
             out.scriptPubKey.resize(38);
@@ -3361,10 +3380,14 @@ std::vector<unsigned char> GenerateCoinbaseCommitment(CBlock& block, const CBloc
             commitment = std::vector<unsigned char>(out.scriptPubKey.begin(), out.scriptPubKey.end());
             CMutableTransaction tx(*block.vtx[0]);
             tx.vout.push_back(out);
+            LogPrintf("GenerateCoinbaseCommitment(): block.vtx[0].vout.size(): %d 5\n", block.vtx[0]->vout.size());
             block.vtx[0] = MakeTransactionRef(std::move(tx));
+            LogPrintf("GenerateCoinbaseCommitment(): block.vtx[0].vout.size(): %d 6\n", block.vtx[0]->vout.size());
         }
     }
+    LogPrintf("GenerateCoinbaseCommitment(): block.vtx[0].vout.size(): %d 7\n", block.vtx[0]->vout.size());
     UpdateUncommittedBlockStructures(block, pindexPrev, consensusParams);
+    LogPrintf("GenerateCoinbaseCommitment(): block.vtx[0].vout.size(): %d 8\n", block.vtx[0]->vout.size());
     return commitment;
 }
 
