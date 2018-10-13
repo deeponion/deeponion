@@ -353,7 +353,6 @@ UniValue getwork(const JSONRPCRequest& request)
 
     if (request.params.size() == 0)
     {
-    	LogPrintf(">> request.params.size() == 0\n");
         const struct VBDeploymentInfo& segwit_info = VersionBitsDeploymentInfo[Consensus::DEPLOYMENT_SEGWIT];
 
         // Update block
@@ -368,15 +367,9 @@ UniValue getwork(const JSONRPCRequest& request)
         if (pindexPrev != chainActive.Tip() ||
         	(mempool.GetTransactionsUpdated() != nTransactionsUpdatedLast && GetTime() - nStart > 60))
         {
-        	LogPrintf(">> Need update pindexPrev etc\n");
-        	if(pindexPrev != nullptr)
-        		LogPrintf(">> pindexPrev.Tip() height is %d\n", pindexPrev->nHeight);
-        	if(chainActive.Tip() != nullptr)
-        		LogPrintf(">> chainActive.Tip() height is %d\n", chainActive.Tip()->nHeight);
             if (pindexPrev != chainActive.Tip())
             {
                 // Deallocate old blocks since they're obsolete now
-            	LogPrintf(">> Deallocate old blocks since they're obsolete now\n");
                 mapNewBlock.clear();
                 for(CBlock* pblock: vNewBlock)
                     delete pblock;
@@ -419,7 +412,6 @@ UniValue getwork(const JSONRPCRequest& request)
 
         // Save
         mapNewBlock[pblock->hashMerkleRoot] = std::make_pair(pblock, pblock->vtx[0]->vin[0].scriptSig);
-        LogPrintf(">> pblock->vtx[0]->vin[0].scriptSig = %s\n", pblock->vtx[0]->vin[0].scriptSig.ToString().c_str());
 
         // Pre-build hash buffers
         char pmidstate[32];
@@ -429,16 +421,6 @@ UniValue getwork(const JSONRPCRequest& request)
 
         arith_uint256 hashTarget;
         hashTarget.SetCompact(pblock->nBits);
-
-        LogPrintf(">> Block version = %d\n", pblock->nVersion);
-        LogPrintf(">> Block hashPrevBlock = %s\n", pblock->hashPrevBlock.ToString().c_str());
-        LogPrintf(">> Block hashMerkleRoot = %s\n", pblock->hashMerkleRoot.ToString().c_str());
-        LogPrintf(">> Block nTime = %u\n", pblock->nTime);
-        LogPrintf(">> Block nBits = %08x\n", pblock->nBits);
-        LogPrintf(">> Block nNonce = %u\n", pblock->nNonce);
-        LogPrintf(">> Block vtx size = %d\n", pblock->vtx.size());
-        LogPrintf(">> Block vtx[0] = %s\n", pblock->vtx[0]->ToString().c_str());
-        LogPrintf(">> Block hashTarget = %s\n", hashTarget.ToString().c_str());
         
         UniValue result(UniValue::VOBJ);
         result.push_back(Pair("midstate", HexStr(BEGIN(pmidstate), END(pmidstate)))); 		// deprecated
@@ -446,16 +428,10 @@ UniValue getwork(const JSONRPCRequest& request)
         result.push_back(Pair("hash1",    HexStr(BEGIN(phash1), END(phash1)))); 			// deprecated
         result.push_back(Pair("target",   HexStr(BEGIN(hashTarget), END(hashTarget))));
         
-        LogPrintf(">> midstate = %s\n", HexStr(BEGIN(pmidstate), END(pmidstate)).c_str());
-        LogPrintf(">> data = %s\n", HexStr(BEGIN(pdata), END(pdata)).c_str());
-        LogPrintf(">> hash1 = %s\n", HexStr(BEGIN(phash1), END(phash1)).c_str());
-        LogPrintf(">> target = %s\n", HexStr(BEGIN(hashTarget), END(hashTarget)).c_str());
-        
         return result;
     }
     else
     {
-    	LogPrintf(">> request.params.size() > 0\n");
         // Parse parameters
         std::vector<unsigned char> vchData = ParseHex(request.params[0].get_str());
         if (vchData.size() != 128)
@@ -477,17 +453,7 @@ UniValue getwork(const JSONRPCRequest& request)
         CMutableTransaction cmtv0(*pVtx0); 
         cmtv0.vin[0].scriptSig = mapNewBlock[pdata->hashMerkleRoot].second;
         pblock->vtx[0] = MakeTransactionRef(std::move(cmtv0));
-        LogPrintf(">> pblock->vtx[0]->vin[0].scriptSig = %s\n", pblock->vtx[0]->vin[0].scriptSig.ToString().c_str());
         pblock->hashMerkleRoot = BlockMerkleRoot(*pblock);
-
-        LogPrintf(">> Block version = %d\n", pblock->nVersion);
-        LogPrintf(">> Block hashPrevBlock = %s\n", pblock->hashPrevBlock.ToString().c_str());
-        LogPrintf(">> Block hashMerkleRoot = %s\n", pblock->hashMerkleRoot.ToString().c_str());
-        LogPrintf(">> Block nTime = %u\n", pblock->nTime);
-        LogPrintf(">> Block nBits = %08x\n", pblock->nBits);
-        LogPrintf(">> Block nNonce = %u\n", pblock->nNonce);
-        LogPrintf(">> Block vtx size = %d\n", pblock->vtx.size());
-        LogPrintf(">> Block vtx[0] = %s\n", pblock->vtx[0]->ToString().c_str());
 
         if (pblock->vtx.empty() || !pblock->vtx[0]->IsCoinBase()) {
         	LogPrintf("***** RPC_DESERIALIZATION_ERROR. Block does not start with a coinbase\n");
@@ -495,7 +461,6 @@ UniValue getwork(const JSONRPCRequest& request)
         }
         
         uint256 hash = pblock->GetHash();
-        LogPrintf(">> Block hash = %s\n", hash.ToString().c_str());
         
         bool fBlockPresent = false;
         {
@@ -525,8 +490,11 @@ UniValue getwork(const JSONRPCRequest& request)
         submitblock_StateCatcher sc(pblock->GetHash());
         RegisterValidationInterface(&sc);
         
-        std::shared_ptr<CBlock> blockptr = std::make_shared<CBlock>(*pblock);
-        bool fAccepted = ProcessNewBlock(Params(), (std::shared_ptr<const CBlock>)pblock, true, nullptr);
+		CBlock *pBlockCopy = new CBlock(*pblock);
+		pBlockCopy->vtx = pblock->vtx;
+
+        std::shared_ptr<CBlock> blockptr = std::make_shared<CBlock>(*pBlockCopy);
+        bool fAccepted = ProcessNewBlock(Params(), blockptr, true, nullptr);
         UnregisterValidationInterface(&sc);
 
         if (fBlockPresent) {
@@ -547,8 +515,6 @@ UniValue getwork(const JSONRPCRequest& request)
 
 UniValue getblocktemplate(const JSONRPCRequest& request)
 {
-	LogPrintf("** getblocktemplate\n");
-	
     if (request.fHelp || request.params.size() > 1)
         throw std::runtime_error(
             "getblocktemplate ( TemplateRequest )\n"
@@ -809,7 +775,6 @@ UniValue getblocktemplate(const JSONRPCRequest& request)
     UniValue transactions(UniValue::VARR);
     std::map<uint256, int64_t> setTxIndex;
     int i = 0;
-    LogPrintf(">> start transaction data\n");
     for (const auto& it : pblock->vtx) {
         const CTransaction& tx = *it;
         uint256 txHash = tx.GetHash();
@@ -818,15 +783,11 @@ UniValue getblocktemplate(const JSONRPCRequest& request)
         if (tx.IsCoinBase() || tx.IsCoinStake())
             continue;
 
-        LogPrintf(">>>> tx # %d\n", i);
         UniValue entry(UniValue::VOBJ);
 
         entry.push_back(Pair("data", EncodeHexTx(tx)));
         entry.push_back(Pair("txid", txHash.GetHex()));
         entry.push_back(Pair("hash", tx.GetWitnessHash().GetHex()));
-        
-        printf(">>>> data = %s\n", EncodeHexTx(tx).c_str());
-        printf(">>>> hash = %s\n", txHash.GetHex().c_str());
 
         UniValue deps(UniValue::VARR);
         for (const CTxIn &in : tx.vin)
@@ -834,14 +795,12 @@ UniValue getblocktemplate(const JSONRPCRequest& request)
             if (setTxIndex.count(in.prevout.hash))
             {
                 deps.push_back(setTxIndex[in.prevout.hash]);
-                LogPrintf(">>>>>>>> depends = %lld\n", setTxIndex[in.prevout.hash]);
             }
         }
         entry.push_back(Pair("depends", deps));
 
         int index_in_template = i - 1;
         entry.push_back(Pair("fee", pblocktemplate->vTxFees[index_in_template]));
-        LogPrintf(">>>>>> fee = %lld\n", pblocktemplate->vTxFees[index_in_template]);
         int64_t nTxSigOps = pblocktemplate->vTxSigOpsCost[index_in_template];
         if (fPreSegWit) {
             assert(nTxSigOps % WITNESS_SCALE_FACTOR == 0);
@@ -951,21 +910,6 @@ UniValue getblocktemplate(const JSONRPCRequest& request)
     if (!pblocktemplate->vchCoinbaseCommitment.empty() && fSupportsSegwit) {
         result.push_back(Pair("default_witness_commitment", HexStr(pblocktemplate->vchCoinbaseCommitment.begin(), pblocktemplate->vchCoinbaseCommitment.end())));
     }
-    
-    LogPrintf(">> version = %d\n", pblock->nVersion);
-    LogPrintf(">> previousblockhash = %s\n", pblock->hashPrevBlock.GetHex().c_str());
-    LogPrintf(">> transactions\n");
-    LogPrintf(">> coinbaseaux - flags= %s\n", HexStr(COINBASE_FLAGS.begin(), COINBASE_FLAGS.end()).c_str());
-    LogPrintf(">> coinbasevalue = %lld\n", (int64_t)pblock->vtx[0]->vout[0].nValue);
-    LogPrintf(">> target = %s\n", hashTarget.GetHex().c_str());
-    LogPrintf(">> mintime = %lld\n", (int64_t)pindexPrev->GetMedianTimePast()+1);
-    LogPrintf(">> mutable = time, transactions, prevblock\n");
-    LogPrintf(">> noncerange = 00000000ffffffff\n");
-    LogPrintf(">> sigoplimit = %lld\n", nSigOpLimit);
-    LogPrintf(">> sizelimit = %lld\n", nSizeLimit);
-    LogPrintf(">> curtime = %lld\n", pblock->GetBlockTime());
-    LogPrintf(">> bits = %s\n", strprintf("%08x", pblock->nBits));
-    LogPrintf(">> height = %d\n", pindexPrev->nHeight+1);    
 
     return result;
 }

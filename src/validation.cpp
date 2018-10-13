@@ -3629,7 +3629,7 @@ static CDiskBlockPos SaveBlockToDisk(const CBlock& block, int nHeight, const CCh
 /** Store block on disk. If dbp is non-nullptr, the file is known to already reside on disk */
 bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CValidationState& state, const CChainParams& chainparams, CBlockIndex** ppindex, bool fRequested, const CDiskBlockPos* dbp, bool* fNewBlock)
 {
-	LogPrintf(">> AcceptBlock\n");
+	// LogPrintf(">> AcceptBlock\n");
     const CBlock& block = *pblock;
 
     if (fNewBlock) *fNewBlock = false;
@@ -3688,13 +3688,10 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CVali
     // process PoS block, add needed info to CBlockIndex
     if (block.IsProofOfStake())
     {
-    	LogPrintf(">> Block is PoS\n");
     	pindex->nFlags |= CBlockIndex::BLOCK_PROOF_OF_STAKE;
     	pindex->prevoutStake = block.vtx[1]->vin[0].prevout;
     	pindex->nStakeTime = block.vtx[1]->nTime;
     }
-    else
-    	LogPrintf(">> Block is PoW\n");
     
     {
     	LOCK(cs_stakeHandling);
@@ -3713,13 +3710,13 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CVali
     		pWalking = pWalking->pprev;
     	}
 	
-    	LogPrintf(">> flag = %s\n", flag ? "true":"false");
+    	// LogPrintf(">> flag = %s\n", flag ? "true":"false");
     	if(flag)
     	{
-    		LogPrintf(">> Current LastProcessedStakeModifierBlock = %d\n", lastProcessedStakeModifierBlock);
+    		// LogPrintf(">> Current LastProcessedStakeModifierBlock = %d\n", lastProcessedStakeModifierBlock);
     		pWalking = pWalking->pnext;
     		int expectedHeight = pindex->nHeight;
-    		LogPrintf(">> Expected-Height (current height) = %d\n", expectedHeight);
+    		// LogPrintf(">> Expected-Height (current height) = %d\n", expectedHeight);
     		CBlock* pBlock0 = nullptr;
     		if(pWalking == nullptr)
     			return error("AcceptBlock(): pWalking == nullptr\n");
@@ -3727,7 +3724,7 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CVali
     	
     		while(pWalking != nullptr && pWalking->nHeight > lastProcessedStakeModifierBlock && pWalking->nHeight <= expectedHeight)
     		{
-    			LogPrintf(">> pWalking->nHeight = %d\n", pWalking->nHeight);
+    			// LogPrintf(">> pWalking->nHeight = %d\n", pWalking->nHeight);
     			if(pWalking->nHeight != expectedHeight) 
     			{
     				pBlock0 = mapSavedBlocks[pWalking->nHeight];
@@ -3803,13 +3800,13 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CVali
     			mapSavedBlocks.erase(pWalking->nHeight);
     			lastProcessedStakeModifierBlock = pWalking->nHeight;
     			setDirtyBlockIndex.insert(pWalking);
-    			LogPrintf(">> updated LastProcessedStakeModifierBlock = %d\n", lastProcessedStakeModifierBlock);
+    			// LogPrintf(">> updated LastProcessedStakeModifierBlock = %d\n", lastProcessedStakeModifierBlock);
     			// LogPrintf(">> Block at height %d is removed from the list\n", pWalking->nHeight);
     			pWalking = pWalking->pnext;
     		}
 
     		lastProcessedStakeModifierBlock = pindex->nHeight;
-    		LogPrintf(">> LastProcessedStakeModifierBlock = %d\n", lastProcessedStakeModifierBlock);
+    		// LogPrintf(">> LastProcessedStakeModifierBlock = %d\n", lastProcessedStakeModifierBlock);
     		
     		/*
     		// catch up as much as possible
@@ -3856,7 +3853,6 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CVali
     // Header is valid/has work, merkle tree and segwit merkle tree are good...RELAY NOW
     // (but if it does not build on our best tip, let the SendMessages loop relay it)
     if (!IsInitialBlockDownload() && chainActive.Tip() == pindex->pprev) {
-    	LogPrintf(">> calling GetMainSignals().NewPoWValidBlock(pindex, pblock).")
         GetMainSignals().NewPoWValidBlock(pindex, pblock);
     }
 
@@ -3872,12 +3868,11 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CVali
     } catch (const std::runtime_error& e) {
         return AbortNode(state, std::string("System error: ") + e.what());
     }
-
+    
     if (fCheckForPruning)
         FlushStateToDisk(chainparams, state, FLUSH_STATE_NONE); // we just allocated more disk space for block files
 
     CheckBlockIndex(chainparams.GetConsensus());
-	LogPrintf(">> Exit AcceptBlock\n");
 
     return true;
 }
