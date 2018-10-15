@@ -178,15 +178,13 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
     coinbaseTx.vin.resize(1);
     coinbaseTx.vin[0].prevout.SetNull();
     coinbaseTx.vout.resize(1);
+    coinbaseTx.nTime = GetAdjustedTime();
     LogPrintf("CreateNewBlock(): coinbaseTx.vout.size(): %d 1\n", coinbaseTx.vout.size());
 
 	if(!fProofOfStake) {
 		coinbaseTx.vout[0].scriptPubKey = scriptPubKeyIn;
 		coinbaseTx.vout[0].nValue = nFees + GetBlockSubsidy(nHeight, chainparams.GetConsensus());
-    coinbaseTx.vin[0].scriptSig = (CScript() << nHeight << CScriptNum(0)) + COINBASE_FLAGS;
-    coinbaseTx.nTime = GetAdjustedTime();
-    LogPrintf("CreateNewBlock(): coinbaseTx = %s\n", CTransaction(coinbaseTx).ToString().c_str());  
-    LogPrintf("CreateNewBlock(): vout[0] = %s\n", coinbaseTx.vout[0].ToString().c_str());  
+		coinbaseTx.vin[0].scriptSig = (CScript() << nHeight << CScriptNum(0)) + COINBASE_FLAGS;
     
 	} else {
         // Height first in coinbase required for block.version=2
@@ -195,6 +193,8 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
         coinbaseTx.vout[0].nValue = 0;
 
 	}
+    LogPrintf("CreateNewBlock(): coinbaseTx = %s\n", CTransaction(coinbaseTx).ToString().c_str());
+    LogPrintf("CreateNewBlock(): vout[0] = %s\n", coinbaseTx.vout[0].ToString().c_str());
     LogPrintf("CreateNewBlock(): coinbaseTx.vout.size(): %d 2\n", coinbaseTx.vout.size());
 
 	// TODO: DeepOnion: CHECK THIS

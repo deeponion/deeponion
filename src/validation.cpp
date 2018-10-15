@@ -3260,6 +3260,8 @@ bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::P
     {
     	LogPrint(BCLog::POS, "CheckBlock(): block.vtx[0]->vout.size() %d block.IsProofOfStake() block.vtx[0]->vout[0].nValue %d block.vtx[0]->vout[0].scriptPubKey.empty() %s block.vtx[0]->vout[0].IsEmpty() %s \n", block.vtx[0]->vout.size(), block.vtx[0]->vout[0].nValue, block.vtx[0]->vout[0].scriptPubKey.empty() ? "EMPTY" : "NOT EMPTY", block.vtx[0]->vout[0].IsEmpty() ? "EMPTY" : "NOT EMPTY");
         // Coinbase output should be empty if proof-of-stake block
+    	// TODO: DeepOnion: segwit creates more outputs for coinbase, this needs
+    	// TODO: DeepOnion: handling here after the segwit softfork
 		if (block.vtx[0]->vout.size() != 1 || !block.vtx[0]->vout[0].IsEmpty())
 			return state.DoS(100, false, REJECT_INVALID, "pos-blk-wrong", false, "coinbase output not empty for pos block");
 
