@@ -15,6 +15,7 @@
 #include <consensus/validation.h>
 #include <hash.h>
 #include <crypto/scrypt.h>
+#include <crypto/sha256.h>
 #include <validation.h>
 #include <merkleblock.h>
 #include <net.h>
@@ -182,7 +183,11 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
 	if(!fProofOfStake) {
 		coinbaseTx.vout[0].scriptPubKey = scriptPubKeyIn;
 		coinbaseTx.vout[0].nValue = nFees + GetBlockSubsidy(nHeight, chainparams.GetConsensus());
-		coinbaseTx.vin[0].scriptSig = CScript() << nHeight << OP_0;
+    coinbaseTx.vin[0].scriptSig = (CScript() << nHeight << CScriptNum(0)) + COINBASE_FLAGS;
+    coinbaseTx.nTime = GetAdjustedTime();
+    LogPrintf("CreateNewBlock(): coinbaseTx = %s\n", CTransaction(coinbaseTx).ToString().c_str());  
+    LogPrintf("CreateNewBlock(): vout[0] = %s\n", coinbaseTx.vout[0].ToString().c_str());  
+    
 	} else {
         // Height first in coinbase required for block.version=2
 		coinbaseTx.vin[0].scriptSig = (CScript() << pindexPrev->nHeight+1) + COINBASE_FLAGS;
@@ -194,7 +199,7 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
 
 	// TODO: DeepOnion: CHECK THIS
 	pblock->vtx[0] = MakeTransactionRef(std::move(coinbaseTx));
-    pblocktemplate->vchCoinbaseCommitment = GenerateCoinbaseCommitment(*pblock, pindexPrev, chainparams.GetConsensus());
+    // pblocktemplate->vchCoinbaseCommitment = GenerateCoinbaseCommitment(*pblock, pindexPrev, chainparams.GetConsensus());
     LogPrintf("CreateNewBlock(): pblock->vtx[0].vout.size(): %d 3\n", pblock->vtx[0]->vout.size());
 
     if(!fProofOfStake) {
@@ -486,8 +491,10 @@ void IncrementExtraNonce(CBlock* pblock, const CBlockIndex* pindexPrev, unsigned
         hashPrevBlock = pblock->hashPrevBlock;
     }
     ++nExtraNonce;
-    unsigned int nHeight = pindexPrev->nHeight+1; // Height first in coinbase required for block.version=2
+    int nHeight = pindexPrev->nHeight+1; // Height first in coinbase required for block.version=2
     CMutableTransaction txCoinbase(*pblock->vtx[0]);
+    LogPrintf(">> nHeight next = %ld, nExtraNonce = %u\n", (int64_t)nHeight, nExtraNonce);
+    
     txCoinbase.vin[0].scriptSig = (CScript() << nHeight << CScriptNum(nExtraNonce)) + COINBASE_FLAGS;
     assert(txCoinbase.vin[0].scriptSig.size() <= 100);
 
@@ -495,6 +502,33 @@ void IncrementExtraNonce(CBlock* pblock, const CBlockIndex* pindexPrev, unsigned
     pblock->hashMerkleRoot = BlockMerkleRoot(*pblock);
 }
 
+void SHA256Transform(void* pstate, void* pinput)
+{
+    CSHA256 sha256;
+    unsigned char data[64];
+
+    for (int i = 0; i < 16; i++)
+        ((uint32_t*)data)[i] = ByteReverse(((uint32_t*)pinput)[i]);
+
+    sha256 = sha256.Write(data, sizeof(data));
+    for (int i = 0; i < 8; i++)
+        ((uint32_t*)pstate)[i] = sha256.s[i];
+}
+
+int static FormatHashBlocks(void* pbuffer, unsigned int len)
+{
+    unsigned char* pdata = (unsigned char*)pbuffer;
+    unsigned int blocks = 1 + ((len + 8) / 64);
+    unsigned char* pend = pdata + 64 * blocks;
+    memset(pdata + len, 0, 64 * blocks - len);
+    pdata[len] = 0x80;
+    unsigned int bits = len * 8;
+    pend[-1] = (bits >> 0) & 0xff;
+    pend[-2] = (bits >> 8) & 0xff;
+    pend[-3] = (bits >> 16) & 0xff;
+    pend[-4] = (bits >> 24) & 0xff;
+    return blocks;
+}
 // DeepOnion: attempt to generate suitable proof-of-stake
 bool SignBlock(CBlock& block, CWallet& wallet, CAmount nFees)
 {
@@ -597,6 +631,53 @@ bool CheckStake(CBlock* pblock, CWallet& wallet)
 
     return true;
 }
+
+void FormatHashBuffers(CBlock* pblock, char* pmidstate, char* pdata, char* phash1)
+{
+    //
+    // Pre-build hash buffers
+    //
+    struct
+    {
+        struct unnamed2
+        {
+            int nVersion;
+            uint256 hashPrevBlock;
+            uint256 hashMerkleRoot;
+            unsigned int nTime;
+            unsigned int nBits;
+            unsigned int nNonce;
+		}
+        block;
+        unsigned char pchPadding0[64];
+        uint256 hash1;
+        unsigned char pchPadding1[64];
+    }
+    tmp;
+    memset(&tmp, 0, sizeof(tmp));
+
+    tmp.block.nVersion			= pblock->nVersion;
+    tmp.block.hashPrevBlock		= pblock->hashPrevBlock;
+    tmp.block.hashMerkleRoot	= pblock->hashMerkleRoot;
+    tmp.block.nTime				= pblock->nTime;
+    tmp.block.nBits				= pblock->nBits;
+    tmp.block.nNonce			= pblock->nNonce;
+
+    FormatHashBlocks(&tmp.block, sizeof(tmp.block));
+    FormatHashBlocks(&tmp.hash1, sizeof(tmp.hash1));
+
+    // Byte swap all the input buffer
+    for (unsigned int i = 0; i < sizeof(tmp)/4; i++)
+        ((unsigned int*)&tmp)[i] = ByteReverse(((unsigned int*)&tmp)[i]);
+
+	// Precalc the first half of the first hash, which stays constant
+	SHA256Transform(pmidstate, &tmp.block);
+
+    memcpy(pdata, &tmp.block, 128);
+    memcpy(phash1, &tmp.hash1, 64);
+}
+
+
 
 void StakeMiner()
 {
@@ -713,3 +794,4 @@ void StopThreadStakeMiner()
 	}
 	LogPrint(BCLog::POS, "StopThreadStakeMiner(): Stopped Stake miner.\n");
 }
+
