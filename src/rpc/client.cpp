@@ -63,6 +63,7 @@ static const CRPCConvertParam vRPCConvertParams[] =
     { "listaccounts", 0, "minconf" },
     { "listaccounts", 1, "include_watchonly" },
     { "walletpassphrase", 1, "timeout" },
+    { "walletpassphrase", 2, "stakingonly" },
     { "getblocktemplate", 0, "template_request" },
     { "getwork", 0, "getwork" },
     { "getwork", 1, "work" },

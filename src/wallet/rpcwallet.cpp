@@ -2333,15 +2333,17 @@ UniValue walletpassphrase(const JSONRPCRequest& request)
         return NullUniValue;
     }
 
-    if (request.fHelp || request.params.size() != 2) {
+    if (pwallet->IsCrypted() && (request.fHelp || request.params.size() < 2 || request.params.size() > 3)) {
         throw std::runtime_error(
-            "walletpassphrase \"passphrase\" timeout\n"
+            "walletpassphrase \"passphrase\" timeout [stakingonly]\n"
             "\nStores the wallet decryption key in memory for 'timeout' seconds.\n"
             "This is needed prior to performing transactions related to private keys such as sending DeepOnions\n"
             "\nArguments:\n"
             "1. \"passphrase\"     (string, required) The wallet passphrase\n"
             "2. timeout            (numeric, required) The time to keep the decryption key in seconds. Limited to at most 1073741824 (2^30) seconds.\n"
             "                                          Any value greater than 1073741824 seconds will be set to 1073741824 seconds.\n"
+            "3. staking            (bool, optional) Unlock wallet for staking only.\n"
+            "                                       If [stakingonly] is true sending functions are disabled. \n"
             "\nNote:\n"
             "Issuing the walletpassphrase command while the wallet is already unlocked will set a new unlock\n"
             "time that overrides the old one.\n"
@@ -2383,26 +2385,21 @@ UniValue walletpassphrase(const JSONRPCRequest& request)
 
     if (strWalletPass.length() > 0)
     {
-        // Used to restore fWalletUnlockStakingOnly value in case of unlock failure 
-        bool tmpStakingOnly = fWalletUnlockStakingOnly;
-
-        // DeepOnion: if user OS account compromised prevent trivial sendmoney commands
-        if (request.params.size() > 2)
-            fWalletUnlockStakingOnly = request.params[2].get_bool();
-        else
-            fWalletUnlockStakingOnly = false;       
-  
         if (!pwallet->Unlock(strWalletPass)) {
-            fWalletUnlockStakingOnly = tmpStakingOnly;
             throw JSONRPCError(RPC_WALLET_PASSPHRASE_INCORRECT, "Error: The wallet passphrase entered was incorrect.");
         }
     }
     else
         throw std::runtime_error(
-            "walletpassphrase <passphrase> <timeout>\n"
+            "walletpassphrase <passphrase> <timeout> [stakingonly]\n"
             "Stores the wallet decryption key in memory for <timeout> seconds.");
-
+         
     pwallet->TopUpKeyPool();
+
+    // DeepOnion: if user OS account compromised prevent trivial sendmoney commands
+    fWalletUnlockStakingOnly = false;
+    if (request.params.size() > 2)
+        fWalletUnlockStakingOnly = request.params[2].get_bool();
 
     pwallet->nRelockTime = GetTime() + nSleepTime;
     RPCRunLater(strprintf("lockwallet(%s)", pwallet->GetName()), boost::bind(LockWallet, pwallet), nSleepTime);
@@ -3613,7 +3610,7 @@ static const CRPCCommand commands[] =
     { "wallet",             "signmessage",              &signmessage,              {"address","message"} },
     { "wallet",             "walletlock",               &walletlock,               {} },
     { "wallet",             "walletpassphrasechange",   &walletpassphrasechange,   {"oldpassphrase","newpassphrase"} },
-    { "wallet",             "walletpassphrase",         &walletpassphrase,         {"passphrase","timeout"} },
+    { "wallet",             "walletpassphrase",         &walletpassphrase,         {"passphrase","timeout", "stakingonly"} },
     { "wallet",             "removeprunedfunds",        &removeprunedfunds,        {"txid"} },
     { "wallet",             "rescanblockchain",         &rescanblockchain,         {"start_height", "stop_height"} },
 
