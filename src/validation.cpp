@@ -3299,7 +3299,7 @@ bool CheckBlockSignature(const CBlock& block)
 
     const CTxOut& txout = block.vtx[1]->vout[1];
 
-	LogPrint(BCLog::POS, "CheckBlock(): CheckBlockSignature 4\n");
+	LogPrint(BCLog::POS, "CheckBlock(): CheckBlockSignature 4 txout.scriptPubKey %s\n", txout.scriptPubKey.ToString());
     if (!Solver(txout.scriptPubKey, whichType, vSolutions)) {
     	LogPrint(BCLog::POS, "CheckBlock(): CheckBlockSignature 4b\n");
         return false;
@@ -3402,7 +3402,7 @@ std::vector<unsigned char> GenerateCoinbaseCommitment(CBlock& block, const CBloc
  *  in ConnectBlock().
  *  Note that -reindex-chainstate skips the validation that happens here!
  */
-static bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationState& state, const CChainParams& params, const CBlockIndex* pindexPrev, int64_t nAdjustedTime, bool fromTestvalidity)
+static bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationState& state, const CChainParams& params, const CBlockIndex* pindexPrev, int64_t nAdjustedTime, bool testNewPowValidity)
 {
     assert(pindexPrev != nullptr);
     const int nHeight = pindexPrev->nHeight + 1;
@@ -3410,15 +3410,13 @@ static bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationSta
     // Check proof of work
     const Consensus::Params& consensusParams = params.GetConsensus();
     bool isProofOfStake = block.IsProofOfStake();
-    if(fromTestvalidity)
+    if(testNewPowValidity)
     	isProofOfStake = false;
     
-    /*
     if(isProofOfStake)
     	LogPrintf(">> PoS block\n");
     else
     	LogPrintf(">> PoW block\n");
-    */
     
     if (block.nBits != GetNextWorkRequired(pindexPrev, &block, consensusParams, isProofOfStake)) {
     	LogPrintf(">> block.nBits=%08x, getwork = %08x, hash = %s\n", 
@@ -3962,7 +3960,7 @@ bool ProcessNewBlock(const CChainParams& chainparams, const std::shared_ptr<cons
     return true;
 }
 
-bool TestBlockValidity(CValidationState& state, const CChainParams& chainparams, const CBlock& block, CBlockIndex* pindexPrev, bool fCheckPOW, bool fCheckMerkleRoot)
+bool TestBlockValidity(CValidationState& state, const CChainParams& chainparams, const CBlock& block, CBlockIndex* pindexPrev, bool fCheckPOW, bool fCheckMerkleRoot, bool fProofOfStake)
 {
     AssertLockHeld(cs_main);
     assert(pindexPrev && pindexPrev == chainActive.Tip());
@@ -3972,8 +3970,9 @@ bool TestBlockValidity(CValidationState& state, const CChainParams& chainparams,
     indexDummy.pprev = pindexPrev;
     indexDummy.nHeight = pindexPrev->nHeight + 1;
 
+    // DeepOnion: ContextualCheckBlockHeader takes a testNewPowValidity, this should be false if not PoS validity check.
     // NOTE: CheckBlockHeader is called by CheckBlock
-    if (!ContextualCheckBlockHeader(block, state, chainparams, pindexPrev, GetAdjustedTime(), true))
+    if (!ContextualCheckBlockHeader(block, state, chainparams, pindexPrev, GetAdjustedTime(), !fProofOfStake))
         return error("%s: Consensus::ContextualCheckBlockHeader: %s", __func__, FormatStateMessage(state));
     if (!CheckBlock(block, state, chainparams.GetConsensus(), fCheckPOW, fCheckMerkleRoot))
         return error("%s: Consensus::CheckBlock: %s", __func__, FormatStateMessage(state));
