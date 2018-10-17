@@ -19,7 +19,10 @@
 #include <sync.h>
 #include <tinyformat.h>
 #include <utiltime.h>
+
+#ifndef WIN32
 #include <sys/resource.h>
+#endif
 
 #include <atomic>
 #include <exception>
