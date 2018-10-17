@@ -59,7 +59,7 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                 if(wtx.IsCoinStake()) // Combine into single output for coinstake
                 {
                     sub.idx = 1; // vout index
-                    sub.credit = nNet;
+                    sub.credit = nNet > 0 ? nNet : wtx.tx->GetValueOut() - nDebit;
                 }
                 else
                 {
@@ -87,19 +87,14 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                 if (wtx.IsCoinStake())
                 {
                     // Generated (proof-of-stake)
-
+                    sub.type = TransactionRecord::Generated;
+                    
                     if (hashPrev == hash)
                         continue; // last coinstake output
-
-                    sub.type = TransactionRecord::Generated;
-                    sub.credit = nNet > 0 ? nNet : wtx.tx->GetValueOut() - nDebit;
                     hashPrev = hash;
                 }
 
                 parts.append(sub);
-                
-                //if(wtx.IsCoinStake()) 
-                //    break; // Single output for coinstake
             }
         }
     }
