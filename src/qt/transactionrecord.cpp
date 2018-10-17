@@ -17,7 +17,8 @@
  */
 bool TransactionRecord::showTransaction(const CWalletTx &wtx)
 {
-    if (wtx.IsCoinBase() || wtx.IsCoinStake())
+    //if (wtx.IsCoinBase() || wtx.IsCoinStake())
+    if (wtx.IsCoinBase())
     {
         // Ensures we show generated coins / mined transactions at depth 1
         if (!wtx.IsInMainChain())
@@ -39,6 +40,7 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
     CAmount nDebit = wtx.GetDebit(ISMINE_ALL);
     CAmount nNet = nCredit - nDebit;
     uint256 hash = wtx.GetHash();
+    uint256 hashPrev;
     std::map<std::string, std::string> mapValue = wtx.mapValue;
 
     if (nNet > 0 || wtx.IsCoinBase() || wtx.IsCoinStake())
@@ -77,16 +79,27 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                     sub.type = TransactionRecord::RecvFromOther;
                     sub.address = mapValue["from"];
                 }
-                if (wtx.IsCoinBase() || wtx.IsCoinStake())
+                if (wtx.IsCoinBase())
                 {
-                    // Generated
+                    // Generated (proof-of-work)
                     sub.type = TransactionRecord::Generated;
+                }
+                if (wtx.IsCoinStake())
+                {
+                    // Generated (proof-of-stake)
+
+                    if (hashPrev == hash)
+                        continue; // last coinstake output
+
+                    sub.type = TransactionRecord::Generated;
+                    sub.credit = nNet > 0 ? nNet : wtx.tx->GetValueOut() - nDebit;
+                    hashPrev = hash;
                 }
 
                 parts.append(sub);
                 
-                if(wtx.IsCoinStake()) 
-                    break; // Single output for coinstake
+                //if(wtx.IsCoinStake()) 
+                //    break; // Single output for coinstake
             }
         }
     }
