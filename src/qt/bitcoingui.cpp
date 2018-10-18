@@ -800,9 +800,9 @@ void BitcoinGUI::updateStakingIcon()
     if (nLastCoinStakeSearchInterval && nWeight)
     {
         uint64_t nNetworkWeight = GetPoSKernelPS();
-        
+
         const Consensus::Params& consensusParams = Params().GetConsensus();
-        int64_t nTargetSpacing = consensusParams.nPowTargetSpacing;
+        int64_t nTargetSpacing = consensusParams.nPosTargetSpacing;
         unsigned nEstimateTime = nTargetSpacing * nNetworkWeight / nWeight;
 
         QString text;
