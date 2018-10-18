@@ -335,20 +335,24 @@ public:
     mutable bool fDebitCached;
     mutable bool fCreditCached;
     mutable bool fImmatureCreditCached;
+    mutable bool fStakeCreditCached;
     mutable bool fAvailableCreditCached;
     mutable bool fWatchDebitCached;
     mutable bool fWatchCreditCached;
     mutable bool fImmatureWatchCreditCached;
+    mutable bool fStakeWatchCreditCached;
     mutable bool fAvailableWatchCreditCached;
     mutable bool fChangeCached;
     mutable bool fInMempool;
     mutable CAmount nDebitCached;
     mutable CAmount nCreditCached;
     mutable CAmount nImmatureCreditCached;
+    mutable CAmount nStakeCreditCached;
     mutable CAmount nAvailableCreditCached;
     mutable CAmount nWatchDebitCached;
     mutable CAmount nWatchCreditCached;
     mutable CAmount nImmatureWatchCreditCached;
+    mutable CAmount nStakeWatchCreditCached;
     mutable CAmount nAvailableWatchCreditCached;
     mutable CAmount nChangeCached;
 
@@ -375,21 +379,25 @@ public:
         fDebitCached = false;
         fCreditCached = false;
         fImmatureCreditCached = false;
+        fStakeCreditCached = false;
         fAvailableCreditCached = false;
         fWatchDebitCached = false;
         fWatchCreditCached = false;
         fImmatureWatchCreditCached = false;
+        fStakeWatchCreditCached = false;
         fAvailableWatchCreditCached = false;
         fChangeCached = false;
         fInMempool = false;
         nDebitCached = 0;
         nCreditCached = 0;
         nImmatureCreditCached = 0;
+        nStakeCreditCached = 0;
         nAvailableCreditCached = 0;
         nWatchDebitCached = 0;
         nWatchCreditCached = 0;
         nAvailableWatchCreditCached = 0;
         nImmatureWatchCreditCached = 0;
+        nStakeWatchCreditCached = 0;
         nChangeCached = 0;
         nOrderPos = -1;
     }
@@ -443,10 +451,12 @@ public:
         fCreditCached = false;
         fAvailableCreditCached = false;
         fImmatureCreditCached = false;
+        fStakeCreditCached = false;
         fWatchDebitCached = false;
         fWatchCreditCached = false;
         fAvailableWatchCreditCached = false;
         fImmatureWatchCreditCached = false;
+        fStakeWatchCreditCached = false;
         fDebitCached = false;
         fChangeCached = false;
     }
@@ -461,8 +471,10 @@ public:
     CAmount GetDebit(const isminefilter& filter) const;
     CAmount GetCredit(const isminefilter& filter) const;
     CAmount GetImmatureCredit(bool fUseCache=true) const;
+    CAmount GetStakeCredit(bool fUseCache=true) const;
     CAmount GetAvailableCredit(bool fUseCache=true) const;
     CAmount GetImmatureWatchOnlyCredit(const bool fUseCache=true) const;
+    CAmount GetStakeWatchOnlyCredit(const bool fUseCache=true) const;
     CAmount GetAvailableWatchOnlyCredit(const bool fUseCache=true) const;
     CAmount GetChange() const;
 
@@ -967,12 +979,13 @@ public:
     CAmount GetBalance() const;
     CAmount GetUnconfirmedBalance() const;
     CAmount GetImmatureBalance() const;
+    CAmount GetStakeBalance() const;
     CAmount GetWatchOnlyBalance() const;
     CAmount GetUnconfirmedWatchOnlyBalance() const;
     CAmount GetImmatureWatchOnlyBalance() const;
+    CAmount GetStakeWatchOnlyBalance() const;
     CAmount GetLegacyBalance(const isminefilter& filter, int minDepth, const std::string* account) const;
     CAmount GetAvailableBalance(const CCoinControl* coinControl = nullptr) const;
-    CAmount GetStake() const;
 
     OutputType TransactionChangeType(OutputType change_type, const std::vector<CRecipient>& vecSend);
 

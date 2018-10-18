@@ -1867,13 +1867,27 @@ CAmount CWalletTx::GetCredit(const isminefilter& filter) const
 
 CAmount CWalletTx::GetImmatureCredit(bool fUseCache) const
 {
-    if ((IsCoinBase() || IsCoinStake()) && GetBlocksToMaturity() > 0 && IsInMainChain())
+    if (IsCoinBase() && GetBlocksToMaturity() > 0 && IsInMainChain())
     {
         if (fUseCache && fImmatureCreditCached)
             return nImmatureCreditCached;
         nImmatureCreditCached = pwallet->GetCredit(*tx, ISMINE_SPENDABLE);
         fImmatureCreditCached = true;
         return nImmatureCreditCached;
+    }
+
+    return 0;
+}
+
+CAmount CWalletTx::GetStakeCredit(bool fUseCache) const
+{
+    if (IsCoinStake() && GetBlocksToMaturity() > 0 && IsInMainChain())
+    {
+        if (fUseCache && fStakeCreditCached)
+            return nStakeCreditCached;
+        nStakeCreditCached = pwallet->GetCredit(*tx, ISMINE_SPENDABLE);
+        fStakeCreditCached = true;
+        return nStakeCreditCached;
     }
 
     return 0;
@@ -1918,6 +1932,20 @@ CAmount CWalletTx::GetImmatureWatchOnlyCredit(const bool fUseCache) const
         nImmatureWatchCreditCached = pwallet->GetCredit(*tx, ISMINE_WATCH_ONLY);
         fImmatureWatchCreditCached = true;
         return nImmatureWatchCreditCached;
+    }
+
+    return 0;
+}
+
+CAmount CWalletTx::GetStakeWatchOnlyCredit(const bool fUseCache) const
+{
+    if (IsCoinStake() && GetBlocksToMaturity() > 0 && IsInMainChain())
+    {
+        if (fUseCache && fStakeWatchCreditCached)
+            return nStakeWatchCreditCached;
+        nStakeWatchCreditCached = pwallet->GetCredit(*tx, ISMINE_WATCH_ONLY);
+        fStakeWatchCreditCached = true;
+        return nStakeWatchCreditCached;
     }
 
     return 0;
@@ -2110,6 +2138,21 @@ CAmount CWallet::GetImmatureBalance() const
     return nTotal;
 }
 
+// DeepOnion: total coins staked (non-spendable until maturity)
+CAmount CWallet::GetStakeBalance() const
+{
+    CAmount nTotal = 0;
+    {
+        LOCK2(cs_main, cs_wallet);
+        for (const auto& entry : mapWallet)
+        {
+            const CWalletTx* pcoin = &entry.second;
+            nTotal += pcoin->GetStakeCredit();
+        }
+    }
+    return nTotal;
+}
+
 CAmount CWallet::GetWatchOnlyBalance() const
 {
     CAmount nTotal = 0;
@@ -2150,6 +2193,20 @@ CAmount CWallet::GetImmatureWatchOnlyBalance() const
         {
             const CWalletTx* pcoin = &entry.second;
             nTotal += pcoin->GetImmatureWatchOnlyCredit();
+        }
+    }
+    return nTotal;
+}
+
+CAmount CWallet::GetStakeWatchOnlyBalance() const
+{
+    CAmount nTotal = 0;
+    {
+        LOCK2(cs_main, cs_wallet);
+        for (const auto& entry : mapWallet)
+        {
+            const CWalletTx* pcoin = &entry.second;
+            nTotal += pcoin->GetStakeWatchOnlyCredit();
         }
     }
     return nTotal;
@@ -2492,24 +2549,6 @@ static void ApproximateBestSubset(const std::vector<CInputCoin>& vValue, const C
             }
         }
     }
-}
-
-// DeepOnion: total coins staked (non-spendable until maturity)
-// DeepOnion: need to be tested
-CAmount CWallet::GetStake() const
-{
-    CAmount nTotal = 0;
-    LOCK2(cs_main, cs_wallet);
-    for (std::map<uint256, CWalletTx>::const_iterator it = mapWallet.begin(); it != mapWallet.end(); ++it)
-    {
-        const CWalletTx* pcoin = &(*it).second;
-        if (pcoin->IsCoinStake() && pcoin->GetBlocksToMaturity() > 0 && pcoin->GetDepthInMainChain() > 0)
-            //nTotal += CWallet::GetCredit(*pcoin->tx, ISMINE_SPENDABLE);
-            nTotal += pcoin->GetCredit(ISMINE_SPENDABLE);
-    } 
-    return nTotal;
-    
-    
 }
 
 bool CWallet::SelectCoinsMinConf(const CAmount& nTargetValue, const int nConfMine, const int nConfTheirs, const uint64_t nMaxAncestors, std::vector<COutput> vCoins,

@@ -17,7 +17,6 @@
  */
 bool TransactionRecord::showTransaction(const CWalletTx &wtx)
 {
-    //if (wtx.IsCoinBase() || wtx.IsCoinStake())
     if (wtx.IsCoinBase())
     {
         // Ensures we show generated coins / mined transactions at depth 1
@@ -88,7 +87,7 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                 {
                     // Generated (proof-of-stake)
                     sub.type = TransactionRecord::Generated;
-                    
+
                     if (hashPrev == hash)
                         continue; // last coinstake output
                     hashPrev = hash;

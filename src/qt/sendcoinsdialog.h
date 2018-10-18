@@ -52,7 +52,7 @@ public Q_SLOTS:
     SendCoinsEntry *addEntry();
     void updateTabsAndLabels();
     void setBalance(const CAmount& balance, const CAmount& unconfirmedBalance, const CAmount& immatureBalance, const CAmount& stakeBalance,
-                    const CAmount& watchOnlyBalance, const CAmount& watchUnconfBalance, const CAmount& watchImmatureBalance);
+                    const CAmount& watchOnlyBalance, const CAmount& watchUnconfBalance, const CAmount& watchImmatureBalance, const CAmount& watchStakeeBalance);
 
 private:
     Ui::SendCoinsDialog *ui;
