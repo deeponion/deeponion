@@ -762,8 +762,10 @@ struct DisconnectedBlockTransactions {
 
     void addTransaction(const CTransactionRef& tx)
     {
-        queuedTx.insert(tx);
-        cachedInnerUsage += RecursiveDynamicUsage(tx);
+    	if(!tx.get()->IsCoinStake()) {
+			queuedTx.insert(tx);
+			cachedInnerUsage += RecursiveDynamicUsage(tx);
+    	}
     }
 
     // Remove entries based on txid_index, and update memory usage.
