@@ -1281,6 +1281,11 @@ void CWallet::BlockDisconnected(const std::shared_ptr<const CBlock>& pblock) {
     LOCK2(cs_main, cs_wallet);
 
     for (const CTransactionRef& ptx : pblock->vtx) {
+
+    	if(ptx->IsCoinStake() && IsFromMe(*ptx.get())) {
+            LogPrintf("CWalletTx::BlockDisconnected: Attempting to Abandon Stake Transaction\n");
+    		AbandonTransaction(ptx->GetHash());
+    	}
         SyncTransaction(ptx);
     }
 }
@@ -3377,7 +3382,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
     }
 
     if (setCoins.empty()){
-        LogPrint(BCLog::POS, "CreateCoinStake(): !SelectCoinsSimple().\n");
+        LogPrint(BCLog::POS, "CreateCoinStake(): setCoins.empty().\n");
         return false;
     }
 
@@ -3397,6 +3402,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
             CAutoFile file(OpenBlockFile(txindex, true), SER_DISK, CLIENT_VERSION);
             if (file.IsNull())
             {
+                LogPrint(BCLog::POS, "CreateCoinStake(): file.IsNull().\n");
             	return false;
             }
             try {
@@ -3532,8 +3538,10 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
             break; // if kernel is found stop searching
     }
 
-    if (nCredit == 0 || nCredit > nBalance - nReserveBalance)
+    if (nCredit == 0 || nCredit > nBalance - nReserveBalance) {
+        LogPrint(BCLog::POS, "CreateCoinStake(): nCredit = %d. nCredit > nBalance - nReserveBalance = %d > %d - %d = %d\n", nCredit, nCredit, nBalance, nReserveBalance, (nCredit > nBalance - nReserveBalance));
         return false;
+    }
 
     for(std::pair<const CWalletTx*, unsigned int> pcoin : setCoins)
     {
@@ -3570,12 +3578,16 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
     {
         uint64_t nCoinAge;
         const CTransaction ctxNew(txNew);
-        if (!GetCoinAge(nCoinAge, &ctxNew))
+        if (!GetCoinAge(nCoinAge, &ctxNew)) {
+            LogPrint(BCLog::POS, "CreateCoinStake : can't create age.\n");
             return error("CreateCoinStake : failed to calculate coin age");
+        }
 
         CAmount nReward = GetProofOfStakeReward(nCoinAge, chainActive.Tip());
-        if (nReward <= 0)
+        if (nReward <= 0) {
+            LogPrint(BCLog::POS, "CreateCoinStake : nReward %d\n", nReward);
             return false;
+        }
 
         nCredit += nReward;
     }
@@ -3593,14 +3605,18 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
     int nIn = 0;
     for(const CWalletTx* pcoin : vwtxPrev)
     {
-        if (!SignSignature(*this, *pcoin->tx, txNew, nIn++, SIGHASH_ALL))
+        if (!SignSignature(*this, *pcoin->tx, txNew, nIn++, SIGHASH_ALL)) {
+            LogPrint(BCLog::POS, "CreateCoinStake : !SignSignature().\n");
             return error("CreateCoinStake : failed to sign coinstake");
+        }
     }
 
     // Limit size
     unsigned int nBytes = ::GetSerializeSize(txNew, SER_NETWORK, PROTOCOL_VERSION);
-    if (nBytes >= MAX_BLOCK_SIZE_GEN/5)
+    if (nBytes >= MAX_BLOCK_SIZE_GEN/5) {
+        LogPrint(BCLog::POS, "CreateCoinStake : exceeded coinstake size limit %d.\n", nBytes);
         return error("CreateCoinStake : exceeded coinstake size limit");
+    }
 
     // Successfully generated coinstake
     return true;
@@ -4678,7 +4694,7 @@ int CMerkleTx::GetBlocksToMaturity() const
 {
     if (!(IsCoinBase() || IsCoinStake()))
         return 0;
-    return std::max(0, (Params().GetConsensus().nCoinbaseMaturity+1) - GetDepthInMainChain());
+    return std::max(0, (Params().GetConsensus().nCoinbaseMaturity+10) - GetDepthInMainChain());
 }
 
 
