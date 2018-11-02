@@ -2435,6 +2435,7 @@ void static UpdateTip(const CBlockIndex *pindexNew, const CChainParams& chainPar
   */
 bool CChainState::DisconnectTip(CValidationState& state, const CChainParams& chainparams, DisconnectedBlockTransactions *disconnectpool)
 {
+    LogPrint(BCLog::POS, "- Disconnect block: \n");
     CBlockIndex *pindexDelete = chainActive.Tip();
     assert(pindexDelete);
     // Read block from disk.
@@ -2460,6 +2461,8 @@ bool CChainState::DisconnectTip(CValidationState& state, const CChainParams& cha
     if (disconnectpool) {
         // Save transactions to re-add to mempool at end of reorg
         for (auto it = block.vtx.rbegin(); it != block.vtx.rend(); ++it) {
+            const CTransactionRef& ctxr = *it;
+            LogPrintf("CChainState::DisconnectTip tx: %s", ctxr.get()->ToString().c_str());
             disconnectpool->addTransaction(*it);
         }
         while (disconnectpool->DynamicMemoryUsage() > MAX_DISCONNECTED_TX_POOL_SIZE * 1000) {
@@ -3258,7 +3261,6 @@ bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::P
     // special check for pos blocks
     if (block.IsProofOfStake())
     {
-    	LogPrint(BCLog::POS, "CheckBlock(): block.vtx[0]->vout.size() %d block.IsProofOfStake() block.vtx[0]->vout[0].nValue %d block.vtx[0]->vout[0].scriptPubKey.empty() %s block.vtx[0]->vout[0].IsEmpty() %s \n", block.vtx[0]->vout.size(), block.vtx[0]->vout[0].nValue, block.vtx[0]->vout[0].scriptPubKey.empty() ? "EMPTY" : "NOT EMPTY", block.vtx[0]->vout[0].IsEmpty() ? "EMPTY" : "NOT EMPTY");
         // Coinbase output should be empty if proof-of-stake block
     	// TODO: DeepOnion: segwit creates more outputs for coinbase, this needs
     	// TODO: DeepOnion: handling here after the segwit softfork
@@ -3287,37 +3289,27 @@ bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::P
 
 bool CheckBlockSignature(const CBlock& block)
 {
-	LogPrint(BCLog::POS, "CheckBlock(): CheckBlockSignature 1\n");
     if (block.IsProofOfWork()) {
-    	LogPrint(BCLog::POS, "CheckBlock(): CheckBlockSignature 2\n");
         return block.vchBlockSig.empty();
     }
-	LogPrint(BCLog::POS, "CheckBlock(): CheckBlockSignature 3\n");
 
     std::vector<valtype> vSolutions;
     txnouttype whichType;
 
     const CTxOut& txout = block.vtx[1]->vout[1];
 
-	LogPrint(BCLog::POS, "CheckBlock(): CheckBlockSignature 4 txout.scriptPubKey %s\n", txout.scriptPubKey.ToString());
     if (!Solver(txout.scriptPubKey, whichType, vSolutions)) {
-    	LogPrint(BCLog::POS, "CheckBlock(): CheckBlockSignature 4b\n");
         return false;
     }
-	LogPrint(BCLog::POS, "CheckBlock(): CheckBlockSignature 5\n");
 
     if (whichType == TX_PUBKEY)
     {
-    	LogPrint(BCLog::POS, "CheckBlock(): CheckBlockSignature 6\n");
         CPubKey vchPubKey = CPubKey(vSolutions[0]);
         if (block.vchBlockSig.empty()) {
-        	LogPrint(BCLog::POS, "CheckBlock(): CheckBlockSignature 7\n");
             return false;
         }
-    	LogPrint(BCLog::POS, "CheckBlock(): CheckBlockSignature 8\n");
         return vchPubKey.Verify(block.GetHash(), block.vchBlockSig);
     }
-	LogPrint(BCLog::POS, "CheckBlock(): CheckBlockSignature 9\n");
     return false;
 }
 
@@ -3413,10 +3405,10 @@ static bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationSta
     if(testNewPowValidity)
     	isProofOfStake = false;
     
-    if(isProofOfStake)
-    	LogPrintf(">> PoS block\n");
-    else
-    	LogPrintf(">> PoW block\n");
+//    if(isProofOfStake)
+//    	LogPrintf(">> PoS block\n");
+//    else
+//    	LogPrintf(">> PoW block\n");
     
     if (block.nBits != GetNextWorkRequired(pindexPrev, &block, consensusParams, isProofOfStake)) {
     	LogPrintf(">> block.nBits=%08x, getwork = %08x, hash = %s\n", 
@@ -3697,7 +3689,6 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CVali
         if (pindex->nChainWork < nMinimumChainWork) return true;
     }
     if (fNewBlock) *fNewBlock = true;
-
     if (!CheckBlock(block, state, chainparams.GetConsensus()) ||
         !ContextualCheckBlock(block, state, chainparams.GetConsensus(), pindex->pprev)) {
         if (state.IsInvalid() && !state.CorruptionPossible()) {
@@ -3719,7 +3710,7 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CVali
     	LOCK(cs_stakeHandling);
 
       	// DeepOnion: record proof-of-stake hash value
-        CBlockIndex* pWalking = pindex->pprev;
+        CBlockIndex* pWalking = pindex->nHeight == 0 ? pindex : pindex->pprev;
         bool flag = true;
         
     	while(pWalking != nullptr && pWalking->nHeight > lastProcessedStakeModifierBlock)
