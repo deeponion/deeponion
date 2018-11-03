@@ -1026,6 +1026,9 @@ bool CWallet::AddToWallet(const CWalletTx& wtxIn, bool fFlushOnClose)
             fUpdated = true;
         }
 
+        if(fUpdated && wtx.IsCoinStake()) {
+            AddToSpends(hash);
+        }
     }
 
     //// debug print
