@@ -546,16 +546,12 @@ bool SignBlock(CBlock& block, CWallet& wallet, CAmount nFees)
         return true;
     }
 
-    LogPrint(BCLog::POS, "SignBlock(): block.vtx.size %d block.vtx[0]->vout.size() %d\n", block.vtx.size(), block.vtx[0]->vout.size());
-
     static int64_t nLastCoinStakeSearchTime = GetAdjustedTime(); // startup timestamp
 
     CKey key;
     CMutableTransaction txCoinStake;
     // DeepOnion: In the old code, CTransaction sets nTime to GetAdjustedTime() when instantiated.
     int64_t nSearchTime = txCoinStake.nTime = GetAdjustedTime(); // search to current time
-
-    LogPrint(BCLog::POS, "SignBlock(): nSearchTime: %l nLastCoinStakeSearchTime: %l.\n", nSearchTime, nLastCoinStakeSearchTime);
 
     if (nSearchTime > nLastCoinStakeSearchTime)
     {
@@ -754,7 +750,7 @@ void StakeMiner()
             }
             else {
     			LogPrint(BCLog::POS, "StakeMiner(): Couldn't Sign block.\n");
-                MilliSleep(gArgs.GetArg("-minersleep", 500));
+                MilliSleep(gArgs.GetArg("-minersleep", 1000));
             }
 
         }

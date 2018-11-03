@@ -607,6 +607,7 @@ void CWallet::AddToSpends(const COutPoint& outpoint, const uint256& wtxid)
 
     std::pair<TxSpends::iterator, TxSpends::iterator> range;
     range = mapTxSpends.equal_range(outpoint);
+    LogPrintf("CWallet::AddToSpends %s\n", wtxid.ToString().c_str());
     SyncMetaData(range);
 }
 
@@ -621,6 +622,59 @@ void CWallet::AddToSpends(const uint256& wtxid)
 
     for (const CTxIn& txin : thisTx.tx->vin)
         AddToSpends(txin.prevout, wtxid);
+}
+
+bool CWallet::RemoveTransaction(const CTransaction &tx)
+{
+    if (!tx.IsCoinStake() || !IsFromMe(tx))
+        return false; // only disconnecting coinstake requires marking input unspent
+
+    LOCK(cs_wallet);
+    uint256 hash = tx.GetHash();
+    if(AbandonTransaction(hash)) {
+        LogPrintf("CWallet::RemoveTransaction %s\n", hash.ToString().c_str());
+        RemoveFromSpends(hash);
+        for(const CTxIn& txin : tx.vin) {
+            CWalletTx &coin = mapWallet[txin.prevout.hash];
+            coin.BindWallet(this);
+            NotifyTransactionChanged(this, coin.GetHash(), CT_UPDATED);
+        }
+        CWalletTx& wtx = mapWallet[hash];
+        wtx.BindWallet(this);
+        NotifyTransactionChanged(this, hash, CT_DELETED);
+        return true;
+    }
+    return false;
+}
+
+void CWallet::RemoveFromSpends(const COutPoint& outpoint, const uint256& wtxid)
+{
+    std::pair<TxSpends::iterator, TxSpends::iterator> range;
+    range = mapTxSpends.equal_range(outpoint);
+    TxSpends::iterator it = range.first;
+    for(; it != range.second; ++ it)
+    {
+        if(it->second == wtxid)
+        {
+            LogPrintf("CWallet::RemoveFromSpends %s\n", wtxid.ToString().c_str());
+            mapTxSpends.erase(it);
+            break;
+        }
+    }
+    range = mapTxSpends.equal_range(outpoint);
+    if(range.first != range.second)
+        SyncMetaData(range);
+}
+
+void CWallet::RemoveFromSpends(const uint256& wtxid)
+{
+    assert(mapWallet.count(wtxid));
+    CWalletTx& thisTx = mapWallet[wtxid];
+	if (thisTx.IsCoinBase()) // Coinbases don't spend anything!
+        return;
+
+    for(const CTxIn& txin : thisTx.tx->vin)
+        RemoveFromSpends(txin.prevout, wtxid);
 }
 
 bool CWallet::EncryptWallet(const SecureString& strWalletPassphrase)
@@ -971,10 +1025,11 @@ bool CWallet::AddToWallet(const CWalletTx& wtxIn, bool fFlushOnClose)
             wtx.SetTx(wtxIn.tx);
             fUpdated = true;
         }
+
     }
 
     //// debug print
-    LogPrintf("AddToWallet %s  %s%s\n", wtxIn.GetHash().ToString(), (fInsertedNew ? "new" : ""), (fUpdated ? "update" : ""));
+    LogPrintf("AddToWallet %s  %s%s %s\n", wtxIn.GetHash().ToString(), (fInsertedNew ? "new" : ""), (fUpdated ? "update" : ""), (wtx.IsCoinStake() ? "Stake" : ""));
 
     // Write to disk
     if (fInsertedNew || fUpdated)
@@ -1116,6 +1171,7 @@ bool CWallet::AbandonTransaction(const uint256& hashTx)
     }
 
     todo.insert(hashTx);
+    LogPrintf("CWallet::AbandonTransaction  %s\n", hashTx.ToString().c_str());
 
     while (!todo.empty()) {
         uint256 now = *todo.begin();
@@ -1125,6 +1181,7 @@ bool CWallet::AbandonTransaction(const uint256& hashTx)
         assert(it != mapWallet.end());
         CWalletTx& wtx = it->second;
         int currentconfirm = wtx.GetDepthInMainChain();
+        LogPrintf("CWallet::AbandonTransaction  %s currentconfirm %d\n", hashTx.ToString().c_str(), currentconfirm);
         // If the orig tx was not in block, none of its spends can be
         assert(currentconfirm <= 0);
         // if (currentconfirm < 0) {Tx and spends are already conflicted, no need to abandon}
@@ -1132,6 +1189,7 @@ bool CWallet::AbandonTransaction(const uint256& hashTx)
             // If the orig tx was not in block/mempool, none of its spends can be in mempool
             assert(!wtx.InMempool());
             wtx.nIndex = -1;
+            LogPrintf("CWallet::AbandonTransaction abandoning %s\n", now.ToString().c_str());
             wtx.setAbandoned();
             wtx.MarkDirty();
             walletdb.WriteTx(wtx);
@@ -1277,20 +1335,24 @@ void CWallet::BlockConnected(const std::shared_ptr<const CBlock>& pblock, const 
     m_last_block_processed = pindex;
 }
 
+
 void CWallet::BlockDisconnected(const std::shared_ptr<const CBlock>& pblock) {
     LOCK2(cs_main, cs_wallet);
 
     for (const CTransactionRef& ptx : pblock->vtx) {
 
     	if(ptx->IsCoinStake() && IsFromMe(*ptx.get())) {
-            LogPrintf("CWalletTx::BlockDisconnected: Attempting to Abandon Stake Transaction\n");
-    		AbandonTransaction(ptx->GetHash());
+    	    LogPrint(BCLog::POS, "CWalletTx::BlockDisconnected: Attempting to Abandon Stake Transaction\n");
+    	    if(RemoveTransaction(*ptx.get())) {
+    	        LogPrint(BCLog::POS, "CWalletTx::BlockDisconnected: AbandonTransaction Success\n");
+    	    } else {
+    	        LogPrint(BCLog::POS, "CWalletTx::BlockDisconnected: AbandonTransaction Failed\n");
+    	    }
+    	} else {
+    	    SyncTransaction(ptx);
     	}
-        SyncTransaction(ptx);
     }
 }
-
-
 
 void CWallet::BlockUntilSyncedToCurrentChain() {
     AssertLockNotHeld(cs_main);
