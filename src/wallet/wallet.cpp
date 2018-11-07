@@ -607,7 +607,6 @@ void CWallet::AddToSpends(const COutPoint& outpoint, const uint256& wtxid)
 
     std::pair<TxSpends::iterator, TxSpends::iterator> range;
     range = mapTxSpends.equal_range(outpoint);
-    LogPrintf("CWallet::AddToSpends %s\n", wtxid.ToString().c_str());
     SyncMetaData(range);
 }
 
@@ -632,7 +631,6 @@ bool CWallet::RemoveTransaction(const CTransaction &tx)
     LOCK(cs_wallet);
     uint256 hash = tx.GetHash();
     if(AbandonTransaction(hash)) {
-        LogPrintf("CWallet::RemoveTransaction %s\n", hash.ToString().c_str());
         RemoveFromSpends(hash);
         for(const CTxIn& txin : tx.vin) {
             CWalletTx &coin = mapWallet[txin.prevout.hash];
@@ -656,7 +654,6 @@ void CWallet::RemoveFromSpends(const COutPoint& outpoint, const uint256& wtxid)
     {
         if(it->second == wtxid)
         {
-            LogPrintf("CWallet::RemoveFromSpends %s\n", wtxid.ToString().c_str());
             mapTxSpends.erase(it);
             break;
         }

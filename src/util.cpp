@@ -251,7 +251,7 @@ const CLogCategoryDesc LogCategories[] =
     {BCLog::COINDB, "coindb"},
     {BCLog::QT, "qt"},
     {BCLog::LEVELDB, "leveldb"},
-    {BCLog::LEVELDB, "pos"},
+    {BCLog::POS, "pos"},
     {BCLog::ALL, "1"},
     {BCLog::ALL, "all"},
 };
