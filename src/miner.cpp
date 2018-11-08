@@ -179,37 +179,29 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
     coinbaseTx.vin[0].prevout.SetNull();
     coinbaseTx.vout.resize(1);
     coinbaseTx.nTime = GetAdjustedTime();
-    LogPrintf("CreateNewBlock(): coinbaseTx.vout.size(): %d 1\n", coinbaseTx.vout.size());
 
 	if(!fProofOfStake) {
 		coinbaseTx.vout[0].scriptPubKey = scriptPubKeyIn;
 		coinbaseTx.vout[0].nValue = nFees + GetBlockSubsidy(nHeight, chainparams.GetConsensus());
 		coinbaseTx.vin[0].scriptSig = (CScript() << nHeight << CScriptNum(0)) + COINBASE_FLAGS;
-    
 	} else {
         // Height first in coinbase required for block.version=2
 		coinbaseTx.vin[0].scriptSig = (CScript() << pindexPrev->nHeight+1) + COINBASE_FLAGS;
         assert(coinbaseTx.vin[0].scriptSig.size() <= 100);
         coinbaseTx.vout[0].nValue = 0;
-
 	}
-    LogPrintf("CreateNewBlock(): coinbaseTx = %s\n", CTransaction(coinbaseTx).ToString().c_str());
-    LogPrintf("CreateNewBlock(): vout[0] = %s\n", coinbaseTx.vout[0].ToString().c_str());
-    LogPrintf("CreateNewBlock(): coinbaseTx.vout.size(): %d 2\n", coinbaseTx.vout.size());
 
-	// TODO: DeepOnion: CHECK THIS
 	pblock->vtx[0] = MakeTransactionRef(std::move(coinbaseTx));
-    // pblocktemplate->vchCoinbaseCommitment = GenerateCoinbaseCommitment(*pblock, pindexPrev, chainparams.GetConsensus());
-    LogPrintf("CreateNewBlock(): pblock->vtx[0].vout.size(): %d 3\n", pblock->vtx[0]->vout.size());
+	// FIXME: DeepOnion: This is for SEGWIT and should be put back in.
+	// pblocktemplate->vchCoinbaseCommitment = GenerateCoinbaseCommitment(*pblock, pindexPrev, chainparams.GetConsensus());
 
     if(!fProofOfStake) {
     	pblocktemplate->vTxFees[0] = -nFees;
     } else if (pFees) {
     	*pFees = nFees;
     }
-    LogPrintf("CreateNewBlock(): pblock->vtx[0].vout.size(): %d 4\n", pblock->vtx[0]->vout.size());
 
-    LogPrintf("CreateNewBlock(): block weight: %u txs: %u fees: %ld sigops %d\n", GetBlockWeight(*pblock), nBlockTx, nFees, nBlockSigOpsCost);
+    LogPrint(BCLog::POS, "CreateNewBlock(): block weight: %u txs: %u fees: %ld sigops %d\n", GetBlockWeight(*pblock), nBlockTx, nFees, nBlockSigOpsCost);
 
     // Fill in header
     pblock->hashPrevBlock  = pindexPrev->GetBlockHash();
@@ -217,7 +209,6 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
     pblock->nBits          = GetNextWorkRequired(pindexPrev, pblock, chainparams.GetConsensus(), fProofOfStake);
     pblock->nNonce         = 0;
     pblocktemplate->vTxSigOpsCost[0] = WITNESS_SCALE_FACTOR * GetLegacySigOpCount(*pblock->vtx[0]);
-    LogPrintf("CreateNewBlock(): pblock->vtx[0].vout.size(): %d 4\n", pblock->vtx[0]->vout.size());
 
     CValidationState state;
     if (!TestBlockValidity(state, chainparams, *pblock, pindexPrev, false, false, fProofOfStake)) {
@@ -226,7 +217,6 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
     int64_t nTime2 = GetTimeMicros();
 
     LogPrint(BCLog::BENCH, "CreateNewBlock() packages: %.2fms (%d packages, %d updated descendants), validity: %.2fms (total %.2fms)\n", 0.001 * (nTime1 - nTimeStart), nPackagesSelected, nDescendantsUpdated, 0.001 * (nTime2 - nTime1), 0.001 * (nTime2 - nTimeStart));
-    LogPrintf("CreateNewBlock(): pblock->vtx[0].vout.size(): %d 4\n", pblock->vtx[0]->vout.size());
 
     return std::move(pblocktemplate);
 }
