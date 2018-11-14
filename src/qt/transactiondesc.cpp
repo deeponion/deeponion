@@ -38,7 +38,9 @@ QString TransactionDesc::FormatTxStatus(const CWalletTx& wtx)
             return tr("conflicted with a transaction with %1 confirmations").arg(-nDepth);
         else if (nDepth == 0)
             return tr("0/unconfirmed, %1").arg((wtx.InMempool() ? tr("in memory pool") : tr("not in memory pool"))) + (wtx.isAbandoned() ? ", "+tr("abandoned") : "");
-        else if (nDepth < 6)
+        else if ((wtx.IsCoinBase() || wtx.IsCoinStake()) && nDepth < (Params().GetConsensus().nCoinbaseMaturity + 10))
+            return tr("%1/unconfirmed").arg(nDepth);
+        else if (!wtx.IsCoinBase() && !wtx.IsCoinStake() && nDepth < TransactionRecord::RecommendedNumConfirmations)
             return tr("%1/unconfirmed").arg(nDepth);
         else
             return tr("%1 confirmations").arg(nDepth);
@@ -255,7 +257,7 @@ QString TransactionDesc::toHTML(CWallet *wallet, CWalletTx &wtx, TransactionReco
 
     if (wtx.IsCoinBase() || wtx.IsCoinStake())
     {
-        quint32 numBlocksToMaturity = Params().GetConsensus().nCoinbaseMaturity +  1;
+        quint32 numBlocksToMaturity = Params().GetConsensus().nCoinbaseMaturity + 10;
         strHTML += "<br>" + tr("Generated coins must mature %1 blocks before they can be spent. When you generated this block, it was broadcast to the network to be added to the block chain. If it fails to get into the chain, its state will change to \"not accepted\" and it won't be spendable. This may occasionally happen if another node generates a block within a few seconds of yours.").arg(QString::number(numBlocksToMaturity)) + "<br>";
     }
 
