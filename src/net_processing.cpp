@@ -879,20 +879,25 @@ void PeerLogicValidation::NewPoWValidBlock(const CBlockIndex *pindex, const std:
         if (pnode->nVersion < INVALID_CB_NO_BAN_VERSION || pnode->fDisconnect)
             return;
         ProcessBlockAvailability(pnode->GetId());
-        CNodeState &state = *State(pnode->GetId());
-        // If the peer has, or we announced to them the previous block already,
-        // but we don't think they have this one, go ahead and announce it
-        if (state.fPreferHeaderAndIDs && (!fWitnessEnabled || state.fWantsCmpctWitness) &&
-                !PeerHasHeader(&state, pindex) && PeerHasHeader(&state, pindex->pprev)) {
 
-            LogPrint(BCLog::NET, "%s sending header-and-ids %s to peer=%d\n", "PeerLogicValidation::NewPoWValidBlock",
-                    hashBlock.ToString(), pnode->GetId());
-            connman->PushMessage(pnode, msgMaker.Make(NetMsgType::CMPCTBLOCK, *pcmpctblock));
-            state.pindexBestHeaderSent = pindex;
-        }
-        
-        // for old client send inv message
-        if(pnode->nVersion < PROTOCOL_VERSION) 
+        // DeepOnion: PoS blocks don't pass validation with CompactBlocks so commenting out for now.
+        //            In the future we may need to review this as there are ties with SEGWIT.
+        // vvvvvvvvvvvv DO NOT REMOVE GREEN CODE vvvvvvvvvvvvvvvvvvvvv
+//        CNodeState &state = *State(pnode->GetId());
+//         If the peer has, or we announced to them the previous block already,
+//         but we don't think they have this one, go ahead and announce it
+//        if (state.fPreferHeaderAndIDs && (!fWitnessEnabled || state.fWantsCmpctWitness) &&
+//                !PeerHasHeader(&state, pindex) && PeerHasHeader(&state, pindex->pprev)) {
+//
+//            LogPrint(BCLog::NET, "%s sending header-and-ids %s to peer=%d\n", "PeerLogicValidation::NewPoWValidBlock",
+//                    hashBlock.ToString(), pnode->GetId());
+//            connman->PushMessage(pnode, msgMaker.Make(NetMsgType::CMPCTBLOCK, *pcmpctblock));
+//            state.pindexBestHeaderSent = pindex;
+//        }
+//
+//         for old client send inv message
+//        if(pnode->nVersion < PROTOCOL_VERSION)
+        // ^^^^^^^^^^^^ DO NOT REMOVE GREEN CODE ^^^^^^^^^^^^^^^^^^^^^^
         {
             std::vector<CInv> vInv;
             vInv.push_back(CInv(MSG_BLOCK, chainActive.Tip()->GetBlockHash()));
@@ -1171,16 +1176,18 @@ void static ProcessGetBlockData(CNode* pfrom, const Consensus::Params& consensus
             // instead we respond with the full, non-compact block.
             bool fPeerWantsWitness = State(pfrom->GetId())->fWantsCmpctWitness;
             int nSendFlags = fPeerWantsWitness ? 0 : SERIALIZE_TRANSACTION_NO_WITNESS;
-            if (CanDirectFetch(consensusParams) && mi->second->nHeight >= chainActive.Height() - MAX_CMPCTBLOCK_DEPTH) {
-                if ((fPeerWantsWitness || !fWitnessesPresentInARecentCompactBlock) && a_recent_compact_block && a_recent_compact_block->header.GetHash() == mi->second->GetBlockHash()) {
-                    connman->PushMessage(pfrom, msgMaker.Make(nSendFlags, NetMsgType::CMPCTBLOCK, *a_recent_compact_block));
-                } else {
-                    CBlockHeaderAndShortTxIDs cmpctblock(*pblock, fPeerWantsWitness);
-                    connman->PushMessage(pfrom, msgMaker.Make(nSendFlags, NetMsgType::CMPCTBLOCK, cmpctblock));
-                }
-            } else {
-                connman->PushMessage(pfrom, msgMaker.Make(nSendFlags, NetMsgType::BLOCK, *pblock));
-            }
+//            if (CanDirectFetch(consensusParams) && mi->second->nHeight >= chainActive.Height() - MAX_CMPCTBLOCK_DEPTH) {
+//                if ((fPeerWantsWitness || !fWitnessesPresentInARecentCompactBlock) && a_recent_compact_block && a_recent_compact_block->header.GetHash() == mi->second->GetBlockHash()) {
+//                    connman->PushMessage(pfrom, msgMaker.Make(nSendFlags, NetMsgType::CMPCTBLOCK, *a_recent_compact_block));
+//                } else {
+//                    CBlockHeaderAndShortTxIDs cmpctblock(*pblock, fPeerWantsWitness);
+//                    connman->PushMessage(pfrom, msgMaker.Make(nSendFlags, NetMsgType::CMPCTBLOCK, cmpctblock));
+//                }
+//            } else {
+//                connman->PushMessage(pfrom, msgMaker.Make(nSendFlags, NetMsgType::BLOCK, *pblock));
+//            }
+//          DeepOnion: The above "Green Code" should not be removed. CMPCTBLOCK break validation.
+            connman->PushMessage(pfrom, msgMaker.Make(nSendFlags, NetMsgType::BLOCK, *pblock));
         }
 
         // Trigger the peer node to send a getblocks request for the next batch of inventory
@@ -1761,19 +1768,19 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
             // nodes)
             connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::SENDHEADERS));
         }
-        if (pfrom->nVersion >= SHORT_IDS_BLOCKS_VERSION) {
-            // Tell our peer we are willing to provide version 1 or 2 cmpctblocks
-            // However, we do not request new block announcements using
-            // cmpctblock messages.
-            // We send this to non-NODE NETWORK peers as well, because
-            // they may wish to request compact blocks from us
-            bool fAnnounceUsingCMPCTBLOCK = false;
-            uint64_t nCMPCTBLOCKVersion = 2;
-            if (pfrom->GetLocalServices() & NODE_WITNESS)
-                connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::SENDCMPCT, fAnnounceUsingCMPCTBLOCK, nCMPCTBLOCKVersion));
-            nCMPCTBLOCKVersion = 1;
-            connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::SENDCMPCT, fAnnounceUsingCMPCTBLOCK, nCMPCTBLOCKVersion));
-        }
+//        if (pfrom->nVersion >= SHORT_IDS_BLOCKS_VERSION) {
+//            // Tell our peer we are willing to provide version 1 or 2 cmpctblocks
+//            // However, we do not request new block announcements using
+//            // cmpctblock messages.
+//            // We send this to non-NODE NETWORK peers as well, because
+//            // they may wish to request compact blocks from us
+//            bool fAnnounceUsingCMPCTBLOCK = false;
+//            uint64_t nCMPCTBLOCKVersion = 2;
+//            if (pfrom->GetLocalServices() & NODE_WITNESS)
+//                connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::SENDCMPCT, fAnnounceUsingCMPCTBLOCK, nCMPCTBLOCKVersion));
+//            nCMPCTBLOCKVersion = 1;
+//            connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::SENDCMPCT, fAnnounceUsingCMPCTBLOCK, nCMPCTBLOCKVersion));
+//        }
         pfrom->fSuccessfullyConnected = true;
     }
 
@@ -3359,7 +3366,8 @@ bool PeerLogicValidation::SendMessages(CNode* pto, std::atomic<bool>& interruptM
                 }
             }
             if (!fRevertToInv && !vHeaders.empty()) {
-                if (vHeaders.size() == 1 && state.fPreferHeaderAndIDs) {
+                // DeepOnion: Below "Green Code" should not be removed - CMPCTBLOCK break PoS validation.
+                /*if (vHeaders.size() == 1 && state.fPreferHeaderAndIDs) {
                     // We only send up to 1 block as header-and-ids, as otherwise
                     // probably means we're doing an initial-ish-sync or they're slow
                     LogPrint(BCLog::NET, "%s sending header-and-ids %s to peer=%d\n", __func__,
@@ -3388,7 +3396,7 @@ bool PeerLogicValidation::SendMessages(CNode* pto, std::atomic<bool>& interruptM
                         connman->PushMessage(pto, msgMaker.Make(nSendFlags, NetMsgType::CMPCTBLOCK, cmpctblock));
                     }
                     state.pindexBestHeaderSent = pBestIndex;
-                } else if (state.fPreferHeaders) {
+                } else */ if (state.fPreferHeaders) {
                     if (vHeaders.size() > 1) {
                         LogPrint(BCLog::NET, "%s: %u headers, range (%s, %s), to peer=%d\n", __func__,
                                 vHeaders.size(),
