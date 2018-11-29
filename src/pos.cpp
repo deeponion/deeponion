@@ -285,10 +285,15 @@ bool CheckStakeKernelHash(unsigned int nBits, CBlockIndex* pBlockFrom, CValidati
             DateTimeStrFormat("%Y-%m-%d %H:%M:%S", nStakeModifierTime).c_str(),
 			pBlockFrom->nHeight,
             DateTimeStrFormat("%Y-%m-%d %H:%M:%S", pBlockFrom->GetBlockTime()).c_str());
-   	LogPrint(BCLog::POS, "CheckStakeKernelHash() : check modifier=0x%016x nTimeBlockFrom=%u nTxPrevOffset=%u nTimeTxPrev=%u nPrevout=%u nTimeTx=%u hashProof=%s\n",
+    LogPrint(BCLog::POS, "CheckStakeKernelHash() : check modifier=0x%016x nTimeBlockFrom=%u nTxPrevOffset=%u nTimeTxPrev=%u nPrevout=%u nTimeTx=%u hashProof=%s nBits=%u bnTargetPerCoinDay=%s bnCoinDayWeight=%s targetProofOfStake=%s\n",
             nStakeModifier,
             nTimeBlockFrom, nTxPrevOffset, txPrevRef->nTime, prevout.n, nTimeTx,
-            hashProofOfStake.ToString().c_str());
+            hashProofOfStake.ToString().c_str(),
+            nBits,
+            bnTargetPerCoinDay.ToString().c_str(),
+            bnCoinDayWeight.ToString().c_str(),
+            targetProofOfStake.ToString().c_str());
+
     // Now check if proof-of-stake hash meets target protocol
     if (UintToArith256(hashProofOfStake) > bnCoinDayWeight * bnTargetPerCoinDay) {
         LogPrint(BCLog::POS, ">> CheckStakeKernelHash UintToArith256(hashProofOfStake) > bnCoinDayWeight * bnTargetPerCoinDay false\n");
