@@ -3727,21 +3727,21 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CVali
     		pWalking = pWalking->pprev;
     	}
 	
-    	// LogPrintf(">> flag = %s\n", flag ? "true":"false");
+    	LogPrint(BCLog::POS, ">> flag = %s\n", flag ? "true":"false");
     	if(flag)
     	{
-    		// LogPrintf(">> Current LastProcessedStakeModifierBlock = %d\n", lastProcessedStakeModifierBlock);
+    		LogPrint(BCLog::POS, ">> Current LastProcessedStakeModifierBlock = %d\n", lastProcessedStakeModifierBlock);
     		pWalking = pWalking->pnext;
     		int expectedHeight = pindex->nHeight;
-    		// LogPrintf(">> Expected-Height (current height) = %d\n", expectedHeight);
+    		LogPrint(BCLog::POS, ">> Expected-Height (current height) = %d\n", expectedHeight);
     		CBlock* pBlock0 = nullptr;
     		if(pWalking == nullptr)
     			return error("AcceptBlock(): pWalking == nullptr\n");
-    		// LogPrintf(">> starting pWalking->nHeight = %d\n", pWalking->nHeight);
+    		LogPrint(BCLog::POS, ">> starting pWalking->nHeight = %d\n", pWalking->nHeight);
     	
     		while(pWalking != nullptr && pWalking->nHeight > lastProcessedStakeModifierBlock && pWalking->nHeight <= expectedHeight)
     		{
-    			// LogPrintf(">> pWalking->nHeight = %d\n", pWalking->nHeight);
+    			LogPrint(BCLog::POS, ">> pWalking->nHeight = %d\n", pWalking->nHeight);
     			if(pWalking->nHeight != expectedHeight) 
     			{
     				pBlock0 = mapSavedBlocks[pWalking->nHeight];
@@ -3758,8 +3758,8 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CVali
     				if (!ReadBlockFromDisk(block0, pWalking, chainparams.GetConsensus()))
     					return error("AcceptBlock(): Unexpected pBlock0 == nullptr\n");
     				pBlock0 = &block0;
-    				// LogPrintf(">> Block read from disk pBlock0->hash = %s, nFile = %d, nPos = %u\n", 
-    				//		pBlock0->GetHash().ToString().c_str(), pWalking->GetBlockPos().nFile, pWalking->GetBlockPos().nPos);
+    				LogPrint(BCLog::POS, ">> Block read from disk pBlock0->hash = %s, nFile = %d, nPos = %u\n", 
+    						pBlock0->GetHash().ToString().c_str(), pWalking->GetBlockPos().nFile, pWalking->GetBlockPos().nPos);
     			}
     		
     			uint256 hashProofOfStake = uint256();
@@ -3767,9 +3767,8 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CVali
     		
     			if (pBlock0->IsProofOfStake())
     			{
+    				LogPrint(BCLog::POS, ">> check the block details...\n");
     				/*
-    				LogPrintf(">> check the block details...\n");
-    				
     				LogPrintf(">> block header: nVersion = %d, hashPrevBlock = %s, hashMerkleRoot = %s, nTime = %u, nBits = %u, nNonce = %u\n",
     						pBlock0->nVersion, pBlock0->hashPrevBlock.ToString().c_str(), pBlock0->hashMerkleRoot.ToString().c_str(), 
 							pBlock0->nTime, pBlock0->nBits, pBlock0->nNonce);
@@ -3800,8 +3799,9 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CVali
     					
     					LogPrintf(">> tx = %s\n", tref->ToString().c_str());    					
     				}
-    				LogPrintf(">> Block = %s\n", pBlock0->ToString().c_str());
-					*/
+    				*/
+    				LogPrint(BCLog::POS, ">> Block = %s\n", pBlock0->ToString().c_str());
+    				
     				
     				CBlockIndex* pIndex0 = pWalking;
     				if (!CheckProofOfStake(*pblocktree, pIndex0->pprev, state, *pBlock0, hashProofOfStake, targetProofOfStake, mapBlockIndex, *pcoinsTip))
@@ -3817,13 +3817,13 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CVali
     			mapSavedBlocks.erase(pWalking->nHeight);
     			lastProcessedStakeModifierBlock = pWalking->nHeight;
     			setDirtyBlockIndex.insert(pWalking);
-    			// LogPrintf(">> updated LastProcessedStakeModifierBlock = %d\n", lastProcessedStakeModifierBlock);
-    			// LogPrintf(">> Block at height %d is removed from the list\n", pWalking->nHeight);
+    			LogPrint(BCLog::POS, ">> updated LastProcessedStakeModifierBlock = %d\n", lastProcessedStakeModifierBlock);
+    			LogPrint(BCLog::POS, ">> Block at height %d is removed from the list\n", pWalking->nHeight);
     			pWalking = pWalking->pnext;
     		}
 
     		lastProcessedStakeModifierBlock = pindex->nHeight;
-    		// LogPrintf(">> LastProcessedStakeModifierBlock = %d\n", lastProcessedStakeModifierBlock);
+    		LogPrint(BCLog::POS, ">> LastProcessedStakeModifierBlock = %d\n", lastProcessedStakeModifierBlock);
     		
     		/*
     		// catch up as much as possible
@@ -3863,7 +3863,7 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CVali
     		CBlock *pBlockCopy = new CBlock(block);
     		pBlockCopy->vtx = block.vtx;
     		mapSavedBlocks[pindex->nHeight] = pBlockCopy;
-    		// LogPrintf(">> Block at height %d is saved to the list\n", pindex->nHeight);
+    		LogPrint(BCLog::POS, ">> Block at height %d is saved to the list\n", pindex->nHeight);
     	}
     }
 
