@@ -3599,7 +3599,32 @@ UniValue reservebalance(const JSONRPCRequest& request)
     return result;
 }
 
+// DeepOnion: make a public-private key pair
+UniValue makekeypair(const JSONRPCRequest& request)
+{
+    if (request.fHelp || request.params.size() > 0)
+        throw std::runtime_error(
+            "makekeypair \n"
+            "Make a public/private key pair.\n" 
+            "\nResult:\n"
+            "{\n"
+            "  \"PrivateKey\": \"value\", (string)  The resulting Private Key (hex-encoded string)\n"
+            "  \"PublicKey\": \"value\", (string)  The resulting Public Key (hex-encoded string)\n"
+            "}\n"
+            "\nExamples:\n"
+            + HelpExampleCli("makekeypair", "")
+            + HelpExampleRpc("makekeypair", ""));
 
+    CKey key;
+    key.MakeNewKey(false);
+
+    CPrivKey vchPrivKey = key.GetPrivKey();
+    
+    UniValue result(UniValue::VOBJ);
+    result.push_back(Pair("PrivateKey", HexStr<CPrivKey::iterator>(vchPrivKey.begin(), vchPrivKey.end())));
+    result.push_back(Pair("PublicKey", HexStr(key.GetPubKey())));
+    return result;
+}
 
 extern UniValue abortrescan(const JSONRPCRequest& request); // in rpcdump.cpp
 extern UniValue dumpprivkey(const JSONRPCRequest& request); // in rpcdump.cpp
@@ -3655,6 +3680,7 @@ static const CRPCCommand commands[] =
     { "wallet",             "listunspent",              &listunspent,              {"minconf","maxconf","addresses","include_unsafe","query_options"} },
     { "wallet",             "listwallets",              &listwallets,              {} },
     { "wallet",             "lockunspent",              &lockunspent,              {"unlock","transactions"} },
+    { "wallet",             "makekeypair",              &makekeypair,              {} },    
     { "wallet",             "move",                     &movecmd,                  {"fromaccount","toaccount","amount","minconf","comment"} },
     { "wallet",             "reservebalance",           &reservebalance,           {"reserve","amount"} },
     { "wallet",             "sendfrom",                 &sendfrom,                 {"fromaccount","toaddress","amount","minconf","comment","comment_to"} },
