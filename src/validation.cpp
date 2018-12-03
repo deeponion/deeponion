@@ -3717,6 +3717,13 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CVali
         CBlockIndex* pWalking = pindex->nHeight == 0 ? pindex : pindex->pprev;
         bool flag = true;
         
+        if(pWalking->nHeight < lastProcessedStakeModifierBlock)
+        {
+        	LogPrintf(">> Possible re-org or replacement. Rewinding lastProcessedStakeModifierBlock...\n");
+        	LogPrintf(">> Previous lastProcessedStakeModifierBlock: %d, new lastProcessedStakeModifierBlock %d\n", lastProcessedStakeModifierBlock, pWalking->nHeight);
+        	lastProcessedStakeModifierBlock = pWalking->nHeight;
+        }
+        	
     	while(pWalking != nullptr && pWalking->nHeight > lastProcessedStakeModifierBlock)
     	{
     		if(!pWalking->IsValid(BLOCK_VALID_TRANSACTIONS))
@@ -3767,7 +3774,7 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CVali
     		
     			if (pBlock0->IsProofOfStake())
     			{
-    				LogPrint(BCLog::POS, ">> check the block details...\n");
+    				// LogPrint(BCLog::POS, ">> check the block details...\n");
     				/*
     				LogPrintf(">> block header: nVersion = %d, hashPrevBlock = %s, hashMerkleRoot = %s, nTime = %u, nBits = %u, nNonce = %u\n",
     						pBlock0->nVersion, pBlock0->hashPrevBlock.ToString().c_str(), pBlock0->hashMerkleRoot.ToString().c_str(), 
@@ -3800,9 +3807,8 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CVali
     					LogPrintf(">> tx = %s\n", tref->ToString().c_str());    					
     				}
     				*/
+    				
     				LogPrint(BCLog::POS, ">> Block = %s\n", pBlock0->ToString().c_str());
-    				
-    				
     				CBlockIndex* pIndex0 = pWalking;
     				if (!CheckProofOfStake(*pblocktree, pIndex0->pprev, state, *pBlock0, hashProofOfStake, targetProofOfStake, mapBlockIndex, *pcoinsTip))
     				{

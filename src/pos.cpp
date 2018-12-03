@@ -296,7 +296,7 @@ bool CheckStakeKernelHash(unsigned int nBits, CBlockIndex* pBlockFrom, CValidati
 
     // Now check if proof-of-stake hash meets target protocol
     if (UintToArith256(hashProofOfStake) > bnCoinDayWeight * bnTargetPerCoinDay) {
-        LogPrint(BCLog::POS, ">> CheckStakeKernelHash UintToArith256(hashProofOfStake) > bnCoinDayWeight * bnTargetPerCoinDay false\n");
+        LogPrint(BCLog::POS, ">> CheckStakeKernelHash UintToArith256(hashProofOfStake) <= bnCoinDayWeight * bnTargetPerCoinDay false\n");
         return false;
     }
 

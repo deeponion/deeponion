@@ -36,6 +36,8 @@
 
 std::atomic<int64_t> nTimeBestReceived(0); // Used only to inform the wallet of when we last received a block
 
+std::map<uint256, int> mapBannedHash;
+
 struct IteratorComparator
 {
     template<typename I>
@@ -2651,6 +2653,12 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
         vRecv >> *pblock;
 
         LogPrint(BCLog::NET, "received block %s peer=%d\n", pblock->GetHash().ToString(), pfrom->GetId());
+        if(mapBannedHash.count(pblock->GetHash())) 
+        {
+        	LOCK(cs_main);
+        	Misbehaving(pfrom->GetId(), 20);
+        	return error("reject bad block %s\n", pblock->GetHash().ToString());
+        }
 
         bool forceProcessing = false;
         const uint256 hash(pblock->GetHash());
@@ -2664,7 +2672,12 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
             mapBlockSource.emplace(hash, std::make_pair(pfrom->GetId(), true));
         }
         bool fNewBlock = false;
-        ProcessNewBlock(chainparams, pblock, forceProcessing, &fNewBlock);
+        
+        if(!ProcessNewBlock(chainparams, pblock, forceProcessing, &fNewBlock))
+        {
+        	mapBannedHash[pblock->GetHash()] = pfrom->GetId();
+        }
+        
         if (fNewBlock) {
             pfrom->nLastBlockTime = GetTime();
         } else {
@@ -3644,6 +3657,11 @@ bool PeerLogicValidation::SendMessages(CNode* pto, std::atomic<bool>& interruptM
             NodeId staller = -1;
             FindNextBlocksToDownload(pto->GetId(), MAX_BLOCKS_IN_TRANSIT_PER_PEER - state.nBlocksInFlight, vToDownload, staller, consensusParams);
             for (const CBlockIndex *pindex : vToDownload) {
+            	if(mapBannedHash.count(pindex->GetBlockHash()))
+            	{
+            		LogPrintf(">> Bad block hash, skip requesting\n");
+            		continue;
+            	}
                 uint32_t nFetchFlags = GetFetchFlags(pto);
                 vGetData.push_back(CInv(MSG_BLOCK | nFetchFlags, pindex->GetBlockHash()));
                 MarkBlockAsInFlight(pto->GetId(), pindex->GetBlockHash(), pindex);
