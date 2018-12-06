@@ -321,7 +321,7 @@ bool CheckProofOfStake(CBlockTreeDB& blockTreeDB, CBlockIndex* pindexPrev, CVali
 	CDiskTxPos txindex;
 	CTransactionRef txPrevRef;
 	unsigned int nTxPrevOffset = 0;
-	if (blockTreeDB.ReadTxIndex(txin.prevout.hash, txindex)) 
+    if (blockTreeDB.ReadTxIndex(txin.prevout.hash, txindex))
 	{
 		CBlockHeader headerPrev;
 		nTxPrevOffset = txindex.nTxOffset + 80;	// nTxOffset counts after header
@@ -362,7 +362,7 @@ bool CheckProofOfStake(CBlockTreeDB& blockTreeDB, CBlockIndex* pindexPrev, CVali
     LogPrint(BCLog::POS, ">> check from %d to %d\n", h1, h2);
     CBlockIndex* pBlockWalk = pindexPrev;
     CBlockIndex* pp = nullptr;
-    
+
     while(pBlockWalk->pprev != nullptr)
     {
     	pp = pBlockWalk->pprev;
@@ -372,11 +372,11 @@ bool CheckProofOfStake(CBlockTreeDB& blockTreeDB, CBlockIndex* pindexPrev, CVali
     		LogPrint(BCLog::POS, ">> continous/patch check completed.\n");
     		break;
     	}
-    	
+
     	pBlockWalk = pp;
     }
     LogPrint(BCLog::POS, ">> continous check done.\n");
-    if(pp == pindexPrev)
+    if(pp == blockFrom)
     	LogPrint(BCLog::POS, ">> pointers equal\n");
     else
     {
