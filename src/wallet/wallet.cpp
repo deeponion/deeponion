@@ -3486,7 +3486,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
             uint256 targetProofOfStake;
             COutPoint prevoutStake = COutPoint(pcoin.first->GetHash(), pcoin.second);
             CValidationState state;
-            if (CheckStakeKernelHash(nBits, pblockindex, state, txPrevRef, nTxPrevOffset, prevoutStake, txNew.nTime - n, hashProofOfStake, targetProofOfStake))
+            if (CheckStakeKernelHash(nBits, pblockindex, state, txPrevRef, nTxPrevOffset, prevoutStake, txNew.nTime - n, hashProofOfStake, targetProofOfStake, LogAcceptCategory(BCLog::POS)))
             {
                 // Found a kernel
             	LogPrint(BCLog::POS, "CreateCoinStake : kernel found\n");
