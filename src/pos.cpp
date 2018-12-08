@@ -183,10 +183,10 @@ static bool GetKernelStakeModifier(CBlockIndex* pindexFrom, uint64_t& nStakeModi
     nStakeModifierTime = pindexFrom->nTime;
     int64_t nStakeModifierSelectionInterval = GetStakeModifierSelectionInterval();
         
-    LogPrint(BCLog::POS, ">> GetKernelStakeModifier(): nStakeModifierHeight = %d, nStakeModifierTime = %s, nStakeModifierSelectionInterval = %ld\n\n",
+    LogPrint(BCLog::STAKE, ">> GetKernelStakeModifier(): nStakeModifierHeight = %d, nStakeModifierTime = %s, nStakeModifierSelectionInterval = %ld\n\n",
      	nStakeModifierHeight, DateTimeStrFormat("%Y-%m-%d %H:%M:%S", nStakeModifierTime).c_str(), nStakeModifierSelectionInterval);
 
-    LogPrint(BCLog::POS, ">> pindexFromHeight = %d\n", pindexFrom->nHeight);
+    LogPrint(BCLog::STAKE, ">> pindexFromHeight = %d\n", pindexFrom->nHeight);
     const CBlockIndex* pindex = pindexFrom;
     // LogPrintf(">> pindexFrom->nTime + nStakeModifierSelectionInterval = %ld\n", pindexFrom->nTime + nStakeModifierSelectionInterval);
     
@@ -195,7 +195,7 @@ static bool GetKernelStakeModifier(CBlockIndex* pindexFrom, uint64_t& nStakeModi
     {    	
         if (pindex->pnext == nullptr)
         {   // reached best block; may happen if node is behind on block chain
-        	LogPrint(BCLog::POS, ">> in pindex->pnext == nullptr\n");
+        	LogPrint(BCLog::STAKE, ">> in pindex->pnext == nullptr\n");
         	
             if (pindex->GetBlockTime() + Params().GetConsensus().nStakeMinAge - nStakeModifierSelectionInterval > GetAdjustedTime())
                 return error("GetKernelStakeModifier() : reached best block %s at height %d from block %s",
@@ -204,19 +204,19 @@ static bool GetKernelStakeModifier(CBlockIndex* pindexFrom, uint64_t& nStakeModi
                 return false;
             }
         }
-        LogPrint(BCLog::POS, ">> h = %d, nStakeModifier = 0x%016x\n", pindex->nHeight, pindex->nStakeModifier);
+        LogPrint(BCLog::STAKE, ">> h = %d, nStakeModifier = 0x%016x\n", pindex->nHeight, pindex->nStakeModifier);
         
         pindex = pindex->pnext;
         if (pindex->GeneratedStakeModifier())
         {
             nStakeModifierHeight = pindex->nHeight;
             nStakeModifierTime = pindex->nTime;
-            LogPrint(BCLog::POS, ">> nStakeModifierHeight = %d, nStakeModifierTime = %ld\n", nStakeModifierHeight, nStakeModifierTime);
-            LogPrint(BCLog::POS, ">> nStakeModifier = 0x%016x\n", pindex->nStakeModifier);
+            LogPrint(BCLog::STAKE, ">> nStakeModifierHeight = %d, nStakeModifierTime = %ld\n", nStakeModifierHeight, nStakeModifierTime);
+            LogPrint(BCLog::STAKE, ">> nStakeModifier = 0x%016x\n", pindex->nStakeModifier);
         }
     }
     
-	LogPrint(BCLog::POS, ">> at height = %d, nStakeModifier = 0x%016x\n", pindex->nHeight, pindex->nStakeModifier);
+	LogPrint(BCLog::STAKE, ">> at height = %d, nStakeModifier = 0x%016x\n", pindex->nHeight, pindex->nStakeModifier);
     nStakeModifier = pindex->nStakeModifier;
     return true;
 }
@@ -267,11 +267,11 @@ bool CheckStakeKernelHash(unsigned int nBits, CBlockIndex* pBlockFrom, CValidati
     int nStakeModifierHeight = 0;
     int64_t nStakeModifierTime = 0;
 
-    LogPrint(BCLog::POS, ">> pBlockFrom height = %d\n", pBlockFrom->nHeight);
-    LogPrint(BCLog::POS, ">> hashBlockFrom = %s\n", pBlockFrom->GetBlockHash().ToString().c_str());
+    LogPrint(BCLog::STAKE, ">> pBlockFrom height = %d\n", pBlockFrom->nHeight);
+    LogPrint(BCLog::STAKE, ">> hashBlockFrom = %s\n", pBlockFrom->GetBlockHash().ToString().c_str());
     if (!GetKernelStakeModifier(pBlockFrom, nStakeModifier, nStakeModifierHeight, nStakeModifierTime)) {
-        LogPrint(BCLog::POS, ">> CheckStakeKernelHash GetKernelStakeModifier false\n");
-        LogPrint(BCLog::POS, ">> nStakeModifier = %ld, nStakeModifierHeight = %d, nStakeModifierTime = %s\n", nStakeModifier, nStakeModifierHeight, 
+        LogPrint(BCLog::STAKE, ">> CheckStakeKernelHash GetKernelStakeModifier false\n");
+        LogPrint(BCLog::STAKE, ">> nStakeModifier = %ld, nStakeModifierHeight = %d, nStakeModifierTime = %s\n", nStakeModifier, nStakeModifierHeight, 
         		DateTimeStrFormat("%Y-%m-%d %H:%M:%S", nStakeModifierTime).c_str()); 
         return false;
     }
@@ -280,12 +280,12 @@ bool CheckStakeKernelHash(unsigned int nBits, CBlockIndex* pBlockFrom, CValidati
     ss << nTimeBlockFrom << nTxPrevOffset << txPrevRef->nTime << prevout.n << nTimeTx;
     hashProofOfStake = Hash(ss.begin(), ss.end());
     
-    LogPrint(BCLog::POS, "CheckStakeKernelHash() : using modifier 0x%016x at height=%d timestamp=%s for block from height=%d timestamp=%s\n",
+    LogPrint(BCLog::STAKE, "CheckStakeKernelHash() : using modifier 0x%016x at height=%d timestamp=%s for block from height=%d timestamp=%s\n",
             nStakeModifier, nStakeModifierHeight,
             DateTimeStrFormat("%Y-%m-%d %H:%M:%S", nStakeModifierTime).c_str(),
 			pBlockFrom->nHeight,
             DateTimeStrFormat("%Y-%m-%d %H:%M:%S", pBlockFrom->GetBlockTime()).c_str());
-    LogPrint(BCLog::POS, "CheckStakeKernelHash() : check modifier=0x%016x nTimeBlockFrom=%u nTxPrevOffset=%u nTimeTxPrev=%u nPrevout=%u nTimeTx=%u hashProof=%s nBits=%u bnTargetPerCoinDay=%s bnCoinDayWeight=%s targetProofOfStake=%s\n",
+    LogPrint(BCLog::STAKE, "CheckStakeKernelHash() : check modifier=0x%016x nTimeBlockFrom=%u nTxPrevOffset=%u nTimeTxPrev=%u nPrevout=%u nTimeTx=%u hashProof=%s nBits=%u bnTargetPerCoinDay=%s bnCoinDayWeight=%s targetProofOfStake=%s\n",
             nStakeModifier,
             nTimeBlockFrom, nTxPrevOffset, txPrevRef->nTime, prevout.n, nTimeTx,
             hashProofOfStake.ToString().c_str(),
@@ -296,7 +296,7 @@ bool CheckStakeKernelHash(unsigned int nBits, CBlockIndex* pBlockFrom, CValidati
 
     // Now check if proof-of-stake hash meets target protocol
     if (UintToArith256(hashProofOfStake) > bnCoinDayWeight * bnTargetPerCoinDay) {
-        LogPrint(BCLog::POS, ">> CheckStakeKernelHash UintToArith256(hashProofOfStake) <= bnCoinDayWeight * bnTargetPerCoinDay false\n");
+        LogPrint(BCLog::STAKE, ">> CheckStakeKernelHash UintToArith256(hashProofOfStake) <= bnCoinDayWeight * bnTargetPerCoinDay false\n");
         return false;
     }
 
@@ -307,7 +307,7 @@ bool CheckStakeKernelHash(unsigned int nBits, CBlockIndex* pBlockFrom, CValidati
 bool CheckProofOfStake(CBlockTreeDB& blockTreeDB, CBlockIndex* pindexPrev, CValidationState& state, const CBlock& block, uint256& hashProofOfStake, 
 		uint256& targetProofOfStake, BlockMap& mapBlockIndex, CCoinsViewCache& view)
 {
-	LogPrint(BCLog::POS, ">> CheckProofOfStake\n");
+	LogPrint(BCLog::STAKE, ">> CheckProofOfStake\n");
 	const CTransaction& tx = *block.vtx[1];
 	unsigned int nBits = block.nBits;
 
@@ -359,7 +359,7 @@ bool CheckProofOfStake(CBlockTreeDB& blockTreeDB, CBlockIndex* pindexPrev, CVali
     // just to ensure link works, and patch if needed
     int h1 = pindexPrev->nHeight;
     int h2 = coinPrev.nHeight;
-    LogPrint(BCLog::POS, ">> check from %d to %d\n", h1, h2);
+    LogPrint(BCLog::STAKE, ">> check from %d to %d\n", h1, h2);
     CBlockIndex* pBlockWalk = pindexPrev;
     CBlockIndex* pp = nullptr;
 
@@ -369,18 +369,18 @@ bool CheckProofOfStake(CBlockTreeDB& blockTreeDB, CBlockIndex* pindexPrev, CVali
     	pp->pnext = pBlockWalk;
     	if(pp->nHeight == h2)
     	{
-    		LogPrint(BCLog::POS, ">> continous/patch check completed.\n");
+    		LogPrint(BCLog::STAKE, ">> continous/patch check completed.\n");
     		break;
     	}
 
     	pBlockWalk = pp;
     }
-    LogPrint(BCLog::POS, ">> continous check done.\n");
+    LogPrint(BCLog::STAKE, ">> continous check done.\n");
     if(pp == blockFrom)
-    	LogPrint(BCLog::POS, ">> pointers equal\n");
+    	LogPrint(BCLog::STAKE, ">> pointers equal\n");
     else
     {
-    	LogPrint(BCLog::POS, ">> *** pointers different => overwrite\n");
+    	LogPrint(BCLog::STAKE, ">> *** pointers different => overwrite\n");
     	blockFrom = pp;
     }
    

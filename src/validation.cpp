@@ -2439,7 +2439,7 @@ void static UpdateTip(const CBlockIndex *pindexNew, const CChainParams& chainPar
   */
 bool CChainState::DisconnectTip(CValidationState& state, const CChainParams& chainparams, DisconnectedBlockTransactions *disconnectpool)
 {
-    LogPrint(BCLog::POS, "- Disconnect block: \n");
+    LogPrint(BCLog::STAKE, "- Disconnect block: \n");
     CBlockIndex *pindexDelete = chainActive.Tip();
     assert(pindexDelete);
     // Read block from disk.
@@ -3719,8 +3719,8 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CVali
         
         if(pWalking->nHeight < lastProcessedStakeModifierBlock)
         {
-        	LogPrintf(">> Possible re-org or replacement. Rewinding lastProcessedStakeModifierBlock...\n");
-        	LogPrintf(">> Previous lastProcessedStakeModifierBlock: %d, new lastProcessedStakeModifierBlock %d\n", lastProcessedStakeModifierBlock, pWalking->nHeight);
+        	LogPrint(BCLog::STAKE, ">> Possible re-org or replacement. Rewinding lastProcessedStakeModifierBlock...\n");
+        	LogPrint(BCLog::STAKE, ">> Previous lastProcessedStakeModifierBlock: %d, new lastProcessedStakeModifierBlock %d\n", lastProcessedStakeModifierBlock, pWalking->nHeight);
         	lastProcessedStakeModifierBlock = pWalking->nHeight;
         }
         	
@@ -3734,21 +3734,21 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CVali
     		pWalking = pWalking->pprev;
     	}
 	
-    	LogPrint(BCLog::POS, ">> flag = %s\n", flag ? "true":"false");
+    	LogPrint(BCLog::STAKE, ">> flag = %s\n", flag ? "true":"false");
     	if(flag)
     	{
-    		LogPrint(BCLog::POS, ">> Current LastProcessedStakeModifierBlock = %d\n", lastProcessedStakeModifierBlock);
+    		LogPrint(BCLog::STAKE, ">> Current LastProcessedStakeModifierBlock = %d\n", lastProcessedStakeModifierBlock);
     		pWalking = pWalking->pnext;
     		int expectedHeight = pindex->nHeight;
-    		LogPrint(BCLog::POS, ">> Expected-Height (current height) = %d\n", expectedHeight);
+    		LogPrint(BCLog::STAKE, ">> Expected-Height (current height) = %d\n", expectedHeight);
     		CBlock* pBlock0 = nullptr;
     		if(pWalking == nullptr)
     			return error("AcceptBlock(): pWalking == nullptr\n");
-    		LogPrint(BCLog::POS, ">> starting pWalking->nHeight = %d\n", pWalking->nHeight);
+    		LogPrint(BCLog::STAKE, ">> starting pWalking->nHeight = %d\n", pWalking->nHeight);
     	
     		while(pWalking != nullptr && pWalking->nHeight > lastProcessedStakeModifierBlock && pWalking->nHeight <= expectedHeight)
     		{
-    			LogPrint(BCLog::POS, ">> pWalking->nHeight = %d\n", pWalking->nHeight);
+    			LogPrint(BCLog::STAKE, ">> pWalking->nHeight = %d\n", pWalking->nHeight);
     			if(pWalking->nHeight != expectedHeight) 
     			{
     				pBlock0 = mapSavedBlocks[pWalking->nHeight];
@@ -3765,7 +3765,7 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CVali
     				if (!ReadBlockFromDisk(block0, pWalking, chainparams.GetConsensus()))
     					return error("AcceptBlock(): Unexpected pBlock0 == nullptr\n");
     				pBlock0 = &block0;
-    				LogPrint(BCLog::POS, ">> Block read from disk pBlock0->hash = %s, nFile = %d, nPos = %u\n", 
+    				LogPrint(BCLog::STAKE, ">> Block read from disk pBlock0->hash = %s, nFile = %d, nPos = %u\n", 
     						pBlock0->GetHash().ToString().c_str(), pWalking->GetBlockPos().nFile, pWalking->GetBlockPos().nPos);
     			}
     		
@@ -3774,7 +3774,7 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CVali
     		
     			if (pBlock0->IsProofOfStake())
     			{
-    				// LogPrint(BCLog::POS, ">> check the block details...\n");
+    				// LogPrint(BCLog::STAKE, ">> check the block details...\n");
     				/*
     				LogPrintf(">> block header: nVersion = %d, hashPrevBlock = %s, hashMerkleRoot = %s, nTime = %u, nBits = %u, nNonce = %u\n",
     						pBlock0->nVersion, pBlock0->hashPrevBlock.ToString().c_str(), pBlock0->hashMerkleRoot.ToString().c_str(), 
@@ -3808,7 +3808,7 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CVali
     				}
     				*/
     				
-    				LogPrint(BCLog::POS, ">> Block = %s\n", pBlock0->ToString().c_str());
+    				LogPrint(BCLog::STAKE, ">> Block = %s\n", pBlock0->ToString().c_str());
     				CBlockIndex* pIndex0 = pWalking;
     				if (!CheckProofOfStake(*pblocktree, pIndex0->pprev, state, *pBlock0, hashProofOfStake, targetProofOfStake, mapBlockIndex, *pcoinsTip))
     				{
@@ -3823,13 +3823,13 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CVali
     			mapSavedBlocks.erase(pWalking->nHeight);
     			lastProcessedStakeModifierBlock = pWalking->nHeight;
     			setDirtyBlockIndex.insert(pWalking);
-    			LogPrint(BCLog::POS, ">> updated LastProcessedStakeModifierBlock = %d\n", lastProcessedStakeModifierBlock);
-    			LogPrint(BCLog::POS, ">> Block at height %d is removed from the list\n", pWalking->nHeight);
+    			LogPrint(BCLog::STAKE, ">> updated LastProcessedStakeModifierBlock = %d\n", lastProcessedStakeModifierBlock);
+    			LogPrint(BCLog::STAKE, ">> Block at height %d is removed from the list\n", pWalking->nHeight);
     			pWalking = pWalking->pnext;
     		}
 
     		lastProcessedStakeModifierBlock = pindex->nHeight;
-    		LogPrint(BCLog::POS, ">> LastProcessedStakeModifierBlock = %d\n", lastProcessedStakeModifierBlock);
+    		LogPrint(BCLog::STAKE, ">> LastProcessedStakeModifierBlock = %d\n", lastProcessedStakeModifierBlock);
     		
     		/*
     		// catch up as much as possible
@@ -3869,7 +3869,7 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CVali
     		CBlock *pBlockCopy = new CBlock(block);
     		pBlockCopy->vtx = block.vtx;
     		mapSavedBlocks[pindex->nHeight] = pBlockCopy;
-    		LogPrint(BCLog::POS, ">> Block at height %d is saved to the list\n", pindex->nHeight);
+    		LogPrint(BCLog::STAKE, ">> Block at height %d is saved to the list\n", pindex->nHeight);
     	}
     }
 
@@ -3925,8 +3925,8 @@ bool CChainState::ComputeStakeModifier(CBlockIndex* pindex, const CBlock& block,
 
 bool ProcessNewBlock(const CChainParams& chainparams, const std::shared_ptr<const CBlock> pblock, bool fForceProcessing, bool *fNewBlock)
 {
-	LogPrintf(">> ProcessNewBlock\n");
-    LogPrintf(">> ProcessNewBlock, start chainActive height = %d\n", chainActive.Tip()->nHeight);    
+	LogPrint(BCLog::STAKE, ">> ProcessNewBlock\n");
+    LogPrint(BCLog::STAKE, ">> ProcessNewBlock, start chainActive height = %d\n", chainActive.Tip()->nHeight);    
     AssertLockNotHeld(cs_main);
 
     {
@@ -3949,15 +3949,15 @@ bool ProcessNewBlock(const CChainParams& chainparams, const std::shared_ptr<cons
         }
     }
     
-    LogPrintf(">> ProcessNewBlock, about NotifyHeaderTip\n");
+    LogPrint(BCLog::STAKE, ">> ProcessNewBlock, about NotifyHeaderTip\n");
     NotifyHeaderTip();
 
     CValidationState state; // Only used to report errors, not invalidity - ignore it
     if (!g_chainstate.ActivateBestChain(state, chainparams, pblock))
         return error("%s: ActivateBestChain failed", __func__);
 
-    LogPrintf(">> ProcessNewBlock, end chainActive height = %d\n", chainActive.Tip()->nHeight);    
-    LogPrintf(">> ProcessNewBlock, completed\n");
+    LogPrint(BCLog::STAKE, ">> ProcessNewBlock, end chainActive height = %d\n", chainActive.Tip()->nHeight);    
+    LogPrint(BCLog::STAKE, ">> ProcessNewBlock, completed\n");
     return true;
 }
 
