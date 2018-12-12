@@ -131,7 +131,7 @@ bool ComputeNextStakeModifier(const CBlockIndex* pindexPrev, uint64_t& nStakeMod
         return error("ComputeNextStakeModifier: unable to get last modifier");
 
     std::string timeStr0 = DateTimeStrFormat("%Y-%m-%d %H:%M:%S", nModifierTime);
-//     LogPrintf("Compute: prev modifier=0x%016x, time=%s\n", nStakeModifier, timeStr0.c_str());
+    LogPrint(BCLog::STAKE, "Compute: prev modifier=0x%016x, time=%s\n", nStakeModifier, timeStr0.c_str());
     if (nModifierTime / Params().GetConsensus().nModifierInterval >= pindexPrev->GetBlockTime() / Params().GetConsensus().nModifierInterval)
         return true;
 
@@ -165,10 +165,10 @@ bool ComputeNextStakeModifier(const CBlockIndex* pindexPrev, uint64_t& nStakeMod
         nStakeModifierNew |= (((uint64_t)pindex->GetStakeEntropyBit()) << nRound);
         // add the selected block from candidates to selected list
         mapSelectedBlocks.insert(make_pair(pindex->GetBlockHash(), pindex));
-//        LogPrintf("Compute: selected round %d stop=%s height=%d bit=%d\n", nRound, DateTimeStrFormat("%Y-%m-%d %H:%M:%S", nSelectionIntervalStop).c_str(), pindex->nHeight, pindex->GetStakeEntropyBit());
+        LogPrint(BCLog::STAKE, "Compute: selected round %d stop=%s height=%d bit=%d\n", nRound, DateTimeStrFormat("%Y-%m-%d %H:%M:%S", nSelectionIntervalStop).c_str(), pindex->nHeight, pindex->GetStakeEntropyBit());
     }
 
-//    LogPrintf("Compute: new modifier=0x%016x, time=%s\n", nStakeModifierNew, DateTimeStrFormat("%Y-%m-%d %H:%M:%S", pindexPrev->GetBlockTime()).c_str());
+    LogPrint(BCLog::STAKE, "Compute: new modifier=0x%016x, time=%s\n", nStakeModifierNew, DateTimeStrFormat("%Y-%m-%d %H:%M:%S", pindexPrev->GetBlockTime()).c_str());
     nStakeModifier = nStakeModifierNew;
     fGeneratedStakeModifier = true;
     return true;
@@ -387,7 +387,12 @@ bool CheckProofOfStake(CBlockTreeDB& blockTreeDB, CBlockIndex* pindexPrev, CVali
     while(pBlockWalk->pprev != nullptr)
     {
     	pp = pBlockWalk->pprev;
-    	pp->pnext = pBlockWalk;
+    	if(pp->pnext == nullptr)
+    	{
+    		LogPrint(BCLog::STAKE, ">> patched pp->next, at height = %d\n", pp->nHeight);
+    		pp->pnext = pBlockWalk;
+    	}
+    	 	
     	if(pp->nHeight == h2)
     	{
     		LogPrint(BCLog::STAKE, ">> continous/patch check completed.\n");
@@ -396,12 +401,13 @@ bool CheckProofOfStake(CBlockTreeDB& blockTreeDB, CBlockIndex* pindexPrev, CVali
 
     	pBlockWalk = pp;
     }
+    
     LogPrint(BCLog::STAKE, ">> continous check done.\n");
     if(pp == blockFrom)
     	LogPrint(BCLog::STAKE, ">> pointers equal\n");
     else
     {
-    	LogPrint(BCLog::STAKE, ">> *** pointers different => overwrite\n");
+    	LogPrint(BCLog::STAKE, ">> *** pointers different =>>> overwrite\n");
     	blockFrom = pp;
     }
    
