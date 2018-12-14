@@ -387,11 +387,7 @@ bool CheckProofOfStake(CBlockTreeDB& blockTreeDB, CBlockIndex* pindexPrev, CVali
     while(pBlockWalk->pprev != nullptr)
     {
     	pp = pBlockWalk->pprev;
-    	if(pp->pnext == nullptr)
-    	{
-    		LogPrint(BCLog::STAKE, ">> patched pp->next, at height = %d\n", pp->nHeight);
-    		pp->pnext = pBlockWalk;
-    	}
+    	pp->pnext = pBlockWalk;
     	 	
     	if(pp->nHeight == h2)
     	{
