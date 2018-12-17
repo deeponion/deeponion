@@ -2010,7 +2010,7 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
     }
 
     // set pnext as sometimes it is not set elsewhere
-    if(pindex->pprev != nullptr)
+    if(!fJustCheck && pindex->pprev != nullptr)
     {
     	pindex->pprev->pnext = pindex;
     }
