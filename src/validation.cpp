@@ -2243,12 +2243,13 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
 		}
 			
 		pindex->hashProofOfStake = hashProofOfStake;
-		if(!ComputeStakeModifier(pindex, block, chainparams))
-			return error("AcceptBlock() : ComputeStakeModifier() failed");
 		
 		setDirtyBlockIndex.insert(pindex);
 	}    
-        
+
+    if(!ComputeStakeModifier(pindex, block, chainparams))
+        return error("AcceptBlock() : ComputeStakeModifier() failed");
+
     if (!control.Wait())
         return state.DoS(100, error("%s: CheckQueue failed", __func__), REJECT_INVALID, "block-validation-failed");
     int64_t nTime4 = GetTimeMicros(); nTimeVerify += nTime4 - nTime2;
