@@ -2013,6 +2013,7 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
     if(!fJustCheck && pindex->pprev != nullptr)
     {
     	pindex->pprev->pnext = pindex;
+    	pindex->pnext = nullptr;
     }
     
     nBlocksTotal++;
@@ -2239,7 +2240,7 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
 		LogPrint(BCLog::STAKE, ">> Block = %s\n", pBlock0->ToString().c_str());
 		if(!CheckProofOfStake(*pblocktree, pindex->pprev, state, block, hashProofOfStake, targetProofOfStake, mapBlockIndex, *pcoinsTip))
 		{
-			return error("AcceptBlock(): check proof-of-stake failed for block %s\n", pBlock0->GetHash().ToString().c_str()); 
+			return error("ConnectBlock(): check proof-of-stake failed for block %s\n", pBlock0->GetHash().ToString().c_str()); 
 		}
 			
 		pindex->hashProofOfStake = hashProofOfStake;
@@ -2248,7 +2249,7 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
 	}    
 
     if(!ComputeStakeModifier(pindex, block, chainparams))
-        return error("AcceptBlock() : ComputeStakeModifier() failed");
+        return error("ConnectBlock() : ComputeStakeModifier() failed");
 
     if (!control.Wait())
         return state.DoS(100, error("%s: CheckQueue failed", __func__), REJECT_INVALID, "block-validation-failed");
