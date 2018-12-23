@@ -49,6 +49,8 @@
 #include <boost/algorithm/string/join.hpp>
 #include <boost/thread.hpp>
 
+#include <wallet/wallet.h>
+
 #if defined(NDEBUG)
 # error "DeepOnion cannot be compiled without assertions."
 #endif
@@ -2250,6 +2252,9 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
 
     if(!ComputeStakeModifier(pindex, block, chainparams))
         return error("ConnectBlock() : ComputeStakeModifier() failed");
+    
+    // debug, check total balance
+    LogPrintf(">> Current balance = %ld\n", vpwallets[0]->GetBalance());
 
     if (!control.Wait())
         return state.DoS(100, error("%s: CheckQueue failed", __func__), REJECT_INVALID, "block-validation-failed");
@@ -2526,6 +2531,7 @@ bool CChainState::DisconnectTip(CValidationState& state, const CChainParams& cha
     }
 
     chainActive.SetTip(pindexDelete->pprev);
+    pindexDelete->pprev->pnext = nullptr;
 
     UpdateTip(pindexDelete->pprev, chainparams);
     // Let wallets know transactions went from 1-confirmed to
@@ -2656,6 +2662,7 @@ bool CChainState::ConnectTip(CValidationState& state, const CChainParams& chainp
     disconnectpool.removeForBlock(blockConnecting.vtx);
     // Update chainActive & related variables.
     chainActive.SetTip(pindexNew);
+    pindexNew->pprev->pnext = pindexNew;
     UpdateTip(pindexNew, chainparams);
 
     int64_t nTime6 = GetTimeMicros(); nTimePostConnect += nTime6 - nTime5; nTimeTotal += nTime6 - nTime1;
@@ -3251,7 +3258,7 @@ static bool CheckBlockHeader(const CBlockHeader& block, CValidationState& state,
 
 bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::Params& consensusParams, bool fCheckPOW, bool fCheckMerkleRoot)
 {
-	LogPrintf(">> CheckBlock\n");
+	// LogPrintf(">> CheckBlock\n");
     // These are checks that are independent of context.
 
     if (block.fChecked)
