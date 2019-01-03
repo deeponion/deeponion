@@ -253,6 +253,8 @@ static bool GetKernelStakeModifier(CBlockIndex* pindexFrom, uint64_t& nStakeModi
 //   quantities so as to generate blocks faster, degrading the system back into
 //   a proof-of-work situation.
 //
+
+const int SHIFT_FACTOR = 1<<8;
 bool CheckStakeKernelHash(unsigned int nBits, CBlockIndex* pBlockFrom, CValidationState& state, CTransactionRef txPrevRef, unsigned int nTxPrevOffset,  
 		const COutPoint& prevout, unsigned int nTimeTx, uint256& hashProofOfStake, uint256& targetProofOfStake, bool fDebugLog)
 {
@@ -315,7 +317,11 @@ bool CheckStakeKernelHash(unsigned int nBits, CBlockIndex* pBlockFrom, CValidati
     }
 
     // Now check if proof-of-stake hash meets target protocol
-    if (UintToArith256(hashProofOfStake) > bnCoinDayWeight * bnTargetPerCoinDay) {
+    arith_uint256 hashPoS10 = UintToArith256(hashProofOfStake) / SHIFT_FACTOR;
+    arith_uint256 hashPoS10C = bnTargetPerCoinDay / SHIFT_FACTOR * bnCoinDayWeight;
+    if(hashPoS10 > hashPoS10C)
+    // if (UintToArith256(hashProofOfStake) > bnCoinDayWeight * bnTargetPerCoinDay) 
+    {
     	if(fDebugLog)
     		LogPrintf(">> CheckStakeKernelHash UintToArith256(hashProofOfStake) <= bnCoinDayWeight * bnTargetPerCoinDay false\n");
         return false;
