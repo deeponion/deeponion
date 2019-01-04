@@ -171,4 +171,26 @@ public:
     }
 };
 
+/* uint512 from const char *.
+ * This is a separate function because the constructor uint512(const char*) can result
+ * in dangerously catching uint512(0).
+ */
+inline uint512 uint512S(const char *str)
+{
+    uint512 rv;
+    rv.SetHex(str);
+    return rv;
+}
+/* uint512 from std::string.
+ * This is a separate function because the constructor uint256(const std::string &str) can result
+ * in dangerously catching uint256(0) via std::string(const char*).
+ */
+inline uint512 uint512S(const std::string& str)
+{
+    uint512 rv;
+    rv.SetHex(str);
+    return rv;
+}
+
+
 #endif // BITCOIN_UINT256_H
