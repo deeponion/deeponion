@@ -2012,13 +2012,6 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
             view.SetBestBlock(pindex->GetBlockHash());
         return true;
     }
-
-    // set pnext as sometimes it is not set elsewhere
-    if(!fJustCheck && pindex->pprev != nullptr)
-    {
-    	pindex->pprev->pnext = pindex;
-    	pindex->pnext = nullptr;
-    }
     
     nBlocksTotal++;
 
@@ -2261,6 +2254,13 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
     assert(pindex->phashBlock);
     // add this block to the view's block chain
     view.SetBestBlock(pindex->GetBlockHash());
+
+    // Ensure pnext link is correct now we're fully connected.
+    if(pindex->pprev != nullptr)
+    {
+        pindex->pprev->pnext = pindex;
+        pindex->pnext = nullptr;
+    }
 
     int64_t nTime5 = GetTimeMicros(); nTimeIndex += nTime5 - nTime4;
     LogPrint(BCLog::BENCH, "    - Index writing: %.2fms [%.2fs (%.2fms/blk)]\n", MILLI * (nTime5 - nTime4), nTimeIndex * MICRO, nTimeIndex * MILLI / nBlocksTotal);
@@ -3076,7 +3076,6 @@ CBlockIndex* CChainState::AddToBlockIndex(const CBlockHeader& block)
     if (miPrev != mapBlockIndex.end())
     {
         pindexNew->pprev = (*miPrev).second;
-        pindexNew->pprev->pnext = pindexNew;
         pindexNew->nHeight = pindexNew->pprev->nHeight + 1;
         pindexNew->BuildSkip();
     }
