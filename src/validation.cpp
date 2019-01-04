@@ -2646,8 +2646,6 @@ bool CChainState::ConnectTip(CValidationState& state, const CChainParams& chainp
     disconnectpool.removeForBlock(blockConnecting.vtx);
     // Update chainActive & related variables.
     chainActive.SetTip(pindexNew);
-    if(pindexNew->pprev != nullptr)
-    	pindexNew->pprev->pnext = pindexNew;
     UpdateTip(pindexNew, chainparams);
 
     int64_t nTime6 = GetTimeMicros(); nTimePostConnect += nTime6 - nTime5; nTimeTotal += nTime6 - nTime1;
