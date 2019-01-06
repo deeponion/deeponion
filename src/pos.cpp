@@ -377,7 +377,7 @@ bool CheckProofOfStake(CBlockTreeDB& blockTreeDB, CBlockIndex* pindexPrev, CVali
         return state.DoS(100, error("CheckProofOfStake() : Block at height %i for prevout can not be loaded", coinPrev.nHeight));
     }
     
-    /*
+    
     // make sure the forward link works, sometimes for unknown reason the link is broken
     int h1 = pindexPrev->nHeight;
     int h2 = coinPrev.nHeight;
@@ -406,7 +406,7 @@ bool CheckProofOfStake(CBlockTreeDB& blockTreeDB, CBlockIndex* pindexPrev, CVali
     	LogPrint(BCLog::STAKE, ">> *** pointers different =>>> overwrite - this is caused by error.\n");
     	blockFrom = pp;
     }
-    */
+    
    
     // Verify signature
     if (!VerifySignature(coinPrev, txin.prevout.hash, tx, 0, SCRIPT_VERIFY_NONE))
