@@ -2013,13 +2013,6 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
         return true;
     }
 
-    // set pnext as sometimes it is not set elsewhere
-    if(!fJustCheck && pindex->pprev != nullptr)
-    {
-    	pindex->pprev->pnext = pindex;
-    	pindex->pnext = nullptr;
-    }
-    
     nBlocksTotal++;
 
     bool fScriptChecks = true;
@@ -2262,6 +2255,13 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
     // add this block to the view's block chain
     view.SetBestBlock(pindex->GetBlockHash());
 
+    // set pnext as sometimes it is not set elsewhere
+    if(!fJustCheck && pindex->pprev != nullptr)
+    {
+    	pindex->pprev->pnext = pindex;
+    	pindex->pnext = nullptr;
+    }
+    
     int64_t nTime5 = GetTimeMicros(); nTimeIndex += nTime5 - nTime4;
     LogPrint(BCLog::BENCH, "    - Index writing: %.2fms [%.2fs (%.2fms/blk)]\n", MILLI * (nTime5 - nTime4), nTimeIndex * MICRO, nTimeIndex * MILLI / nBlocksTotal);
 
@@ -2474,8 +2474,7 @@ void static UpdateTip(const CBlockIndex *pindexNew, const CChainParams& chainPar
   */
 bool CChainState::DisconnectTip(CValidationState& state, const CChainParams& chainparams, DisconnectedBlockTransactions *disconnectpool)
 {
-	LogPrintf(">> DisconnectTip\n");
-    LogPrint(BCLog::STAKE, "- Disconnect block: \n");
+	LogPrint(BCLog::STAKE, ">> DisconnectTip");
     CBlockIndex *pindexDelete = chainActive.Tip();
     assert(pindexDelete);
     // Read block from disk.
@@ -2602,7 +2601,7 @@ public:
  */
 bool CChainState::ConnectTip(CValidationState& state, const CChainParams& chainparams, CBlockIndex* pindexNew, const std::shared_ptr<const CBlock>& pblock, ConnectTrace& connectTrace, DisconnectedBlockTransactions &disconnectpool)
 {
-	LogPrintf(">> ConnectTip\n");
+	LogPrint(BCLog::STAKE, ">> ConnectTip");
     assert(pindexNew->pprev == chainActive.Tip());
     // Read block from disk.
     int64_t nTime1 = GetTimeMicros();
@@ -3076,7 +3075,6 @@ CBlockIndex* CChainState::AddToBlockIndex(const CBlockHeader& block)
     if (miPrev != mapBlockIndex.end())
     {
         pindexNew->pprev = (*miPrev).second;
-        pindexNew->pprev->pnext = pindexNew;
         pindexNew->nHeight = pindexNew->pprev->nHeight + 1;
         pindexNew->BuildSkip();
     }
@@ -4126,15 +4124,13 @@ bool CChainState::LoadBlockIndex(const Consensus::Params& consensus_params, CBlo
         if (pindex->nStatus & BLOCK_FAILED_MASK && (!pindexBestInvalid || pindex->nChainWork > pindexBestInvalid->nChainWork))
             pindexBestInvalid = pindex;
         if (pindex->pprev) 
-        {
-            pindex->BuildSkip();
-            pindex->pprev->pnext = pindex;
-        }
+        	pindex->BuildSkip();
+        
         if (pindex->IsValid(BLOCK_VALID_TREE) && (pindexBestHeader == nullptr || CBlockIndexWorkComparator()(pindexBestHeader, pindex)))
             pindexBestHeader = pindex;
         
         // DeepOnion: calculate stake modifier checksum
-        if((pindex->nStakeModifier != 0 || pindex->nHeight < 2) && pindex->nTx > 0 )
+        if(pindex->nTx > 0)
         {
         	pindex->nStakeModifierChecksum = GetStakeModifierChecksum(pindex);
         	if (!CheckStakeModifierCheckpoints(pindex->nHeight, pindex->nStakeModifierChecksum))
@@ -4143,6 +4139,15 @@ bool CChainState::LoadBlockIndex(const Consensus::Params& consensus_params, CBlo
         		return false; 
         	}
         }
+    }
+    
+    // set up pnext initially, only for best chain
+    if(pindexBestHeader != nullptr) {
+    	CBlockIndex* pidx = pindexBestHeader;
+    	while (pidx->pprev) {
+    		pidx->pprev->pnext = pidx;
+    		pidx = pidx->pprev;
+    	}
     }
 
     return true;

@@ -254,7 +254,7 @@ static bool GetKernelStakeModifier(CBlockIndex* pindexFrom, uint64_t& nStakeModi
 //   a proof-of-work situation.
 //
 
-const int SHIFT_FACTOR = 1<<8;
+const int SHIFT_FACTOR = 1<<16;
 bool CheckStakeKernelHash(unsigned int nBits, CBlockIndex* pBlockFrom, CValidationState& state, CTransactionRef txPrevRef, unsigned int nTxPrevOffset,  
 		const COutPoint& prevout, unsigned int nTimeTx, uint256& hashProofOfStake, uint256& targetProofOfStake, bool fDebugLog)
 {
@@ -383,7 +383,7 @@ bool CheckProofOfStake(CBlockTreeDB& blockTreeDB, CBlockIndex* pindexPrev, CVali
         return state.DoS(100, error("CheckProofOfStake() : Block at height %i for prevout can not be loaded", coinPrev.nHeight));
     }
     
-    
+    /*
     // make sure the forward link works, sometimes for unknown reason the link is broken
     int h1 = pindexPrev->nHeight;
     int h2 = coinPrev.nHeight;
@@ -412,7 +412,7 @@ bool CheckProofOfStake(CBlockTreeDB& blockTreeDB, CBlockIndex* pindexPrev, CVali
     	LogPrint(BCLog::STAKE, ">> *** pointers different =>>> overwrite - this is caused by error.\n");
     	blockFrom = pp;
     }
-    
+    */
    
     // Verify signature
     if (!VerifySignature(coinPrev, txin.prevout.hash, tx, 0, SCRIPT_VERIFY_NONE))
