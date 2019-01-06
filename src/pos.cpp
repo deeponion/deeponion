@@ -141,7 +141,6 @@ bool ComputeNextStakeModifier(const CBlockIndex* pindexPrev, uint64_t& nStakeMod
     int64_t nSelectionInterval = GetStakeModifierSelectionInterval();
     int64_t nSelectionIntervalStart = (pindexPrev->GetBlockTime() / Params().GetConsensus().nModifierInterval) * Params().GetConsensus().nModifierInterval - nSelectionInterval;
     const CBlockIndex* pindex = pindexPrev;
-    LogPrint(BCLog::STAKE, "Compute: nSelectionInterval=%d, nSelectionIntervalStart=%d\n", nSelectionInterval, nSelectionIntervalStart);
     while (pindex && pindex->GetBlockTime() >= nSelectionIntervalStart)
     {
         vSortedByTimestamp.push_back(make_pair(pindex->GetBlockTime(), UintToArith256(pindex->GetBlockHash())));
@@ -254,6 +253,8 @@ static bool GetKernelStakeModifier(CBlockIndex* pindexFrom, uint64_t& nStakeModi
 //   quantities so as to generate blocks faster, degrading the system back into
 //   a proof-of-work situation.
 //
+
+const int SHIFT_FACTOR = 1<<8;
 bool CheckStakeKernelHash(unsigned int nBits, CBlockIndex* pBlockFrom, CValidationState& state, CTransactionRef txPrevRef, unsigned int nTxPrevOffset,  
 		const COutPoint& prevout, unsigned int nTimeTx, uint256& hashProofOfStake, uint256& targetProofOfStake, bool fDebugLog)
 {
@@ -264,13 +265,14 @@ bool CheckStakeKernelHash(unsigned int nBits, CBlockIndex* pBlockFrom, CValidati
     if (nTimeBlockFrom + Params().GetConsensus().nStakeMinAge > nTimeTx) // Min age requirement
     	return state.DoS(100, error("CheckStakeKernelHash() : min age violation"));
 
-    arith_uint512 bnTargetPerCoinDay;
+    arith_uint256 bnTargetPerCoinDay;
     bnTargetPerCoinDay.SetCompact(nBits);
 
+    uint256 hashBlockFrom = pBlockFrom->GetBlockHash();
     int64_t nValuePrev = txPrevRef->vout[prevout.n].nValue;
 
-    arith_uint512 bnCoinDayWeight = arith_uint512(nValuePrev) * GetWeight((int64_t)txPrevRef->nTime, (int64_t)nTimeTx) / COIN / (24 * 60 * 60);
-    targetProofOfStake = ArithToUint256(arith_uint256("0x"+(bnCoinDayWeight * bnTargetPerCoinDay).ToString()));
+    arith_uint256 bnCoinDayWeight = arith_uint256(nValuePrev) * GetWeight((int64_t)txPrevRef->nTime, (int64_t)nTimeTx) / COIN / (24 * 60 * 60);
+    targetProofOfStake = ArithToUint256(bnCoinDayWeight * bnTargetPerCoinDay);
 
     // Calculate hash
     CDataStream ss(SER_GETHASH, 0);
@@ -304,18 +306,22 @@ bool CheckStakeKernelHash(unsigned int nBits, CBlockIndex* pBlockFrom, CValidati
             DateTimeStrFormat("%Y-%m-%d %H:%M:%S", nStakeModifierTime).c_str(),
 			pBlockFrom->nHeight,
             DateTimeStrFormat("%Y-%m-%d %H:%M:%S", pBlockFrom->GetBlockTime()).c_str());
-    	LogPrintf("CheckStakeKernelHash() : check modifier=0x%016x nTimeBlockFrom=%u nTxPrevOffset=%u nTimeTxPrev=%u nPrevout=%u nTimeTx=%u hashProof=%s nBits=%u targetProofOfStake=%s\n",
+    	LogPrintf("CheckStakeKernelHash() : check modifier=0x%016x nTimeBlockFrom=%u nTxPrevOffset=%u nTimeTxPrev=%u nPrevout=%u nTimeTx=%u hashProof=%s nBits=%u bnTargetPerCoinDay=%s bnCoinDayWeight=%s targetProofOfStake=%s\n",
             nStakeModifier,
             nTimeBlockFrom, nTxPrevOffset, txPrevRef->nTime, prevout.n, nTimeTx,
             hashProofOfStake.ToString().c_str(),
             nBits,
+            bnTargetPerCoinDay.ToString().c_str(),
+            bnCoinDayWeight.ToString().c_str(),
             targetProofOfStake.ToString().c_str());
     }
 
     // Now check if proof-of-stake hash meets target protocol
-    // DeepOnion: To maintain the logic from the old code, we must be able to
-    // compare numbers bigger 256 bits even if the hash cannot be this big.
-    if (Uint256ToArith512(hashProofOfStake) > bnCoinDayWeight * bnTargetPerCoinDay) {
+    arith_uint256 hashPoS10 = UintToArith256(hashProofOfStake) / SHIFT_FACTOR;
+    arith_uint256 hashPoS10C = bnTargetPerCoinDay / SHIFT_FACTOR * bnCoinDayWeight;
+    if(hashPoS10 > hashPoS10C)
+    // if (UintToArith256(hashProofOfStake) > bnCoinDayWeight * bnTargetPerCoinDay) 
+    {
     	if(fDebugLog)
     		LogPrintf(">> CheckStakeKernelHash UintToArith256(hashProofOfStake) <= bnCoinDayWeight * bnTargetPerCoinDay false\n");
         return false;
