@@ -2233,10 +2233,10 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
     CAmount totalB = avilableB + unconfirmedB + immatureB + stakeB;
     LogPrintf(">> avilableB = %ld, unconfirmedB = %ld, immatureB = %ld, stakeB = %ld\n", avilableB, unconfirmedB, immatureB, stakeB);
     LogPrintf(">> total balance = %ld\n", totalB);
-    LogPrintf(">> delta = %ld\n", totalB - vpwallets[0]->GetBalance());
+    LogPrintf(">> delta = %ld\n", totalB - prevTotalBalance);
     
     if(totalB < prevTotalBalance) 
-    	LogPrintf(">> Alert-balance: current balance %ld is less than previous %ld\n", totalB, prevTotalBalance);
+    	LogPrintf(">> Error-balance: current total balance %ld is less than previous %ld\n", totalB, prevTotalBalance);
     
     prevTotalBalance = totalB;
     		
