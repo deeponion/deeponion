@@ -1969,7 +1969,7 @@ static int64_t nTimeCallbacks = 0;
 static int64_t nTimeTotal = 0;
 static int64_t nBlocksTotal = 0;
 
-static CAmount prevTotalBalance = 0;
+static std::map<int, CAmount> totalBalanceMap;
 
 /** Apply the effects of this block (with given index) on the UTXO set represented by coins.
  *  Validity checks that depend on the UTXO set are also done; ConnectBlock()
@@ -2232,13 +2232,21 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
     CAmount stakeB = vpwallets[0]->GetStakeBalance();
     CAmount totalB = avilableB + unconfirmedB + immatureB + stakeB;
     LogPrintf(">> avilableB = %ld, unconfirmedB = %ld, immatureB = %ld, stakeB = %ld\n", avilableB, unconfirmedB, immatureB, stakeB);
-    LogPrintf(">> total balance = %ld\n", totalB);
+    
+    int h = pindex->nHeight;
+    totalBalanceMap[h] = totalB;
+    CAmount prevTotalBalance = 0;
+    if(h > 0) {
+    	if(totalBalanceMap.count(h - 1) > 0) {
+    		prevTotalBalance = totalBalanceMap[h - 1];
+    	}
+    }
+    
+    LogPrintf(">> total balance = %ld, for h = %d\n", totalB, h);
     LogPrintf(">> delta = %ld\n", totalB - prevTotalBalance);
     
     if(totalB < prevTotalBalance) 
     	LogPrintf(">> Error-balance: current total balance %ld is less than previous %ld\n", totalB, prevTotalBalance);
-    
-    prevTotalBalance = totalB;
     		
     if (!WriteUndoDataForBlock(blockundo, state, pindex, chainparams))
         return false;
