@@ -8,6 +8,7 @@
 
 #include <amount.h>
 #include <policy/feerate.h>
+#include <stealth.h>
 #include <streams.h>
 #include <tinyformat.h>
 #include <ui_interface.h>
@@ -1028,6 +1029,17 @@ public:
     void ReturnKey(int64_t nIndex, bool fInternal, const CPubKey& pubkey);
     bool GetKeyFromPool(CPubKey &key, bool internal = false);
     int64_t GetOldestKeyPoolTime();
+    
+    bool AddStealthAddress(CStealthAddress& sxAddr);
+    bool NewStealthAddress(std::string& sError, std::string& sLabel, CStealthAddress& sxAddr);
+    //~ bool UnlockStealthAddresses(const CKeyingMaterial& vMasterKeyIn);
+    //~ bool UpdateStealthAddress(std::string &addr, std::string &label, bool addIfNotExist);
+
+    //~ bool CreateStealthTransaction(CScript scriptPubKey, int64_t nValue, std::vector<uint8_t> &P, std::vector<uint8_t> &narr, std::string &sNarr, CWalletTx &wtxNew, CReserveKey &reservekey, int64 &nFeeRet, const CCoinControl *coinControl = NULL);
+    //~ std::string SendStealthMoney(CScript scriptPubKey, int64_t nValue, std::vector<uint8_t>& P, std::vector<uint8_t>& narr, std::string& sNarr, CWalletTx& wtxNew, bool fAskFee);   
+    //~ bool SendStealthMoneyToDestination(CStealthAddress& sxAddress, int64_t nValue, std::string& sNarr, CWalletTx& wtxNew, std::string& sError, bool fAskFee=false);
+    //~ bool FindStealthTransactions(const CTransaction& tx, mapValue_t& mapNarr);
+    
     /**
      * Marks all keys in the keypool up to and including reserve_key as used.
      */

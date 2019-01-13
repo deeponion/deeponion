@@ -4025,6 +4025,106 @@ int64_t CWallet::GetOldestKeyPoolTime()
     return oldestKey;
 }
 
+bool CWallet::NewStealthAddress(std::string& sError, std::string& sLabel, CStealthAddress& sxAddr)
+{
+    ec_secret scan_secret;
+    ec_secret spend_secret;
+    
+    if (GenerateRandomSecret(scan_secret) != 0 || GenerateRandomSecret(spend_secret) != 0)
+    {
+        sError = "GenerateRandomSecret failed.";
+        LogPrint(BCLog::STEALTH, "Error CWallet::NewStealthAddress - %s\n", sError.c_str());
+        return false;
+    }
+    
+    ec_point scan_pubkey, spend_pubkey;
+    if (SecretToPublicKey(scan_secret, scan_pubkey) != 0)
+    {
+        sError = "Could not get scan public key.";
+        LogPrint(BCLog::STEALTH, "Error CWallet::NewStealthAddress - %s\n", sError.c_str());
+        return false;
+    }
+    
+    if (SecretToPublicKey(spend_secret, spend_pubkey) != 0)
+    {
+        sError = "Could not get spend public key.";
+        LogPrint(BCLog::STEALTH, "Error CWallet::NewStealthAddress - %s\n", sError.c_str());
+        return false;
+    }
+    
+    if (LogAcceptCategory(BCLog::STEALTH))
+    {
+        LogPrintf("getnewstealthaddress: ");
+        LogPrintf("scan_pubkey ");
+        for (uint32_t i = 0; i < scan_pubkey.size(); ++i)
+          LogPrintf("%02x", scan_pubkey[i]);
+        LogPrintf("\n");
+        
+        LogPrintf("spend_pubkey ");
+        for (uint32_t i = 0; i < spend_pubkey.size(); ++i)
+          LogPrintf("%02x", spend_pubkey[i]);
+        LogPrintf("\n");
+    }
+    
+    sxAddr.label = sLabel;
+    sxAddr.scan_pubkey = scan_pubkey;
+    sxAddr.spend_pubkey = spend_pubkey;
+    
+    sxAddr.scan_secret.resize(32);
+    memcpy(&sxAddr.scan_secret[0], &scan_secret.e[0], 32);
+    sxAddr.spend_secret.resize(32);
+    memcpy(&sxAddr.spend_secret[0], &spend_secret.e[0], 32);
+    
+    return true;
+}
+
+bool CWallet::AddStealthAddress(CStealthAddress& sxAddr)
+{
+    /*LOCK(cs_wallet);
+    
+    // must add before changing spend_secret
+    stealthAddresses.insert(sxAddr);
+    
+    bool fOwned = sxAddr.scan_secret.size() == ec_secret_size;
+  
+    if (fOwned)
+    {
+        // -- owned addresses can only be added when wallet is unlocked
+        if (IsLocked())
+        {
+            printf("Error: CWallet::AddStealthAddress wallet must be unlocked.\n");
+            stealthAddresses.erase(sxAddr);
+            return false;
+        }
+        
+        if (IsCrypted())
+        {
+            std::vector<unsigned char> vchCryptedSecret;
+            CSecret vchSecret;
+            vchSecret.resize(32);
+            memcpy(&vchSecret[0], &sxAddr.spend_secret[0], 32);
+            
+            uint256 iv = Hash(sxAddr.spend_pubkey.begin(), sxAddr.spend_pubkey.end());
+            if (!EncryptSecret(vMasterKey, vchSecret, iv, vchCryptedSecret))
+            {
+                printf("Error: Failed encrypting stealth key %s\n", sxAddr.Encoded().c_str());
+                stealthAddresses.erase(sxAddr);
+                return false;
+            }
+            sxAddr.spend_secret = vchCryptedSecret;
+        }
+    }
+    
+    bool rv = CWalletDB(strWalletFile).WriteStealthAddress(sxAddr);
+    
+    if (rv)
+        NotifyAddressBookChanged(this, sxAddr, sxAddr.label, fOwned, CT_NEW);
+    
+    return rv;*/
+    return true;
+}
+
+
 std::map<CTxDestination, CAmount> CWallet::GetAddressBalances()
 {
     std::map<CTxDestination, CAmount> balances;

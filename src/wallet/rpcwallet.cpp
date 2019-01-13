@@ -20,6 +20,7 @@
 #include <rpc/server.h>
 #include <rpc/util.h>
 #include <script/sign.h>
+#include <stealth.h>
 #include <timedata.h>
 #include <util.h>
 #include <utilmoneystr.h>
@@ -3547,6 +3548,47 @@ UniValue rescanblockchain(const JSONRPCRequest& request)
     return response;
 }
 
+// DeepOnion:  Stealth Addresses.
+UniValue getnewstealthaddress(const JSONRPCRequest& request)
+{
+    CWallet * const pwallet = GetWalletForJSONRPCRequest(request);
+    if (!EnsureWalletIsAvailable(pwallet, request.fHelp)) {
+        return NullUniValue;
+    }
+
+    if (request.fHelp || request.params.size() > 2)
+        throw std::runtime_error(
+            "getnewaddress ( \"account\" \"address_type\" )\n"
+            "\nReturns a new DeepOnion stealth address for receiving payments anonymously.\n"
+            "\nArguments:\n"
+            "1. \"label\"   (string, optional, default=\"\") An optional label\n"
+            "\nResult:\n"
+            "\"address\"    (string) The new DeepOnion address\n"
+            "\nExamples:\n"
+            + HelpExampleCli("getnewaddress", "mystealthaddress")
+            + HelpExampleRpc("getnewaddress", "mystealthaddress")
+        );
+    
+    LOCK2(cs_main, pwallet->cs_wallet);
+
+    EnsureWalletIsUnlocked(pwallet);
+    
+    std::string sLabel;
+    if (request.params.size() > 0)
+        sLabel = request.params[0].get_str();
+
+    CStealthAddress sxAddr;
+    std::string sError;
+    if (!pwallet->NewStealthAddress(sError, sLabel, sxAddr))
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, strprintf("Could not get new stealth address: '%s'",  sError));
+
+    if (!pwallet->AddStealthAddress(sxAddr))
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, strprintf("Could not save to wallet."));
+
+    return sxAddr.Encoded();
+}
+
+
 extern UniValue abortrescan(const JSONRPCRequest& request); // in rpcdump.cpp
 extern UniValue dumpprivkey(const JSONRPCRequest& request); // in rpcdump.cpp
 extern UniValue importprivkey(const JSONRPCRequest& request);
@@ -3578,6 +3620,7 @@ static const CRPCCommand commands[] =
     { "wallet",             "getaddressesbyaccount",    &getaddressesbyaccount,    {"account"} },
     { "wallet",             "getbalance",               &getbalance,               {"account","minconf","include_watchonly"} },
     { "wallet",             "getnewaddress",            &getnewaddress,            {"account","address_type"} },
+    { "wallet",             "getnewstealthaddress",     &getnewstealthaddress,     {"account"} },    
     { "wallet",             "getrawchangeaddress",      &getrawchangeaddress,      {"address_type"} },
     { "wallet",             "getreceivedbyaccount",     &getreceivedbyaccount,     {"account","minconf"} },
     { "wallet",             "getreceivedbyaddress",     &getreceivedbyaddress,     {"address","minconf"} },
