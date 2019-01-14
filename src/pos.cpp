@@ -372,7 +372,7 @@ bool CheckProofOfStake(CBlockTreeDB& blockTreeDB, CBlockIndex* pindexPrev, CVali
 	
     Coin coinPrev;
     if(!view.GetCoin(txin.prevout, coinPrev)){
-        return state.DoS(100, error("CheckProofOfStake() : Stake prevout does not exist %s", txin.prevout.hash.ToString()));
+        return state.DoS(100, error("CheckProofOfStake() : Stake prevout does not exist %s, n: %d", txin.prevout.hash.ToString(), txin.prevout.n));
     }
 
     if(pindexPrev->nHeight + 1 - coinPrev.nHeight < Params().GetConsensus().nCoinbaseMaturity){

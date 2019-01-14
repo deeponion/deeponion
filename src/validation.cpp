@@ -1438,7 +1438,8 @@ void CChainState::InvalidBlockFound(CBlockIndex *pindex, const CValidationState 
 void UpdateCoins(const CTransaction& tx, CCoinsViewCache& inputs, CTxUndo &txundo, int nHeight)
 {
     // mark inputs spent
-    if (!tx.IsCoinBase() && !tx.IsCoinStake()) {
+    // if (!tx.IsCoinBase() && !tx.IsCoinStake()) {
+    if (!tx.IsCoinBase()) {
         txundo.vprevout.reserve(tx.vin.size());
         for (const CTxIn &txin : tx.vin) {
             txundo.vprevout.emplace_back();
@@ -1503,7 +1504,8 @@ void InitScriptExecutionCache() {
  */
 bool CheckInputs(const CTransaction& tx, CValidationState &state, const CCoinsViewCache &inputs, bool fScriptChecks, unsigned int flags, bool cacheSigStore, bool cacheFullScriptStore, PrecomputedTransactionData& txdata, std::vector<CScriptCheck> *pvChecks)
 {
-    if (!tx.IsCoinBase() || !tx.IsCoinStake())
+    // if (!tx.IsCoinBase() || !tx.IsCoinStake())
+    if (!tx.IsCoinBase())
     {
         if (pvChecks)
             pvChecks->reserve(tx.vin.size());
@@ -1737,7 +1739,8 @@ DisconnectResult CChainState::DisconnectBlock(const CBlock& block, const CBlockI
         }
 
         // restore inputs
-        if (i > 0 && !is_coinstake) { // not coinbases
+        // if (i > 0 && !is_coinstake) { // not coinbases
+        if (i > 0) { // not coinbases
             CTxUndo &txundo = blockUndo.vtxundo[i-1];
             if (txundo.vprevout.size() != tx.vin.size()) {
             	LogPrintf(">> i>0 case: txundo.vprevout.size() = %d, tx.vin.size() = %d\n", txundo.vprevout.size(), tx.vin.size());
@@ -2113,7 +2116,8 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
 
         nInputs += tx.vin.size();
 
-        if (!tx.IsCoinBase() && !tx.IsCoinStake())
+        // if (!tx.IsCoinBase() && !tx.IsCoinStake())
+        if (!tx.IsCoinBase())
         {
             CAmount txfee = 0;
             if (!Consensus::CheckTxInputs(tx, state, view, pindex->nHeight, txfee)) {
@@ -2149,7 +2153,8 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
                              REJECT_INVALID, "bad-blk-sigops");
 
         txdata.emplace_back(tx);
-        if (!tx.IsCoinBase() && !tx.IsCoinStake())
+        // if (!tx.IsCoinBase() && !tx.IsCoinStake())
+        if (!tx.IsCoinBase())
         {
             std::vector<CScriptCheck> vChecks;
             bool fCacheResults = fJustCheck; /* Don't cache results if we're actually connecting blocks (still consult the cache, though) */
@@ -2209,7 +2214,8 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
 	CBlock* pBlock0 = (CBlock*)&block;
 	if (pBlock0->IsProofOfStake())
 	{
-		LogPrint(BCLog::STAKE, ">> Block = %s\n", pBlock0->ToString().c_str());
+		LogPrintf(">> Before calling CheckProofOfStake\n");
+		LogPrintf(">> Block = %s\n", pBlock0->ToString().c_str());
 		if(!CheckProofOfStake(*pblocktree, pindex->pprev, state, block, hashProofOfStake, targetProofOfStake, mapBlockIndex, *pcoinsTip))
 		{
 			return error("ConnectBlock(): check proof-of-stake failed for block %s\n", pBlock0->GetHash().ToString().c_str()); 
@@ -2224,8 +2230,6 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
         return error("ConnectBlock() : ComputeStakeModifier() failed");
     
     // debug, check total balance
-    LogPrintf(">> Current balance = %ld\n", vpwallets[0]->GetBalance());
-
     CAmount avilableB = vpwallets[0]->GetAvailableBalance();
     CAmount unconfirmedB = vpwallets[0]->GetUnconfirmedBalance();
     CAmount immatureB = vpwallets[0]->GetImmatureBalance();

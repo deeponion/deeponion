@@ -236,6 +236,9 @@ bool Consensus::CheckTxInputs(const CTransaction& tx, CValidationState& state, c
         }
     }
 
+    if(tx.IsCoinBase() || tx.IsCoinStake())
+    	return true;
+    
     const CAmount value_out = tx.GetValueOut();
     if (nValueIn < value_out) {
         return state.DoS(100, false, REJECT_INVALID, "bad-txns-in-belowout", false,
