@@ -340,6 +340,12 @@ ReadKeyValue(CWallet* pwallet, CDataStream& ssKey, CDataStream& ssValue,
             if (fYes == '1')
                 pwallet->LoadWatchOnly(script);
         }
+        else if (strType == "sxAddr")
+        {
+            CStealthAddress sxAddr;
+            ssValue >> sxAddr;
+            pwallet->stealthAddresses.insert(sxAddr);
+        }
         else if (strType == "key" || strType == "wkey")
         {
             CPubKey vchPubKey;
