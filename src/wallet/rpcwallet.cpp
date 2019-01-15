@@ -3563,7 +3563,9 @@ UniValue getnewstealthaddress(const JSONRPCRequest& request)
             "\nArguments:\n"
             "1. \"label\"   (string, optional, default=\"\") An optional label\n"
             "\nResult:\n"
-            "\"address\"    (string) The new DeepOnion address\n"
+            "{\n"
+            "  \"stealth_address\": \"str\",    (string) The new DeepOnion address\n"
+            "}\n"
             "\nExamples:\n"
             + HelpExampleCli("getnewaddress", "mystealthaddress")
             + HelpExampleRpc("getnewaddress", "mystealthaddress")
@@ -3585,9 +3587,76 @@ UniValue getnewstealthaddress(const JSONRPCRequest& request)
     if (!pwallet->AddStealthAddress(sxAddr))
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, strprintf("Could not save to wallet."));
 
-    return sxAddr.Encoded();
+    UniValue result(UniValue::VOBJ);
+    result.pushKV("stealth_address", sxAddr.Encoded());
+
+    return result;
 }
 
+UniValue liststealthaddresses(const JSONRPCRequest& request)
+{
+    CWallet * const pwallet = GetWalletForJSONRPCRequest(request);
+    if (!EnsureWalletIsAvailable(pwallet, request.fHelp)) {
+        return NullUniValue;
+    }
+
+    if (request.fHelp || request.params.size() > 1)
+        throw std::runtime_error(
+            "liststealthaddresses [show_secrets]\n"
+            "\nList owned stealth addresses.\n"
+            "\nArguments:\n"
+            "1. show_secrets     (bool, optional) Display secret keys to stealth addresses.\n"
+            "                    If [show_secrets] is true secret keys to stealth addresses will be shown \n"
+            "                    The wallet must be unlocked if true.\n"
+            "\nResult:\n"
+            "{\n"
+            "  \"Stealth Address\": {\n"
+            "    \"Label\": \"str\",          (string) Stealth address label.\n"
+            "    \"Address\": \"str\",        (string) Stealth address.\n"
+            "    \"Scan Secret\": \"str\",    (string) Scan secret, if show_secrets=1.\n"
+            "    \"Spend Secret\": \"str\",   (string) Spend secret, if show_secrets=1.\n"
+            "  }\n"
+            "}\n"
+            "\"address\"              (string) The DeepOnion stealth address\n"
+            "\nExamples:\n"
+            + HelpExampleCli("liststealthaddresses", "")
+            + HelpExampleRpc("liststealthaddresses", "")
+        );
+
+    bool fShowSecrets = request.params.size() > 0 ? request.params[0].get_bool() : false;
+
+    if (fShowSecrets )
+        EnsureWalletIsUnlocked(pwallet);
+
+    UniValue results(UniValue::VARR);
+
+    std::set<CStealthAddress>::iterator it;
+
+    for (it = pwallet->stealthAddresses.begin(); it != pwallet->stealthAddresses.end(); ++it)
+    {
+        if (it->scan_secret.size() < 1)
+            continue; // stealth address is not owned
+
+        UniValue entry(UniValue::VOBJ);
+
+        if (fShowSecrets)
+        {
+            entry.pushKV("Label        ", it->label);
+            entry.pushKV("Address      ", it->Encoded());
+            entry.pushKV("Scan Secret  ", HexStr(it->scan_secret.begin(), it->scan_secret.end()));
+            entry.pushKV("Spend Secret ", HexStr(it->spend_secret.begin(), it->spend_secret.end()));
+        }
+        else
+        {
+            entry.pushKV("Label        ", it->label);
+            entry.pushKV("Address      ", it->Encoded());
+        };
+
+        results.push_back(entry);
+    };
+
+    return results;
+}
 
 extern UniValue abortrescan(const JSONRPCRequest& request); // in rpcdump.cpp
 extern UniValue dumpprivkey(const JSONRPCRequest& request); // in rpcdump.cpp
@@ -3640,6 +3709,7 @@ static const CRPCCommand commands[] =
     { "wallet",             "listreceivedbyaccount",    &listreceivedbyaccount,    {"minconf","include_empty","include_watchonly"} },
     { "wallet",             "listreceivedbyaddress",    &listreceivedbyaddress,    {"minconf","include_empty","include_watchonly"} },
     { "wallet",             "listsinceblock",           &listsinceblock,           {"blockhash","target_confirmations","include_watchonly","include_removed"} },
+    { "wallet",             "liststealthaddresses",     &liststealthaddresses,     {"show_secrets"} },
     { "wallet",             "listtransactions",         &listtransactions,         {"account","count","skip","include_watchonly"} },
     { "wallet",             "listunspent",              &listunspent,              {"minconf","maxconf","addresses","include_unsafe","query_options"} },
     { "wallet",             "listwallets",              &listwallets,              {} },
