@@ -803,6 +803,10 @@ public:
     // Map from Script ID to key metadata (for watch-only keys).
     std::map<CScriptID, CKeyMetadata> m_script_metadata;
 
+    std::set<CStealthAddress> stealthAddresses;
+    //StealthKeyMetaMap mapStealthKeyMeta;
+    //uint32_t nStealth, nFoundStealth; // for reporting, zero before use
+
     typedef std::map<unsigned int, CMasterKey> MasterKeyMap;
     MasterKeyMap mapMasterKeys;
     unsigned int nMasterKeyMaxID;

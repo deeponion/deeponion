@@ -166,6 +166,22 @@ bool CWalletDB::WriteAccountingEntry(const uint64_t nAccEntryNum, const CAccount
     return WriteIC(std::make_pair(std::string("acentry"), std::make_pair(acentry.strAccount, nAccEntryNum)), acentry);
 }
 
+bool CWalletDB::WriteStealthAddress(const CStealthAddress& sxAddr)
+{
+    return WriteIC(std::make_pair(std::string("sxAddr"), sxAddr.scan_pubkey), sxAddr, true);
+}
+
+bool CWalletDB::ReadStealthAddress(CStealthAddress& sxAddr)
+{
+    // Set scan_pubkey before reading
+    return batch.Read(std::make_pair(std::string("sxAddr"), sxAddr.scan_pubkey), sxAddr);
+}
+
+bool CWalletDB::EraseStealthAddress(const CStealthAddress& sxAddr)
+{
+    return EraseIC(std::make_pair(std::string("sxAddr"), sxAddr.scan_pubkey));
+}
+
 CAmount CWalletDB::GetAccountCreditDebit(const std::string& strAccount)
 {
     std::list<CAccountingEntry> entries;

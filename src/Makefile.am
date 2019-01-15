@@ -222,7 +222,6 @@ libbitcoin_server_a_SOURCES = \
   rpc/server.cpp \
   script/sigcache.cpp \
   script/ismine.cpp \
-  stealth.cpp \
   timedata.cpp \
   torcontrol.cpp \
   torservice.cpp \
@@ -259,6 +258,7 @@ libbitcoin_wallet_a_SOURCES = \
   wallet/wallet.cpp \
   wallet/walletdb.cpp \
   wallet/walletutil.cpp \
+  stealth.cpp \
   $(BITCOIN_CORE_H)
 
 # crypto primitives library

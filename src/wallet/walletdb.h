@@ -10,6 +10,7 @@
 #include <primitives/transaction.h>
 #include <wallet/db.h>
 #include <key.h>
+#include <stealth.h>
 
 #include <list>
 #include <stdint.h>
@@ -44,6 +45,7 @@ class CWallet;
 class CWalletTx;
 class uint160;
 class uint256;
+class CStealthAddress;
 
 /** Error statuses for the wallet database */
 enum DBErrors
@@ -204,6 +206,10 @@ public:
     bool WriteAccountingEntry(const uint64_t nAccEntryNum, const CAccountingEntry& acentry);
     bool ReadAccount(const std::string& strAccount, CAccount& account);
     bool WriteAccount(const std::string& strAccount, const CAccount& account);
+
+    bool WriteStealthAddress(const CStealthAddress& sxAddr);
+    bool ReadStealthAddress(CStealthAddress& sxAddr);
+    bool EraseStealthAddress(const CStealthAddress& sxAddr);
 
     /// Write destination data key,value tuple to database
     bool WriteDestData(const std::string &address, const std::string &key, const std::string &value);

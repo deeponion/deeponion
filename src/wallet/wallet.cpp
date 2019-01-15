@@ -32,6 +32,7 @@
 #include <util.h>
 #include <utilmoneystr.h>
 #include <wallet/fees.h>
+//~ #include <wallet/crypter.h>
 
 #include <assert.h>
 #include <future>
@@ -4080,48 +4081,53 @@ bool CWallet::NewStealthAddress(std::string& sError, std::string& sLabel, CSteal
 
 bool CWallet::AddStealthAddress(CStealthAddress& sxAddr)
 {
-    /*LOCK(cs_wallet);
-    
+    LOCK(cs_wallet);
+
+    CKeyingMaterial _vMasterKey;
+
     // must add before changing spend_secret
     stealthAddresses.insert(sxAddr);
-    
+
     bool fOwned = sxAddr.scan_secret.size() == ec_secret_size;
-  
+
     if (fOwned)
     {
         // -- owned addresses can only be added when wallet is unlocked
         if (IsLocked())
         {
-            printf("Error: CWallet::AddStealthAddress wallet must be unlocked.\n");
+            LogPrint(BCLog::STEALTH,"Error: CWallet::AddStealthAddress wallet must be unlocked.\n");
             stealthAddresses.erase(sxAddr);
             return false;
         }
-        
+
         if (IsCrypted())
         {
             std::vector<unsigned char> vchCryptedSecret;
-            CSecret vchSecret;
+
+            std::vector<unsigned char, secure_allocator<unsigned char> >vchSecret;
             vchSecret.resize(32);
             memcpy(&vchSecret[0], &sxAddr.spend_secret[0], 32);
             
             uint256 iv = Hash(sxAddr.spend_pubkey.begin(), sxAddr.spend_pubkey.end());
-            if (!EncryptSecret(vMasterKey, vchSecret, iv, vchCryptedSecret))
+            if (!EncryptSecret(_vMasterKey, vchSecret, iv, vchCryptedSecret))
             {
-                printf("Error: Failed encrypting stealth key %s\n", sxAddr.Encoded().c_str());
+                LogPrint(BCLog::STEALTH,"Error: Failed encrypting stealth key %s\n", sxAddr.Encoded().c_str());
                 stealthAddresses.erase(sxAddr);
                 return false;
             }
             sxAddr.spend_secret = vchCryptedSecret;
         }
+
     }
+
+    bool rv = CWalletDB(*dbw).WriteStealthAddress(sxAddr);
+
+    // TODO: NotifyAddressBookChanged on walletmodel.cpp
+    // if (rv)
+        // NotifyAddressBookChanged(this, enc, sxAddr.label, fOwned, "", CT_NEW );
     
-    bool rv = CWalletDB(strWalletFile).WriteStealthAddress(sxAddr);
-    
-    if (rv)
-        NotifyAddressBookChanged(this, sxAddr, sxAddr.label, fOwned, CT_NEW);
-    
-    return rv;*/
-    return true;
+    return rv;
+
 }
 
 
