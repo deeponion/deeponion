@@ -3556,9 +3556,9 @@ UniValue getnewstealthaddress(const JSONRPCRequest& request)
         return NullUniValue;
     }
 
-    if (request.fHelp || request.params.size() > 2)
+    if (request.fHelp || request.params.size() > 1)
         throw std::runtime_error(
-            "getnewaddress ( \"account\" \"address_type\" )\n"
+            "getnewstealthaddress ( \"label\")\n"
             "\nReturns a new DeepOnion stealth address for receiving payments anonymously.\n"
             "\nArguments:\n"
             "1. \"label\"   (string, optional, default=\"\") An optional label\n"
@@ -3567,8 +3567,8 @@ UniValue getnewstealthaddress(const JSONRPCRequest& request)
             "  \"stealth_address\": \"str\",    (string) The new DeepOnion address\n"
             "}\n"
             "\nExamples:\n"
-            + HelpExampleCli("getnewaddress", "mystealthaddress")
-            + HelpExampleRpc("getnewaddress", "mystealthaddress")
+            + HelpExampleCli("getnewstealthaddress", "mystealthaddress")
+            + HelpExampleRpc("getnewstealthaddress", "mystealthaddress")
         );
     
     LOCK2(cs_main, pwallet->cs_wallet);
@@ -3617,7 +3617,6 @@ UniValue liststealthaddresses(const JSONRPCRequest& request)
             "    \"Spend Secret\": \"str\",   (string) Spend secret, if show_secrets=1.\n"
             "  }\n"
             "}\n"
-            "\"address\"              (string) The DeepOnion stealth address\n"
             "\nExamples:\n"
             + HelpExampleCli("liststealthaddresses", "")
             + HelpExampleRpc("liststealthaddresses", "")
