@@ -32,7 +32,7 @@
 #include <util.h>
 #include <utilmoneystr.h>
 #include <wallet/fees.h>
-//~ #include <wallet/crypter.h>
+#include <wallet/crypter.h>
 
 #include <assert.h>
 #include <future>
@@ -4083,8 +4083,6 @@ bool CWallet::AddStealthAddress(CStealthAddress& sxAddr)
 {
     LOCK(cs_wallet);
 
-    CKeyingMaterial _vMasterKey;
-
     // must add before changing spend_secret
     stealthAddresses.insert(sxAddr);
 
@@ -4109,7 +4107,7 @@ bool CWallet::AddStealthAddress(CStealthAddress& sxAddr)
             memcpy(&vchSecret[0], &sxAddr.spend_secret[0], 32);
             
             uint256 iv = Hash(sxAddr.spend_pubkey.begin(), sxAddr.spend_pubkey.end());
-            if (!EncryptSecret(_vMasterKey, vchSecret, iv, vchCryptedSecret))
+            if (!EncryptSecret(vMasterKey, vchSecret, iv, vchCryptedSecret))
             {
                 LogPrint(BCLog::STEALTH,"Error: Failed encrypting stealth key %s\n", sxAddr.Encoded().c_str());
                 stealthAddresses.erase(sxAddr);

@@ -116,8 +116,6 @@ class CCryptoKeyStore : public CBasicKeyStore
 {
 private:
 
-    CKeyingMaterial vMasterKey;
-
     //! if fUseCrypto is true, mapKeys must be empty
     //! if fUseCrypto is false, vMasterKey must be empty
     std::atomic<bool> fUseCrypto;
@@ -127,6 +125,8 @@ private:
 
 protected:
     bool SetCrypted();
+
+    CKeyingMaterial vMasterKey;
 
     //! will encrypt previously unencrypted keys
     bool EncryptKeys(CKeyingMaterial& vMasterKeyIn);

@@ -3564,7 +3564,8 @@ UniValue getnewstealthaddress(const JSONRPCRequest& request)
             "1. \"label\"   (string, optional, default=\"\") An optional label\n"
             "\nResult:\n"
             "{\n"
-            "  \"stealth_address\": \"str\",    (string) The new DeepOnion address\n"
+            "  \"Label\": \"str\",          (string) Stealth address label.\n"
+            "  \"Address\": \"str\",        (string) New DeepOnion Stealth address.\n"
             "}\n"
             "\nExamples:\n"
             + HelpExampleCli("getnewstealthaddress", "mystealthaddress")
@@ -3588,7 +3589,8 @@ UniValue getnewstealthaddress(const JSONRPCRequest& request)
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, strprintf("Could not save to wallet."));
 
     UniValue result(UniValue::VOBJ);
-    result.pushKV("stealth_address", sxAddr.Encoded());
+    result.pushKV("Label        ", sxAddr.label);
+    result.pushKV("Address      ", sxAddr.Encoded());
 
     return result;
 }
@@ -3870,7 +3872,7 @@ static const CRPCCommand commands[] =
     { "wallet",             "getaddressesbyaccount",    &getaddressesbyaccount,    {"account"} },
     { "wallet",             "getbalance",               &getbalance,               {"account","minconf","include_watchonly"} },
     { "wallet",             "getnewaddress",            &getnewaddress,            {"account","address_type"} },
-    { "wallet",             "getnewstealthaddress",     &getnewstealthaddress,     {"label"} },    
+    { "wallet",             "getnewstealthaddress",     &getnewstealthaddress,     {"label"} },
     { "wallet",             "getrawchangeaddress",      &getrawchangeaddress,      {"address_type"} },
     { "wallet",             "getreceivedbyaccount",     &getreceivedbyaccount,     {"account","minconf"} },
     { "wallet",             "getreceivedbyaddress",     &getreceivedbyaddress,     {"address","minconf"} },
