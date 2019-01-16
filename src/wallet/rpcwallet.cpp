@@ -3657,6 +3657,187 @@ UniValue liststealthaddresses(const JSONRPCRequest& request)
     return results;
 }
 
+UniValue exportstealthaddress(const JSONRPCRequest& request)
+{
+    CWallet * const pwallet = GetWalletForJSONRPCRequest(request);
+    if (!EnsureWalletIsAvailable(pwallet, request.fHelp)) {
+        return NullUniValue;
+    }
+
+   if (request.fHelp || request.params.size() != 1)
+        throw std::runtime_error(
+            "exportstealthaddress <label/address>\n"
+            "\nExports the given stealth address.\n"
+            "\nArguments:\n"
+            "1. \"label\"   (string, optional, default=\"\") Stealth address label to export\n"
+            "\nResult:\n"
+            "{\n"
+            "  \"label\": \"str\",          (string) Stealth address label.\n"
+            "  \"Scan Secret\": \"str\",    (string) Scan secret.\n"
+            "  \"Spend Secret\": \"str\",   (string) Spend secret.\n"
+            "}\n"
+            "\nExamples:\n"
+            + HelpExampleCli("exportstealthaddress", "mystealthaddress")
+            + HelpExampleRpc("exportstealthaddress", "mystealthaddress")
+        );
+
+    std::string stealth_address_label = request.params[0].get_str();
+
+    LOCK2(cs_main, pwallet->cs_wallet);
+
+    EnsureWalletIsUnlocked(pwallet);
+
+    UniValue result(UniValue::VOBJ);
+
+    std::set<CStealthAddress>::iterator it;
+    for (it = pwallet->stealthAddresses.begin(); it != pwallet->stealthAddresses.end(); ++it)
+    {
+        if (it->scan_secret.size() < 1)
+            continue; // stealth address is not owned
+
+        if (stealth_address_label == it->label || stealth_address_label == it->Encoded())
+        {
+            UniValue entry(UniValue::VOBJ);
+            entry.pushKV("Label        ", it->label);
+            entry.pushKV("Scan Secret  ", HexStr(it->scan_secret.begin(), it->scan_secret.end()));
+            entry.pushKV("Spend Secret ", HexStr(it->spend_secret.begin(), it->spend_secret.end()));
+            return entry;
+        }
+    };
+
+    return result;
+}
+
+
+UniValue importstealthaddress(const JSONRPCRequest& request)
+{
+    CWallet * const pwallet = GetWalletForJSONRPCRequest(request);
+    if (!EnsureWalletIsAvailable(pwallet, request.fHelp)) {
+        return NullUniValue;
+    }
+
+   if (request.fHelp || request.params.size() < 2)
+        throw std::runtime_error(
+            "importstealthaddress \"scan_secret\" \"spend_secret\" (\"label\")\n"
+            "\nImports owned stealth address.\n"
+            "\nArguments:\n"
+            "1. \"label\"   (string, optional, default=\"\") Stealth address label to export\n"
+            "\nArguments:\n"
+            "1. \"scan_secret\"     (string, required) Scan secret.\n"
+            "2. \"spend_secret\"    (string, required) Spend secret.\n"
+            "3. \"label\"           (string, optional, default=\"\") Stealth address label to import\n"
+            "\nResult:\n"
+            "{\n"
+            "  \"result\": \"str\",     (string) Import status: success or failed.\n"
+            "  \"address\": \"str\",    (string) Imported stealth address.\n"
+            "}\n"
+            "\nExamples:\n"
+            + HelpExampleCli("importstealthaddress", "my_scan_secret my_spend_secret" )
+            + HelpExampleRpc("importstealthaddress", "my_scan_secret , my_spend_secret" )
+        );
+
+    LOCK2(cs_main, pwallet->cs_wallet);
+
+    EnsureWalletIsUnlocked(pwallet);
+
+    std::string sScanSecret = request.params[0].get_str();
+    std::string sSpendSecret = request.params[1].get_str();
+    std::string sLabel;
+
+    if (request.params.size() == 3)
+        sLabel = request.params[2].get_str();
+
+
+    std::vector<uint8_t> vchScanSecret;
+    std::vector<uint8_t> vchSpendSecret;
+
+    if (IsHex(sScanSecret))
+    {
+        vchScanSecret = ParseHex(sScanSecret);
+    }
+    else
+    {
+        if (!DecodeBase58(sScanSecret, vchScanSecret))
+            throw std::runtime_error("Could not decode scan secret as hex or base58.");
+    };
+
+    if (IsHex(sSpendSecret))
+    {
+        vchSpendSecret = ParseHex(sSpendSecret);
+    }
+    else
+    {
+        if (!DecodeBase58(sSpendSecret, vchSpendSecret))
+            throw std::runtime_error("Could not decode spend secret as hex or base58.");
+    };
+
+    if (vchScanSecret.size() != 32)
+        throw std::runtime_error("Scan secret is not 32 bytes.");
+    if (vchSpendSecret.size() != 32)
+        throw std::runtime_error("Spend secret is not 32 bytes.");
+
+    ec_secret scan_secret;
+    ec_secret spend_secret;
+
+    memcpy(&scan_secret.e[0], &vchScanSecret[0], 32);
+    memcpy(&spend_secret.e[0], &vchSpendSecret[0], 32);
+
+    ec_point scan_pubkey, spend_pubkey;
+    if (SecretToPublicKey(scan_secret, scan_pubkey) != 0)
+        throw std::runtime_error("Could not get scan public key.");
+
+    if (SecretToPublicKey(spend_secret, spend_pubkey) != 0)
+        throw std::runtime_error("Could not get spend public key.");
+
+    CStealthAddress sxAddr;
+    sxAddr.label = sLabel;
+    sxAddr.scan_pubkey = scan_pubkey;
+    sxAddr.spend_pubkey = spend_pubkey;
+
+    sxAddr.scan_secret = vchScanSecret;
+    sxAddr.spend_secret = vchSpendSecret;
+
+
+    UniValue result(UniValue::VOBJ);
+    bool fFound = false;
+    // -- find if address already exists
+    std::set<CStealthAddress>::iterator it;
+    for (it = pwallet->stealthAddresses.begin(); it != pwallet->stealthAddresses.end(); ++it)
+    {
+        CStealthAddress &sxAddrIt = const_cast<CStealthAddress&>(*it);
+        if (sxAddrIt.scan_pubkey == sxAddr.scan_pubkey && sxAddrIt.spend_pubkey == sxAddr.spend_pubkey)
+        {
+            if (sxAddrIt.scan_secret.size() < 1)
+            {
+                sxAddrIt.scan_secret = sxAddr.scan_secret;
+                sxAddrIt.spend_secret = sxAddr.spend_secret;
+                fFound = true; // update stealth address with secrets
+                break;
+            };
+
+            result.push_back(Pair("result", "Import failed - stealth address exists."));
+            return result;
+        };
+    };
+
+    if (fFound)
+    {
+        result.push_back(Pair("result", "Success, updated "));
+        result.push_back(Pair("Address", sxAddr.Encoded()));
+    }
+    else
+    {
+        pwallet->stealthAddresses.insert(sxAddr);
+        result.push_back(Pair("result", "Success, imported "));
+        result.push_back(Pair("Address", sxAddr.Encoded()));
+    };
+
+    if (!pwallet->AddStealthAddress(sxAddr))
+        throw std::runtime_error("Could not save to wallet.");
+
+    return result;
+}
+
 extern UniValue abortrescan(const JSONRPCRequest& request); // in rpcdump.cpp
 extern UniValue dumpprivkey(const JSONRPCRequest& request); // in rpcdump.cpp
 extern UniValue importprivkey(const JSONRPCRequest& request);
@@ -3683,12 +3864,13 @@ static const CRPCCommand commands[] =
     { "wallet",             "dumpprivkey",              &dumpprivkey,              {"address"}  },
     { "wallet",             "dumpwallet",               &dumpwallet,               {"filename"} },
     { "wallet",             "encryptwallet",            &encryptwallet,            {"passphrase"} },
+    { "wallet",             "exportstealthaddress",     &exportstealthaddress,     {"label"} },
     { "wallet",             "getaccountaddress",        &getaccountaddress,        {"account"} },
     { "wallet",             "getaccount",               &getaccount,               {"address"} },
     { "wallet",             "getaddressesbyaccount",    &getaddressesbyaccount,    {"account"} },
     { "wallet",             "getbalance",               &getbalance,               {"account","minconf","include_watchonly"} },
     { "wallet",             "getnewaddress",            &getnewaddress,            {"account","address_type"} },
-    { "wallet",             "getnewstealthaddress",     &getnewstealthaddress,     {"account"} },    
+    { "wallet",             "getnewstealthaddress",     &getnewstealthaddress,     {"label"} },    
     { "wallet",             "getrawchangeaddress",      &getrawchangeaddress,      {"address_type"} },
     { "wallet",             "getreceivedbyaccount",     &getreceivedbyaccount,     {"account","minconf"} },
     { "wallet",             "getreceivedbyaddress",     &getreceivedbyaddress,     {"address","minconf"} },
@@ -3701,6 +3883,7 @@ static const CRPCCommand commands[] =
     { "wallet",             "importaddress",            &importaddress,            {"address","label","rescan","p2sh"} },
     { "wallet",             "importprunedfunds",        &importprunedfunds,        {"rawtransaction","txoutproof"} },
     { "wallet",             "importpubkey",             &importpubkey,             {"pubkey","label","rescan"} },
+    { "wallet",             "importstealthaddress",     &importstealthaddress,     {"scan_secret","spend_secret","label"} },
     { "wallet",             "keypoolrefill",            &keypoolrefill,            {"newsize"} },
     { "wallet",             "listaccounts",             &listaccounts,             {"minconf","include_watchonly"} },
     { "wallet",             "listaddressgroupings",     &listaddressgroupings,     {} },
