@@ -524,7 +524,7 @@ static bool CheckInputsFromMempoolAndCache(const CTransaction& tx, CValidationSt
     // and when we actually call through to CheckInputs
     LOCK(pool.cs);
 
-    assert(!tx.IsCoinBase() || !tx.IsCoinStake());
+    assert(!tx.IsCoinBase() && !tx.IsCoinStake());
     for (const CTxIn& txin : tx.vin) {
         const Coin& coin = view.AccessCoin(txin.prevout);
 
@@ -1504,7 +1504,7 @@ void InitScriptExecutionCache() {
  */
 bool CheckInputs(const CTransaction& tx, CValidationState &state, const CCoinsViewCache &inputs, bool fScriptChecks, unsigned int flags, bool cacheSigStore, bool cacheFullScriptStore, PrecomputedTransactionData& txdata, std::vector<CScriptCheck> *pvChecks)
 {
-    // if (!tx.IsCoinBase() || !tx.IsCoinStake())
+    // if (!tx.IsCoinBase() && !tx.IsCoinStake())
     if (!tx.IsCoinBase())
     {
         if (pvChecks)
@@ -3756,6 +3756,16 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CVali
     	pindex->nFlags |= CBlockIndex::BLOCK_PROOF_OF_STAKE;
     	pindex->prevoutStake = block.vtx[1]->vin[0].prevout;
     	pindex->nStakeTime = block.vtx[1]->nTime;
+    	
+    	// make sure stake source is spendable
+    	if (!IsInitialBlockDownload()) {
+    		CCoinsViewCache view(pcoinsTip.get());
+    		const COutPoint &stakeprevout = block.vtx[1]->vin[0].prevout;
+    		const Coin& coin = view.AccessCoin(stakeprevout);
+    		if(coin.IsSpent()) {
+    			return error("%s: stake source already spent", __func__);
+    		}
+    	}
     }
 
     // Header is valid/has work, merkle tree and segwit merkle tree are good...RELAY NOW
