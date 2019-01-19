@@ -13,6 +13,7 @@
 #include <chain.h>
 #include <coins.h>
 #include <utilmoneystr.h>
+#include <util.h>
 
 bool IsFinalTx(const CTransaction &tx, int nBlockHeight, int64_t nBlockTime)
 {
@@ -215,13 +216,30 @@ bool Consensus::CheckTxInputs(const CTransaction& tx, CValidationState& state, c
         return state.DoS(100, false, REJECT_INVALID, "bad-txns-inputs-missingorspent", false,
                          strprintf("%s: inputs missing/spent", __func__));
     }
-
+    
+    // debug
+    if(tx.IsCoinStake())
+    	LogPrintf(">> tx is stake\n");
+    else if(tx.IsCoinBase())
+    	LogPrintf(">> tx is coinbase\n");
+    else
+    	LogPrintf(">> tx is not coinbase nor stake\n");
+    
     CAmount nValueIn = 0;
     for (unsigned int i = 0; i < tx.vin.size(); ++i) {
         const COutPoint &prevout = tx.vin[i].prevout;
         const Coin& coin = inputs.AccessCoin(prevout);
         assert(!coin.IsSpent());
 
+        // debug
+        if(coin.IsCoinBase()) {
+        	LogPrintf(">> coin %d is coinbase\n", i);
+        }
+        else
+        {
+        	LogPrintf(">> coin %d is NOT coinbase\n", i);
+        }
+        
         // If prev is coinbase, check that it's matured
         if (coin.IsCoinBase() && nSpendHeight - coin.nHeight < Params().nCoinbaseMaturity) {
             return state.Invalid(false,

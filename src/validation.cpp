@@ -1445,6 +1445,7 @@ void UpdateCoins(const CTransaction& tx, CCoinsViewCache& inputs, CTxUndo &txund
             txundo.vprevout.emplace_back();
             bool is_spent = inputs.SpendCoin(txin.prevout, &txundo.vprevout.back());
             assert(is_spent);
+            LogPrintf(">> coin %s is spent!\n", txin.prevout.ToString().c_str());
         }
     }
     // add outputs
@@ -2172,7 +2173,9 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
         if (i > 0) {
             blockundo.vtxundo.push_back(CTxUndo());
         }
-        UpdateCoins(tx, view, i == 0 ? undoDummy : blockundo.vtxundo.back(), pindex->nHeight);
+        
+        if(!fJustCheck)
+        	UpdateCoins(tx, view, i == 0 ? undoDummy : blockundo.vtxundo.back(), pindex->nHeight);
     }
     int64_t nTime3 = GetTimeMicros(); nTimeConnect += nTime3 - nTime2;
     LogPrint(BCLog::BENCH, "      - Connect %u transactions: %.2fms (%.3fms/tx, %.3fms/txin) [%.2fs (%.2fms/blk)]\n", 
@@ -2185,9 +2188,6 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
     LogPrint(BCLog::BENCH, "    - Verify %u txins: %.2fms (%.3fms/txin) [%.2fs (%.2fms/blk)]\n", nInputs - 1, 
     		MILLI * (nTime4 - nTime2), nInputs <= 1 ? 0 : MILLI * (nTime4 - nTime2) / (nInputs-1), nTimeVerify * MICRO, nTimeVerify * MILLI / nBlocksTotal);
 
-    if (fJustCheck)
-        return true;
-    
     if(block.IsProofOfWork())
     {
 		CAmount blockReward = nFees + GetProofOfWorkReward(pindex->nHeight, pindex->pprev);
@@ -2208,6 +2208,9 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
             return state.DoS(100, error("ConnectBlock() : coinstake pays too much(actual=%d vs calculated=%d)", nStakeReward, nCalculatedStakeReward));
     }
 
+    if (fJustCheck)
+        return true;
+    
     // check stake and compute stakemodifier
 	uint256 hashProofOfStake = uint256();
 	uint256 targetProofOfStake = uint256();
@@ -2228,30 +2231,7 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
 
     if(!ComputeStakeModifier(pindex, block, chainparams))
         return error("ConnectBlock() : ComputeStakeModifier() failed");
-    
-    // debug, check total balance
-    CAmount avilableB = vpwallets[0]->GetAvailableBalance();
-    CAmount unconfirmedB = vpwallets[0]->GetUnconfirmedBalance();
-    CAmount immatureB = vpwallets[0]->GetImmatureBalance();
-    CAmount stakeB = vpwallets[0]->GetStakeBalance();
-    CAmount totalB = avilableB + unconfirmedB + immatureB + stakeB;
-    LogPrintf(">> avilableB = %ld, unconfirmedB = %ld, immatureB = %ld, stakeB = %ld\n", avilableB, unconfirmedB, immatureB, stakeB);
-    
-    int h = pindex->nHeight;
-    totalBalanceMap[h] = totalB;
-    CAmount prevTotalBalance = 0;
-    if(h > 0) {
-    	if(totalBalanceMap.count(h - 1) > 0) {
-    		prevTotalBalance = totalBalanceMap[h - 1];
-    	}
-    }
-    
-    LogPrintf(">> total balance = %ld, for h = %d\n", totalB, h);
-    LogPrintf(">> delta = %ld\n", totalB - prevTotalBalance);
-    
-    if(totalB < prevTotalBalance) 
-    	LogPrintf(">> Error-balance: current total balance %ld is less than previous %ld\n", totalB, prevTotalBalance);
-    		
+        		
     if (!WriteUndoDataForBlock(blockundo, state, pindex, chainparams))
         return false;
 
@@ -3850,6 +3830,29 @@ bool ProcessNewBlock(const CChainParams& chainparams, const std::shared_ptr<cons
     CValidationState state; // Only used to report errors, not invalidity - ignore it
     if (!g_chainstate.ActivateBestChain(state, chainparams, pblock))
         return error("%s: ActivateBestChain failed", __func__);
+
+    // debug, check total balance
+    CAmount avilableB = vpwallets[0]->GetAvailableBalance();
+    CAmount unconfirmedB = vpwallets[0]->GetUnconfirmedBalance();
+    CAmount immatureB = vpwallets[0]->GetImmatureBalance();
+    CAmount stakeB = vpwallets[0]->GetStakeBalance();
+    CAmount totalB = avilableB + unconfirmedB + immatureB + stakeB;
+    LogPrintf(">> avilableB = %ld, unconfirmedB = %ld, immatureB = %ld, stakeB = %ld\n", avilableB, unconfirmedB, immatureB, stakeB);
+    
+    int h = chainActive.Tip()->nHeight;
+    totalBalanceMap[h] = totalB;
+    CAmount prevTotalBalance = 0;
+    if(h > 0) {
+    	if(totalBalanceMap.count(h - 1) > 0) {
+    		prevTotalBalance = totalBalanceMap[h - 1];
+    	}
+    }
+    
+    LogPrintf(">> total balance = %ld, for h = %d\n", totalB, h);
+    LogPrintf(">> delta = %ld\n", totalB - prevTotalBalance);
+    
+    if(totalB < prevTotalBalance) 
+    	LogPrintf(">> Error-balance: current total balance %ld is less than previous %ld\n", totalB, prevTotalBalance);
 
     LogPrint(BCLog::STAKE, ">> ProcessNewBlock, end chainActive height = %d\n", chainActive.Tip()->nHeight);    
     LogPrint(BCLog::STAKE, ">> ProcessNewBlock, completed\n");
