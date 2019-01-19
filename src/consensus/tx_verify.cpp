@@ -219,11 +219,11 @@ bool Consensus::CheckTxInputs(const CTransaction& tx, CValidationState& state, c
     
     // debug
     if(tx.IsCoinStake())
-    	LogPrintf(">> tx is stake\n");
+    	LogPrint(BCLog::STAKE, ">> tx is stake\n");
     else if(tx.IsCoinBase())
-    	LogPrintf(">> tx is coinbase\n");
+    	LogPrint(BCLog::STAKE, ">> tx is coinbase\n");
     else
-    	LogPrintf(">> tx is not coinbase nor stake\n");
+    	LogPrint(BCLog::STAKE, ">> tx is not coinbase nor stake\n");
     
     CAmount nValueIn = 0;
     for (unsigned int i = 0; i < tx.vin.size(); ++i) {
@@ -233,11 +233,11 @@ bool Consensus::CheckTxInputs(const CTransaction& tx, CValidationState& state, c
 
         // debug
         if(coin.IsCoinBase()) {
-        	LogPrintf(">> coin %d is coinbase\n", i);
+        	LogPrint(BCLog::STAKE, ">> coin %d is coinbase\n", i);
         }
         else
         {
-        	LogPrintf(">> coin %d is NOT coinbase\n", i);
+        	LogPrint(BCLog::STAKE, ">> coin %d is NOT coinbase\n", i);
         }
         
         // If prev is coinbase, check that it's matured

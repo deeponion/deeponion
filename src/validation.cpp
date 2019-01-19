@@ -2217,15 +2217,13 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
 	CBlock* pBlock0 = (CBlock*)&block;
 	if (pBlock0->IsProofOfStake())
 	{
-		LogPrintf(">> Before calling CheckProofOfStake\n");
-		LogPrintf(">> Block = %s\n", pBlock0->ToString().c_str());
+		LogPrint(BCLog::STAKE, ">> To CheckProofOfStake, Block = %s\n", pBlock0->ToString().c_str());
 		if(!CheckProofOfStake(*pblocktree, pindex->pprev, state, block, hashProofOfStake, targetProofOfStake, mapBlockIndex, *pcoinsTip))
 		{
 			return error("ConnectBlock(): check proof-of-stake failed for block %s\n", pBlock0->GetHash().ToString().c_str()); 
 		}
 			
 		pindex->hashProofOfStake = hashProofOfStake;
-		
 		setDirtyBlockIndex.insert(pindex);
 	}    
 
@@ -2493,7 +2491,7 @@ bool CChainState::DisconnectTip(CValidationState& state, const CChainParams& cha
         // Save transactions to re-add to mempool at end of reorg
         for (auto it = block.vtx.rbegin(); it != block.vtx.rend(); ++it) {
             const CTransactionRef& ctxr = *it;
-            LogPrintf("CChainState::DisconnectTip tx: %s", ctxr.get()->ToString().c_str());
+            LogPrint(BCLog::STAKE, "CChainState::DisconnectTip tx: %s", ctxr.get()->ToString().c_str());
             disconnectpool->addTransaction(*it);
         }
         while (disconnectpool->DynamicMemoryUsage() > MAX_DISCONNECTED_TX_POOL_SIZE * 1000) {
@@ -3381,18 +3379,13 @@ void UpdateUncommittedBlockStructures(CBlock& block, const CBlockIndex* pindexPr
 
 std::vector<unsigned char> GenerateCoinbaseCommitment(CBlock& block, const CBlockIndex* pindexPrev, const Consensus::Params& consensusParams)
 {
-    LogPrintf("GenerateCoinbaseCommitment(): block.vtx[0].vout.size(): %d 0\n", block.vtx[0]->vout.size());
     std::vector<unsigned char> commitment;
     int commitpos = GetWitnessCommitmentIndex(block);
-    LogPrintf("GenerateCoinbaseCommitment(): block.vtx[0].vout.size(): %d 1\n", block.vtx[0]->vout.size());
     std::vector<unsigned char> ret(32, 0x00);
     if (consensusParams.vDeployments[Consensus::DEPLOYMENT_SEGWIT].nTimeout != 0) {
-        LogPrintf("GenerateCoinbaseCommitment(): block.vtx[0].vout.size(): %d 2\n", block.vtx[0]->vout.size());
         if (commitpos == -1) {
             uint256 witnessroot = BlockWitnessMerkleRoot(block, nullptr);
-            LogPrintf("GenerateCoinbaseCommitment(): block.vtx[0].vout.size(): %d 3\n", block.vtx[0]->vout.size());
             CHash256().Write(witnessroot.begin(), 32).Write(ret.data(), 32).Finalize(witnessroot.begin());
-            LogPrintf("GenerateCoinbaseCommitment(): block.vtx[0].vout.size(): %d 4\n", block.vtx[0]->vout.size());
             CTxOut out;
             out.nValue = 0;
             out.scriptPubKey.resize(38);
@@ -3406,14 +3399,10 @@ std::vector<unsigned char> GenerateCoinbaseCommitment(CBlock& block, const CBloc
             commitment = std::vector<unsigned char>(out.scriptPubKey.begin(), out.scriptPubKey.end());
             CMutableTransaction tx(*block.vtx[0]);
             tx.vout.push_back(out);
-            LogPrintf("GenerateCoinbaseCommitment(): block.vtx[0].vout.size(): %d 5\n", block.vtx[0]->vout.size());
             block.vtx[0] = MakeTransactionRef(std::move(tx));
-            LogPrintf("GenerateCoinbaseCommitment(): block.vtx[0].vout.size(): %d 6\n", block.vtx[0]->vout.size());
-        }
+         }
     }
-    LogPrintf("GenerateCoinbaseCommitment(): block.vtx[0].vout.size(): %d 7\n", block.vtx[0]->vout.size());
     UpdateUncommittedBlockStructures(block, pindexPrev, consensusParams);
-    LogPrintf("GenerateCoinbaseCommitment(): block.vtx[0].vout.size(): %d 8\n", block.vtx[0]->vout.size());
     return commitment;
 }
 
