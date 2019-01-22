@@ -135,6 +135,31 @@ public:
     }
 };
 
+class CStealthKeyMetadata
+{
+// -- used to get secret for keys created by stealth transaction with wallet locked
+public:
+    CStealthKeyMetadata() {};
+
+    CStealthKeyMetadata(CPubKey pkEphem_, CPubKey pkScan_)
+    {
+        pkEphem = pkEphem_;
+        pkScan = pkScan_;
+    };
+
+    CPubKey pkEphem;
+    CPubKey pkScan;
+
+    ADD_SERIALIZE_METHODS;
+
+    template <typename Stream, typename Operation>
+    inline void SerializationOp(Stream& s, Operation ser_action) {
+        READWRITE(pkEphem);
+        READWRITE(pkScan);
+    }
+
+};
+
 /** Access to the wallet database.
  * This should really be named CWalletDBBatch, as it represents a single transaction at the
  * database. It will be committed when the object goes out of scope.
@@ -210,6 +235,9 @@ public:
     bool WriteStealthAddress(const CStealthAddress& sxAddr);
     bool ReadStealthAddress(CStealthAddress& sxAddr);
     bool EraseStealthAddress(const CStealthAddress& sxAddr);
+
+    bool WriteStealthKeyMeta(const CKeyID& keyId, const CStealthKeyMetadata& sxKeyMeta);
+    bool EraseStealthKeyMeta(const CKeyID& keyId);
 
     /// Write destination data key,value tuple to database
     bool WriteDestData(const std::string &address, const std::string &key, const std::string &value);

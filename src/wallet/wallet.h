@@ -116,6 +116,7 @@ enum OutputType : int
 extern OutputType g_address_type;
 extern OutputType g_change_type;
 
+typedef std::map<CKeyID, CStealthKeyMetadata> StealthKeyMetaMap;
 
 /** A key pool entry */
 class CKeyPool
@@ -804,8 +805,8 @@ public:
     std::map<CScriptID, CKeyMetadata> m_script_metadata;
 
     std::set<CStealthAddress> stealthAddresses;
-    //StealthKeyMetaMap mapStealthKeyMeta;
-    //uint32_t nStealth, nFoundStealth; // for reporting, zero before use
+    StealthKeyMetaMap mapStealthKeyMeta;
+    uint64_t nStealth, nFoundStealth; // for reporting, zero before use
 
     typedef std::map<unsigned int, CMasterKey> MasterKeyMap;
     MasterKeyMap mapMasterKeys;
@@ -1036,13 +1037,13 @@ public:
     
     bool AddStealthAddress(CStealthAddress& sxAddr);
     bool NewStealthAddress(std::string& sError, std::string& sLabel, CStealthAddress& sxAddr);
-    //~ bool UnlockStealthAddresses(const CKeyingMaterial& vMasterKeyIn);
-    //~ bool UpdateStealthAddress(std::string &addr, std::string &label, bool addIfNotExist);
+    bool UnlockStealthAddresses(const CKeyingMaterial& vMasterKeyIn);
+    bool UpdateStealthAddress(std::string &addr, std::string &label, bool addIfNotExist);
 
     //~ bool CreateStealthTransaction(CScript scriptPubKey, int64_t nValue, std::vector<uint8_t> &P, std::vector<uint8_t> &narr, std::string &sNarr, CWalletTx &wtxNew, CReserveKey &reservekey, int64 &nFeeRet, const CCoinControl *coinControl = NULL);
     //~ std::string SendStealthMoney(CScript scriptPubKey, int64_t nValue, std::vector<uint8_t>& P, std::vector<uint8_t>& narr, std::string& sNarr, CWalletTx& wtxNew, bool fAskFee);   
     //~ bool SendStealthMoneyToDestination(CStealthAddress& sxAddress, int64_t nValue, std::string& sNarr, CWalletTx& wtxNew, std::string& sError, bool fAskFee=false);
-    //~ bool FindStealthTransactions(const CTransaction& tx, mapValue_t& mapNarr);
+    bool FindStealthTransactions(const CTransaction& tx, mapValue_t& mapNarr);
     
     /**
      * Marks all keys in the keypool up to and including reserve_key as used.

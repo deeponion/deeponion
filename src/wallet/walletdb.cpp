@@ -182,6 +182,16 @@ bool CWalletDB::EraseStealthAddress(const CStealthAddress& sxAddr)
     return EraseIC(std::make_pair(std::string("sxAddr"), sxAddr.scan_pubkey));
 }
 
+bool CWalletDB::WriteStealthKeyMeta(const CKeyID& keyId, const CStealthKeyMetadata& sxKeyMeta)
+{
+   return WriteIC(std::make_pair(std::string("sxKeyMeta"), keyId), sxKeyMeta, true);
+}
+
+bool CWalletDB::EraseStealthKeyMeta(const CKeyID& keyId)
+{
+    return EraseIC(std::make_pair(std::string("sxKeyMeta"), keyId));
+}
+
 CAmount CWalletDB::GetAccountCreditDebit(const std::string& strAccount)
 {
     std::list<CAccountingEntry> entries;

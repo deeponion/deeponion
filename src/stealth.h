@@ -9,6 +9,7 @@
 #include "util.h"
 #include "serialize.h"
 #include "random.h"
+#include "pubkey.h"
 
 #include <stdlib.h> 
 #include <stdio.h> 
@@ -76,6 +77,7 @@ public:
     
     bool SetEncoded(const std::string& encodedAddress);
     std::string Encoded() const;
+    int SetScanPubKey(CPubKey pk);
     
     bool operator <(const CStealthAddress& y) const
     {
