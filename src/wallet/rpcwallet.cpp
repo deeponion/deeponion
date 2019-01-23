@@ -3547,6 +3547,85 @@ UniValue rescanblockchain(const JSONRPCRequest& request)
     return response;
 }
 
+// DeepOnion: reserve balance from being staked for network protection
+UniValue reservebalance(const JSONRPCRequest& request)
+{
+    if (request.fHelp || request.params.size() > 2) {
+        throw std::runtime_error(
+            "reservebalance ( reserve amount )\n"
+            "\nShow or set reserve amount not participating in network protection.\n"
+            "If no parameters provided current setting is printed.\n"
+            
+            "\nArguments:\n"
+            "1. \"reserve\" (boolean, optional) is true or false to turn balance reserve on or off.\n"
+            "2. \"amount\"  (numeric, optional) is a real and rounded to cent.\n"
+            
+            "\nResult:\n"
+            "{\n"
+            "  \"reserve\": true|false   (boolean) Status of the reserve balance\n"
+            "  \"amount\": x.xxxx        (numeric) Amount reserved\n"
+            "}\n"
+            
+            "\nExamples:\n"
+            + HelpExampleCli("reservebalance", "true 120000")
+            + HelpExampleRpc("reservebalance", "true, 120000")
+            );
+    }
+  
+    CAmount nAmount;
+    if (request.params.size() > 0)
+    {
+        bool fReserve = request.params[0].get_bool();
+        if (fReserve){
+            if (request.params.size() == 1)
+                throw JSONRPCError(RPC_INVALID_PARAMETER, "Must provide amount to reserve balance.");
+            nAmount = AmountFromValue(request.params[1]);
+            nAmount = (nAmount / CENT) * CENT; // round to cent
+            if (nAmount < 0)
+                throw JSONRPCError(RPC_INVALID_PARAMETER, "Amount cannot be negative.");
+            nReserveBalance = nAmount;
+        }
+        else
+        {
+            if (request.params.size() > 1)
+                throw JSONRPCError(RPC_INVALID_PARAMETER, "Cannot specify amount to turn off reserve.");
+            nReserveBalance = 0;
+        }
+    }
+
+    UniValue result(UniValue::VOBJ);
+    result.push_back(Pair("reserve", (nReserveBalance > 0)));
+    result.push_back(Pair("amount", ValueFromAmount(nReserveBalance)));
+    return result;
+}
+
+// DeepOnion: make a public-private key pair
+UniValue makekeypair(const JSONRPCRequest& request)
+{
+    if (request.fHelp || request.params.size() > 0)
+        throw std::runtime_error(
+            "makekeypair \n"
+            "Make a public/private key pair.\n" 
+            "\nResult:\n"
+            "{\n"
+            "  \"PrivateKey\": \"value\", (string)  The resulting Private Key (hex-encoded string)\n"
+            "  \"PublicKey\": \"value\", (string)  The resulting Public Key (hex-encoded string)\n"
+            "}\n"
+            "\nExamples:\n"
+            + HelpExampleCli("makekeypair", "")
+            + HelpExampleRpc("makekeypair", ""));
+
+    CKey key;
+    key.MakeNewKey(false);
+
+    CPrivKey vchPrivKey = key.GetPrivKey();
+    
+    UniValue result(UniValue::VOBJ);
+    result.push_back(Pair("PrivateKey", HexStr<CPrivKey::iterator>(vchPrivKey.begin(), vchPrivKey.end())));
+    result.push_back(Pair("PublicKey", HexStr(key.GetPubKey())));
+    return result;
+}
+
 extern UniValue abortrescan(const JSONRPCRequest& request); // in rpcdump.cpp
 extern UniValue dumpprivkey(const JSONRPCRequest& request); // in rpcdump.cpp
 extern UniValue importprivkey(const JSONRPCRequest& request);
@@ -3601,7 +3680,9 @@ static const CRPCCommand commands[] =
     { "wallet",             "listunspent",              &listunspent,              {"minconf","maxconf","addresses","include_unsafe","query_options"} },
     { "wallet",             "listwallets",              &listwallets,              {} },
     { "wallet",             "lockunspent",              &lockunspent,              {"unlock","transactions"} },
+    { "wallet",             "makekeypair",              &makekeypair,              {} },    
     { "wallet",             "move",                     &movecmd,                  {"fromaccount","toaccount","amount","minconf","comment"} },
+    { "wallet",             "reservebalance",           &reservebalance,           {"reserve","amount"} },
     { "wallet",             "sendfrom",                 &sendfrom,                 {"fromaccount","toaddress","amount","minconf","comment","comment_to"} },
     { "wallet",             "sendmany",                 &sendmany,                 {"fromaccount","amounts","minconf","comment","subtractfeefrom","replaceable","conf_target","estimate_mode"} },
     { "wallet",             "sendtoaddress",            &sendtoaddress,            {"address","amount","comment","comment_to","subtractfeefromamount","replaceable","conf_target","estimate_mode"} },
