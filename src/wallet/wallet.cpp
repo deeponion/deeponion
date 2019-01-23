@@ -400,7 +400,6 @@ bool CWallet::Unlock(const SecureString& strWalletPassphrase)
 {
     CCrypter crypter;
     CKeyingMaterial _vMasterKey;
-
     {
         LOCK(cs_wallet);
         for (const MasterKeyMap::value_type& pMasterKey : mapMasterKeys)
@@ -409,10 +408,11 @@ bool CWallet::Unlock(const SecureString& strWalletPassphrase)
                 return false;
             if (!crypter.Decrypt(pMasterKey.second.vchCryptedKey, _vMasterKey))
                 continue; // try another master key
-            if (CCryptoKeyStore::Unlock(_vMasterKey))
-                return true;
+            if (!CCryptoKeyStore::Unlock(_vMasterKey))
+                return false;
         }
-        UnlockStealthAddresses(vMasterKey);
+        UnlockStealthAddresses(_vMasterKey);
+        return true;
     }
     return false;
 }

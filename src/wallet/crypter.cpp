@@ -103,6 +103,7 @@ bool CCrypter::Decrypt(const std::vector<unsigned char>& vchCiphertext, CKeyingM
     nLen = dec.Decrypt(vchCiphertext.data(), vchCiphertext.size(), &vchPlaintext[0]);
     if(nLen == 0)
         return false;
+
     vchPlaintext.resize(nLen);
     return true;
 }
@@ -189,6 +190,10 @@ bool CCryptoKeyStore::Unlock(const CKeyingMaterial& vMasterKeyIn)
         {
             const CPubKey &vchPubKey = (*mi).second.first;
             const std::vector<unsigned char> &vchCryptedSecret = (*mi).second.second;
+
+            if (vchCryptedSecret.size() == 0) // unexpanded key received on stealth address with wallet locked
+                continue;
+
             CKey key;
             if (!DecryptKey(vMasterKeyIn, vchCryptedSecret, vchPubKey, key))
             {
