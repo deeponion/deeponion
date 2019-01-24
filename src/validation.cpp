@@ -3729,7 +3729,7 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CVali
     	pindex->nStakeTime = block.vtx[1]->nTime;
     	
     	// make sure stake source is spendable
-    	if (!IsInitialBlockDownload()) {
+    	if (!IsInitialBlockDownload() && chainActive.Tip() == pindex->pprev) {
     		CCoinsViewCache view(pcoinsTip.get());
     		const COutPoint &stakeprevout = block.vtx[1]->vin[0].prevout;
     		const Coin& coin = view.AccessCoin(stakeprevout);
