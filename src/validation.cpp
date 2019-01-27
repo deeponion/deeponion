@@ -354,7 +354,6 @@ bool TestLockPointValidity(const LockPoints* lp)
 
 bool CheckSequenceLocks(const CTransaction &tx, int flags, LockPoints* lp, bool useExistingLockPoints)
 {
-	LogPrintf(">> CheckSequenceLocks\n");
     AssertLockHeld(cs_main);
     AssertLockHeld(mempool.cs);
 
@@ -1236,7 +1235,7 @@ CAmount GetProofOfWorkReward(int nHeight, const CBlockIndex* pindex)
 	}
 
 	int nPoWHeight = GetPowHeight(pindex);
-	LogPrintf(">> nHeight = %d, nPoWHeight = %d\n", nHeight, nPoWHeight);
+	LogPrint(BCLog::STAKE, ">> nHeight = %d, nPoWHeight = %d\n", nHeight, nPoWHeight);
 	int mm = nPoWHeight / 131400;
 	nSubsidy >>= mm;
 
@@ -1251,7 +1250,7 @@ CAmount GetProofOfStakeReward(int64_t nCoinAge, const CBlockIndex* pindex)
 {
 	int64_t nRewardCoinYear = MAX_PROOF_OF_STAKE_STABLE;
 	int nPoSHeight = GetPosHeight(pindex);
-	LogPrintf(">> nHeight = %d, nPoSHeight = %d\n", pindex->nHeight + 1, nPoSHeight + 1);
+	LogPrint(BCLog::STAKE, ">> nHeight = %d, nPoSHeight = %d\n", pindex->nHeight + 1, nPoSHeight + 1);
 	int64_t nSubsidy = 0;
 
 	if (nPoSHeight < YEARLY_POS_BLOCK_COUNT)
@@ -1310,7 +1309,7 @@ bool IsInitialBlockDownload()
         return true;
     if (chainActive.Tip()->GetBlockTime() < (GetTime() - nMaxTipAge))
         return true;
-    LogPrintf("Leaving InitialBlockDownload (latching to false)\n");
+    LogPrint(BCLog::STAKE, "Leaving InitialBlockDownload (latching to false)\n");
     latchToFalse.store(true, std::memory_order_relaxed);
     return false;
 }
@@ -1445,7 +1444,7 @@ void UpdateCoins(const CTransaction& tx, CCoinsViewCache& inputs, CTxUndo &txund
             txundo.vprevout.emplace_back();
             bool is_spent = inputs.SpendCoin(txin.prevout, &txundo.vprevout.back());
             assert(is_spent);
-            LogPrintf(">> coin %s is spent!\n", txin.prevout.ToString().c_str());
+            LogPrint(BCLog::STAKE, ">> coin %s is spent!\n", txin.prevout.ToString().c_str());
         }
     }
     // add outputs
@@ -1981,7 +1980,7 @@ static std::map<int, CAmount> totalBalanceMap;
 bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pindex,
                   CCoinsViewCache& view, const CChainParams& chainparams, bool fJustCheck)
 {
-	LogPrintf(">> ConnectBlock\n");
+	LogPrint(BCLog::STAKE, ">> ConnectBlock\n");
     AssertLockHeld(cs_main);
     assert(pindex);
     // pindex->phashBlock can be null if called by CreateNewBlock/TestBlockValidity
@@ -3609,7 +3608,7 @@ bool CChainState::AcceptBlockHeader(const CBlockHeader& block, CValidationState&
     }
     if (pindex == nullptr) {
         pindex = AddToBlockIndex(block);
-        LogPrintf(">> Add to block index. height = %d\n", pindex->nHeight);
+        LogPrint(BCLog::STAKE, ">> Add to block index. height = %d\n", pindex->nHeight);
     }
 
     if (ppindex)
@@ -3676,7 +3675,7 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CVali
     if (!AcceptBlockHeader(block, state, chainparams, &pindex))
     	return false;
 
-	LogPrintf(">> AcceptBlock: Block-height = %d\n", pindex->nHeight);
+	LogPrint(BCLog::STAKE, ">> AcceptBlock: Block-height = %d\n", pindex->nHeight);
 	
     // Try to process all requested blocks that we don't have, but only
     // process an unrequested block if it's new and has enough work to
@@ -3780,7 +3779,7 @@ bool CChainState::ComputeStakeModifier(CBlockIndex* pindex, const CBlock& block,
     ComputeNextStakeModifier(pindex->pprev, nStakeModifier, fGeneratedStakeModifier, chainparams.GetConsensus());
     pindex->SetStakeModifier(nStakeModifier, fGeneratedStakeModifier);
     pindex->nStakeModifierChecksum = GetStakeModifierChecksum(pindex);
-    LogPrintf(">> nStakeModifier = 0x%016x, nStakeModifierChecksum = 0x%016x\n", nStakeModifier, pindex->nStakeModifierChecksum);
+    LogPrint(BCLog::STAKE, ">> nStakeModifier = 0x%016x, nStakeModifierChecksum = 0x%016x\n", nStakeModifier, pindex->nStakeModifierChecksum);
     if (!CheckStakeModifierCheckpoints(pindex->nHeight, pindex->nStakeModifierChecksum))
     	return error("%s : Rejected by stake modifier checkpoint height=%d, modifier=%ul\n", __func__, pindex->nHeight, nStakeModifier);
     
@@ -3826,7 +3825,7 @@ bool ProcessNewBlock(const CChainParams& chainparams, const std::shared_ptr<cons
     CAmount immatureB = vpwallets[0]->GetImmatureBalance();
     CAmount stakeB = vpwallets[0]->GetStakeBalance();
     CAmount totalB = avilableB + unconfirmedB + immatureB + stakeB;
-    LogPrintf(">> avilableB = %ld, unconfirmedB = %ld, immatureB = %ld, stakeB = %ld\n", avilableB, unconfirmedB, immatureB, stakeB);
+    LogPrint(BCLog::STAKE, ">> avilableB = %ld, unconfirmedB = %ld, immatureB = %ld, stakeB = %ld\n", avilableB, unconfirmedB, immatureB, stakeB);
     
     int h = chainActive.Tip()->nHeight;
     totalBalanceMap[h] = totalB;
@@ -3837,11 +3836,11 @@ bool ProcessNewBlock(const CChainParams& chainparams, const std::shared_ptr<cons
     	}
     }
     
-    LogPrintf(">> total balance = %ld, for h = %d\n", totalB, h);
-    LogPrintf(">> delta = %ld\n", totalB - prevTotalBalance);
+    LogPrint(BCLog::STAKE, ">> total balance = %ld, for h = %d\n", totalB, h);
+    LogPrint(BCLog::STAKE, ">> delta = %ld\n", totalB - prevTotalBalance);
     
     if(totalB < prevTotalBalance) 
-    	LogPrintf(">> Error-balance: current total balance %ld is less than previous %ld\n", totalB, prevTotalBalance);
+    	LogPrint(BCLog::STAKE, ">> Error-balance: current total balance %ld is less than previous %ld\n", totalB, prevTotalBalance);
 
     LogPrint(BCLog::STAKE, ">> ProcessNewBlock, end chainActive height = %d\n", chainActive.Tip()->nHeight);    
     LogPrint(BCLog::STAKE, ">> ProcessNewBlock, completed\n");
@@ -3850,7 +3849,7 @@ bool ProcessNewBlock(const CChainParams& chainparams, const std::shared_ptr<cons
 
 bool TestBlockValidity(CValidationState& state, const CChainParams& chainparams, const CBlock& block, CBlockIndex* pindexPrev, bool fCheckPOW, bool fCheckMerkleRoot, bool fProofOfStake)
 {
-	LogPrintf(">> TestBlockValidity\n");
+	// LogPrintf(">> TestBlockValidity\n");
     AssertLockHeld(cs_main);
     assert(pindexPrev && pindexPrev == chainActive.Tip());
     CCoinsViewCache viewNew(pcoinsTip.get());
@@ -4265,7 +4264,7 @@ CVerifyDB::~CVerifyDB()
 
 bool CVerifyDB::VerifyDB(const CChainParams& chainparams, CCoinsView *coinsview, int nCheckLevel, int nCheckDepth)
 {
-	LogPrintf(">> VerifyDB\n");
+	// LogPrintf(">> VerifyDB\n");
     LOCK(cs_main);
     if (chainActive.Tip() == nullptr || chainActive.Tip()->pprev == nullptr)
         return true;
