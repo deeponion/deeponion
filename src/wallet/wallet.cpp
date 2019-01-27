@@ -741,6 +741,33 @@ bool CWallet::EncryptWallet(const SecureString& strWalletPassphrase)
             assert(false);
         }
 
+        std::set<CStealthAddress>::iterator it;
+        for (it = stealthAddresses.begin(); it != stealthAddresses.end(); ++it)
+        {
+            if (it->scan_secret.size() < ec_secret_size) {
+                continue; // stealth address is not owned
+            }
+            // -- CStealthAddress is only sorted on spend_pubkey
+            CStealthAddress &sxAddr = const_cast<CStealthAddress&>(*it);
+
+            LogPrint(BCLog::STEALTH,"Encrypting stealth key %s\n", sxAddr.Encoded().c_str());
+
+            std::vector<unsigned char> vchCryptedSecret;
+
+            CPrivKey vchSecret;
+            vchSecret.resize(ec_secret_size);
+            memcpy(&vchSecret[0], &sxAddr.spend_secret[0], ec_secret_size);
+
+            uint256 iv = Hash(sxAddr.spend_pubkey.begin(), sxAddr.spend_pubkey.end());
+            if (!EncryptSecret(_vMasterKey, vchSecret, iv, vchCryptedSecret)) {
+                LogPrint(BCLog::STEALTH,"Error: Failed encrypting stealth key %s\n", sxAddr.Encoded().c_str());
+                continue;
+            }
+
+            sxAddr.spend_secret = vchCryptedSecret;
+            pwalletdbEncryption->WriteStealthAddress(sxAddr);
+        }
+
         delete pwalletdbEncryption;
         pwalletdbEncryption = nullptr;
 
@@ -4110,7 +4137,6 @@ bool CWallet::AddStealthAddress(CStealthAddress& sxAddr)
         {
             std::vector<unsigned char> vchCryptedSecret;
 
-            //~ std::vector<unsigned char, secure_allocator<unsigned char> >vchSecret;
             CKeyingMaterial vchSecret;
             vchSecret.resize(ec_compressed_size);
             memcpy(&vchSecret[0], &sxAddr.spend_secret[0], ec_compressed_size);
@@ -4129,12 +4155,10 @@ bool CWallet::AddStealthAddress(CStealthAddress& sxAddr)
 
     bool rv = CWalletDB(*dbw).WriteStealthAddress(sxAddr);
 
-    // TODO: NotifyAddressBookChanged on walletmodel.cpp
-    // if (rv)
-        // NotifyAddressBookChanged(this, enc, sxAddr.label, fOwned, "", CT_NEW );
+    if (rv)
+        SetAddressBook(sxAddr, sxAddr.label, "");
 
     return rv;
-
 }
 
 bool CWallet::FindStealthTransactions(const CTransaction& tx, mapValue_t& mapNarr)
@@ -4264,7 +4288,9 @@ bool CWallet::FindStealthTransactions(const CTransaction& tx, mapValue_t& mapNar
                     CPubKey cpkScan(it->scan_pubkey);
                     CStealthKeyMetadata lockedSkMeta(cpkEphem, cpkScan);
 
-                    if (!CWalletDB(*dbw).WriteStealthKeyMeta(keyId, lockedSkMeta))
+                    CWalletDB walletdb(*dbw);
+                    if (!walletdb.WriteStealthKeyMeta(keyId, lockedSkMeta))
+                    //if (!CWalletDB(*dbw).WriteStealthKeyMeta(keyId, lockedSkMeta))
                         LogPrint(BCLog::STEALTH,"FindStealthTransactions(): WriteStealthKeyMeta failed for %s\n",EncodeDestination(keyId));
 
                     mapStealthKeyMeta[keyId] = lockedSkMeta;
@@ -4526,7 +4552,6 @@ bool CWallet::UpdateStealthAddress(std::string &addr, std::string &label, bool a
     std::set<CStealthAddress>::iterator it;
     it = stealthAddresses.find(sxAddr);
 
-    ChangeType nMode = CT_UPDATED;
     CStealthAddress sxFound;
     if (it == stealthAddresses.end())
     {
@@ -4535,7 +4560,6 @@ bool CWallet::UpdateStealthAddress(std::string &addr, std::string &label, bool a
             sxFound = sxAddr;
             sxFound.label = label;
             stealthAddresses.insert(sxFound);
-            nMode = CT_NEW;
         } else
         {
             LogPrint(BCLog::STEALTH,"UpdateStealthAddress %s, not in set\n", addr.c_str());
@@ -4560,9 +4584,7 @@ bool CWallet::UpdateStealthAddress(std::string &addr, std::string &label, bool a
         return false;
     }
 
-    bool fOwned = sxFound.scan_secret.size() == ec_secret_size;
-    // ToDo fix this
-    //NotifyAddressBookChanged(this, sxFound, sxFound.label, fOwned, nMode);
+    SetAddressBook(sxFound, sxFound.label, "");
 
     return true;
 }

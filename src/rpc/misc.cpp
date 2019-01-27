@@ -16,6 +16,7 @@
 #include <rpc/blockchain.h>
 #include <rpc/server.h>
 #include <rpc/util.h>
+#include <stealth.h>
 #include <timedata.h>
 #include <util.h>
 #include <utilstrencodings.h>
@@ -144,6 +145,15 @@ public:
         obj.push_back(Pair("iswitness", true));
         obj.push_back(Pair("witness_version", (int)id.version));
         obj.push_back(Pair("witness_program", HexStr(id.program, id.program + id.length)));
+        return obj;
+    }
+
+    UniValue operator()(const CStealthAddress& id) const
+    {
+        UniValue obj(UniValue::VOBJ);
+        obj.pushKV("isstealth", true);
+        obj.pushKV("isscript", false);
+        obj.pushKV("iswitness", false);
         return obj;
     }
 };
