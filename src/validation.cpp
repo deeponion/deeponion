@@ -2211,20 +2211,22 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
         return true;
     
     // check stake and compute stakemodifier
-	uint256 hashProofOfStake = uint256();
-	uint256 targetProofOfStake = uint256();
-	CBlock* pBlock0 = (CBlock*)&block;
-	if (pBlock0->IsProofOfStake())
-	{
-		LogPrint(BCLog::STAKE, ">> To CheckProofOfStake, Block = %s\n", pBlock0->ToString().c_str());
-		if(!CheckProofOfStake(*pblocktree, pindex->pprev, state, block, hashProofOfStake, targetProofOfStake, mapBlockIndex, *pcoinsTip))
-		{
-			return error("ConnectBlock(): check proof-of-stake failed for block %s\n", pBlock0->GetHash().ToString().c_str()); 
-		}
-			
-		pindex->hashProofOfStake = hashProofOfStake;
-		setDirtyBlockIndex.insert(pindex);
-	}    
+    if(pindex->hashProofOfStake.IsNull()) {
+        uint256 hashProofOfStake = uint256();
+        uint256 targetProofOfStake = uint256();
+        CBlock* pBlock0 = (CBlock*)&block;
+        if (pBlock0->IsProofOfStake())
+        {
+            LogPrint(BCLog::STAKE, ">> To CheckProofOfStake, Block = %s\n", pBlock0->ToString().c_str());
+            if(!CheckProofOfStake(*pblocktree, pindex->pprev, state, block, hashProofOfStake, targetProofOfStake, mapBlockIndex, *pcoinsTip))
+            {
+                return error("ConnectBlock(): check proof-of-stake failed for block %s\n", pBlock0->GetHash().ToString().c_str());
+            }
+
+            pindex->hashProofOfStake = hashProofOfStake;
+            setDirtyBlockIndex.insert(pindex);
+        }
+    }
 
     if(!ComputeStakeModifier(pindex, block, chainparams))
         return error("ConnectBlock() : ComputeStakeModifier() failed");
@@ -3726,13 +3728,30 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CVali
     	pindex->nStakeTime = block.vtx[1]->nTime;
     	
     	// make sure stake source is spendable
-    	if (!IsInitialBlockDownload()) {
+    	if (!IsInitialBlockDownload() && chainActive.Tip() == pindex->pprev) {
     		CCoinsViewCache view(pcoinsTip.get());
     		const COutPoint &stakeprevout = block.vtx[1]->vin[0].prevout;
     		const Coin& coin = view.AccessCoin(stakeprevout);
     		if(coin.IsSpent()) {
     			return error("%s: stake source already spent", __func__);
     		}
+
+            uint256 hashProofOfStake = uint256();
+            uint256 targetProofOfStake = uint256();
+            CBlock* pBlock0 = (CBlock*)&block;
+            if (pBlock0->IsProofOfStake())
+            {
+                LogPrint(BCLog::STAKE, ">> AcceptBlock To CheckProofOfStake, Block = %s\n", pBlock0->ToString().c_str());
+                if(!CheckProofOfStake(*pblocktree, pindex->pprev, state, block, hashProofOfStake, targetProofOfStake, mapBlockIndex, *pcoinsTip))
+                {
+                    return error("AcceptBlock(): check proof-of-stake failed for block %s\n", pBlock0->GetHash().ToString().c_str());
+
+                } else {
+                    pindex->hashProofOfStake = hashProofOfStake;
+                    setDirtyBlockIndex.insert(pindex);
+                }
+            }
+
     	}
     }
 
