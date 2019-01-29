@@ -305,6 +305,14 @@ bool CWallet::LoadKeyMetadata(const CKeyID& keyID, const CKeyMetadata &meta)
     return true;
 }
 
+bool CWallet::LoadStealthKeyMetadata(const CKeyID& keyID, const CStealthKeyMetadata &sxKeyMeta)
+{
+    AssertLockHeld(cs_wallet); // mapStealthKeyMetadata
+    //UpdateTimeFirstKey(sxKeyMeta.nCreateTime);
+    mapStealthKeyMeta[keyID] = sxKeyMeta;
+    return true;
+}
+
 bool CWallet::LoadScriptMetadata(const CScriptID& script_id, const CKeyMetadata &meta)
 {
     AssertLockHeld(cs_wallet); // m_script_metadata
@@ -4138,8 +4146,8 @@ bool CWallet::AddStealthAddress(CStealthAddress& sxAddr)
             std::vector<unsigned char> vchCryptedSecret;
 
             CKeyingMaterial vchSecret;
-            vchSecret.resize(ec_compressed_size);
-            memcpy(&vchSecret[0], &sxAddr.spend_secret[0], ec_compressed_size);
+            vchSecret.resize(ec_secret_size);
+            memcpy(&vchSecret[0], &sxAddr.spend_secret[0], ec_secret_size);
             
             uint256 iv = Hash(sxAddr.spend_pubkey.begin(), sxAddr.spend_pubkey.end());
             if (!EncryptSecret(vMasterKey, vchSecret, iv, vchCryptedSecret))
@@ -4188,7 +4196,7 @@ bool CWallet::FindStealthTransactions(const CTransaction& tx, mapValue_t& mapNar
         nOutputIdOuter++;
         // -- for each OP_RETURN need to check all other valid outputs
 
-        //printf("txout scriptPubKey %s\n",  txout.scriptPubKey.ToString().c_str());
+        //LogPrint(BCLog::STEALTH,"txout scriptPubKey %s\n",  txout.scriptPubKey.ToString().c_str());
         CScript::const_iterator itTxA = txout.scriptPubKey.begin();
 
         if (!txout.scriptPubKey.GetOp(itTxA, opCode, vchEphemPK)
@@ -4290,10 +4298,10 @@ bool CWallet::FindStealthTransactions(const CTransaction& tx, mapValue_t& mapNar
 
                     CWalletDB walletdb(*dbw);
                     if (!walletdb.WriteStealthKeyMeta(keyId, lockedSkMeta))
-                    //if (!CWalletDB(*dbw).WriteStealthKeyMeta(keyId, lockedSkMeta))
                         LogPrint(BCLog::STEALTH,"FindStealthTransactions(): WriteStealthKeyMeta failed for %s\n",EncodeDestination(keyId));
 
                     mapStealthKeyMeta[keyId] = lockedSkMeta;
+
                     nFoundStealth++;
                 } else
                 {
@@ -4528,7 +4536,7 @@ bool CWallet::UnlockStealthAddresses(const CKeyingMaterial& vMasterKeyIn)
             CKeyID keyID = cpkT.GetID();
             LogPrint(BCLog::STEALTH,"Adding secret to key %s.\n", EncodeDestination(keyID));
         }
-
+        //if (!AddKeyPubKey(ckey, cpkT))
         if (!AddKey(ckey))
         {
             LogPrint(BCLog::STEALTH,"AddKey failed.\n");
