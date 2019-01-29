@@ -141,6 +141,7 @@ BITCOIN_CORE_H = \
   script/sign.h \
   script/standard.h \
   script/ismine.h \
+  smessage.h \
   stealth.h \
   streams.h \
   support/allocators/secure.h \
@@ -258,6 +259,7 @@ libbitcoin_wallet_a_SOURCES = \
   wallet/wallet.cpp \
   wallet/walletdb.cpp \
   wallet/walletutil.cpp \
+  smessage.cpp \
   stealth.cpp \
   $(BITCOIN_CORE_H)
 

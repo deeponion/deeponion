@@ -4217,7 +4217,6 @@ bool CWallet::FindStealthTransactions(const CTransaction& tx, mapValue_t& mapNar
                     && vchENarr.size() > 0)
                 {
                     std::string sNarr = std::string(vchENarr.begin(), vchENarr.end());
-
                     snprintf(cbuf, sizeof(cbuf), "n_%d", nOutputIdOuter-1); // plaintext narration always matches preceding value output
                     mapNarr[cbuf] = sNarr;
                 } else
@@ -4363,14 +4362,15 @@ bool CWallet::FindStealthTransactions(const CTransaction& tx, mapValue_t& mapNar
                     nFoundStealth++;
                 }
 
-                // ToDo Decrypt narration
-                /*if (txout.scriptPubKey.GetOp(itTxA, opCode, vchENarr)
+                // Decrypt narration
+                if (txout.scriptPubKey.GetOp(itTxA, opCode, vchENarr)
                     && opCode == OP_RETURN
                     && txout.scriptPubKey.GetOp(itTxA, opCode, vchENarr)
                     && vchENarr.size() > 0)
                 {
                     SecMsgCrypter crypter;
                     crypter.SetKey(&sShared.e[0], &vchEphemPK[0]);
+
                     std::vector<uint8_t> vchNarr;
                     if (!crypter.Decrypt(&vchENarr[0], vchENarr.size(), vchNarr))
                     {
@@ -4381,7 +4381,10 @@ bool CWallet::FindStealthTransactions(const CTransaction& tx, mapValue_t& mapNar
 
                     snprintf(cbuf, sizeof(cbuf), "n_%d", nOutputId);
                     mapNarr[cbuf] = sNarr;
-                }*/
+
+                    LogPrint(BCLog::STEALTH,"Decrypted narration: %s.\n", sNarr);
+
+                }
 
                 txnMatch = true;
                 break;
@@ -4536,7 +4539,7 @@ bool CWallet::UnlockStealthAddresses(const CKeyingMaterial& vMasterKeyIn)
             CKeyID keyID = cpkT.GetID();
             LogPrint(BCLog::STEALTH,"Adding secret to key %s.\n", EncodeDestination(keyID));
         }
-        //if (!AddKeyPubKey(ckey, cpkT))
+
         if (!AddKey(ckey))
         {
             LogPrint(BCLog::STEALTH,"AddKey failed.\n");
