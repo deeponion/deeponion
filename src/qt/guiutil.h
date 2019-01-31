@@ -161,7 +161,7 @@ namespace GUIUtil
             int allColumnsMinimumWidth;
             int lastColumnIndex;
             int columnCount;
-            int secondToLastColumnIndex;
+            int thirdToLastColumnIndex;
 
             void adjustTableColumnsWidth();
             int getAvailableWidthForColumn(int column);

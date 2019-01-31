@@ -557,7 +557,7 @@ void TableViewLastColumnResizingFixer::adjustTableColumnsWidth()
     int nColsWidth = getColumnsWidth();
     if (nColsWidth > nTableWidth)
     {
-        resizeColumn(secondToLastColumnIndex,getAvailableWidthForColumn(secondToLastColumnIndex));
+        resizeColumn(thirdToLastColumnIndex,getAvailableWidthForColumn(thirdToLastColumnIndex));
     }
 }
 
@@ -587,14 +587,14 @@ void TableViewLastColumnResizingFixer::on_geometriesChanged()
     if ((getColumnsWidth() - this->tableView->horizontalHeader()->width()) != 0)
     {
         disconnectViewHeadersSignals();
-        resizeColumn(secondToLastColumnIndex, getAvailableWidthForColumn(secondToLastColumnIndex));
+        resizeColumn(thirdToLastColumnIndex, getAvailableWidthForColumn(thirdToLastColumnIndex));
         connectViewHeadersSignals();
     }
 }
 
 /**
  * Initializes all internal variables and prepares the
- * the resize modes of the last 2 columns of the table and
+ * the resize modes of the last 3 columns of the table and
  */
 TableViewLastColumnResizingFixer::TableViewLastColumnResizingFixer(QTableView* table, int lastColMinimumWidth, int allColsMinimumWidth, QObject *parent) :
     QObject(parent),
@@ -604,9 +604,9 @@ TableViewLastColumnResizingFixer::TableViewLastColumnResizingFixer(QTableView* t
 {
     columnCount = tableView->horizontalHeader()->count();
     lastColumnIndex = columnCount - 1;
-    secondToLastColumnIndex = columnCount - 2;
+    thirdToLastColumnIndex = columnCount - 3;
     tableView->horizontalHeader()->setMinimumSectionSize(allColumnsMinimumWidth);
-    setViewHeaderResizeMode(secondToLastColumnIndex, QHeaderView::Interactive);
+    setViewHeaderResizeMode(thirdToLastColumnIndex, QHeaderView::Interactive);
     setViewHeaderResizeMode(lastColumnIndex, QHeaderView::Interactive);
 }
 
