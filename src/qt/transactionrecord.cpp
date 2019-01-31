@@ -161,6 +161,13 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                 }
 
                 CAmount nValue = txout.nValue;
+
+                // Dont't show second part of stealth tx with amount zero and no address
+                opcodetype firstOpCode;
+                CScript::const_iterator pc = txout.scriptPubKey.begin();
+                if (txout.scriptPubKey.GetOp(pc, firstOpCode) && firstOpCode == OP_RETURN)
+                    continue;
+
                 /* Add fee to first output */
                 if (nTxFee > 0)
                 {
