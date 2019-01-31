@@ -4600,6 +4600,71 @@ bool CWallet::UpdateStealthAddress(std::string &addr, std::string &label, bool a
     return true;
 }
 
+bool CWallet::GetStealthOutputs(CStealthAddress& sxAddress, std::string& sNarr, CScript& scriptPubKey, 
+                                std::vector<uint8_t>& ephem_pubkey, std::vector<uint8_t>& vchNarr, std::string& sError)
+{
+    ec_secret ephem_secret;
+    ec_secret secretShared;
+    ec_point pkSendTo;
+
+    if (GenerateRandomSecret(ephem_secret) != 0)
+    {
+        sError = "GenerateRandomSecret failed.";
+        return false;
+    }
+
+    if (StealthSecret(ephem_secret, sxAddress.scan_pubkey, sxAddress.spend_pubkey, secretShared, pkSendTo) != 0)
+    {
+        sError = "Could not generate receiving public key.";
+        return false;
+    }
+
+    CPubKey cpkTo(pkSendTo);
+    if (!cpkTo.IsValid())
+    {
+        sError = "Invalid public key generated.";
+        return false;
+    }
+
+    CKeyID ckidTo = cpkTo.GetID();
+
+    if (SecretToPublicKey(ephem_secret, ephem_pubkey) != 0)
+    {
+        sError = "Could not generate ephem public key.";
+        return false;
+    }
+
+    if (LogAcceptCategory(BCLog::STEALTH))
+    {
+        LogPrint(BCLog::STEALTH,"Stealth send to generated pubkey %d: %s\n", pkSendTo.size(), HexStr(pkSendTo).c_str());
+        LogPrint(BCLog::STEALTH,"hash %s\n", EncodeDestination(ckidTo));
+        LogPrint(BCLog::STEALTH,"ephem_pubkey %d: %s\n", ephem_pubkey.size(), HexStr(ephem_pubkey).c_str());
+    }
+
+    if (sNarr.length() > 0)
+    {
+        SecMsgCrypter crypter;
+        crypter.SetKey(&secretShared.e[0], &ephem_pubkey[0]);
+
+        if (!crypter.Encrypt((uint8_t*)&sNarr[0], sNarr.length(), vchNarr))
+        {
+            sError = "Narration encryption failed.";
+            return false;
+        }
+
+        if (vchNarr.size() > 48)
+        {
+            sError = "Encrypted narration is too long.";
+            return false;
+        }
+    }
+
+    // -- Parse DeepOnion address
+    scriptPubKey = GetScriptForDestination(ckidTo);
+
+    return true;
+}
+
 std::map<CTxDestination, CAmount> CWallet::GetAddressBalances()
 {
     std::map<CTxDestination, CAmount> balances;

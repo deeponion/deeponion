@@ -134,6 +134,10 @@ static const CRPCConvertParam vRPCConvertParams[] =
     { "disconnectnode", 1, "nodeid" },
     { "addwitnessaddress", 1, "p2sh" },
     { "liststealthaddresses", 0, "show_secrets" },
+    { "sendtostealthaddress", 1, "amount" },
+    { "sendtostealthaddress", 4, "subtractfeefromamount" },
+    { "sendtostealthaddress", 5 , "replaceable" },
+    { "sendtostealthaddress", 6 , "conf_target" },
     // Echo with conversion (For testing only)
     { "echojson", 0, "arg0" },
     { "echojson", 1, "arg1" },

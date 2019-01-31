@@ -3840,6 +3840,188 @@ UniValue importstealthaddress(const JSONRPCRequest& request)
     return result;
 }
 
+static void SendStealthMoney(CWallet * const pwallet, CStealthAddress& sxAddress, CAmount nValue, std::string& sNarr, bool fSubtractFeeFromAmount, CWalletTx& wtxNew, const CCoinControl& coin_control)
+{
+    CAmount curBalance = pwallet->GetBalance();
+    std::string strError;
+
+    // Check amount
+    if (nValue <= 0)
+        throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid amount");
+
+    if (nValue > curBalance)
+        throw JSONRPCError(RPC_WALLET_INSUFFICIENT_FUNDS, "Insufficient funds");
+
+    if (pwallet->GetBroadcastTransactions() && !g_connman) {
+        throw JSONRPCError(RPC_CLIENT_P2P_DISABLED, "Error: Peer-to-peer functionality missing or disabled");
+    }
+
+    if (fWalletUnlockStakingOnly)
+    {
+        strError = _("Error: Wallet unlocked for staking only, unable to create transaction.");
+        throw JSONRPCError(RPC_WALLET_ERROR, strError);
+    }
+
+    //Parse Stealth address
+    CScript scriptPubKey;
+    std::vector<uint8_t> ephemP;
+    std::vector<uint8_t> narr;
+    if (!pwallet->GetStealthOutputs(sxAddress, sNarr, scriptPubKey , ephemP, narr, strError))
+        throw JSONRPCError(RPC_WALLET_ERROR, strError);
+
+    // Create and send the Stealth Transaction
+    CReserveKey reservekey(pwallet);
+    CAmount nFeeRequired;
+    std::vector<CRecipient> vecSend;
+    int nChangePosRet = -1;
+
+    CRecipient recipient1 = {scriptPubKey, nValue, fSubtractFeeFromAmount};
+    vecSend.push_back(recipient1);
+
+    CScript scriptP = CScript() << OP_RETURN << ephemP;
+    if (narr.size() > 0) {
+        scriptP = scriptP << OP_RETURN << narr;
+    }
+    CRecipient recipient2 = {scriptP, 0, false};
+    vecSend.push_back(recipient2);
+
+    // -- shuffle inputs, change output won't mix enough as it must be not fully random for plantext narrations
+    std::random_shuffle(vecSend.begin(), vecSend.end());
+
+    bool rv = pwallet->CreateTransaction(vecSend, wtxNew, reservekey, nFeeRequired, nChangePosRet, strError, coin_control);
+    if (!rv) {
+        if (!fSubtractFeeFromAmount && nValue + nFeeRequired > curBalance)
+            strError = strprintf("Error: This transaction requires a transaction fee of at least %s", FormatMoney(nFeeRequired));
+        throw JSONRPCError(RPC_WALLET_ERROR, strError);
+    }
+
+    // -- the change txn is inserted in a random pos, check here to match narr to output
+    if (rv && narr.size() > 0)
+    {
+        for (unsigned int k = 0; k < wtxNew.tx->vout.size(); ++k)
+        {
+            if (wtxNew.tx->vout[k].scriptPubKey != scriptPubKey
+                || wtxNew.tx->vout[k].nValue != nValue)
+                continue;
+
+            char key[64];
+            if (snprintf(key, sizeof(key), "n_%u", k) < 1)
+            {
+                LogPrint(BCLog::STEALTH,"CreateStealthTransaction(): Error creating narration key.");
+                break;
+            }
+            wtxNew.mapValue[key] = sNarr;
+            break;
+        }
+    }
+
+    CValidationState state;
+    if (!pwallet->CommitTransaction(wtxNew, reservekey, g_connman.get(), state)) {
+        strError = strprintf("Error: The transaction was rejected! Reason given: %s", state.GetRejectReason());
+        throw JSONRPCError(RPC_WALLET_ERROR, strError);
+    }
+}
+
+UniValue sendtostealthaddress(const JSONRPCRequest& request)
+{
+    CWallet * const pwallet = GetWalletForJSONRPCRequest(request);
+    if (!EnsureWalletIsAvailable(pwallet, request.fHelp)) {
+        return NullUniValue;
+    }
+
+    if (request.fHelp || request.params.size() < 2 || request.params.size() > 5)
+        throw std::runtime_error(
+            "sendtostealthaddress \"stealthaddress\" amount  ( \"narration\" \"comment\" \"comment_to\" subtractfeefromamount replaceable conf_target \"estimate_mode\")\n"
+            "\nSend an amount to a given address.\n"
+            + HelpRequiringPassphrase(pwallet) +
+            "\nArguments:\n"
+            "1. \"address\"            (string, required) The DeepOnion stealth address to send to.\n"
+            "2. \"amount\"             (numeric or string, required) The amount in " + CURRENCY_UNIT + " to send. eg 0.1\n"
+            "3. \"narration\"          (string, optional) A comment sent to the receiver of the transaction. \n"
+            "4. \"comment\"            (string, optional) A comment used to store what the transaction is for. \n"
+            "                             This is not part of the transaction, just kept in your wallet.\n"
+            "5. \"comment_to\"         (string, optional) A comment to store the name of the person or organization \n"
+            "                             to which you're sending the transaction. This is not part of the \n"
+            "                             transaction, just kept in your wallet.\n"
+            "6. subtractfeefromamount  (boolean, optional, default=false) The fee will be deducted from the amount being sent.\n"
+            "                             The recipient will receive less DeepOnions than you enter in the amount field.\n"
+            "7. replaceable            (boolean, optional) Allow this transaction to be replaced by a transaction with higher fees via BIP 125\n"
+            "8. conf_target            (numeric, optional) Confirmation target (in blocks)\n"
+            "9. \"estimate_mode\"      (string, optional, default=UNSET) The fee estimate mode, must be one of:\n"
+            "       \"UNSET\"\n"
+            "       \"ECONOMICAL\"\n"
+            "       \"CONSERVATIVE\"\n"
+            "\nResult:\n"
+            "\"txid\"                  (string) The transaction id.\n"
+            "\nExamples:\n"
+            + HelpExampleCli("sendtostealthaddress", "\"smYkiNESACbF79HHm3Er6U6h2x7Ty6HG1A2QSTqEqBm9xb1QbFtkp6wPVGLzAgWg1pXHLQzrU6FgYPkq7PLY9fwmpPYdC9cGydo36h\" 0.123")
+            + HelpExampleCli("sendtostealthaddress", "\"smYkiNESACbF79HHm3Er6U6h2x7Ty6HG1A2QSTqEqBm9xb1QbFtkp6wPVGLzAgWg1pXHLQzrU6FgYPkq7PLY9fwmpPYdC9cGydo36h\" 0.123 \"narration\"")
+        );
+
+    ObserveSafeMode();
+
+    // Make sure the results are valid at least up to the most recent block
+    // the user could have gotten from another RPC command prior to now
+    pwallet->BlockUntilSyncedToCurrentChain();
+
+    LOCK2(cs_main, pwallet->cs_wallet);
+
+    std::string sEncoded = request.params[0].get_str();
+    CStealthAddress sxAddr;
+    if (!sxAddr.SetEncoded(sEncoded))
+    {
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid stealth address");
+    };
+
+    // Amount
+    CAmount nAmount = AmountFromValue(request.params[1]);
+    if (nAmount <= 0)
+        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount for send");
+
+    //Narration
+    std::string sNarr;
+    if (!request.params[2].isNull() && !request.params[2].get_str().empty())
+        sNarr = request.params[2].get_str();
+
+    if (sNarr.length() > 24)
+    {
+        throw JSONRPCError(RPC_TYPE_ERROR, "Narration must be 24 characters or less.");
+    }
+
+    // Wallet comments
+    CWalletTx wtx;
+    if (!request.params[3].isNull() && !request.params[3].get_str().empty())
+        wtx.mapValue["comment"] = request.params[3].get_str();
+    if (!request.params[4].isNull() && !request.params[4].get_str().empty())
+        wtx.mapValue["to"]      = request.params[4].get_str();
+
+    bool fSubtractFeeFromAmount = false;
+    if (!request.params[5].isNull()) {
+        fSubtractFeeFromAmount = request.params[5].get_bool();
+    }
+
+    CCoinControl coin_control;
+    if (!request.params[6].isNull()) {
+        coin_control.signalRbf = request.params[6].get_bool();
+    }
+
+    if (!request.params[7].isNull()) {
+        coin_control.m_confirm_target = ParseConfirmTarget(request.params[7]);
+    }
+
+    if (!request.params[8].isNull()) {
+        if (!FeeModeFromString(request.params[8].get_str(), coin_control.m_fee_mode)) {
+            throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid estimate_mode parameter");
+        }
+    }
+
+    EnsureWalletIsUnlocked(pwallet);
+
+    SendStealthMoney(pwallet, sxAddr, nAmount, sNarr, fSubtractFeeFromAmount, wtx, coin_control);
+
+    return wtx.GetHash().GetHex();
+}
+
 extern UniValue abortrescan(const JSONRPCRequest& request); // in rpcdump.cpp
 extern UniValue dumpprivkey(const JSONRPCRequest& request); // in rpcdump.cpp
 extern UniValue importprivkey(const JSONRPCRequest& request);
@@ -3902,6 +4084,7 @@ static const CRPCCommand commands[] =
     { "wallet",             "sendfrom",                 &sendfrom,                 {"fromaccount","toaddress","amount","minconf","comment","comment_to"} },
     { "wallet",             "sendmany",                 &sendmany,                 {"fromaccount","amounts","minconf","comment","subtractfeefrom","replaceable","conf_target","estimate_mode"} },
     { "wallet",             "sendtoaddress",            &sendtoaddress,            {"address","amount","comment","comment_to","subtractfeefromamount","replaceable","conf_target","estimate_mode"} },
+    { "wallet",             "sendtostealthaddress",     &sendtostealthaddress,     {"stealthaddress","amount","comment","comment_to","subtractfeefromamount","replaceable","conf_target","estimate_mode"} },
     { "wallet",             "setaccount",               &setaccount,               {"address","account"} },
     { "wallet",             "settxfee",                 &settxfee,                 {"amount"} },
     { "wallet",             "signmessage",              &signmessage,              {"address","message"} },
