@@ -8,6 +8,7 @@
 
 #include <amount.h>
 #include <policy/feerate.h>
+#include <stealth.h>
 #include <streams.h>
 #include <tinyformat.h>
 #include <ui_interface.h>
@@ -15,6 +16,7 @@
 #include <validationinterface.h>
 #include <script/ismine.h>
 #include <script/sign.h>
+#include <smessage.h>
 #include <wallet/crypter.h>
 #include <wallet/walletdb.h>
 #include <wallet/rpcwallet.h>
@@ -115,6 +117,7 @@ enum OutputType : int
 extern OutputType g_address_type;
 extern OutputType g_change_type;
 
+typedef std::map<CKeyID, CStealthKeyMetadata> StealthKeyMetaMap;
 
 /** A key pool entry */
 class CKeyPool
@@ -802,6 +805,10 @@ public:
     // Map from Script ID to key metadata (for watch-only keys).
     std::map<CScriptID, CKeyMetadata> m_script_metadata;
 
+    std::set<CStealthAddress> stealthAddresses;
+    StealthKeyMetaMap mapStealthKeyMeta;
+    uint64_t nStealth, nFoundStealth; // for reporting, zero before use
+
     typedef std::map<unsigned int, CMasterKey> MasterKeyMap;
     MasterKeyMap mapMasterKeys;
     unsigned int nMasterKeyMaxID;
@@ -915,6 +922,7 @@ public:
     bool LoadKey(const CKey& key, const CPubKey &pubkey) { return CCryptoKeyStore::AddKeyPubKey(key, pubkey); }
     //! Load metadata (used by LoadWallet)
     bool LoadKeyMetadata(const CKeyID& keyID, const CKeyMetadata &metadata);
+    bool LoadStealthKeyMetadata(const CKeyID& keyID, const CStealthKeyMetadata &sxKeyMeta);
     bool LoadScriptMetadata(const CScriptID& script_id, const CKeyMetadata &metadata);
 
     bool LoadMinVersion(int nVersion) { AssertLockHeld(cs_wallet); nWalletVersion = nVersion; nWalletMaxVersion = std::max(nWalletMaxVersion, nVersion); return true; }
@@ -1028,6 +1036,14 @@ public:
     void ReturnKey(int64_t nIndex, bool fInternal, const CPubKey& pubkey);
     bool GetKeyFromPool(CPubKey &key, bool internal = false);
     int64_t GetOldestKeyPoolTime();
+    
+    bool AddStealthAddress(CStealthAddress& sxAddr);
+    bool NewStealthAddress(std::string& sError, std::string& sLabel, CStealthAddress& sxAddr);
+    bool UnlockStealthAddresses(const CKeyingMaterial& vMasterKeyIn);
+    bool UpdateStealthAddress(std::string &addr, std::string &label, bool addIfNotExist);
+    bool FindStealthTransactions(const CTransaction& tx, mapValue_t& mapNarr);
+    bool GetStealthOutputs(CStealthAddress& sxAddress, std::string& sNarr, CScript& scriptPubKey, std::vector<uint8_t>& ephemP, std::vector<uint8_t>& vchNarr, std::string& sError);
+
     /**
      * Marks all keys in the keypool up to and including reserve_key as used.
      */

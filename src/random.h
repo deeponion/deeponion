@@ -15,6 +15,8 @@
 /* Seed OpenSSL PRNG with additional entropy data */
 void RandAddSeed();
 
+void RandAddSeedPerfmon();
+
 /**
  * Functions to gather random data via the OpenSSL PRNG
  */

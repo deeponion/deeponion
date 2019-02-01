@@ -18,6 +18,7 @@
 #include <key.h>
 #include <pubkey.h>
 #include <script/standard.h>
+#include <stealth.h>
 #include <support/allocators/zeroafterfree.h>
 
 #include <string>

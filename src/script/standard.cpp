@@ -287,6 +287,13 @@ public:
         return true;
     }
 
+    bool operator()(const CStealthAddress &StealthID) const {
+        script->clear();
+        //*script << OP_HASH160 << scriptID << OP_EQUAL;
+        LogPrintf("TODO\n");
+        return false;
+    }
+
     bool operator()(const CScriptID &scriptID) const {
         script->clear();
         *script << OP_HASH160 << ToByteVector(scriptID) << OP_EQUAL;

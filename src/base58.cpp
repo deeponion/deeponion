@@ -261,12 +261,40 @@ public:
         return bech32::Encode(m_params.Bech32HRP(), data);
     }
 
+    std::string operator()(const CStealthAddress& stealthId) const
+    {
+        return stealthId.Encoded();
+    }
+
     std::string operator()(const CNoDestination& no) const { return {}; }
 };
 
 CTxDestination DecodeDestination(const std::string& str, const CChainParams& params)
 {
     std::vector<unsigned char> data;
+
+    if(IsStealthAddress(str)){
+        CStealthAddress sxAddr;
+        sxAddr.SetEncoded(str);
+
+        ec_secret ephem_secret;
+        ec_secret secretShared;
+        ec_point pkSendTo;
+        ec_point ephem_pubkey;
+
+        if (GenerateRandomSecret(ephem_secret) == 0)
+        {
+           if (StealthSecret(ephem_secret, sxAddr.scan_pubkey, sxAddr.spend_pubkey, secretShared, pkSendTo) == 0)
+            {
+                CPubKey cpkTo(pkSendTo);
+                if (cpkTo.IsValid())
+                {
+                    return cpkTo.GetID();
+                }
+            }
+        }
+    }
+
     uint160 hash;
     if (DecodeBase58Check(str, data)) {
         // base58-encoded Bitcoin addresses.
