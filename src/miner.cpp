@@ -648,8 +648,9 @@ void FormatHashBuffers(CBlock* pblock, char* pmidstate, char* pdata, char* phash
 
     // Byte swap all the input buffer
     for (unsigned int i = 0; i < sizeof(tmp)/4; i++)
+    {
         ((unsigned int*)&tmp)[i] = ByteReverse(((unsigned int*)&tmp)[i]);
-
+    }
 	// Precalc the first half of the first hash, which stays constant
 	SHA256Transform(pmidstate, &tmp.block);
 

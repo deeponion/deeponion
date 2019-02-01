@@ -146,7 +146,7 @@ bool ComputeNextStakeModifier(const CBlockIndex* pindexPrev, uint64_t& nStakeMod
         vSortedByTimestamp.push_back(make_pair(pindex->GetBlockTime(), UintToArith256(pindex->GetBlockHash())));
         pindex = pindex->pprev;
     }
-    int nHeightFirstCandidate = pindex ? (pindex->nHeight + 1) : 0;
+    //int nHeightFirstCandidate = pindex ? (pindex->nHeight + 1) : 0;//unused
     reverse(vSortedByTimestamp.begin(), vSortedByTimestamp.end());
     sort(vSortedByTimestamp.begin(), vSortedByTimestamp.end());
     
@@ -268,7 +268,7 @@ bool CheckStakeKernelHash(unsigned int nBits, CBlockIndex* pBlockFrom, CValidati
     arith_uint256 bnTargetPerCoinDay;
     bnTargetPerCoinDay.SetCompact(nBits);
 
-    uint256 hashBlockFrom = pBlockFrom->GetBlockHash();
+    //uint256 hashBlockFrom = pBlockFrom->GetBlockHash(); //unused 
     int64_t nValuePrev = txPrevRef->vout[prevout.n].nValue;
 
     arith_uint256 bnCoinDayWeight = arith_uint256(nValuePrev) * GetWeight((int64_t)txPrevRef->nTime, (int64_t)nTimeTx) / COIN / (24 * 60 * 60);
@@ -306,7 +306,7 @@ bool CheckStakeKernelHash(unsigned int nBits, CBlockIndex* pBlockFrom, CValidati
             DateTimeStrFormat("%Y-%m-%d %H:%M:%S", nStakeModifierTime).c_str(),
 			pBlockFrom->nHeight,
             DateTimeStrFormat("%Y-%m-%d %H:%M:%S", pBlockFrom->GetBlockTime()).c_str());
-    	LogPrintf("CheckStakeKernelHash() : check modifier=0x%016x nTimeBlockFrom=%u nTxPrevOffset=%u nTimeTxPrev=%u nPrevout=%u nTimeTx=%u hashProof=%s nBits=%u bnTargetPerCoinDay=%s bnCoinDayWeight=%s targetProofOfStake=%s\n",
+            LogPrintf("CheckStakeKernelHash() : check modifier=0x%016x nTimeBlockFrom=%u nTxPrevOffset=%u nTimeTxPrev=%u nPrevout=%u nTimeTx=%u hashProof=%s nBits=%u bnTargetPerCoinDay=%s bnCoinDayWeight=%s targetProofOfStake=%s\n",
             nStakeModifier,
             nTimeBlockFrom, nTxPrevOffset, txPrevRef->nTime, prevout.n, nTimeTx,
             hashProofOfStake.ToString().c_str(),

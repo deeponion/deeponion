@@ -137,9 +137,9 @@ static const CRPCConvertParam vRPCConvertParams[] =
     { "addwitnessaddress", 1, "p2sh" },
     { "liststealthaddresses", 0, "show_secrets" },
     { "sendtostealthaddress", 1, "amount" },
-    { "sendtostealthaddress", 4, "subtractfeefromamount" },
-    { "sendtostealthaddress", 5 , "replaceable" },
-    { "sendtostealthaddress", 6 , "conf_target" },
+    { "sendtostealthaddress", 5, "subtractfeefromamount" },
+    { "sendtostealthaddress", 6 , "replaceable" },
+    { "sendtostealthaddress", 7 , "conf_target" },
     // Echo with conversion (For testing only)
     { "echojson", 0, "arg0" },
     { "echojson", 1, "arg1" },
