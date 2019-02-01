@@ -13,6 +13,7 @@
 #include <chain.h>
 #include <coins.h>
 #include <utilmoneystr.h>
+#include <util.h>
 
 bool IsFinalTx(const CTransaction &tx, int nBlockHeight, int64_t nBlockTime)
 {
@@ -215,13 +216,30 @@ bool Consensus::CheckTxInputs(const CTransaction& tx, CValidationState& state, c
         return state.DoS(100, false, REJECT_INVALID, "bad-txns-inputs-missingorspent", false,
                          strprintf("%s: inputs missing/spent", __func__));
     }
-
+    
+    // debug
+    if(tx.IsCoinStake())
+    	LogPrint(BCLog::STAKE, ">> tx is stake\n");
+    else if(tx.IsCoinBase())
+    	LogPrint(BCLog::STAKE, ">> tx is coinbase\n");
+    else
+    	LogPrint(BCLog::STAKE, ">> tx is not coinbase nor stake\n");
+    
     CAmount nValueIn = 0;
     for (unsigned int i = 0; i < tx.vin.size(); ++i) {
         const COutPoint &prevout = tx.vin[i].prevout;
         const Coin& coin = inputs.AccessCoin(prevout);
         assert(!coin.IsSpent());
 
+        // debug
+        if(coin.IsCoinBase()) {
+        	LogPrint(BCLog::STAKE, ">> coin %d is coinbase\n", i);
+        }
+        else
+        {
+        	LogPrint(BCLog::STAKE, ">> coin %d is NOT coinbase\n", i);
+        }
+        
         // If prev is coinbase, check that it's matured
         if (coin.IsCoinBase() && nSpendHeight - coin.nHeight < Params().nCoinbaseMaturity) {
             return state.Invalid(false,
@@ -236,6 +254,9 @@ bool Consensus::CheckTxInputs(const CTransaction& tx, CValidationState& state, c
         }
     }
 
+    if(tx.IsCoinBase() || tx.IsCoinStake())
+    	return true;
+    
     const CAmount value_out = tx.GetValueOut();
     if (nValueIn < value_out) {
         return state.DoS(100, false, REJECT_INVALID, "bad-txns-in-belowout", false,

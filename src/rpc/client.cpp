@@ -55,6 +55,8 @@ static const CRPCConvertParam vRPCConvertParams[] =
     { "waitfornewblock", 0, "timeout" },
     { "move", 2, "amount" },
     { "move", 3, "minconf" },
+    { "reservebalance", 0, "reserve" },
+    { "reservebalance", 1, "amount" },   
     { "sendfrom", 2, "amount" },
     { "sendfrom", 3, "minconf" },
     { "listtransactions", 1, "count" },

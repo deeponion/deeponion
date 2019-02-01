@@ -354,7 +354,6 @@ bool TestLockPointValidity(const LockPoints* lp)
 
 bool CheckSequenceLocks(const CTransaction &tx, int flags, LockPoints* lp, bool useExistingLockPoints)
 {
-	LogPrintf(">> CheckSequenceLocks\n");
     AssertLockHeld(cs_main);
     AssertLockHeld(mempool.cs);
 
@@ -524,7 +523,7 @@ static bool CheckInputsFromMempoolAndCache(const CTransaction& tx, CValidationSt
     // and when we actually call through to CheckInputs
     LOCK(pool.cs);
 
-    assert(!tx.IsCoinBase() || !tx.IsCoinStake());
+    assert(!tx.IsCoinBase() && !tx.IsCoinStake());
     for (const CTxIn& txin : tx.vin) {
         const Coin& coin = view.AccessCoin(txin.prevout);
 
@@ -1236,7 +1235,7 @@ CAmount GetProofOfWorkReward(int nHeight, const CBlockIndex* pindex)
 	}
 
 	int nPoWHeight = GetPowHeight(pindex);
-	LogPrintf(">> nHeight = %d, nPoWHeight = %d\n", nHeight, nPoWHeight);
+	LogPrint(BCLog::STAKE, ">> nHeight = %d, nPoWHeight = %d\n", nHeight, nPoWHeight);
 	int mm = nPoWHeight / 131400;
 	nSubsidy >>= mm;
 
@@ -1251,7 +1250,7 @@ CAmount GetProofOfStakeReward(int64_t nCoinAge, const CBlockIndex* pindex)
 {
 	int64_t nRewardCoinYear = MAX_PROOF_OF_STAKE_STABLE;
 	int nPoSHeight = GetPosHeight(pindex);
-	LogPrintf(">> nHeight = %d, nPoSHeight = %d\n", pindex->nHeight + 1, nPoSHeight + 1);
+	LogPrint(BCLog::STAKE, ">> nHeight = %d, nPoSHeight = %d\n", pindex->nHeight + 1, nPoSHeight + 1);
 	int64_t nSubsidy = 0;
 
 	if (nPoSHeight < YEARLY_POS_BLOCK_COUNT)
@@ -1310,7 +1309,7 @@ bool IsInitialBlockDownload()
         return true;
     if (chainActive.Tip()->GetBlockTime() < (GetTime() - nMaxTipAge))
         return true;
-    LogPrintf("Leaving InitialBlockDownload (latching to false)\n");
+    LogPrint(BCLog::STAKE, "Leaving InitialBlockDownload (latching to false)\n");
     latchToFalse.store(true, std::memory_order_relaxed);
     return false;
 }
@@ -1438,12 +1437,14 @@ void CChainState::InvalidBlockFound(CBlockIndex *pindex, const CValidationState 
 void UpdateCoins(const CTransaction& tx, CCoinsViewCache& inputs, CTxUndo &txundo, int nHeight)
 {
     // mark inputs spent
-    if (!tx.IsCoinBase() && !tx.IsCoinStake()) {
+    // if (!tx.IsCoinBase() && !tx.IsCoinStake()) {
+    if (!tx.IsCoinBase()) {
         txundo.vprevout.reserve(tx.vin.size());
         for (const CTxIn &txin : tx.vin) {
             txundo.vprevout.emplace_back();
             bool is_spent = inputs.SpendCoin(txin.prevout, &txundo.vprevout.back());
             assert(is_spent);
+            LogPrint(BCLog::STAKE, ">> coin %s is spent!\n", txin.prevout.ToString().c_str());
         }
     }
     // add outputs
@@ -1503,7 +1504,8 @@ void InitScriptExecutionCache() {
  */
 bool CheckInputs(const CTransaction& tx, CValidationState &state, const CCoinsViewCache &inputs, bool fScriptChecks, unsigned int flags, bool cacheSigStore, bool cacheFullScriptStore, PrecomputedTransactionData& txdata, std::vector<CScriptCheck> *pvChecks)
 {
-    if (!tx.IsCoinBase() || !tx.IsCoinStake())
+    // if (!tx.IsCoinBase() && !tx.IsCoinStake())
+    if (!tx.IsCoinBase())
     {
         if (pvChecks)
             pvChecks->reserve(tx.vin.size());
@@ -1737,7 +1739,8 @@ DisconnectResult CChainState::DisconnectBlock(const CBlock& block, const CBlockI
         }
 
         // restore inputs
-        if (i > 0 && !is_coinstake) { // not coinbases
+        // if (i > 0 && !is_coinstake) { // not coinbases
+        if (i > 0) { // not coinbases
             CTxUndo &txundo = blockUndo.vtxundo[i-1];
             if (txundo.vprevout.size() != tx.vin.size()) {
             	LogPrintf(">> i>0 case: txundo.vprevout.size() = %d, tx.vin.size() = %d\n", txundo.vprevout.size(), tx.vin.size());
@@ -1977,7 +1980,7 @@ static std::map<int, CAmount> totalBalanceMap;
 bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pindex,
                   CCoinsViewCache& view, const CChainParams& chainparams, bool fJustCheck)
 {
-	LogPrintf(">> ConnectBlock\n");
+	LogPrint(BCLog::STAKE, ">> ConnectBlock\n");
     AssertLockHeld(cs_main);
     assert(pindex);
     // pindex->phashBlock can be null if called by CreateNewBlock/TestBlockValidity
@@ -2113,7 +2116,8 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
 
         nInputs += tx.vin.size();
 
-        if (!tx.IsCoinBase() && !tx.IsCoinStake())
+        // if (!tx.IsCoinBase() && !tx.IsCoinStake())
+        if (!tx.IsCoinBase())
         {
             CAmount txfee = 0;
             if (!Consensus::CheckTxInputs(tx, state, view, pindex->nHeight, txfee)) {
@@ -2149,7 +2153,8 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
                              REJECT_INVALID, "bad-blk-sigops");
 
         txdata.emplace_back(tx);
-        if (!tx.IsCoinBase() && !tx.IsCoinStake())
+        // if (!tx.IsCoinBase() && !tx.IsCoinStake())
+        if (!tx.IsCoinBase())
         {
             std::vector<CScriptCheck> vChecks;
             bool fCacheResults = fJustCheck; /* Don't cache results if we're actually connecting blocks (still consult the cache, though) */
@@ -2167,7 +2172,9 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
         if (i > 0) {
             blockundo.vtxundo.push_back(CTxUndo());
         }
-        UpdateCoins(tx, view, i == 0 ? undoDummy : blockundo.vtxundo.back(), pindex->nHeight);
+        
+        if(!fJustCheck)
+        	UpdateCoins(tx, view, i == 0 ? undoDummy : blockundo.vtxundo.back(), pindex->nHeight);
     }
     int64_t nTime3 = GetTimeMicros(); nTimeConnect += nTime3 - nTime2;
     LogPrint(BCLog::BENCH, "      - Connect %u transactions: %.2fms (%.3fms/tx, %.3fms/txin) [%.2fs (%.2fms/blk)]\n", 
@@ -2180,9 +2187,6 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
     LogPrint(BCLog::BENCH, "    - Verify %u txins: %.2fms (%.3fms/txin) [%.2fs (%.2fms/blk)]\n", nInputs - 1, 
     		MILLI * (nTime4 - nTime2), nInputs <= 1 ? 0 : MILLI * (nTime4 - nTime2) / (nInputs-1), nTimeVerify * MICRO, nTimeVerify * MILLI / nBlocksTotal);
 
-    if (fJustCheck)
-        return true;
-    
     if(block.IsProofOfWork())
     {
 		CAmount blockReward = nFees + GetProofOfWorkReward(pindex->nHeight, pindex->pprev);
@@ -2203,51 +2207,30 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
             return state.DoS(100, error("ConnectBlock() : coinstake pays too much(actual=%d vs calculated=%d)", nStakeReward, nCalculatedStakeReward));
     }
 
+    if (fJustCheck)
+        return true;
+    
     // check stake and compute stakemodifier
-	uint256 hashProofOfStake = uint256();
-	uint256 targetProofOfStake = uint256();
-	CBlock* pBlock0 = (CBlock*)&block;
-	if (pBlock0->IsProofOfStake())
-	{
-		LogPrint(BCLog::STAKE, ">> Block = %s\n", pBlock0->ToString().c_str());
-		if(!CheckProofOfStake(*pblocktree, pindex->pprev, state, block, hashProofOfStake, targetProofOfStake, mapBlockIndex, *pcoinsTip))
-		{
-			return error("ConnectBlock(): check proof-of-stake failed for block %s\n", pBlock0->GetHash().ToString().c_str()); 
-		}
-			
-		pindex->hashProofOfStake = hashProofOfStake;
-		
-		setDirtyBlockIndex.insert(pindex);
-	}    
+    if(pindex->hashProofOfStake.IsNull()) {
+        uint256 hashProofOfStake = uint256();
+        uint256 targetProofOfStake = uint256();
+        CBlock* pBlock0 = (CBlock*)&block;
+        if (pBlock0->IsProofOfStake())
+        {
+            LogPrint(BCLog::STAKE, ">> To CheckProofOfStake, Block = %s\n", pBlock0->ToString().c_str());
+            if(!CheckProofOfStake(*pblocktree, pindex->pprev, state, block, hashProofOfStake, targetProofOfStake, mapBlockIndex, *pcoinsTip))
+            {
+                return error("ConnectBlock(): check proof-of-stake failed for block %s\n", pBlock0->GetHash().ToString().c_str());
+            }
+
+            pindex->hashProofOfStake = hashProofOfStake;
+            setDirtyBlockIndex.insert(pindex);
+        }
+    }
 
     if(!ComputeStakeModifier(pindex, block, chainparams))
         return error("ConnectBlock() : ComputeStakeModifier() failed");
-    
-    // debug, check total balance
-    LogPrintf(">> Current balance = %ld\n", vpwallets[0]->GetBalance());
-
-    CAmount avilableB = vpwallets[0]->GetAvailableBalance();
-    CAmount unconfirmedB = vpwallets[0]->GetUnconfirmedBalance();
-    CAmount immatureB = vpwallets[0]->GetImmatureBalance();
-    CAmount stakeB = vpwallets[0]->GetStakeBalance();
-    CAmount totalB = avilableB + unconfirmedB + immatureB + stakeB;
-    LogPrintf(">> avilableB = %ld, unconfirmedB = %ld, immatureB = %ld, stakeB = %ld\n", avilableB, unconfirmedB, immatureB, stakeB);
-    
-    int h = pindex->nHeight;
-    totalBalanceMap[h] = totalB;
-    CAmount prevTotalBalance = 0;
-    if(h > 0) {
-    	if(totalBalanceMap.count(h - 1) > 0) {
-    		prevTotalBalance = totalBalanceMap[h - 1];
-    	}
-    }
-    
-    LogPrintf(">> total balance = %ld, for h = %d\n", totalB, h);
-    LogPrintf(">> delta = %ld\n", totalB - prevTotalBalance);
-    
-    if(totalB < prevTotalBalance) 
-    	LogPrintf(">> Error-balance: current total balance %ld is less than previous %ld\n", totalB, prevTotalBalance);
-    		
+        		
     if (!WriteUndoDataForBlock(blockundo, state, pindex, chainparams))
         return false;
 
@@ -2509,7 +2492,7 @@ bool CChainState::DisconnectTip(CValidationState& state, const CChainParams& cha
         // Save transactions to re-add to mempool at end of reorg
         for (auto it = block.vtx.rbegin(); it != block.vtx.rend(); ++it) {
             const CTransactionRef& ctxr = *it;
-            LogPrintf("CChainState::DisconnectTip tx: %s", ctxr.get()->ToString().c_str());
+            LogPrint(BCLog::STAKE, "CChainState::DisconnectTip tx: %s", ctxr.get()->ToString().c_str());
             disconnectpool->addTransaction(*it);
         }
         while (disconnectpool->DynamicMemoryUsage() > MAX_DISCONNECTED_TX_POOL_SIZE * 1000) {
@@ -3397,18 +3380,13 @@ void UpdateUncommittedBlockStructures(CBlock& block, const CBlockIndex* pindexPr
 
 std::vector<unsigned char> GenerateCoinbaseCommitment(CBlock& block, const CBlockIndex* pindexPrev, const Consensus::Params& consensusParams)
 {
-    LogPrintf("GenerateCoinbaseCommitment(): block.vtx[0].vout.size(): %d 0\n", block.vtx[0]->vout.size());
     std::vector<unsigned char> commitment;
     int commitpos = GetWitnessCommitmentIndex(block);
-    LogPrintf("GenerateCoinbaseCommitment(): block.vtx[0].vout.size(): %d 1\n", block.vtx[0]->vout.size());
     std::vector<unsigned char> ret(32, 0x00);
     if (consensusParams.vDeployments[Consensus::DEPLOYMENT_SEGWIT].nTimeout != 0) {
-        LogPrintf("GenerateCoinbaseCommitment(): block.vtx[0].vout.size(): %d 2\n", block.vtx[0]->vout.size());
         if (commitpos == -1) {
             uint256 witnessroot = BlockWitnessMerkleRoot(block, nullptr);
-            LogPrintf("GenerateCoinbaseCommitment(): block.vtx[0].vout.size(): %d 3\n", block.vtx[0]->vout.size());
             CHash256().Write(witnessroot.begin(), 32).Write(ret.data(), 32).Finalize(witnessroot.begin());
-            LogPrintf("GenerateCoinbaseCommitment(): block.vtx[0].vout.size(): %d 4\n", block.vtx[0]->vout.size());
             CTxOut out;
             out.nValue = 0;
             out.scriptPubKey.resize(38);
@@ -3422,14 +3400,10 @@ std::vector<unsigned char> GenerateCoinbaseCommitment(CBlock& block, const CBloc
             commitment = std::vector<unsigned char>(out.scriptPubKey.begin(), out.scriptPubKey.end());
             CMutableTransaction tx(*block.vtx[0]);
             tx.vout.push_back(out);
-            LogPrintf("GenerateCoinbaseCommitment(): block.vtx[0].vout.size(): %d 5\n", block.vtx[0]->vout.size());
             block.vtx[0] = MakeTransactionRef(std::move(tx));
-            LogPrintf("GenerateCoinbaseCommitment(): block.vtx[0].vout.size(): %d 6\n", block.vtx[0]->vout.size());
-        }
+         }
     }
-    LogPrintf("GenerateCoinbaseCommitment(): block.vtx[0].vout.size(): %d 7\n", block.vtx[0]->vout.size());
     UpdateUncommittedBlockStructures(block, pindexPrev, consensusParams);
-    LogPrintf("GenerateCoinbaseCommitment(): block.vtx[0].vout.size(): %d 8\n", block.vtx[0]->vout.size());
     return commitment;
 }
 
@@ -3636,7 +3610,7 @@ bool CChainState::AcceptBlockHeader(const CBlockHeader& block, CValidationState&
     }
     if (pindex == nullptr) {
         pindex = AddToBlockIndex(block);
-        LogPrintf(">> Add to block index. height = %d\n", pindex->nHeight);
+        LogPrint(BCLog::STAKE, ">> Add to block index. height = %d\n", pindex->nHeight);
     }
 
     if (ppindex)
@@ -3703,7 +3677,7 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CVali
     if (!AcceptBlockHeader(block, state, chainparams, &pindex))
     	return false;
 
-	LogPrintf(">> AcceptBlock: Block-height = %d\n", pindex->nHeight);
+	LogPrint(BCLog::STAKE, ">> AcceptBlock: Block-height = %d\n", pindex->nHeight);
 	
     // Try to process all requested blocks that we don't have, but only
     // process an unrequested block if it's new and has enough work to
@@ -3752,6 +3726,33 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CVali
     	pindex->nFlags |= CBlockIndex::BLOCK_PROOF_OF_STAKE;
     	pindex->prevoutStake = block.vtx[1]->vin[0].prevout;
     	pindex->nStakeTime = block.vtx[1]->nTime;
+    	
+    	// make sure stake source is spendable
+    	if (!IsInitialBlockDownload() && chainActive.Tip() == pindex->pprev) {
+    		CCoinsViewCache view(pcoinsTip.get());
+    		const COutPoint &stakeprevout = block.vtx[1]->vin[0].prevout;
+    		const Coin& coin = view.AccessCoin(stakeprevout);
+    		if(coin.IsSpent()) {
+    			return error("%s: stake source already spent", __func__);
+    		}
+
+            uint256 hashProofOfStake = uint256();
+            uint256 targetProofOfStake = uint256();
+            CBlock* pBlock0 = (CBlock*)&block;
+            if (pBlock0->IsProofOfStake())
+            {
+                LogPrint(BCLog::STAKE, ">> AcceptBlock To CheckProofOfStake, Block = %s\n", pBlock0->ToString().c_str());
+                if(!CheckProofOfStake(*pblocktree, pindex->pprev, state, block, hashProofOfStake, targetProofOfStake, mapBlockIndex, *pcoinsTip))
+                {
+                    return error("AcceptBlock(): check proof-of-stake failed for block %s\n", pBlock0->GetHash().ToString().c_str());
+
+                } else {
+                    pindex->hashProofOfStake = hashProofOfStake;
+                    setDirtyBlockIndex.insert(pindex);
+                }
+            }
+
+    	}
     }
 
     // Header is valid/has work, merkle tree and segwit merkle tree are good...RELAY NOW
@@ -3797,7 +3798,7 @@ bool CChainState::ComputeStakeModifier(CBlockIndex* pindex, const CBlock& block,
     ComputeNextStakeModifier(pindex->pprev, nStakeModifier, fGeneratedStakeModifier, chainparams.GetConsensus());
     pindex->SetStakeModifier(nStakeModifier, fGeneratedStakeModifier);
     pindex->nStakeModifierChecksum = GetStakeModifierChecksum(pindex);
-    LogPrintf(">> nStakeModifier = 0x%016x, nStakeModifierChecksum = 0x%016x\n", nStakeModifier, pindex->nStakeModifierChecksum);
+    LogPrint(BCLog::STAKE, ">> nStakeModifier = 0x%016x, nStakeModifierChecksum = 0x%016x\n", nStakeModifier, pindex->nStakeModifierChecksum);
     if (!CheckStakeModifierCheckpoints(pindex->nHeight, pindex->nStakeModifierChecksum))
     	return error("%s : Rejected by stake modifier checkpoint height=%d, modifier=%ul\n", __func__, pindex->nHeight, nStakeModifier);
     
@@ -3837,6 +3838,29 @@ bool ProcessNewBlock(const CChainParams& chainparams, const std::shared_ptr<cons
     if (!g_chainstate.ActivateBestChain(state, chainparams, pblock))
         return error("%s: ActivateBestChain failed", __func__);
 
+    // debug, check total balance
+    CAmount avilableB = vpwallets[0]->GetAvailableBalance();
+    CAmount unconfirmedB = vpwallets[0]->GetUnconfirmedBalance();
+    CAmount immatureB = vpwallets[0]->GetImmatureBalance();
+    CAmount stakeB = vpwallets[0]->GetStakeBalance();
+    CAmount totalB = avilableB + unconfirmedB + immatureB + stakeB;
+    LogPrint(BCLog::STAKE, ">> avilableB = %ld, unconfirmedB = %ld, immatureB = %ld, stakeB = %ld\n", avilableB, unconfirmedB, immatureB, stakeB);
+    
+    int h = chainActive.Tip()->nHeight;
+    totalBalanceMap[h] = totalB;
+    CAmount prevTotalBalance = 0;
+    if(h > 0) {
+    	if(totalBalanceMap.count(h - 1) > 0) {
+    		prevTotalBalance = totalBalanceMap[h - 1];
+    	}
+    }
+    
+    LogPrint(BCLog::STAKE, ">> total balance = %ld, for h = %d\n", totalB, h);
+    LogPrint(BCLog::STAKE, ">> delta = %ld\n", totalB - prevTotalBalance);
+    
+    if(totalB < prevTotalBalance) 
+    	LogPrint(BCLog::STAKE, ">> Error-balance: current total balance %ld is less than previous %ld\n", totalB, prevTotalBalance);
+
     LogPrint(BCLog::STAKE, ">> ProcessNewBlock, end chainActive height = %d\n", chainActive.Tip()->nHeight);    
     LogPrint(BCLog::STAKE, ">> ProcessNewBlock, completed\n");
     return true;
@@ -3844,7 +3868,7 @@ bool ProcessNewBlock(const CChainParams& chainparams, const std::shared_ptr<cons
 
 bool TestBlockValidity(CValidationState& state, const CChainParams& chainparams, const CBlock& block, CBlockIndex* pindexPrev, bool fCheckPOW, bool fCheckMerkleRoot, bool fProofOfStake)
 {
-	LogPrintf(">> TestBlockValidity\n");
+	// LogPrintf(">> TestBlockValidity\n");
     AssertLockHeld(cs_main);
     assert(pindexPrev && pindexPrev == chainActive.Tip());
     CCoinsViewCache viewNew(pcoinsTip.get());
@@ -4259,7 +4283,7 @@ CVerifyDB::~CVerifyDB()
 
 bool CVerifyDB::VerifyDB(const CChainParams& chainparams, CCoinsView *coinsview, int nCheckLevel, int nCheckDepth)
 {
-	LogPrintf(">> VerifyDB\n");
+	// LogPrintf(">> VerifyDB\n");
     LOCK(cs_main);
     if (chainActive.Tip() == nullptr || chainActive.Tip()->pprev == nullptr)
         return true;

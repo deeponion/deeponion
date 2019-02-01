@@ -93,7 +93,7 @@ struct CompareValueOnly
 
 std::string COutput::ToString() const
 {
-    return strprintf("COutput(%s, %d, %d) [%s]", tx->GetHash().ToString(), i, nDepth, FormatMoney(tx->tx->vout[i].nValue));
+    return strprintf("COutput(%s, %d, %d) [%s]", tx->GetHash().ToString().substr(0, 6), i, nDepth, FormatMoney(tx->tx->vout[i].nValue));
 }
 
 class CAffectedKeysVisitor : public boost::static_visitor<void> {
@@ -2336,6 +2336,7 @@ CAmount CWallet::GetAvailableBalance(const CCoinControl* coinControl) const
     std::vector<COutput> vCoins;
     AvailableCoins(vCoins, true, coinControl);
     for (const COutput& out : vCoins) {
+    	// LogPrintf(">> out: %s, fSpendable = %s\n", out.ToString().c_str(), out.fSpendable?"t":"f");
         if (out.fSpendable) {
             balance += out.tx->tx->vout[out.i].nValue;
         }
@@ -3317,7 +3318,7 @@ bool CWallet::CommitTransaction(CWalletTx& wtxNew, CReserveKey& reservekey, CCon
 {
     {
         LOCK2(cs_main, cs_wallet);
-        LogPrintf("CommitTransaction:\n%s", wtxNew.tx->ToString());
+        // LogPrintf("CommitTransaction:\n%s", wtxNew.tx->ToString());
         {
             // Take key pair from key pool so it won't be used again
             reservekey.KeepKey();
