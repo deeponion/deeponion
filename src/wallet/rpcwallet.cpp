@@ -502,7 +502,7 @@ UniValue sendtoaddress(const JSONRPCRequest& request)
 
     // Amount
     CAmount nAmount = AmountFromValue(request.params[1]);
-    if (nAmount < 0)
+    if (nAmount <= 0)
         throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount for send");
 
     // Wallet comments
