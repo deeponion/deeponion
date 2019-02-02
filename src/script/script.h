@@ -9,7 +9,6 @@
 #include <crypto/common.h>
 #include <prevector.h>
 #include <serialize.h>
-#include <stealth.h>
 #include <utilstrencodings.h>
 #include <uint256.h>
 
