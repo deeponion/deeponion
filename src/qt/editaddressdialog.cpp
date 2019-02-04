@@ -68,7 +68,6 @@ void EditAddressDialog::setModel(AddressTableModel *_model)
     mapper->setModel(_model);
     mapper->addMapping(ui->labelEdit, AddressTableModel::Label);
     mapper->addMapping(ui->addressEdit, AddressTableModel::Address);
-    //mapper->addMapping(ui->stealthCB, AddressTableModel::Type);
 }
 
 void EditAddressDialog::loadRow(int row)
