@@ -11,6 +11,8 @@
 #include <QDataWidgetMapper>
 #include <QMessageBox>
 
+#include <wallet/wallet.h>
+
 extern OutputType g_address_type;
 
 EditAddressDialog::EditAddressDialog(Mode _mode, QWidget *parent) :
@@ -29,16 +31,22 @@ EditAddressDialog::EditAddressDialog(Mode _mode, QWidget *parent) :
     case NewReceivingAddress:
         setWindowTitle(tr("New receiving address"));
         ui->addressEdit->setEnabled(false);
+        ui->stealthCB->setEnabled(true);
+        ui->stealthCB->setVisible(true);
         break;
     case NewSendingAddress:
         setWindowTitle(tr("New sending address"));
+        ui->stealthCB->setVisible(false);
         break;
     case EditReceivingAddress:
         setWindowTitle(tr("Edit receiving address"));
         ui->addressEdit->setEnabled(false);
+        ui->stealthCB->setEnabled(false);
+        ui->stealthCB->setVisible(true);
         break;
     case EditSendingAddress:
         setWindowTitle(tr("Edit sending address"));
+        ui->stealthCB->setVisible(false);
         break;
     }
 
@@ -60,6 +68,7 @@ void EditAddressDialog::setModel(AddressTableModel *_model)
     mapper->setModel(_model);
     mapper->addMapping(ui->labelEdit, AddressTableModel::Label);
     mapper->addMapping(ui->addressEdit, AddressTableModel::Address);
+    //mapper->addMapping(ui->stealthCB, AddressTableModel::Type);
 }
 
 void EditAddressDialog::loadRow(int row)
@@ -76,6 +85,8 @@ bool EditAddressDialog::saveCurrentRow()
     {
     case NewReceivingAddress:
     case NewSendingAddress:
+        if (ui->stealthCB->isChecked())
+            g_address_type = OUTPUT_TYPE_STEALTH;
         address = model->addRow(
                 mode == NewSendingAddress ? AddressTableModel::Send : AddressTableModel::Receive,
                 ui->labelEdit->text(),

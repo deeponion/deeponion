@@ -4164,8 +4164,13 @@ bool CWallet::AddStealthAddress(CStealthAddress& sxAddr)
 
     bool rv = CWalletDB(*dbw).WriteStealthAddress(sxAddr);
 
+    if (rv && !fOwned){
+        SetAddressBook(sxAddr, sxAddr.label, "send");
+        return rv;
+    }
+
     if (rv)
-        SetAddressBook(sxAddr, sxAddr.label, "");
+        SetAddressBook(sxAddr, sxAddr.label, "receive");
 
     return rv;
 }
@@ -4290,7 +4295,7 @@ bool CWallet::FindStealthTransactions(const CTransaction& tx, mapValue_t& mapNar
                     CKeyID keyId = cpkE.GetID();
 
                     std::string sLabel = it->Encoded();
-                    SetAddressBook(keyId, sLabel,"");
+                    SetAddressBook(keyId, sLabel,"receive");
 
                     CPubKey cpkEphem(vchEphemPK);
                     CPubKey cpkScan(it->scan_pubkey);
@@ -4359,7 +4364,7 @@ bool CWallet::FindStealthTransactions(const CTransaction& tx, mapValue_t& mapNar
                     }
 
                     std::string sLabel = it->Encoded();
-                    SetAddressBook(keyID, sLabel,"");
+                    SetAddressBook(keyID, sLabel,"receive");
                     nFoundStealth++;
                 }
 
@@ -4596,7 +4601,7 @@ bool CWallet::UpdateStealthAddress(std::string &addr, std::string &label, bool a
         return false;
     }
 
-    SetAddressBook(sxFound, sxFound.label, "");
+    SetAddressBook(sxFound, sxFound.label, "receive");
 
     return true;
 }
