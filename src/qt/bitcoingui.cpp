@@ -134,6 +134,8 @@ BitcoinGUI::BitcoinGUI(const PlatformStyle *_platformStyle, const NetworkStyle *
         move(QApplication::desktop()->availableGeometry().center() - frameGeometry().center());
     }
 
+    qApp->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getStyleSheet());
+
     QString windowTitle = tr(PACKAGE_NAME) + " - ";
 #ifdef ENABLE_WALLET
     enableWallet = WalletModel::isWalletEnabled();
