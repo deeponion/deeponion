@@ -6,6 +6,7 @@
 
 #include <qt/bitcoingui.h>
 #include <qt/walletview.h>
+#include <qt/platformstyle.h>
 
 #include <cassert>
 #include <cstdio>
@@ -28,6 +29,8 @@ WalletFrame::WalletFrame(const PlatformStyle *_platformStyle, BitcoinGUI *_gui) 
     QLabel *noWallet = new QLabel(tr("No wallet has been loaded."));
     noWallet->setAlignment(Qt::AlignCenter);
     walletStack->addWidget(noWallet);
+
+    setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getCentralWidgetStyle());
 }
 
 WalletFrame::~WalletFrame()

@@ -76,7 +76,8 @@ PlatformStyle::PlatformStyle(const QString &_name, bool _imagesOnButtons, bool _
     colorizeIcons(_colorizeIcons),
     useExtraSpacing(_useExtraSpacing),
     singleColor(0,0,0),
-    textColor(0,0,0)
+    textColor(0,0,0),
+    themeManager(new ThemeManager())
 {
     // Determine icon highlighting color
     if (colorizeIcons) {
@@ -93,6 +94,8 @@ PlatformStyle::PlatformStyle(const QString &_name, bool _imagesOnButtons, bool _
     }
     // Determine text color
     textColor = QColor(QApplication::palette().color(QPalette::WindowText));
+    // Init the Theme Manager
+    themeManager->applyCurrentTheme();
 }
 
 QImage PlatformStyle::SingleColorImage(const QString& filename) const
@@ -141,4 +144,9 @@ const PlatformStyle *PlatformStyle::instantiate(const QString &platformId)
     }
     return 0;
 }
+
+ThemeManager *PlatformStyle::getThemeManager() const {
+    return themeManager;
+}
+
 
