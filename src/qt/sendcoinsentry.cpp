@@ -38,6 +38,7 @@ SendCoinsEntry::SendCoinsEntry(const PlatformStyle *_platformStyle, QWidget *par
 #endif
 
     ui->addAsNarration->setMaxLength(24);
+    ui->addAsNarration->setEnabled(false);
     // normal bitcoin address field
     GUIUtil::setupAddressWidget(ui->payTo, this);
     // just a label for displaying bitcoin address(es)
