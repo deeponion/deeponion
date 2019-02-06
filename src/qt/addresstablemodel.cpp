@@ -16,7 +16,6 @@
 
 const QString AddressTableModel::Send = "S";
 const QString AddressTableModel::Receive = "R";
-static const int STEALTH_LENGTH_TRESHOLD = 75;
 
 struct AddressTableEntry
 {
