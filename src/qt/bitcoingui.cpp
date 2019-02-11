@@ -77,7 +77,7 @@ const std::string BitcoinGUI::DEFAULT_UIPLATFORM =
  * collisions in the future with additional wallets */
 const QString BitcoinGUI::DEFAULT_WALLET = "~Default";
 
-//QToolBar *fakeToolbarForBlueLine;
+QToolBar *fakeToolbarForBlueLine;
 
 BitcoinGUI::BitcoinGUI(const PlatformStyle *_platformStyle, const NetworkStyle *networkStyle, QWidget *parent) :
     QMainWindow(parent),
@@ -499,7 +499,37 @@ void BitcoinGUI::createToolBars()
 {
     if(walletFrame)
     {
+
+        // DeepOnion: Left Toolbar design
+        int toolBarWidth = 175;
+        // Create the toolbars
+        fakeToolbarForBlueLine = addToolBar(tr("Fake toolbar for blue line"));
+        fakeToolbarForBlueLine->setFixedHeight(59);
+        fakeToolbarForBlueLine->setMovable(false);
+        fakeToolbarForBlueLine->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getMenuHeaderStyle());
+        fakeToolbarForBlueLine->setIconSize(QSize(146, 40));
+        QAction *deepOnionLogo = new QAction(QIcon(":/icons/DeepOnionLogoWithTextWhite"), "", this);
+        deepOnionLogo->setEnabled(false);
+        fakeToolbarForBlueLine->addAction(deepOnionLogo);
+        fakeToolbarForBlueLine->setOrientation(Qt::Vertical);
+        fakeToolbarForBlueLine->setFixedWidth(toolBarWidth);
+        fakeToolbarForBlueLine->setFixedHeight(59);
+        addToolBar(Qt::LeftToolBarArea, fakeToolbarForBlueLine);
+
+        QToolBar *fakeToolbarForSpacing = addToolBar(tr("Fake toolbar for spacing"));
+        fakeToolbarForSpacing->setOrientation(Qt::Vertical);
+        fakeToolbarForSpacing->setFixedWidth(toolBarWidth);
+        fakeToolbarForSpacing->setFixedHeight(40);
+        fakeToolbarForSpacing->setMovable(false);
+        addToolBar(Qt::LeftToolBarArea, fakeToolbarForSpacing);
+
         QToolBar *toolbar = addToolBar(tr("Tabs toolbar"));
+        // QToolBar *toolbar = QtGui.QToolBar(this);
+        toolbar->setOrientation(Qt::Vertical);
+        toolbar->setFixedWidth(toolBarWidth);
+        addToolBar(Qt::LeftToolBarArea, toolbar);
+
+
         toolbar->setContextMenuPolicy(Qt::PreventContextMenu);
         toolbar->setMovable(false);
         toolbar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
@@ -508,6 +538,16 @@ void BitcoinGUI::createToolBars()
         toolbar->addAction(receiveCoinsAction);
         toolbar->addAction(historyAction);
         overviewAction->setChecked(true);
+
+/* don't override the background color of the toolbar on mac os x due to
+   the whole component it resides on not being paintable
+ */
+#ifdef Q_OS_MAC
+        toolbar->setStyleSheet("QToolBar { background-color: transparent; border: 0px solid black; padding: 3px; }");
+#else
+        toolbar->setStyleSheet("QToolButton {font-family:'Helvetica'; font-size:16px;}");
+#endif
+
     }
 }
 
