@@ -3519,6 +3519,8 @@ UniValue rescanblockchain(const JSONRPCRequest& request)
         }
     }
 
+    pwallet->nFoundStealth = 0;
+
     // We can't rescan beyond non-pruned blocks, stop and throw an error
     if (fPruneMode) {
         LOCK(cs_main);
@@ -3545,6 +3547,10 @@ UniValue rescanblockchain(const JSONRPCRequest& request)
     UniValue response(UniValue::VOBJ);
     response.pushKV("start_height", pindexStart->nHeight);
     response.pushKV("stop_height", stopBlock->nHeight);
+
+    if (pwallet->nFoundStealth > 0)
+        response.pushKV("Stealth Transactions Found", pwallet->nFoundStealth);
+
     return response;
 }
 
@@ -3722,8 +3728,6 @@ UniValue importstealthaddress(const JSONRPCRequest& request)
         throw std::runtime_error(
             "importstealthaddress \"scan_secret\" \"spend_secret\" (\"label\")\n"
             "\nImports owned stealth address.\n"
-            "\nArguments:\n"
-            "1. \"label\"   (string, optional, default=\"\") Stealth address label to export\n"
             "\nArguments:\n"
             "1. \"scan_secret\"     (string, required) Scan secret.\n"
             "2. \"spend_secret\"    (string, required) Spend secret.\n"
