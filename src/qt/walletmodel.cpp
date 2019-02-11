@@ -286,8 +286,10 @@ WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransact
 
                 std::vector<uint8_t> ephemP;
                 std::vector<uint8_t> narr;
-                if (!wallet->GetStealthOutputs(sxAddr, sNarr, scriptPubKey , ephemP, narr, strError))
+                if (!wallet->GetStealthOutputs(sxAddr, sNarr, scriptPubKey , ephemP, narr, strError)){
                     Q_EMIT message(tr("Send Coins"), QString::fromStdString(strError),CClientUIInterface::MSG_ERROR);
+                    return NarrationTooLong;
+                }
 
                 CRecipient recipient1 = {scriptPubKey, rcp.amount, rcp.fSubtractFeeFromAmount};
                 vecSend.push_back(recipient1);
