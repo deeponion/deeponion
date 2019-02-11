@@ -7,6 +7,7 @@
 #include <consensus/consensus.h>
 #include <primitives/transaction.h>
 #include <script/interpreter.h>
+
 #include <consensus/validation.h>
 
 // TODO remove the following dependencies
@@ -182,6 +183,35 @@ bool CheckTransaction(const CTransaction& tx, CValidationState &state, bool fChe
         
         if (txout.IsEmpty() && !tx.IsCoinBase() && !tx.IsCoinStake())
         	return state.DoS(100, false, REJECT_INVALID, "txout-empty-user-transaction");
+
+        // Check for invalid narration
+        std::vector<uint8_t> vchEphemPK;
+        std::vector<uint8_t> vchENarr;
+        opcodetype opCode;
+
+        CScript::const_iterator itTxA = txout.scriptPubKey.begin();
+        if (!txout.scriptPubKey.GetOp(itTxA, opCode, vchEphemPK) || opCode != OP_RETURN)
+        {
+            continue;
+        }
+        else if (!txout.scriptPubKey.GetOp(itTxA, opCode, vchEphemPK) || vchEphemPK.size() != 33)
+        {
+            // -- look for plaintext narrations
+            if (vchEphemPK.size() > 1 && vchEphemPK[0] == 'n' && vchEphemPK[1] == 'p')
+            {
+                if (txout.scriptPubKey.GetOp(itTxA, opCode, vchENarr) && opCode == OP_RETURN && vchENarr.size() > 0)
+                {
+                    std::string sNarr = std::string(vchENarr.begin(), vchENarr.end());
+                    if(sNarr.size() > 24)
+                        return state.DoS(100, false, REJECT_INVALID, "bad-txns-invalid-narration");
+                }
+            }
+        }
+        else if (txout.scriptPubKey.GetOp(itTxA, opCode, vchENarr) && opCode == OP_RETURN && vchENarr.size() > 0)
+        {
+            if (vchENarr.size() > 32)
+                return state.DoS(100, false, REJECT_INVALID, "bad-txns-invalid-narration");
+        }
     }
 
     // Check for duplicate inputs - note that this check is slow so we skip it in CheckBlock
