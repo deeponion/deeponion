@@ -376,8 +376,7 @@ std::string gbt_vb_name(const Consensus::DeploymentPos pos) {
 
 UniValue getwork(const JSONRPCRequest& request)
 {
-	LogPrintf("** getwork\n");
-	
+	// LogPrintf("** getwork\n");
 	if (request.fHelp || request.params.size() > 1)
         throw std::runtime_error(
             "getwork [data]\n"

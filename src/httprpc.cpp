@@ -184,7 +184,7 @@ static bool HTTPReq_JSONRPC(HTTPRequest* req, const std::string &)
         // singleton request
         if (valRequest.isObject()) {
             jreq.parse(valRequest);
-            LogPrintf(">> HTTPReq_JSONRPC: req strMethod = %s\n", jreq.strMethod.c_str());
+            LogPrint(BCLog::RPC, ">> HTTPReq_JSONRPC: req strMethod = %s\n", jreq.strMethod.c_str());
             
             UniValue result = tableRPC.execute(jreq);
 
