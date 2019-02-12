@@ -9,5 +9,5 @@ if ENABLE_QT
 endif
 
 if BUILD_BITCOIN_UTILS
-  dist_man1_MANS+=deeponion-cli.1 deeponion-tx.1
+#  dist_man1_MANS+=deeponion-cli.1 deeponion-tx.1
 endif
