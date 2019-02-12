@@ -109,7 +109,8 @@ namespace BCLog {
         LEVELDB     = (1 << 20),
         POS         = (1 << 21),
         STAKE       = (1 << 22),
-        STEALTH     = (1 << 23),        
+        STEALTH     = (1 << 23),
+        WALLET      = (1 << 24),		
         ALL         = ~(uint32_t)0,
     };
 }

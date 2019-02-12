@@ -34,8 +34,11 @@ SendCoinsEntry::SendCoinsEntry(const PlatformStyle *_platformStyle, QWidget *par
         ui->payToLayout->setSpacing(4);
 #if QT_VERSION >= 0x040700
     ui->addAsLabel->setPlaceholderText(tr("Enter a label for this address to add it to your address book"));
+    ui->addAsNarration->setPlaceholderText(tr("Enter a short note to send with payment (max 24 characters) - only available for payment to Stealth Address"));
 #endif
 
+    ui->addAsNarration->setMaxLength(24);
+    ui->addAsNarration->setEnabled(false);
     // normal bitcoin address field
     GUIUtil::setupAddressWidget(ui->payTo, this);
     // just a label for displaying bitcoin address(es)
@@ -77,6 +80,15 @@ void SendCoinsEntry::on_addressBookButton_clicked()
 void SendCoinsEntry::on_payTo_textChanged(const QString &address)
 {
     updateLabel(address);
+    if(address.length() > STEALTH_LENGTH_TRESHOLD)
+    {
+        ui->addAsNarration->setEnabled(true);
+    }
+    else
+    {
+        ui->addAsNarration->setText("");
+        ui->addAsNarration->setEnabled(false);
+    }
 }
 
 void SendCoinsEntry::setModel(WalletModel *_model)
@@ -95,6 +107,7 @@ void SendCoinsEntry::clear()
     ui->payTo->clear();
     ui->addAsLabel->clear();
     ui->payAmount->clear();
+    ui->addAsNarration->clear();
     ui->checkboxSubtractFeeFromAmount->setCheckState(Qt::Unchecked);
     ui->messageTextLabel->clear();
     ui->messageTextLabel->hide();
@@ -179,6 +192,13 @@ SendCoinsRecipient SendCoinsEntry::getValue()
     recipient.message = ui->messageTextLabel->text();
     recipient.fSubtractFeeFromAmount = (ui->checkboxSubtractFeeFromAmount->checkState() == Qt::Checked);
 
+    if (recipient.address.length() > STEALTH_LENGTH_TRESHOLD && IsStealthAddress(recipient.address.toStdString()))
+    {
+        recipient.narration = ui->addAsNarration->text();
+        // limit max 24 characters only, this as a safety measure
+        if(recipient.narration.size() > 24)
+            recipient.narration = recipient.narration.left(24);
+    }
     return recipient;
 }
 
@@ -187,6 +207,7 @@ QWidget *SendCoinsEntry::setupTabChain(QWidget *prev)
     QWidget::setTabOrder(prev, ui->payTo);
     QWidget::setTabOrder(ui->payTo, ui->addAsLabel);
     QWidget *w = ui->payAmount->setupTabChain(ui->addAsLabel);
+    QWidget::setTabOrder(ui->addAsLabel, ui->addAsNarration);
     QWidget::setTabOrder(w, ui->checkboxSubtractFeeFromAmount);
     QWidget::setTabOrder(ui->checkboxSubtractFeeFromAmount, ui->addressBookButton);
     QWidget::setTabOrder(ui->addressBookButton, ui->pasteButton);
@@ -223,6 +244,7 @@ void SendCoinsEntry::setValue(const SendCoinsRecipient &value)
         ui->messageTextLabel->setText(recipient.message);
         ui->messageTextLabel->setVisible(!recipient.message.isEmpty());
         ui->messageLabel->setVisible(!recipient.message.isEmpty());
+        ui->addAsNarration->setText(value.narration);
 
         ui->addAsLabel->clear();
         ui->payTo->setText(recipient.address); // this may set a label from addressbook

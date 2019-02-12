@@ -36,6 +36,8 @@ QT_BEGIN_NAMESPACE
 class QTimer;
 QT_END_NAMESPACE
 
+static const int STEALTH_LENGTH_TRESHOLD = 75;
+
 class SendCoinsRecipient
 {
 public:
@@ -51,6 +53,7 @@ public:
     QString address;
     QString label;
     CAmount amount;
+    QString narration;
     // If from a payment request, this is used for storing the memo
     QString message;
 
@@ -116,6 +119,7 @@ public:
         TransactionCreationFailed, // Error returned when wallet is still locked
         TransactionCommitFailed,
         AbsurdFee,
+        NarrationTooLong,
         PaymentRequestExpired
     };
 

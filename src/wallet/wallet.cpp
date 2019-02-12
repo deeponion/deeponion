@@ -1066,7 +1066,7 @@ bool CWallet::AddToWallet(const CWalletTx& wtxIn, bool fFlushOnClose)
     }
 
     //// debug print
-    LogPrintf("AddToWallet %s  %s%s %s\n", wtxIn.GetHash().ToString(), (fInsertedNew ? "new" : ""), (fUpdated ? "update" : ""), (wtx.IsCoinStake() ? "Stake" : ""));
+    LogPrint(BCLog::WALLET, "AddToWallet %s  %s%s %s\n", wtxIn.GetHash().ToString(), (fInsertedNew ? "new" : ""), (fUpdated ? "update" : ""), (wtx.IsCoinStake() ? "Stake" : ""));
 
     // Write to disk
     if (fInsertedNew || fUpdated)
@@ -1215,7 +1215,7 @@ bool CWallet::AbandonTransaction(const uint256& hashTx)
     }
 
     todo.insert(hashTx);
-    LogPrintf("CWallet::AbandonTransaction  %s\n", hashTx.ToString().c_str());
+    LogPrint(BCLog::WALLET, "CWallet::AbandonTransaction  %s\n", hashTx.ToString().c_str());
 
     while (!todo.empty()) {
         uint256 now = *todo.begin();
@@ -1225,7 +1225,7 @@ bool CWallet::AbandonTransaction(const uint256& hashTx)
         assert(it != mapWallet.end());
         CWalletTx& wtx = it->second;
         int currentconfirm = wtx.GetDepthInMainChain();
-        LogPrintf("CWallet::AbandonTransaction  %s currentconfirm %d\n", hashTx.ToString().c_str(), currentconfirm);
+        LogPrint(BCLog::WALLET, "CWallet::AbandonTransaction  %s currentconfirm %d\n", hashTx.ToString().c_str(), currentconfirm);
         // If the orig tx was not in block, none of its spends can be
         assert(currentconfirm <= 0);
         // if (currentconfirm < 0) {Tx and spends are already conflicted, no need to abandon}
@@ -1233,7 +1233,7 @@ bool CWallet::AbandonTransaction(const uint256& hashTx)
             // If the orig tx was not in block/mempool, none of its spends can be in mempool
             assert(!wtx.InMempool());
             wtx.nIndex = -1;
-            LogPrintf("CWallet::AbandonTransaction abandoning %s\n", now.ToString().c_str());
+            LogPrint(BCLog::WALLET, "CWallet::AbandonTransaction abandoning %s\n", now.ToString().c_str());
             wtx.setAbandoned();
             wtx.MarkDirty();
             walletdb.WriteTx(wtx);
@@ -1386,11 +1386,11 @@ void CWallet::BlockDisconnected(const std::shared_ptr<const CBlock>& pblock) {
     for (const CTransactionRef& ptx : pblock->vtx) {
 
     	if(ptx->IsCoinStake() && IsFromMe(*ptx.get())) {
-    	    LogPrint(BCLog::POS, "CWalletTx::BlockDisconnected: Attempting to Abandon Stake Transaction\n");
+    	    LogPrint(BCLog::WALLET, "CWalletTx::BlockDisconnected: Attempting to Abandon Stake Transaction\n");
     	    if(RemoveTransaction(*ptx.get())) {
-    	        LogPrint(BCLog::POS, "CWalletTx::BlockDisconnected: AbandonTransaction Success\n");
+    	        LogPrint(BCLog::WALLET, "CWalletTx::BlockDisconnected: AbandonTransaction Success\n");
     	    } else {
-    	        LogPrint(BCLog::POS, "CWalletTx::BlockDisconnected: AbandonTransaction Failed\n");
+    	        LogPrint(BCLog::WALLET, "CWalletTx::BlockDisconnected: AbandonTransaction Failed\n");
     	    }
     	} else {
     	    SyncTransaction(ptx);
@@ -2336,7 +2336,6 @@ CAmount CWallet::GetAvailableBalance(const CCoinControl* coinControl) const
     std::vector<COutput> vCoins;
     AvailableCoins(vCoins, true, coinControl);
     for (const COutput& out : vCoins) {
-    	// LogPrintf(">> out: %s, fSpendable = %s\n", out.ToString().c_str(), out.fSpendable?"t":"f");
         if (out.fSpendable) {
             balance += out.tx->tx->vout[out.i].nValue;
         }
@@ -3300,7 +3299,7 @@ bool CWallet::CreateTransaction(const std::vector<CRecipient>& vecSend, CWalletT
         }
     }
 
-    LogPrintf("Fee Calculation: Fee:%d Bytes:%u Needed:%d Tgt:%d (requested %d) Reason:\"%s\" Decay %.5f: Estimation: (%g - %g) %.2f%% %.1f/(%.1f %d mem %.1f out) Fail: (%g - %g) %.2f%% %.1f/(%.1f %d mem %.1f out)\n",
+    LogPrint(BCLog::ESTIMATEFEE, "Fee Calculation: Fee:%d Bytes:%u Needed:%d Tgt:%d (requested %d) Reason:\"%s\" Decay %.5f: Estimation: (%g - %g) %.2f%% %.1f/(%.1f %d mem %.1f out) Fail: (%g - %g) %.2f%% %.1f/(%.1f %d mem %.1f out)\n",
               nFeeRet, nBytes, nFeeNeeded, feeCalc.returnedTarget, feeCalc.desiredTarget, StringForFeeReason(feeCalc.reason), feeCalc.est.decay,
               feeCalc.est.pass.start, feeCalc.est.pass.end,
               100 * feeCalc.est.pass.withinTarget / (feeCalc.est.pass.totalConfirmed + feeCalc.est.pass.inMempool + feeCalc.est.pass.leftMempool),
@@ -3318,7 +3317,7 @@ bool CWallet::CommitTransaction(CWalletTx& wtxNew, CReserveKey& reservekey, CCon
 {
     {
         LOCK2(cs_main, cs_wallet);
-        // LogPrintf("CommitTransaction:\n%s", wtxNew.tx->ToString());
+        LogPrint(BCLog::WALLET, "CommitTransaction:\n%s", wtxNew.tx->ToString());
         {
             // Take key pair from key pool so it won't be used again
             reservekey.KeepKey();
@@ -3875,7 +3874,7 @@ bool CWallet::NewKeyPool()
         if (!TopUpKeyPool()) {
             return false;
         }
-        LogPrintf("CWallet::NewKeyPool rewrote keypool\n");
+        LogPrint(BCLog::WALLET, "CWallet::NewKeyPool rewrote keypool\n");
     }
     return true;
 }
@@ -3954,7 +3953,7 @@ bool CWallet::TopUpKeyPool(unsigned int kpSize)
             m_pool_key_to_index[pubkey.GetID()] = index;
         }
         if (missingInternal + missingExternal > 0) {
-            LogPrintf("keypool added %d keys (%d internal), size=%u (%u internal)\n", missingInternal + missingExternal, missingInternal, setInternalKeyPool.size() + setExternalKeyPool.size(), setInternalKeyPool.size());
+            LogPrint(BCLog::WALLET, "keypool added %d keys (%d internal), size=%u (%u internal)\n", missingInternal + missingExternal, missingInternal, setInternalKeyPool.size() + setExternalKeyPool.size(), setInternalKeyPool.size());
         }
     }
     return true;
@@ -3994,7 +3993,7 @@ void CWallet::ReserveKeyFromKeyPool(int64_t& nIndex, CKeyPool& keypool, bool fRe
 
         assert(keypool.vchPubKey.IsValid());
         m_pool_key_to_index.erase(keypool.vchPubKey.GetID());
-        LogPrintf("keypool reserve %d\n", nIndex);
+        LogPrint(BCLog::WALLET, "keypool reserve %d\n", nIndex);
     }
 }
 
@@ -4003,7 +4002,7 @@ void CWallet::KeepKey(int64_t nIndex)
     // Remove from key pool
     CWalletDB walletdb(*dbw);
     walletdb.ErasePool(nIndex);
-    LogPrintf("keypool keep %d\n", nIndex);
+    LogPrint(BCLog::WALLET, "keypool keep %d\n", nIndex);
 }
 
 void CWallet::ReturnKey(int64_t nIndex, bool fInternal, const CPubKey& pubkey)
@@ -4018,7 +4017,7 @@ void CWallet::ReturnKey(int64_t nIndex, bool fInternal, const CPubKey& pubkey)
         }
         m_pool_key_to_index[pubkey.GetID()] = nIndex;
     }
-    LogPrintf("keypool return %d\n", nIndex);
+    LogPrint(BCLog::WALLET, "keypool return %d\n", nIndex);
 }
 
 bool CWallet::GetKeyFromPool(CPubKey& result, bool internal)
@@ -4099,16 +4098,16 @@ bool CWallet::NewStealthAddress(std::string& sError, std::string& sLabel, CSteal
 
     if (LogAcceptCategory(BCLog::STEALTH))
     {
-        LogPrintf("getnewstealthaddress: ");
-        LogPrintf("scan_pubkey ");
+        LogPrint(BCLog::STEALTH, "getnewstealthaddress: ");
+        LogPrint(BCLog::STEALTH, "scan_pubkey ");
         for (uint32_t i = 0; i < scan_pubkey.size(); ++i)
-          LogPrintf("%02x", scan_pubkey[i]);
-        LogPrintf("\n");
+          LogPrint(BCLog::STEALTH, "%02x", scan_pubkey[i]);
+        LogPrint(BCLog::STEALTH, "\n");
         
-        LogPrintf("spend_pubkey ");
+        LogPrint(BCLog::STEALTH, "spend_pubkey ");
         for (uint32_t i = 0; i < spend_pubkey.size(); ++i)
-          LogPrintf("%02x", spend_pubkey[i]);
-        LogPrintf("\n");
+          LogPrint(BCLog::STEALTH, "%02x", spend_pubkey[i]);
+        LogPrint(BCLog::STEALTH, "\n");
     }
     
     sxAddr.label = sLabel;
@@ -4164,8 +4163,13 @@ bool CWallet::AddStealthAddress(CStealthAddress& sxAddr)
 
     bool rv = CWalletDB(*dbw).WriteStealthAddress(sxAddr);
 
+    if (rv && !fOwned){
+        SetAddressBook(sxAddr, sxAddr.label, "send");
+        return rv;
+    }
+
     if (rv)
-        SetAddressBook(sxAddr, sxAddr.label, "");
+        SetAddressBook(sxAddr, sxAddr.label, "receive");
 
     return rv;
 }
@@ -4290,7 +4294,7 @@ bool CWallet::FindStealthTransactions(const CTransaction& tx, mapValue_t& mapNar
                     CKeyID keyId = cpkE.GetID();
 
                     std::string sLabel = it->Encoded();
-                    SetAddressBook(keyId, sLabel,"");
+                    SetAddressBook(keyId, sLabel,"receive");
 
                     CPubKey cpkEphem(vchEphemPK);
                     CPubKey cpkScan(it->scan_pubkey);
@@ -4359,7 +4363,7 @@ bool CWallet::FindStealthTransactions(const CTransaction& tx, mapValue_t& mapNar
                     }
 
                     std::string sLabel = it->Encoded();
-                    SetAddressBook(keyID, sLabel,"");
+                    SetAddressBook(keyID, sLabel,"receive");
                     nFoundStealth++;
                 }
 
@@ -4523,8 +4527,8 @@ bool CWallet::UnlockStealthAddresses(const CKeyingMaterial& vMasterKeyIn)
             LogPrint(BCLog::STEALTH,"Error: Generated secret does not match.\n");
             if (LogAcceptCategory(BCLog::STEALTH))
             {
-                LogPrintf("cpkT   %s\n", HexStr(cpkT).c_str());
-                LogPrintf("pubKey %s\n", HexStr(pubKey).c_str());
+                LogPrint(BCLog::STEALTH, "cpkT   %s\n", HexStr(cpkT).c_str());
+                LogPrint(BCLog::STEALTH, "pubKey %s\n", HexStr(pubKey).c_str());
             }
             continue;
         }
@@ -4596,7 +4600,7 @@ bool CWallet::UpdateStealthAddress(std::string &addr, std::string &label, bool a
         return false;
     }
 
-    SetAddressBook(sxFound, sxFound.label, "");
+    SetAddressBook(sxFound, sxFound.label, "receive");
 
     return true;
 }
@@ -4653,7 +4657,7 @@ bool CWallet::GetStealthOutputs(CStealthAddress& sxAddress, std::string& sNarr, 
             return false;
         }
 
-        if (vchNarr.size() > 48)
+        if (vchNarr.size() > MAX_STEALTH_NARRATION_SIZE)
         {
             sError = "Encrypted narration is too long.";
             return false;
@@ -4867,7 +4871,7 @@ void CWallet::MarkReserveKeysAsUsed(int64_t keypool_id)
         }
         LearnAllRelatedScripts(keypool.vchPubKey);
         walletdb.ErasePool(index);
-        LogPrintf("keypool index %d removed\n", index);
+        LogPrint(BCLog::WALLET, "keypool index %d removed\n", index);
         it = setKeyPool->erase(it);
     }
 }
@@ -5031,7 +5035,7 @@ unsigned int CWallet::ComputeTimeSmart(const CWalletTx& wtx) const
             int64_t blocktime = mapBlockIndex[wtx.hashBlock]->GetBlockTime();
             nTimeSmart = std::max(latestEntry, std::min(blocktime, latestNow));
         } else {
-            LogPrintf("%s: found %s in block %s not in index\n", __func__, wtx.GetHash().ToString(), wtx.hashBlock.ToString());
+            LogPrint(BCLog::WALLET, "%s: found %s in block %s not in index\n", __func__, wtx.GetHash().ToString(), wtx.hashBlock.ToString());
         }
     }
     return nTimeSmart;
@@ -5145,12 +5149,12 @@ CWallet* CWallet::CreateWalletFromFile(const std::string walletFile)
         int nMaxVersion = gArgs.GetArg("-upgradewallet", 0);
         if (nMaxVersion == 0) // the -upgradewallet without argument case
         {
-            LogPrintf("Performing wallet upgrade to %i\n", FEATURE_LATEST);
+            LogPrint(BCLog::WALLET, "Performing wallet upgrade to %i\n", FEATURE_LATEST);
             nMaxVersion = CLIENT_VERSION;
             walletInstance->SetMinVersion(FEATURE_LATEST); // permanently upgrade the wallet immediately
         }
         else
-            LogPrintf("Allowing wallet upgrade up to %i\n", nMaxVersion);
+            LogPrint(BCLog::WALLET, "Allowing wallet upgrade up to %i\n", nMaxVersion);
         if (nMaxVersion < walletInstance->GetVersion())
         {
             InitError(_("Cannot downgrade wallet"));

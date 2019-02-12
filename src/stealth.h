@@ -16,6 +16,7 @@
 #include <vector>
 #include <inttypes.h>
 
+const uint32_t MAX_STEALTH_NARRATION_SIZE = 48;
 
 typedef std::vector<uint8_t> data_chunk;
 

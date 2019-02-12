@@ -204,6 +204,11 @@ void WalletModel::updateWatchOnlyFlag(bool fHaveWatchonly)
 
 bool WalletModel::validateAddress(const QString &address)
 {
+    std::string sAddr = address.toStdString();
+
+    if ( sAddr.length() > STEALTH_LENGTH_TRESHOLD && IsStealthAddress(sAddr) )
+        return true;
+
     return IsValidDestinationString(address.toStdString());
 }
 
@@ -221,6 +226,8 @@ WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransact
 
     QSet<QString> setAddress; // Used to detect duplicates
     int nAddresses = 0;
+
+    std::map<int, std::string> mapStealthNarr;
 
     // Pre-check input data for validity
     for (const SendCoinsRecipient &rcp : recipients)
@@ -262,9 +269,75 @@ WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransact
             setAddress.insert(rcp.address);
             ++nAddresses;
 
+            std::string sAddr = rcp.address.toStdString();
+
+            if (IsStealthAddress(sAddr)){
+                CStealthAddress sxAddr ;
+                if( !sxAddr.SetEncoded(sAddr))
+                    Q_EMIT message(tr("Send Coins"), QString::fromStdString("Invalid stealth address"),CClientUIInterface::MSG_ERROR);
+
+                std::string strError;
+                CScript scriptPubKey;
+                std::string sNarr = rcp.narration.toStdString();
+                if (sNarr.length() > 24)
+                    Q_EMIT message(tr("Send Coins"), QString::fromStdString("Narration is too long.\n"),CClientUIInterface::MSG_ERROR);
+
+                LogPrint(BCLog::STEALTH,"CreateStealthTransaction() qt : Narration: %s", sNarr);
+
+                std::vector<uint8_t> ephemP;
+                std::vector<uint8_t> narr;
+                if (!wallet->GetStealthOutputs(sxAddr, sNarr, scriptPubKey , ephemP, narr, strError)){
+                    Q_EMIT message(tr("Send Coins"), QString::fromStdString(strError),CClientUIInterface::MSG_ERROR);
+                    return NarrationTooLong;
+                }
+
+                CRecipient recipient1 = {scriptPubKey, rcp.amount, rcp.fSubtractFeeFromAmount};
+                vecSend.push_back(recipient1);
+
+                CScript scriptP = CScript() << OP_RETURN << ephemP;
+                if (narr.size() > 0) {
+                    scriptP = scriptP << OP_RETURN << narr;
+                }
+
+                if (rcp.narration.length() > 0){
+                    int pos = vecSend.size()-1;
+                    mapStealthNarr[pos] = sNarr;
+                }
+
+                CRecipient recipient2 = {scriptP, 0, false};
+                vecSend.push_back(recipient2);
+
+                // -- shuffle inputs, change output won't mix enough as it must be not fully random for plantext narrations
+                std::random_shuffle(vecSend.begin(), vecSend.end());
+
+                continue;
+            }// else drop through to normal
+
             CScript scriptPubKey = GetScriptForDestination(DecodeDestination(rcp.address.toStdString()));
-            CRecipient recipient = {scriptPubKey, rcp.amount, rcp.fSubtractFeeFromAmount};
-            vecSend.push_back(recipient);
+            CRecipient recipient1 = {scriptPubKey, rcp.amount, rcp.fSubtractFeeFromAmount};
+            vecSend.push_back(recipient1);
+
+            if (rcp.narration.length() > 0)
+            {
+                std::string sNarr = rcp.narration.toStdString();
+
+                if (sNarr.length() > 24)
+                {
+                    LogPrintf("Narration is too long.\n");
+                    return NarrationTooLong;
+                }
+
+                std::vector<uint8_t> vNarr(sNarr.c_str(), sNarr.c_str() + sNarr.length());
+                std::vector<uint8_t> vNDesc;
+
+                vNDesc.resize(2);
+                vNDesc[0] = 'n';
+                vNDesc[1] = 'p';
+
+                CScript scriptN = CScript() << OP_RETURN << vNDesc << OP_RETURN << vNarr;
+                CRecipient recipient2 = {scriptN, 0, false};
+                vecSend.push_back(recipient2);
+            }
 
             total += rcp.amount;
         }
@@ -296,6 +369,22 @@ WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransact
         transaction.setTransactionFee(nFeeRequired);
         if (fSubtractFeeFromAmount && fCreated)
             transaction.reassignAmounts(nChangePosRet);
+
+        std::map<int, std::string>::iterator it;
+        for (it = mapStealthNarr.begin(); it != mapStealthNarr.end(); ++it)
+        {
+            int pos = it->first;
+            if (nChangePosRet > -1 && it->first >= nChangePosRet)
+                pos++;
+
+            char key[64];
+            if (snprintf(key, sizeof(key), "n_%u", pos) < 1)
+            {
+                LogPrintf("CreateStealthTransaction(): Error creating narration key.");
+                continue;
+            }
+            newTx->mapValue[key] = it->second;
+        }
 
         if(!fCreated)
         {
