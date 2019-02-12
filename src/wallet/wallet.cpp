@@ -4657,7 +4657,7 @@ bool CWallet::GetStealthOutputs(CStealthAddress& sxAddress, std::string& sNarr, 
             return false;
         }
 
-        if (vchNarr.size() > 48)
+        if (vchNarr.size() > MAX_STEALTH_NARRATION_SIZE)
         {
             sError = "Encrypted narration is too long.";
             return false;

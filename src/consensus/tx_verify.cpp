@@ -7,6 +7,7 @@
 #include <consensus/consensus.h>
 #include <primitives/transaction.h>
 #include <script/interpreter.h>
+#include <stealth.h>
 
 #include <consensus/validation.h>
 
@@ -209,7 +210,7 @@ bool CheckTransaction(const CTransaction& tx, CValidationState &state, bool fChe
         }
         else if (txout.scriptPubKey.GetOp(itTxA, opCode, vchENarr) && opCode == OP_RETURN && vchENarr.size() > 0)
         {
-            if (vchENarr.size() > 32)
+            if (vchENarr.size() > MAX_STEALTH_NARRATION_SIZE)
                 return state.DoS(100, false, REJECT_INVALID, "bad-txns-invalid-narration");
         }
     }
