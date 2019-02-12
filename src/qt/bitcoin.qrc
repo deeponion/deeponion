@@ -58,6 +58,22 @@
         <file alias="tor_inactive">res/icons/tor2.png</file>
         <file alias="staking_off">res/icons/staking_off.png</file>
         <file alias="staking_on">res/icons/staking_on.png</file>
+        <file alias="OverviewS">res/icons/overview_s.png</file>
+        <file alias="SendCoinsS">res/icons/send_s.png</file>
+        <file alias="ReceiveCoinsS">res/icons/receive_s.png</file>
+        <file alias="TransactionsS">res/icons/transactions_s.png</file>
+        <file alias="AddressBookS">res/icons/address_book_s.png</file>
+        <file alias="MessagesS">res/icons/messages_s.png</file>
+        <file alias="ExportUS">res/icons/export_us.png</file>
+        <file alias="export_disabled">res/icons/export-g.png</file>
+        <file alias="DeepOnionLogo">res/icons/deepOnionLogo.png</file>
+        <file alias="DeepOnionLogoPurple">res/icons/deepOnionLogo-purple.png</file>
+        <file alias="DeepOnionLogoWithTextWhite">res/icons/deepOnionLogoWithTextWhite.png</file>
+		<file alias="deepvault">res/icons/deepvault_b.png</file>
+		<file alias="deepvault_s">res/icons/deepvault_s.png</file>
+        <file alias="lock_open2">res/icons/lock_open2.png</file>
+        <file alias="lock_closed_s">res/icons/lock_closed_s.png</file>
+        <file alias="lock_open_s">res/icons/lock_open_s.png</file>
     </qresource>
     <qresource prefix="/movies">
         <file alias="spinner-000">res/movies/spinner-000.png</file>

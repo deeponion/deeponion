@@ -153,7 +153,7 @@ void ThemeFancyPurple::init()
 	qTreeWidget = "QTreeView { color: " + text_color + "; background-color:" + frame_background + "; alternate-background-color: " + tree_item_alternate_background + ";} \
 		QTreeView::item {color: " + text_color + "; background-color: " + frame_background + "; border: 1px solid " + frame_background + ";} \
 		QTreeView::item:hover {color: " + text_color + "; background-color: " + selected_item_background + "; border: 1px solid " + frame_background + ";}";
-	statusBarBackgroundColor = "background-color: " + status_bar_background + ";";
+	statusBarBackgroundColor = "background-color: " + status_bar_background + "; color: " + text_color + "";
 	progressBarStyle = "color: " + progress_bar_background + "; padding-left: 10px;  background-color: " + status_bar_background + ";";
     deepVaultLogoIco = ":/icons/deepVaultLogoWhite";
     deepVaultLogoBtnStyle = "background-color: " + frame_background + "; border: none";
