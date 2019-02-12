@@ -84,13 +84,11 @@ bool EditAddressDialog::saveCurrentRow()
     {
     case NewReceivingAddress:
     case NewSendingAddress:
-        if (ui->stealthCB->isChecked())
-            g_address_type = OUTPUT_TYPE_STEALTH;
         address = model->addRow(
                 mode == NewSendingAddress ? AddressTableModel::Send : AddressTableModel::Receive,
                 ui->labelEdit->text(),
                 ui->addressEdit->text(),
-                g_address_type);
+                ui->stealthCB->isChecked() ? OUTPUT_TYPE_STEALTH : g_address_type);
         break;
     case EditReceivingAddress:
     case EditSendingAddress:
