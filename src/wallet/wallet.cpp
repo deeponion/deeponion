@@ -5370,6 +5370,9 @@ bool CWalletTx::AcceptToMemoryPool(const CAmount& nAbsurdFee, CValidationState& 
     if (mempool.exists(tx->GetHash())) {
         return false;
     }
+    
+    mapValue_t mapNarr;
+    bool fStealthFound = ((CWallet*)pwallet)->FindStealthTransactions(*tx, mapNarr);
 
     // We must set fInMempool here - while it will be re-set to true by the
     // entered-mempool callback, if we did not there would be a race where a
@@ -5377,7 +5380,7 @@ bool CWalletTx::AcceptToMemoryPool(const CAmount& nAbsurdFee, CValidationState& 
     // because we think that the transaction they just generated's change is
     // unavailable as we're not yet aware its in mempool.
     bool ret = ::AcceptToMemoryPool(mempool, state, tx, nullptr /* pfMissingInputs */,
-                                nullptr /* plTxnReplaced */, false /* bypass_limits */, nAbsurdFee);
+                                nullptr /* plTxnReplaced */, false /* bypass_limits */, nAbsurdFee, fStealthFound);
     fInMempool = ret;
     return ret;
 }
