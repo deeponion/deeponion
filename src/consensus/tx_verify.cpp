@@ -191,7 +191,10 @@ bool CheckTransaction(const CTransaction& tx, CValidationState &state, bool fChe
         opcodetype opCode;
 
         CScript::const_iterator itTxA = txout.scriptPubKey.begin();
-        if (!txout.scriptPubKey.GetOp(itTxA, opCode, vchEphemPK) || opCode != OP_RETURN)
+        if (txout.scriptPubKey.GetOp(itTxA, opCode, vchENarr)
+                        && opCode == OP_RETURN
+                        && txout.scriptPubKey.GetOp(itTxA, opCode, vchENarr)
+                        && vchENarr.size() > 0)
         {
             continue;
         }
@@ -208,7 +211,10 @@ bool CheckTransaction(const CTransaction& tx, CValidationState &state, bool fChe
                 }
             }
         }
-        else if (txout.scriptPubKey.GetOp(itTxA, opCode, vchENarr) && opCode == OP_RETURN && vchENarr.size() > 0)
+        else if (txout.scriptPubKey.GetOp(itTxA, opCode, vchENarr)
+                && opCode == OP_RETURN
+                && txout.scriptPubKey.GetOp(itTxA, opCode, vchENarr)
+                && vchENarr.size() > 0)
         {
             if (vchENarr.size() > MAX_STEALTH_NARRATION_SIZE)
                 return state.DoS(100, false, REJECT_INVALID, "bad-txns-invalid-narration");
