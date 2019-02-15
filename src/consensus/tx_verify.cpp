@@ -191,10 +191,7 @@ bool CheckTransaction(const CTransaction& tx, CValidationState &state, bool fChe
         opcodetype opCode;
 
         CScript::const_iterator itTxA = txout.scriptPubKey.begin();
-        if (txout.scriptPubKey.GetOp(itTxA, opCode, vchENarr)
-                        && opCode == OP_RETURN
-                        && txout.scriptPubKey.GetOp(itTxA, opCode, vchENarr)
-                        && vchENarr.size() > 0)
+        if (!txout.scriptPubKey.GetOp(itTxA, opCode, vchEphemPK) || opCode != OP_RETURN)
         {
             continue;
         }
@@ -203,7 +200,10 @@ bool CheckTransaction(const CTransaction& tx, CValidationState &state, bool fChe
             // -- look for plaintext narrations
             if (vchEphemPK.size() > 1 && vchEphemPK[0] == 'n' && vchEphemPK[1] == 'p')
             {
-                if (txout.scriptPubKey.GetOp(itTxA, opCode, vchENarr) && opCode == OP_RETURN && vchENarr.size() > 0)
+                if (txout.scriptPubKey.GetOp(itTxA, opCode, vchENarr)
+                        && opCode == OP_RETURN
+                        && txout.scriptPubKey.GetOp(itTxA, opCode, vchENarr)
+                        && vchENarr.size() > 0)
                 {
                     std::string sNarr = std::string(vchENarr.begin(), vchENarr.end());
                     if(sNarr.size() > 24)
