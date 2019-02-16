@@ -273,14 +273,18 @@ WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransact
 
             if (IsStealthAddress(sAddr)){
                 CStealthAddress sxAddr ;
-                if( !sxAddr.SetEncoded(sAddr))
+                if(!sxAddr.SetEncoded(sAddr)) {
                     Q_EMIT message(tr("Send Coins"), QString::fromStdString("Invalid stealth address"),CClientUIInterface::MSG_ERROR);
+                    return InvalidAddress;
+                }
 
                 std::string strError;
                 CScript scriptPubKey;
                 std::string sNarr = rcp.narration.toStdString();
-                if (sNarr.length() > 24)
+                if (sNarr.length() > 24) {
                     Q_EMIT message(tr("Send Coins"), QString::fromStdString("Narration is too long.\n"),CClientUIInterface::MSG_ERROR);
+                    return NarrationTooLong;
+                }
 
                 LogPrint(BCLog::STEALTH,"CreateStealthTransaction() qt : Narration: %s", sNarr);
 

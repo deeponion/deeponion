@@ -4648,6 +4648,12 @@ bool CWallet::GetStealthOutputs(CStealthAddress& sxAddress, std::string& sNarr, 
 
     if (sNarr.length() > 0)
     {
+    	if(sNarr.length() > 24)
+    	{
+    		sError = "Narration is too long.";
+    		return false;
+    	}
+    	
         SecMsgCrypter crypter;
         crypter.SetKey(&secretShared.e[0], &ephem_pubkey[0]);
 
