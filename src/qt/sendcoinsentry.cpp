@@ -11,6 +11,8 @@
 #include <qt/optionsmodel.h>
 #include <qt/platformstyle.h>
 
+#include <stealth.h>
+
 #include <QApplication>
 #include <QClipboard>
 
@@ -37,7 +39,7 @@ SendCoinsEntry::SendCoinsEntry(const PlatformStyle *_platformStyle, QWidget *par
     ui->addAsNarration->setPlaceholderText(tr("Enter a short note to send with payment (max 24 characters) - only available for payment to Stealth Address"));
 #endif
 
-    ui->addAsNarration->setMaxLength(24);
+    ui->addAsNarration->setMaxLength(MAX_STEALTH_NARRATION_SIZE_PLAINTEXT);
     ui->addAsNarration->setEnabled(false);
     // normal bitcoin address field
     GUIUtil::setupAddressWidget(ui->payTo, this);
@@ -195,9 +197,9 @@ SendCoinsRecipient SendCoinsEntry::getValue()
     if (recipient.address.length() > STEALTH_LENGTH_TRESHOLD && IsStealthAddress(recipient.address.toStdString()))
     {
         recipient.narration = ui->addAsNarration->text();
-        // limit max 24 characters only, this as a safety measure
-        if(recipient.narration.size() > 24)
-            recipient.narration = recipient.narration.left(24);
+        // limit max MAX_STEALTH_NARRATION_SIZE_PLAINTEXT characters only, this as a safety measure
+        if(recipient.narration.size() > MAX_STEALTH_NARRATION_SIZE_PLAINTEXT)
+            recipient.narration = recipient.narration.left(MAX_STEALTH_NARRATION_SIZE_PLAINTEXT);
     }
     return recipient;
 }

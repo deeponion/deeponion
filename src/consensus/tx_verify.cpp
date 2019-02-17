@@ -206,7 +206,7 @@ bool CheckTransaction(const CTransaction& tx, CValidationState &state, bool fChe
                         && vchENarr.size() > 0)
                 {
                     std::string sNarr = std::string(vchENarr.begin(), vchENarr.end());
-                    if(sNarr.size() > 24)
+                    if(sNarr.size() > MAX_STEALTH_NARRATION_SIZE_PLAINTEXT)
                         return state.DoS(100, false, REJECT_INVALID, "bad-txns-invalid-narration");
                 }
             }
@@ -216,7 +216,7 @@ bool CheckTransaction(const CTransaction& tx, CValidationState &state, bool fChe
                 && txout.scriptPubKey.GetOp(itTxA, opCode, vchENarr)
                 && vchENarr.size() > 0)
         {
-            if (vchENarr.size() > MAX_STEALTH_NARRATION_SIZE)
+            if (vchENarr.size() > MAX_STEALTH_NARRATION_SIZE_ENCRYPTED)
                 return state.DoS(100, false, REJECT_INVALID, "bad-txns-invalid-narration");
         }
     }

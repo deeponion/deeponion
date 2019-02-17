@@ -281,16 +281,11 @@ WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransact
                 std::string strError;
                 CScript scriptPubKey;
                 std::string sNarr = rcp.narration.toStdString();
-                if (sNarr.length() > 24) {
-                    Q_EMIT message(tr("Send Coins"), QString::fromStdString("Narration is too long.\n"),CClientUIInterface::MSG_ERROR);
-                    return NarrationTooLong;
-                }
-
                 LogPrint(BCLog::STEALTH,"CreateStealthTransaction() qt : Narration: %s", sNarr);
 
                 std::vector<uint8_t> ephemP;
-                std::vector<uint8_t> narr;
-                if (!wallet->GetStealthOutputs(sxAddr, sNarr, scriptPubKey , ephemP, narr, strError)){
+                std::vector<uint8_t> vchNarr;
+                if (!wallet->GetStealthOutputs(sxAddr, sNarr, scriptPubKey , ephemP, vchNarr, strError)){
                     Q_EMIT message(tr("Send Coins"), QString::fromStdString(strError),CClientUIInterface::MSG_ERROR);
                     return NarrationTooLong;
                 }
@@ -299,11 +294,11 @@ WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransact
                 vecSend.push_back(recipient1);
 
                 CScript scriptP = CScript() << OP_RETURN << ephemP;
-                if (narr.size() > 0) {
-                    scriptP = scriptP << OP_RETURN << narr;
+                if (vchNarr.size() > 0) {
+                    scriptP = scriptP << OP_RETURN << vchNarr;
                 }
 
-                if (rcp.narration.length() > 0){
+                if (rcp.narration.length() > 0) {
                     int pos = vecSend.size()-1;
                     mapStealthNarr[pos] = sNarr;
                 }
@@ -313,39 +308,17 @@ WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransact
 
                 // -- shuffle inputs, change output won't mix enough as it must be not fully random for plantext narrations
                 std::random_shuffle(vecSend.begin(), vecSend.end());
-
-                continue;
-            }// else drop through to normal
-
-            CScript scriptPubKey = GetScriptForDestination(DecodeDestination(rcp.address.toStdString()));
-            CRecipient recipient1 = {scriptPubKey, rcp.amount, rcp.fSubtractFeeFromAmount};
-            vecSend.push_back(recipient1);
-
-            if (rcp.narration.length() > 0)
-            {
-                std::string sNarr = rcp.narration.toStdString();
-
-                if (sNarr.length() > 24)
-                {
-                    LogPrintf("Narration is too long.\n");
-                    return NarrationTooLong;
-                }
-
-                std::vector<uint8_t> vNarr(sNarr.c_str(), sNarr.c_str() + sNarr.length());
-                std::vector<uint8_t> vNDesc;
-
-                vNDesc.resize(2);
-                vNDesc[0] = 'n';
-                vNDesc[1] = 'p';
-
-                CScript scriptN = CScript() << OP_RETURN << vNDesc << OP_RETURN << vNarr;
-                CRecipient recipient2 = {scriptN, 0, false};
-                vecSend.push_back(recipient2);
             }
-
+            else {
+            	CScript scriptPubKey = GetScriptForDestination(DecodeDestination(rcp.address.toStdString()));
+            	CRecipient recipient1 = {scriptPubKey, rcp.amount, rcp.fSubtractFeeFromAmount};
+            	vecSend.push_back(recipient1);
+            }
+            
             total += rcp.amount;
         }
     }
+    
     if(setAddress.size() != nAddresses)
     {
         return DuplicateAddress;
