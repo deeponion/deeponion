@@ -4663,7 +4663,7 @@ bool CWallet::GetStealthOutputs(CStealthAddress& sxAddress, std::string& sNarr, 
             return false;
         }
 
-        LogPrintf(">> Encrypted narration size = %d", vchNarr.size());
+        LogPrint(BCLog::STEALTH, ">> Encrypted narration size = %d", vchNarr.size());
         if (vchNarr.size() > MAX_STEALTH_NARRATION_SIZE_ENCRYPTED)
         {
             sError = "Encrypted narration is too long.";
