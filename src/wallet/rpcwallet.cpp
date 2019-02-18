@@ -3987,7 +3987,7 @@ UniValue sendtostealthaddress(const JSONRPCRequest& request)
     if (!request.params[2].isNull() && !request.params[2].get_str().empty())
         sNarr = request.params[2].get_str();
 
-    if (sNarr.length() > 24)
+    if (sNarr.length() > MAX_STEALTH_NARRATION_SIZE_PLAINTEXT)
     {
         throw JSONRPCError(RPC_TYPE_ERROR, "Narration must be 24 characters or less.");
     }
