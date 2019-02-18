@@ -16,8 +16,8 @@
 #include <vector>
 #include <inttypes.h>
 
-const uint32_t MAX_STEALTH_NARRATION_SIZE_PLAINTEXT = 24;
-const uint32_t MAX_STEALTH_NARRATION_SIZE_ENCRYPTED = 48;
+const int32_t MAX_STEALTH_NARRATION_SIZE_PLAINTEXT = 24;
+const int32_t MAX_STEALTH_NARRATION_SIZE_ENCRYPTED = 48;
 
 typedef std::vector<uint8_t> data_chunk;
 
