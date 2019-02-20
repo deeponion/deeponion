@@ -49,6 +49,11 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, std::vector<std::v
 
         // Sender provides N pubkeys, receivers provides M signatures
         mTemplates.insert(std::make_pair(TX_MULTISIG, CScript() << OP_SMALLINTEGER << OP_PUBKEYS << OP_SMALLINTEGER << OP_CHECKMULTISIG));
+
+        // Empty, provably prunable, data-carrying output
+        mTemplates.insert(std::make_pair(TX_NULL_DATA, CScript() << OP_RETURN));
+        mTemplates.insert(std::make_pair(TX_NULL_DATA, CScript() << OP_RETURN << OP_SMALLDATA));
+        mTemplates.insert(std::make_pair(TX_NULL_DATA, CScript() << OP_RETURN << OP_SMALLDATA << OP_RETURN << OP_SMALLDATA));
     }
 
     vSolutionsRet.clear();
@@ -166,6 +171,11 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, std::vector<std::v
                 }
                 else
                     break;
+            }
+            else if (opcode2 == OP_RETURN)
+            {
+                typeRet = TX_NULL_DATA;
+                return true;
             }
             else if (opcode1 != opcode2 || vch1 != vch2)
             {

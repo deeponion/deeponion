@@ -57,35 +57,29 @@ bool IsDust(const CTxOut& txout, const CFeeRate& dustRelayFeeIn)
 bool IsStandard(const CScript& scriptPubKey, txnouttype& whichType, const bool witnessEnabled)
 {
     std::vector<std::vector<unsigned char> > vSolutions;
-    if (!Solver(scriptPubKey, whichType, vSolutions)) {
-    	LogPrintf(">> IsStandard: Solver false\n");
+    if (!Solver(scriptPubKey, whichType, vSolutions))
         return false;
-    }
 
     if (whichType == TX_MULTISIG)
     {
         unsigned char m = vSolutions.front()[0];
         unsigned char n = vSolutions.back()[0];
         // Support up to x-of-3 multisig txns as standard
-        if (n < 1 || n > 3) {
+        if (n < 1 || n > 3)
             return false;
-        }
-        if (m < 1 || m > n) {
+        if (m < 1 || m > n)
             return false;
-        }
     } else if (whichType == TX_NULL_DATA &&
-               (!fAcceptDatacarrier || scriptPubKey.size() > nMaxDatacarrierBytes)) {
+               (!fAcceptDatacarrier || scriptPubKey.size() > nMaxDatacarrierBytes))
     	return false;
-    }
 
-    else if (!witnessEnabled && (whichType == TX_WITNESS_V0_KEYHASH || whichType == TX_WITNESS_V0_SCRIPTHASH)) {
+    else if (!witnessEnabled && (whichType == TX_WITNESS_V0_KEYHASH || whichType == TX_WITNESS_V0_SCRIPTHASH))
         return false;
-    }
 
     return whichType != TX_NONSTANDARD && whichType != TX_WITNESS_UNKNOWN;
 }
 
-bool IsStandardTx(const CTransaction& tx, std::string& reason, const bool witnessEnabled, bool fStealth)
+bool IsStandardTx(const CTransaction& tx, std::string& reason, const bool witnessEnabled)
 {
     if (tx.nVersion > CTransaction::MAX_STANDARD_VERSION || tx.nVersion < 1) {
         reason = "version";
@@ -124,7 +118,7 @@ bool IsStandardTx(const CTransaction& tx, std::string& reason, const bool witnes
     unsigned int nDataOut = 0;
     txnouttype whichType;
     for (const CTxOut& txout : tx.vout) {
-        if (!fStealth && !::IsStandard(txout.scriptPubKey, whichType, witnessEnabled)) {
+        if (!::IsStandard(txout.scriptPubKey, whichType, witnessEnabled)) {
             reason = "scriptpubkey";
             return false;
         }

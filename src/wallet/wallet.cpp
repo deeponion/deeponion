@@ -5378,16 +5378,13 @@ bool CWalletTx::AcceptToMemoryPool(const CAmount& nAbsurdFee, CValidationState& 
         return false;
     }
     
-    mapValue_t mapNarr;
-    bool fStealthFound = ((CWallet*)pwallet)->FindStealthTransactions(*tx, mapNarr);
-
     // We must set fInMempool here - while it will be re-set to true by the
     // entered-mempool callback, if we did not there would be a race where a
     // user could call sendmoney in a loop and hit spurious out of funds errors
     // because we think that the transaction they just generated's change is
     // unavailable as we're not yet aware its in mempool.
     bool ret = ::AcceptToMemoryPool(mempool, state, tx, nullptr /* pfMissingInputs */,
-                                nullptr /* plTxnReplaced */, false /* bypass_limits */, nAbsurdFee, fStealthFound);
+                                nullptr /* plTxnReplaced */, false /* bypass_limits */, nAbsurdFee);
     fInMempool = ret;
     return ret;
 }
