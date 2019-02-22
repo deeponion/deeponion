@@ -74,6 +74,16 @@
         <file alias="lock_open2">res/icons/lock_open2.png</file>
         <file alias="lock_closed_s">res/icons/lock_closed_s.png</file>
         <file alias="lock_open_s">res/icons/lock_open_s.png</file>
+        <file alias="information">res/icons/info-circle-white.png</file>
+        <file alias="information-blue">res/icons/info-circle-blue.png</file>
+        <file alias="fontbigger_dark">res/icons/white-fontbigger.png</file>
+        <file alias="fontsmaller_dark">res/icons/white-fontsmaller.png</file>
+        <file alias="fontbigger_light">res/icons/blue-fontbigger.png</file>
+        <file alias="fontsmaller_light">res/icons/blue-fontsmaller.png</file>
+        <file alias="arrow_down_blue">res/icons/arrowdown-blue.png</file>
+        <file alias="arrow_down_white">res/icons/arrowdown-white.png</file>
+        <file alias="deepVaultLogoWhite">res/icons/dv-white-logo.png</file>
+        <file alias="deepVaultLogoColor">res/icons/dv-color-logo.png</file>
     </qresource>
     <qresource prefix="/movies">
         <file alias="spinner-000">res/movies/spinner-000.png</file>

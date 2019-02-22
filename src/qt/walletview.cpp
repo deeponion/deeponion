@@ -51,6 +51,8 @@ WalletView::WalletView(const PlatformStyle *_platformStyle, QWidget *parent):
     hbox_buttons->addStretch();
     hbox_buttons->addWidget(exportButton);
     vbox->addLayout(hbox_buttons);
+    vbox->setContentsMargins(0,0,0,0);
+    vbox->setSpacing(0);
     transactionsPage->setLayout(vbox);
 
     receiveCoinsPage = new ReceiveCoinsDialog(platformStyle);

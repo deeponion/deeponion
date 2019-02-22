@@ -9,6 +9,7 @@
 
 #include <QWidget>
 #include <QKeyEvent>
+#include <QLabel>
 
 class PlatformStyle;
 class TransactionFilterProxy;
@@ -69,6 +70,7 @@ private:
     QComboBox *watchOnlyWidget;
     QLineEdit *search_widget;
     QLineEdit *amountWidget;
+    QLabel *pageTitleLabel;
 
     QMenu *contextMenu;
     QSignalMapper *mapperThirdPartyTxUrls;

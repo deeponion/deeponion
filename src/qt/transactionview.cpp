@@ -25,7 +25,6 @@
 #include <QDoubleValidator>
 #include <QHBoxLayout>
 #include <QHeaderView>
-#include <QLabel>
 #include <QLineEdit>
 #include <QMenu>
 #include <QPoint>
@@ -40,9 +39,15 @@ TransactionView::TransactionView(const PlatformStyle *platformStyle, QWidget *pa
     QWidget(parent), model(0), transactionProxyModel(0),
     transactionView(0), abandonAction(0), bumpFeeAction(0), columnResizingFixer(0)
 {
-    // Build filter row
     setContentsMargins(0,0,0,0);
 
+    // DeepOnion: Create the Page Title QLabel
+    pageTitleLabel = new QLabel(tr("Transactions"));
+    pageTitleLabel->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+    pageTitleLabel->setFixedHeight(59);
+    pageTitleLabel->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getMainHeaderStyle());
+
+    // Build filter row
     QHBoxLayout *hlayout = new QHBoxLayout();
     hlayout->setContentsMargins(0,0,0,0);
 
@@ -59,6 +64,7 @@ TransactionView::TransactionView(const PlatformStyle *platformStyle, QWidget *pa
     watchOnlyWidget->addItem("", TransactionFilterProxy::WatchOnlyFilter_All);
     watchOnlyWidget->addItem(platformStyle->SingleColorIcon(":/icons/eye_plus"), "", TransactionFilterProxy::WatchOnlyFilter_Yes);
     watchOnlyWidget->addItem(platformStyle->SingleColorIcon(":/icons/eye_minus"), "", TransactionFilterProxy::WatchOnlyFilter_No);
+    watchOnlyWidget->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQComboboxTransactionsFilteringStyle());
     hlayout->addWidget(watchOnlyWidget);
 
     dateWidget = new QComboBox(this);
@@ -75,6 +81,7 @@ TransactionView::TransactionView(const PlatformStyle *platformStyle, QWidget *pa
     dateWidget->addItem(tr("This year"), ThisYear);
     dateWidget->addItem(tr("Range..."), Range);
     hlayout->addWidget(dateWidget);
+    dateWidget->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQComboboxTransactionsFilteringStyle());
 
     typeWidget = new QComboBox(this);
     if (platformStyle->getUseExtraSpacing()) {
@@ -91,13 +98,14 @@ TransactionView::TransactionView(const PlatformStyle *platformStyle, QWidget *pa
     typeWidget->addItem(tr("To yourself"), TransactionFilterProxy::TYPE(TransactionRecord::SendToSelf));
     typeWidget->addItem(tr("Mined"), TransactionFilterProxy::TYPE(TransactionRecord::Generated));
     typeWidget->addItem(tr("Other"), TransactionFilterProxy::TYPE(TransactionRecord::Other));
-
+    typeWidget->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQComboboxTransactionsFilteringStyle());
     hlayout->addWidget(typeWidget);
 
     search_widget = new QLineEdit(this);
 #if QT_VERSION >= 0x040700
     search_widget->setPlaceholderText(tr("Enter address, transaction id, or label to search"));
 #endif
+    search_widget->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQLabelGeneralStyle());
     hlayout->addWidget(search_widget);
 
     amountWidget = new QLineEdit(this);
@@ -110,6 +118,7 @@ TransactionView::TransactionView(const PlatformStyle *platformStyle, QWidget *pa
         amountWidget->setFixedWidth(100);
     }
     amountWidget->setValidator(new QDoubleValidator(0, 1e20, 8, this));
+    amountWidget->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQLabelGeneralStyle());
     hlayout->addWidget(amountWidget);
 
     // Delay before filtering transactions in ms
@@ -128,10 +137,31 @@ TransactionView::TransactionView(const PlatformStyle *platformStyle, QWidget *pa
     vlayout->setSpacing(0);
 
     QTableView *view = new QTableView(this);
-    vlayout->addLayout(hlayout);
-    vlayout->addWidget(createDateRangeWidget());
-    vlayout->addWidget(view);
+
+    // DeepOnion: Add the title banner
+    vlayout->addWidget(pageTitleLabel);
+    vlayout->insertSpacing(1,40);
+
+    // DeepOnion: Add the spacing around the UI as per design.
+    QHBoxLayout *hlayout1 = new QHBoxLayout();
+    hlayout1->setContentsMargins(0,0,0,0);
+    hlayout1->setSpacing(0);
+    hlayout1->insertSpacing(0, 60);
+    QVBoxLayout *vlayout1 = new QVBoxLayout();
+    vlayout1->setContentsMargins(0,0,0,0);
+    vlayout1->setSpacing(0);
+    vlayout1->addLayout(hlayout);
+    vlayout1->addWidget(createDateRangeWidget());
+    vlayout1->insertSpacing(2, 20);
+    vlayout1->addWidget(view);
+
+    hlayout1->addLayout(vlayout1);
+    hlayout1->addSpacing(60);
+
+    vlayout->addLayout(hlayout1);
+    vlayout->addSpacing(20);
     vlayout->setSpacing(0);
+
     int width = view->verticalScrollBar()->sizeHint().width();
     // Cover scroll bar width with spacing
     if (platformStyle->getUseExtraSpacing()) {
@@ -148,6 +178,8 @@ TransactionView::TransactionView(const PlatformStyle *platformStyle, QWidget *pa
 
     transactionView = view;
     transactionView->setObjectName("transactionView");
+    transactionView->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQTableGeneralStyle());
+    transactionView->horizontalHeader()->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQListHeaderGeneralStyle());
 
     // Actions
     abandonAction = new QAction(tr("Abandon transaction"), this);
