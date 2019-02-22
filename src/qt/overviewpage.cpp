@@ -128,21 +128,15 @@ OverviewPage::OverviewPage(const PlatformStyle *platformStyle, QWidget *parent) 
     // use a SingleColorIcon for the "out of sync warning" icon
     QIcon icon = platformStyle->SingleColorIcon(":/icons/warning");
     icon.addPixmap(icon.pixmap(QSize(64,64), QIcon::Normal), QIcon::Disabled); // also set the disabled icon because we are using a disabled QPushButton to work around missing HiDPI support of QLabel (https://bugreports.qt.io/browse/QTBUG-42503)
-//    ui->labelTransactionsStatus->setIcon(icon);
-//    ui->labelWalletStatus->setIcon(icon);
 
     ui->wallet_summary->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQFrameGeneralStyle());
     ui->page_title->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getMainHeaderStyle());
     ui->walletSummaryHeader->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getSubSectionTitleStyle());
     ui->do_icon->setIcon(QIcon(platformStyle->getThemeManager()->getCurrent()->getDeepOnionLogo()));
 
-//    ui->frame->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQFrameGeneralStyle());
-
-    // Recent transactions
-//    ui->listTransactions->setItemDelegate(txdelegate);
-//    ui->listTransactions->setIconSize(QSize(DECORATION_SIZE, DECORATION_SIZE));
-//    ui->listTransactions->setMinimumHeight(NUM_ITEMS * (DECORATION_SIZE + 2));
-//    ui->listTransactions->setAttribute(Qt::WA_MacShowFocusRect, false);
+    // DeepOnion: Style up the Transaction page.
+    ui->listTransactions->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQTableGeneralStyle());
+    ui->listTransactions->horizontalHeader()->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQListHeaderGeneralStyle());
 
     connect(ui->listTransactions, SIGNAL(clicked(QModelIndex)), this, SLOT(handleTransactionClicked(QModelIndex)));
 
@@ -253,7 +247,21 @@ void OverviewPage::setWalletModel(WalletModel *model)
         filter->sort(TransactionTableModel::Date, Qt::DescendingOrder);
 
         ui->listTransactions->setModel(filter.get());
-//        ui->listTransactions->setModelColumn(TransactionTableModel::ToAddress);
+        ui->listTransactions->setAlternatingRowColors(true);
+        ui->listTransactions->setSortingEnabled(true);
+        ui->listTransactions->sortByColumn(TransactionTableModel::Status, Qt::DescendingOrder);
+        ui->listTransactions->verticalHeader()->hide();
+        ui->listTransactions->horizontalHeader()->resizeSection(
+                TransactionTableModel::Status, 28);
+        ui->listTransactions->horizontalHeader()->resizeSection(
+                TransactionTableModel::Watchonly, 28);
+        ui->listTransactions->horizontalHeader()->resizeSection(
+                TransactionTableModel::Date, 120);
+        ui->listTransactions->horizontalHeader()->resizeSection(
+                TransactionTableModel::Type, 120);
+        ui->listTransactions->horizontalHeader()->setSectionResizeMode(TransactionTableModel::ToAddress, QHeaderView::Stretch);
+        ui->listTransactions->horizontalHeader()->resizeSection(
+                TransactionTableModel::Amount, 120);
 
         // Keep up to date with wallet
         setBalance(model->getBalance(), model->getUnconfirmedBalance(), model->getImmatureBalance(), model->getStakeBalance(),
