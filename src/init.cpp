@@ -527,10 +527,10 @@ std::string HelpMessage(HelpMessageMode mode)
 
 std::string LicenseInfo()
 {
-    const std::string URL_SOURCE_CODE = "<https://github.com/DeepOnion/DeepOnion>";
-    const std::string URL_WEBSITE = "<https://DeepOnion.org>";
+    const std::string URL_SOURCE_CODE = "<https://github.com/deepOnion/deepOnion>";
+    const std::string URL_WEBSITE = "<https://deeponion.org>";
 
-    return CopyrightHolders(strprintf(_("Copyright (C) %i-%i"), 2011, COPYRIGHT_YEAR) + " ") + "\n" +
+    return CopyrightHolders(strprintf(_("Copyright (C) %i-%i"), 2017, COPYRIGHT_YEAR) + " ") + "\n" +
            "\n" +
            strprintf(_("Please contribute if you find %s useful. "
                        "Visit %s for further information about the software."),

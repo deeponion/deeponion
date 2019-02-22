@@ -161,6 +161,7 @@ class ApplicationBundleInfo(object):
             raise RuntimeError("Could not find bundle binary for " + path)
         self.resourcesPath = os.path.join(path, "Contents", "Resources")
         self.pluginPath = os.path.join(path, "Contents", "PlugIns")
+        self.frameworkPath = os.path.join(path, "Contents", "Frameworks")
 
 class DeploymentInfo(object):
     def __init__(self):
@@ -699,6 +700,10 @@ for p in config.add_resources:
     if os.path.isdir(p):
         shutil.copytree(p, t, symlinks=True)
     else:
+        # DeepOnion Hack - there is a bug some where that won't add some dependencies properly.
+        # This hack allows you to pass them in an -add-resource and place them in the framework directory.
+        if p.endswith(".dylib"):
+            t = os.path.join(applicationBundle.frameworkPath, os.path.basename(p))
         shutil.copy2(p, t)
 
 # ------------------------------------------------

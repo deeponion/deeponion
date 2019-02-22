@@ -60,6 +60,69 @@
 
 typedef std::vector<unsigned char> valtype;
 
+
+/*
+# BTC checkpoint #1
+int CWallet::LAST_REGISTERED_BLOCK_HEIGHT = 543950;
+int CWallet::LAST_REGISTERED_BTC_BLOCK_HEIGHT = 523352;
+std::string CWallet::LAST_REGISTERED_BLOCKCHAIN_HASH = "db2b4c6d31844020af9ef4eb9253692efd65f35be85859f73ab7e4b41436eabe";
+std::string CWallet::LAST_REGISTERED_BTC_TX = "ba839a3a2d7c9e5a80cc891195e0518c37cded079c6ea8a8ce826b002d4c954e";
+
+# BTC checkpoint #2
+int CWallet::LAST_REGISTERED_BLOCK_HEIGHT = 624700;
+int CWallet::LAST_REGISTERED_BTC_BLOCK_HEIGHT = 530149;
+std::string CWallet::LAST_REGISTERED_BLOCKCHAIN_HASH = "b64616ef74cacc09d04c012b845d99ce109bbaf87ca0e76880b7e77e014ccc59";
+std::string CWallet::LAST_REGISTERED_BTC_TX = "2e9a4f074eb4848bd4f5f93d4478d0273e2bb6201d2d38f3903837aacd092f44";
+
+# BTC checkpoint #3
+int CWallet::LAST_REGISTERED_BLOCK_HEIGHT = 771900;
+int CWallet::LAST_REGISTERED_BTC_BLOCK_HEIGHT = 542026;
+std::string CWallet::LAST_REGISTERED_BLOCKCHAIN_HASH = "bf453bbb134a753a5e20a32e49c95d3463ffb25fdad7543f227fded2d29ff17f";
+std::string CWallet::LAST_REGISTERED_BTC_TX = "955936b949892f01b52bd1c1fa5f1e4b612a1517add044e95c18417ca616b667";
+
+# BTC checkpoint #4
+int CWallet::LAST_REGISTERED_BLOCK_HEIGHT = 920000;
+int CWallet::LAST_REGISTERED_BTC_BLOCK_HEIGHT = 552835;
+std::string CWallet::LAST_REGISTERED_BLOCKCHAIN_HASH = "fb6b44c5857f88b86297461df63ef7c98378768f25c0500805c626551cd4e28c";
+std::string CWallet::LAST_REGISTERED_BTC_TX = "d975e3abafb21e67e9fc3721d1866231ad36ab3d7551fce21b8eaeb05b546a85";
+*/
+
+
+int LAST_REGISTERED_BLOCK_HEIGHT = 920000;
+int LAST_REGISTERED_BTC_BLOCK_HEIGHT = 552835;
+std::string LAST_REGISTERED_BLOCKCHAIN_HASH = "fb6b44c5857f88b86297461df63ef7c98378768f25c0500805c626551cd4e28c";
+std::string LAST_REGISTERED_BTC_TX = "d975e3abafb21e67e9fc3721d1866231ad36ab3d7551fce21b8eaeb05b546a85";
+
+static const int NUM_OF_POW_CHECKPOINT = 23;
+static const int checkpointPoWHeight[NUM_OF_POW_CHECKPOINT][2] =
+{
+		{   9601,   4611},
+		{  19767,   6631},
+		{  41366,  10850},
+		{  78842,  19751},
+		{ 102776,  25000},
+		{ 150006,  31600},
+		{ 200830,  44597},
+		{ 250008,  54582},
+		{ 300836,  64774},
+		{ 350003,  74350},
+		{ 400494,  84066},
+		{ 450225,  93657},
+		{ 500001, 103315},
+		{ 550004, 113079},
+		{ 600014, 122831},
+		{ 650002, 132389},
+		{ 700006, 141959},
+		{ 750001, 151428},
+		{ 800002, 160957},
+		{ 850000, 170567},
+		{ 900012, 179975},
+		{ 950005, 189263},
+		{1000006, 198720},
+};
+
+
+
 /**
  * Global state
  */
@@ -1141,33 +1204,6 @@ bool ReadBlockFromDisk(CBlock& block, const CBlockIndex* pindex, const Consensus
     return true;
 }
 
-// DeepOnion: PoS Port *******************************************
-// TODO: Tidy up
-static const int NUM_OF_POW_CHECKPOINT = 21;
-static const int checkpointPoWHeight[NUM_OF_POW_CHECKPOINT][2] =
-{
-		{  9601,   4611},
-		{ 19767,   6631},
-		{ 41366,  10850},
-		{ 78842,  19751},
-		{102776,  25000},
-		{150006,  31600},
-		{200830,  44597},
-		{250008,  54582},
-		{300836,  64774},
-		{350003,  74350},
-		{375453,  79257},
-		{400494,  84066},
-		{434205,  90499},
-		{450225,  93657},
-		{475131,  98495},
-		{500001, 103315},
-		{526839, 108542},
-		{550004, 113079},
-		{575635, 118133},
-		{600014, 122831},
-		{621306, 126890},
-};
 
 int GetPowHeightTable(const CBlockIndex* pindex)
 {

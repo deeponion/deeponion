@@ -254,6 +254,8 @@ const CLogCategoryDesc LogCategories[] =
     {BCLog::POS, "pos"},
     {BCLog::STAKE, "stake"},
     {BCLog::STEALTH, "stealth"},   
+    {BCLog::WALLET, "wallet"},
+    {BCLog::DEEPVAULT, "deepvault"},   
     {BCLog::ALL, "1"},
     {BCLog::ALL, "all"},
 };

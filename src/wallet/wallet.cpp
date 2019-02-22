@@ -4648,6 +4648,12 @@ bool CWallet::GetStealthOutputs(CStealthAddress& sxAddress, std::string& sNarr, 
 
     if (sNarr.length() > 0)
     {
+    	if(sNarr.length() > MAX_STEALTH_NARRATION_SIZE_PLAINTEXT)
+    	{
+    		sError = "Narration is too long.";
+    		return false;
+    	}
+    	
         SecMsgCrypter crypter;
         crypter.SetKey(&secretShared.e[0], &ephem_pubkey[0]);
 
@@ -4657,7 +4663,8 @@ bool CWallet::GetStealthOutputs(CStealthAddress& sxAddress, std::string& sNarr, 
             return false;
         }
 
-        if (vchNarr.size() > MAX_STEALTH_NARRATION_SIZE)
+        LogPrint(BCLog::STEALTH, ">> Encrypted narration size = %d", vchNarr.size());
+        if (vchNarr.size() > MAX_STEALTH_NARRATION_SIZE_ENCRYPTED)
         {
             sError = "Encrypted narration is too long.";
             return false;
@@ -5370,7 +5377,7 @@ bool CWalletTx::AcceptToMemoryPool(const CAmount& nAbsurdFee, CValidationState& 
     if (mempool.exists(tx->GetHash())) {
         return false;
     }
-
+    
     // We must set fInMempool here - while it will be re-set to true by the
     // entered-mempool callback, if we did not there would be a race where a
     // user could call sendmoney in a loop and hit spurious out of funds errors
@@ -5453,7 +5460,10 @@ std::vector<CTxDestination> GetAllDestinationsForKey(const CPubKey& key)
     if (key.IsCompressed()) {
         CTxDestination segwit = WitnessV0KeyHash(keyid);
         CTxDestination p2sh = CScriptID(GetScriptForDestination(segwit));
-        return std::vector<CTxDestination>{std::move(keyid), std::move(p2sh), std::move(segwit)};
+        // for now return only legacy address, we'll need to enable p2sh and segwit later
+        LogPrint(BCLog::WALLET, "P2SH address and Segwit address are not added to receiving address for now... will need to add back later");
+        return std::vector<CTxDestination>{std::move(keyid)};        
+        // return std::vector<CTxDestination>{std::move(keyid), std::move(p2sh), std::move(segwit)};
     } else {
         return std::vector<CTxDestination>{std::move(keyid)};
     }
