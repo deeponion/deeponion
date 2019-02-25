@@ -7,7 +7,7 @@
 
 #include <tinyformat.h>
 
-const std::string CURRENCY_UNIT = "LTC";
+const std::string CURRENCY_UNIT = "ONION";
 
 CFeeRate::CFeeRate(const CAmount& nFeePaid, size_t nBytes_)
 {
@@ -25,7 +25,7 @@ CAmount CFeeRate::GetFee(size_t nBytes_) const
     assert(nBytes_ <= uint64_t(std::numeric_limits<int64_t>::max()));
     int64_t nSize = int64_t(nBytes_);
 
-    CAmount nFee = nSatoshisPerK * nSize / 1000;
+    CAmount nFee = nSatoshisPerK * (nSize / 1000 + 1);
 
     if (nFee == 0 && nSize != 0) {
         if (nSatoshisPerK > 0)

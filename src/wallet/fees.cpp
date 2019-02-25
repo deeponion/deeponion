@@ -15,6 +15,7 @@
 
 CAmount GetRequiredFee(unsigned int nTxBytes)
 {
+	LogPrint(BCLog::ESTIMATEFEE, ">> GetRequiredFee: nTxBytes = %d\n", nTxBytes);
     return std::max(CWallet::minTxFee.GetFee(nTxBytes), ::minRelayTxFee.GetFee(nTxBytes));
 }
 
@@ -31,12 +32,14 @@ CAmount GetMinimumFee(unsigned int nTxBytes, const CCoinControl& coin_control, c
     CAmount fee_needed;
     if (coin_control.m_feerate) { // 1.
         fee_needed = coin_control.m_feerate->GetFee(nTxBytes);
+        LogPrint(BCLog::ESTIMATEFEE, ">> GetMinimumFee: 1: fee_needed = %ld\n", fee_needed);
         if (feeCalc) feeCalc->reason = FeeReason::PAYTXFEE;
         // Allow to override automatic min/max check over coin control instance
         if (coin_control.fOverrideFeeRate) return fee_needed;
     }
     else if (!coin_control.m_confirm_target && ::payTxFee != CFeeRate(0)) { // 3. TODO: remove magic value of 0 for global payTxFee
         fee_needed = ::payTxFee.GetFee(nTxBytes);
+        LogPrint(BCLog::ESTIMATEFEE, ">> GetMinimumFee: 3: fee_needed = %ld\n", fee_needed);
         if (feeCalc) feeCalc->reason = FeeReason::PAYTXFEE;
     }
     else { // 2. or 4.
@@ -49,6 +52,7 @@ CAmount GetMinimumFee(unsigned int nTxBytes, const CCoinControl& coin_control, c
         else if (coin_control.m_fee_mode == FeeEstimateMode::ECONOMICAL) conservative_estimate = false;
 
         fee_needed = estimator.estimateSmartFee(target, feeCalc, conservative_estimate).GetFee(nTxBytes);
+        LogPrint(BCLog::ESTIMATEFEE, ">> GetMinimumFee: 2-4: fee_needed = %ld\n", fee_needed);
         if (fee_needed == 0) {
             // if we don't have enough data for estimateSmartFee, then use fallbackFee
             fee_needed = CWallet::fallbackFee.GetFee(nTxBytes);
@@ -56,6 +60,7 @@ CAmount GetMinimumFee(unsigned int nTxBytes, const CCoinControl& coin_control, c
         }
         // Obey mempool min fee when using smart fee estimation
         CAmount min_mempool_fee = pool.GetMinFee(gArgs.GetArg("-maxmempool", DEFAULT_MAX_MEMPOOL_SIZE) * 1000000).GetFee(nTxBytes);
+        LogPrint(BCLog::ESTIMATEFEE, ">> GetMinimumFee: min_mempool_fee = %ld\n", min_mempool_fee);
         if (fee_needed < min_mempool_fee) {
             fee_needed = min_mempool_fee;
             if (feeCalc) feeCalc->reason = FeeReason::MEMPOOL_MIN;
@@ -64,6 +69,7 @@ CAmount GetMinimumFee(unsigned int nTxBytes, const CCoinControl& coin_control, c
 
     // prevent user from paying a fee below minRelayTxFee or minTxFee
     CAmount required_fee = GetRequiredFee(nTxBytes);
+    LogPrint(BCLog::ESTIMATEFEE, ">> GetMinimumFee: required_fee = %ld\n", required_fee);
     if (required_fee > fee_needed) {
         fee_needed = required_fee;
         if (feeCalc) feeCalc->reason = FeeReason::REQUIRED;
@@ -73,6 +79,8 @@ CAmount GetMinimumFee(unsigned int nTxBytes, const CCoinControl& coin_control, c
         fee_needed = maxTxFee;
         if (feeCalc) feeCalc->reason = FeeReason::MAXTXFEE;
     }
+    
+    LogPrint(BCLog::ESTIMATEFEE, ">> GetMinimumFee: to return fee_needed = %ld\n", fee_needed);
     return fee_needed;
 }
 
