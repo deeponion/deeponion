@@ -1643,6 +1643,43 @@ UniValue savemempool(const JSONRPCRequest& request)
     return NullUniValue;
 }
 
+// DeepOnion: Verify blockchain authenticity
+UniValue verifyblockchain(const JSONRPCRequest& request)
+{
+    if (request.fHelp || request.params.size() != 0) {
+        throw std::runtime_error(
+            "verifyblockchain\n"
+            "Verifies the authenticity of the DeepOnion blockchain.\n"
+            "This action can take some time (minutes)"
+            "\nExamples:\n"
+            + HelpExampleCli("verifyblockchain", "")
+            + HelpExampleRpc("verifyblockchain", "")
+            );
+    }
+
+    ScanBlockchainForHash();
+
+    UniValue ret(UniValue::VOBJ);
+
+    std::string result = "";
+
+    if(blockchainStatus == -2)
+        result = "The authenticity of the DeepOnion blockchain has not yet been verified.";
+    else if(blockchainStatus == -1)
+        result = "The DeepOnion blockchain is not fully sychronized.";
+    else if(blockchainStatus == 0)
+        result = "The DeepOnion blockchain synchronized, but it does not match the latest checkpoint hash at Block " +
+			std::to_string(LAST_REGISTERED_BLOCK_HEIGHT) +
+			" (which is registered and guaranteed by the Bitcoin blockchain). So you are most likely on a forked chain, please resync with official peers at https://deeponion.org.";
+    else
+        result = "The DeepOnion blockchain is fully synchronized. It is authentic! It is guaranteed by the Bitcoin blockchain (the most secure immutable database in the world) up to Block " +
+            std::to_string(LAST_REGISTERED_BLOCK_HEIGHT) + ".";
+
+    ret.push_back(Pair("result", result));
+
+    return ret;
+}
+
 static const CRPCCommand commands[] =
 { //  category              name                      actor (function)         argNames
   //  --------------------- ------------------------  -----------------------  ----------
@@ -1664,8 +1701,8 @@ static const CRPCCommand commands[] =
     { "blockchain",         "gettxoutsetinfo",        &gettxoutsetinfo,        {} },
     { "blockchain",         "pruneblockchain",        &pruneblockchain,        {"height"} },
     { "blockchain",         "savemempool",            &savemempool,            {} },
+    { "blockchain",         "verifyblockchain",       &verifyblockchain,       {} },
     { "blockchain",         "verifychain",            &verifychain,            {"checklevel","nblocks"} },
-
     { "blockchain",         "preciousblock",          &preciousblock,          {"blockhash"} },
 
     /* Not shown in help */

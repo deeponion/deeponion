@@ -496,4 +496,10 @@ bool GetCoinAge(uint64_t& nCoinAge, const CTransaction *tx);
 
 CAmount GetProofOfStakeReward(int64_t nCoinAge, const CBlockIndex* pindex);
 
+/** Scan blockchain and get its hash */
+extern int blockchainStatus;
+//extern int blockchainStatusLast;
+extern bool fAbortScanForHash;
+void ScanBlockchainForHash();
+
 #endif // BITCOIN_VALIDATION_H
