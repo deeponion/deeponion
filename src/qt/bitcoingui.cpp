@@ -1327,6 +1327,8 @@ void BitcoinGUI::showProgress(const QString &title, int nProgress)
             progressDialog->deleteLater();
         }
     }
+    else if (progressDialog->wasCanceled())
+        fAbortScanForHash = true;
     else if (progressDialog)
         progressDialog->setValue(nProgress);
 }

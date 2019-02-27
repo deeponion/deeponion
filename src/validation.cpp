@@ -49,6 +49,8 @@
 #include <boost/algorithm/string/join.hpp>
 #include <boost/thread.hpp>
 
+#include <openssl/sha.h>
+
 #include <wallet/wallet.h>
 
 #if defined(NDEBUG)
@@ -289,6 +291,10 @@ size_t nCoinCacheUsage = 5000 * 300;
 uint64_t nPruneTarget = 0;
 int64_t nMaxTipAge = DEFAULT_MAX_TIP_AGE;
 bool fEnableReplacement = DEFAULT_ENABLE_REPLACEMENT;
+
+int blockchainStatus = -2 ;
+//int blockchainStatusLast = -1;
+bool fAbortScanForHash = false;
 
 uint256 hashAssumeValid;
 arith_uint256 nMinimumChainWork;
@@ -5178,6 +5184,71 @@ double GuessVerificationProgress(const ChainTxData& data, const CBlockIndex *pin
 
     return pindex->nChainTx / fTxTotal;
 }
+
+void ScanBlockchainForHash()
+{
+    LogPrintf(">> calling ScanBlockchainForHash ...\n");
+
+    fAbortScanForHash = false;
+
+    CBlockIndex *pindex= chainActive.Genesis();
+	int count = 0;
+	//int blockchainStatus = 0;
+	int maxBlock = LAST_REGISTERED_BLOCK_HEIGHT;//1100000;
+
+    CBlockIndex* pindexBest = chainActive.Tip();
+    if(pindexBest != NULL)
+    {
+        maxBlock = pindexBest->nHeight;
+    }
+
+    unsigned char blockchainhash[SHA256_DIGEST_LENGTH];
+    SHA256_CTX sha256;
+    SHA256_Init(&sha256);
+
+    while (pindex && count != LAST_REGISTERED_BLOCK_HEIGHT)
+	{
+        CBlock block;
+        ReadBlockFromDisk(block, pindex, Params().GetConsensus());
+        uint256 bhash = block.GetHash();
+        std::string strHash = bhash.ToString();
+        SHA256_Update(&sha256, strHash.c_str(), strHash.size());
+
+        pindex = pindex->pnext;
+        ++count;
+        if(count % 10000 == 0)
+            uiInterface.ShowProgress(_("Verifying blockchain hash..."), (100 * count / maxBlock), false);
+
+        if (fAbortScanForHash)
+            break;
+	} // while (pindex)
+
+    SHA256_Final(blockchainhash, &sha256);
+
+    std::stringstream ss;
+    for(int i = 0; i < SHA256_DIGEST_LENGTH; i++)
+    {
+        ss << std::hex << std::setw(2) << std::setfill('0') << (int)blockchainhash[i];
+    }
+    std::string hash0 = ss.str();
+
+    if (fAbortScanForHash)
+        blockchainStatus = -2;
+    else if(count != LAST_REGISTERED_BLOCK_HEIGHT)
+        blockchainStatus = -1;
+    else if(hash0 == LAST_REGISTERED_BLOCKCHAIN_HASH)
+        blockchainStatus = 1;
+    else
+        blockchainStatus = 0;
+
+    uiInterface.ShowProgress(_("Verifying blockchain hash..."), 100, false);
+
+    LogPrintf(">> blockchain hash at %d: %s\n", LAST_REGISTERED_BLOCK_HEIGHT, hash0.c_str());
+    LogPrintf(">> blockchainStatus = %d\n", blockchainStatus);
+
+    //return blockchainStatus;
+}
+
 
 class CMainCleanup
 {
