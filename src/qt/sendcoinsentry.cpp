@@ -46,6 +46,27 @@ SendCoinsEntry::SendCoinsEntry(const PlatformStyle *_platformStyle, QWidget *par
     // just a label for displaying bitcoin address(es)
     ui->payTo_is->setFont(GUIUtil::fixedPitchFont());
 
+    // DeepOnion: Theme
+    ui->addAsNarration->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQLineEdit());
+    ui->payTo->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQLineEdit());
+    ui->addAsLabel->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQLineEdit());
+    ui->payAmount->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getPayAmountStyle());
+    ui->payToLabel->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQLabelGeneralStyle());
+    ui->labellLabel->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQLabelGeneralStyle());
+    ui->labellNarration->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQLabelGeneralStyle());
+    ui->messageLabel->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQLabelGeneralStyle());
+    ui->messageTextLabel->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQLabelGeneralStyle());
+    ui->payToLabel_is->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQLabelGeneralStyle());
+    ui->payTo_is->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQLabelGeneralStyle());
+    ui->memoLabel_is->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQLabelGeneralStyle());
+    ui->memoTextLabel_is->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQLabelGeneralStyle());
+    ui->amountLabel_is->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQLabelGeneralStyle());
+    ui->payToLabel_s->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQLabelGeneralStyle());
+    ui->payTo_s->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQLabelGeneralStyle());
+    ui->memoLabel_s->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQLabelGeneralStyle());
+    ui->memoTextLabel_s->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQLabelGeneralStyle());
+    ui->amountLabel_s->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQLabelGeneralStyle());
+
     // Connect signals
     connect(ui->payAmount, SIGNAL(valueChanged()), this, SIGNAL(payAmountChanged()));
     connect(ui->checkboxSubtractFeeFromAmount, SIGNAL(toggled(bool)), this, SIGNAL(subtractFeeFromAmountChanged()));

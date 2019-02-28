@@ -404,6 +404,9 @@ endif
 
 RES_IMAGES = 
 
+RES_CSS = \
+  qt/res/css/default.css
+  
 RES_MOVIES = $(wildcard $(srcdir)/qt/res/movies/spinner-*.png)
 
 BITCOIN_RC = qt/res/bitcoin-qt-res.rc

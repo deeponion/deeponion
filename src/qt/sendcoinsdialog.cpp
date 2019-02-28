@@ -103,6 +103,17 @@ SendCoinsDialog::SendCoinsDialog(const PlatformStyle *_platformStyle, QWidget *p
     ui->labelCoinControlLowOutput->addAction(clipboardLowOutputAction);
     ui->labelCoinControlChange->addAction(clipboardChangeAction);
 
+    // DeepOnion: Theme
+    ui->pageTitle->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getMainHeaderStyle());
+    ui->labelCoinControlFeatures->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getSubSectionTitleStyle());
+    ui->sendCoinsFormTitle->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getSubSectionTitleStyle());
+    //ui->frameMenu->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQFrameSecondaryMenuGeneralStyle());
+    ui->labelBalance->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQLabelGeneralStyle());
+    ui->label->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQLabelGeneralStyle());
+    ui->clearButton->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getIconTextButtonStyle());
+    ui->addButton->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getIconTextButtonStyle());
+
+
     // init transaction fee section
     QSettings settings;
     if (!settings.contains("fFeeSectionMinimized"))
