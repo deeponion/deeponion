@@ -112,7 +112,9 @@ SendCoinsDialog::SendCoinsDialog(const PlatformStyle *_platformStyle, QWidget *p
     ui->label->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQLabelGeneralStyle());
     ui->clearButton->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getIconTextButtonStyle());
     ui->addButton->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getIconTextButtonStyle());
-
+    ui->customFee->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getPayAmountStyle());
+    ui->radioSmartFee->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getRadioTextStyle());
+    ui->radioCustomFee->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getRadioTextStyle());
 
     // init transaction fee section
     QSettings settings;

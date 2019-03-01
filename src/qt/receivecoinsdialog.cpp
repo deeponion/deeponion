@@ -56,6 +56,17 @@ ReceiveCoinsDialog::ReceiveCoinsDialog(const PlatformStyle *_platformStyle, QWid
     contextMenu->addAction(copyMessageAction);
     contextMenu->addAction(copyAmountAction);
 
+    // DeepOnion: Theme
+    ui->pageTitle->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getMainHeaderStyle());
+    ui->reqAmount->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getPayAmountStyle());
+    ui->recentRequestsView->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQTableGeneralStyle());
+    ui->recentRequestsView->horizontalHeader()->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQListHeaderGeneralStyle());
+    ui->recentRequestsView->setAlternatingRowColors(true);
+//    ui->label->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQLabelGeneralStyle());
+//    ui->label_3->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQLabelGeneralStyle());
+//    ui->label_5->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQLabelGeneralStyle());
+//    ui->label_2->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQLabelGeneralStyle());
+
     // context menu signals
     connect(ui->recentRequestsView, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showMenu(QPoint)));
     connect(copyURIAction, SIGNAL(triggered()), this, SLOT(copyURI()));
