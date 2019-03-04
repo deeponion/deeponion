@@ -5185,7 +5185,7 @@ double GuessVerificationProgress(const ChainTxData& data, const CBlockIndex *pin
     return pindex->nChainTx / fTxTotal;
 }
 
-void ScanBlockchainForHash()
+void ScanBlockchainForHash(bool bSplashDisplay)
 {
     LogPrintf(">> calling ScanBlockchainForHash ...\n");
 
@@ -5193,8 +5193,7 @@ void ScanBlockchainForHash()
 
     CBlockIndex *pindex= chainActive.Genesis();
 	int count = 0;
-	//int blockchainStatus = 0;
-	int maxBlock = LAST_REGISTERED_BLOCK_HEIGHT;//1100000;
+	int maxBlock = LAST_REGISTERED_BLOCK_HEIGHT;
 
     CBlockIndex* pindexBest = chainActive.Tip();
     if(pindexBest != NULL)
@@ -5216,9 +5215,12 @@ void ScanBlockchainForHash()
 
         pindex = pindex->pnext;
         ++count;
-        if(count % 10000 == 0)
-            uiInterface.ShowProgress(_("Verifying blockchain hash..."), (100 * count / maxBlock), false);
-
+        if(count % 10000 == 0){
+            if (!bSplashDisplay)
+                uiInterface.ShowProgress(_("Verifying blockchain hash..."), (100 * count / maxBlock), false);
+            else
+                uiInterface.ShowProgressNoResume(_("Verifying blockchain hash..."), (100 * count / maxBlock));
+        }
         if (fAbortScanForHash)
             break;
 	} // while (pindex)
@@ -5241,12 +5243,14 @@ void ScanBlockchainForHash()
     else
         blockchainStatus = 0;
 
-    uiInterface.ShowProgress(_("Verifying blockchain hash..."), 100, false);
+    if (!bSplashDisplay)
+        uiInterface.ShowProgress(_("Verifying blockchain hash..."), 100, false);
+    else
+        uiInterface.ShowProgressNoResume(_("Verifying blockchain hash..."), 100);
 
     LogPrintf(">> blockchain hash at %d: %s\n", LAST_REGISTERED_BLOCK_HEIGHT, hash0.c_str());
     LogPrintf(">> blockchainStatus = %d\n", blockchainStatus);
 
-    //return blockchainStatus;
 }
 
 
