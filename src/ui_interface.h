@@ -100,6 +100,12 @@ public:
      */
     boost::signals2::signal<void (const std::string &title, int nProgress, bool resume_possible)> ShowProgress;
 
+    /**
+     * Show progress e.g. for ScanBlockchainForHash.
+     * without resume_possible.
+     */
+    boost::signals2::signal<void (const std::string &title, int nProgress)> ShowProgressNoResume;
+
     /** New block has been accepted */
     boost::signals2::signal<void (bool, const CBlockIndex *)> NotifyBlockTip;
 

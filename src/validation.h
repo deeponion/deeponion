@@ -138,6 +138,9 @@ static const bool DEFAULT_ENABLE_REPLACEMENT = false;
 /** Default for using fee filter */
 static const bool DEFAULT_FEEFILTER = true;
 
+/** Default for checkblockchain */
+static const bool DEFAULT_VERIFYBLOCKCHAINHASH = false;
+
 /** Maximum number of headers to announce when relaying blocks with headers message.*/
 static const unsigned int MAX_BLOCKS_TO_ANNOUNCE = 8;
 
@@ -500,6 +503,6 @@ CAmount GetProofOfStakeReward(int64_t nCoinAge, const CBlockIndex* pindex);
 extern int blockchainStatus;
 //extern int blockchainStatusLast;
 extern bool fAbortScanForHash;
-void ScanBlockchainForHash();
+void ScanBlockchainForHash(bool bSplashDisplay = false);
 
 #endif // BITCOIN_VALIDATION_H
