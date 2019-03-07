@@ -7,6 +7,7 @@
 #include <qt/bitcoingui.h>
 #include <qt/walletview.h>
 #include <qt/platformstyle.h>
+#include <qt/clientmodel.h>
 
 #include <cassert>
 #include <cstdio>
@@ -218,4 +219,14 @@ WalletView *WalletFrame::currentWalletView()
 void WalletFrame::outOfSyncWarningClicked()
 {
     Q_EMIT requestedSyncWarningInfo();
+}
+
+void WalletFrame::refreshStyle()
+{
+    setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getCentralWidgetStyle());
+    QMap<QString, WalletView*>::const_iterator i;
+    for (i = mapWalletViews.constBegin(); i != mapWalletViews.constEnd(); ++i) {
+        i.value()->refreshStyle();
+    }
+
 }

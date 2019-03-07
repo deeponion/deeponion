@@ -42,7 +42,18 @@ class QProgressBar;
 class QProgressDialog;
 QT_END_NAMESPACE
 
-//typedef CWallet* CWalletRef;
+enum Screen_Name
+{
+    SCREEN_OVERVIEW = 0,
+    SCREEN_SENDCOINS = 1,
+    SCREEN_RECEIVECOINS = 2,
+    SCREEN_TRANSACTIONS = 3,
+    SCREEN_ADDRESSBOOK = 4,
+    SCREEN_MESSAGES = 5,
+    SCREEN_EXPORT = 6,
+    SCREEN_UNLOCKWALLET = 7,
+    SCREEN_DEEPVAULT = 8
+};
 
 /**
   Bitcoin GUI main class. This class represents the main window of the Bitcoin UI. It communicates with both the client and
@@ -129,10 +140,15 @@ private:
     RPCConsole *rpcConsole;
     HelpMessageDialog *helpMessageDialog;
     ModalOverlay *modalOverlay;
+    QFrame *frameBlocks;
+    QToolBar *fakeToolbarForBlueLine;
+    QToolBar *toolbar;
 
     /** Keep track of previous number of blocks, to detect progress */
     int prevBlocks;
     int spinnerFrame;
+    /** DeepOnion: Track current page for Theme changes. */
+    int currentScreen;
 
     const PlatformStyle *platformStyle;
 
@@ -258,10 +274,19 @@ private Q_SLOTS:
     
     void showModalOverlay();
     
+    /** DeepOnion: Update ToolBar Style */
+    void updateToolBarStyleBySelectedScreen(int screen);
+
 private:
     /** Update the current weight of the wallet **/
-    void updateWeight(CWalletRef pwalletMain);    
+    void updateWeight(CWalletRef pwalletMain);
     
+    /** DeepOnion: Capture the dialog finished event to switch theme. **/
+    void optionsDialogFinished (int);
+    /** DeepOnion: Refresh the styles */
+    void refreshStyle();
+    /** DeepOnion: Enable/Disable Export button */
+    void setEnabledExportAction(bool);
 };
 
 class UnitDisplayStatusBarControl : public QLabel

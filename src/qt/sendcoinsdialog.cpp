@@ -899,6 +899,32 @@ void SendCoinsDialog::coinControlUpdateLabels()
     }
 }
 
+void SendCoinsDialog::refreshStyle()
+{
+    // DeepOnion: Theme
+    ui->pageTitle->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getMainHeaderStyle());
+    ui->labelCoinControlFeatures->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getSubSectionTitleStyle());
+    ui->sendCoinsFormTitle->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getSubSectionTitleStyle());
+    //ui->frameMenu->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQFrameSecondaryMenuGeneralStyle());
+    ui->labelBalance->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQLabelGeneralStyle());
+    ui->label->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQLabelGeneralStyle());
+    ui->clearButton->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getIconTextButtonStyle());
+    ui->addButton->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getIconTextButtonStyle());
+    ui->customFee->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getPayAmountStyle());
+    ui->radioSmartFee->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getRadioTextStyle());
+    ui->radioCustomFee->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getRadioTextStyle());
+
+    for(int i = 0; i < ui->entries->count(); ++i)
+    {
+        SendCoinsEntry *entry = qobject_cast<SendCoinsEntry*>(ui->entries->itemAt(i)->widget());
+        if(entry)
+        {
+            entry->refreshStyle();
+        }
+    }
+
+}
+
 SendConfirmationDialog::SendConfirmationDialog(const QString &title, const QString &text, int _secDelay,
     QWidget *parent) :
     QMessageBox(QMessageBox::Question, title, text, QMessageBox::Yes | QMessageBox::Cancel, parent), secDelay(_secDelay)

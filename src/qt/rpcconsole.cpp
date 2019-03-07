@@ -465,8 +465,15 @@ RPCConsole::RPCConsole(const PlatformStyle *_platformStyle, QWidget *parent) :
         ui->openDebugLogfileButton->setIcon(platformStyle->SingleColorIcon(":/icons/export"));
     }
     ui->clearButton->setIcon(platformStyle->SingleColorIcon(":/icons/remove"));
-    ui->fontBiggerButton->setIcon(platformStyle->SingleColorIcon(":/icons/fontbigger"));
-    ui->fontSmallerButton->setIcon(platformStyle->SingleColorIcon(":/icons/fontsmaller"));
+//    ui->fontBiggerButton->setIcon(platformStyle->SingleColorIcon(":/icons/fontbigger"));
+//    ui->fontSmallerButton->setIcon(platformStyle->SingleColorIcon(":/icons/fontsmaller"));
+
+    ui->fontBiggerButton->setIcon(QIcon(platformStyle->getThemeManager()->getCurrent()->getFontBiggerIco()));
+    ui->fontSmallerButton->setIcon(QIcon(platformStyle->getThemeManager()->getCurrent()->getFontSmallerIco()));
+
+    ui->clearButton->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQToolBtnStyle());
+    ui->fontBiggerButton->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQToolBtnStyle());
+    ui->fontSmallerButton->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQToolBtnStyle());
 
     // Install event filter for up and down arrow
     ui->lineEdit->installEventFilter(this);
@@ -1227,4 +1234,14 @@ void RPCConsole::showOrHideBanTableIfRequired()
 void RPCConsole::setTabFocus(enum TabTypes tabType)
 {
     ui->tabWidget->setCurrentIndex(tabType);
+}
+
+void RPCConsole::refreshStyle()
+{
+    ui->fontBiggerButton->setIcon(QIcon(platformStyle->getThemeManager()->getCurrent()->getFontBiggerIco()));
+    ui->fontSmallerButton->setIcon(QIcon(platformStyle->getThemeManager()->getCurrent()->getFontSmallerIco()));
+
+    ui->clearButton->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQToolBtnStyle());
+    ui->fontBiggerButton->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQToolBtnStyle());
+    ui->fontSmallerButton->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQToolBtnStyle());
 }

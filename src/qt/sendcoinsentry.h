@@ -46,6 +46,8 @@ public:
     QWidget *setupTabChain(QWidget *prev);
 
     void setFocus();
+    /** DeepOnion Theme Change */
+    void refreshStyle();
 
 public Q_SLOTS:
     void clear();

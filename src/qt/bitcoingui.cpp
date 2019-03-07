@@ -54,6 +54,7 @@
 #include <QStyle>
 #include <QTimer>
 #include <QToolBar>
+#include <QToolButton>
 #include <QVBoxLayout>
 
 #if QT_VERSION < 0x050000
@@ -77,7 +78,6 @@ const std::string BitcoinGUI::DEFAULT_UIPLATFORM =
  * collisions in the future with additional wallets */
 const QString BitcoinGUI::DEFAULT_WALLET = "~Default";
 
-QToolBar *fakeToolbarForBlueLine;
 
 BitcoinGUI::BitcoinGUI(const PlatformStyle *_platformStyle, const NetworkStyle *networkStyle, QWidget *parent) :
     QMainWindow(parent),
@@ -134,6 +134,9 @@ BitcoinGUI::BitcoinGUI(const PlatformStyle *_platformStyle, const NetworkStyle *
         move(QApplication::desktop()->availableGeometry().center() - frameGeometry().center());
     }
 
+    // Init the Theme Manager
+    platformStyle->getThemeManager()->applyCurrentTheme();
+
     qApp->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getStyleSheet());
 
     QString windowTitle = tr(PACKAGE_NAME) + " - ";
@@ -178,6 +181,8 @@ BitcoinGUI::BitcoinGUI(const PlatformStyle *_platformStyle, const NetworkStyle *
         setCentralWidget(rpcConsole);
     }
 
+    currentScreen = SCREEN_OVERVIEW;
+
     // Accept D&D of URIs
     setAcceptDrops(true);
 
@@ -201,7 +206,7 @@ BitcoinGUI::BitcoinGUI(const PlatformStyle *_platformStyle, const NetworkStyle *
     statusBar()->setSizeGripEnabled(false);
 
     // Status bar notification icons
-    QFrame *frameBlocks = new QFrame();
+    frameBlocks = new QFrame();
     frameBlocks->setContentsMargins(0,0,0,0);
     frameBlocks->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
     frameBlocks->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getStatusBarBackgroundColor());
@@ -519,8 +524,7 @@ void BitcoinGUI::createToolBars()
         fakeToolbarForSpacing->setMovable(false);
         addToolBar(Qt::LeftToolBarArea, fakeToolbarForSpacing);
 
-        QToolBar *toolbar = addToolBar(tr("Tabs toolbar"));
-        // QToolBar *toolbar = QtGui.QToolBar(this);
+        toolbar = addToolBar(tr("Tabs toolbar"));
         toolbar->setOrientation(Qt::Vertical);
         toolbar->setFixedWidth(toolBarWidth);
         addToolBar(Qt::LeftToolBarArea, toolbar);
@@ -717,9 +721,21 @@ void BitcoinGUI::optionsClicked()
     if(!clientModel || !clientModel->getOptionsModel())
         return;
 
-    OptionsDialog dlg(this, enableWallet);
+    OptionsDialog dlg(platformStyle, this, enableWallet);
     dlg.setModel(clientModel->getOptionsModel());
-    dlg.exec();
+//    DeepOnion: I think we're using modal dialog so this is not required.
+//    connect(&dlg, SIGNAL(finished(int)), this, SLOT(optionsDialogFinished(int)));
+    optionsDialogFinished(dlg.exec());
+}
+
+void BitcoinGUI::optionsDialogFinished (int result)
+{
+    if(result != QDialog::Accepted){
+        return;
+    }
+
+    platformStyle->getThemeManager()->switchTheme(clientModel->getOptionsModel()->getTheme());
+    refreshStyle();
 }
 
 void BitcoinGUI::aboutClicked()
@@ -762,24 +778,28 @@ void BitcoinGUI::openClicked()
 
 void BitcoinGUI::gotoOverviewPage()
 {
+    currentScreen = SCREEN_OVERVIEW;
     overviewAction->setChecked(true);
     if (walletFrame) walletFrame->gotoOverviewPage();
 }
 
 void BitcoinGUI::gotoHistoryPage()
 {
+    currentScreen = SCREEN_TRANSACTIONS;
     historyAction->setChecked(true);
     if (walletFrame) walletFrame->gotoHistoryPage();
 }
 
 void BitcoinGUI::gotoReceiveCoinsPage()
 {
+    currentScreen = SCREEN_RECEIVECOINS;
     receiveCoinsAction->setChecked(true);
     if (walletFrame) walletFrame->gotoReceiveCoinsPage();
 }
 
 void BitcoinGUI::gotoSendCoinsPage(QString addr)
 {
+    currentScreen = SCREEN_SENDCOINS;
     sendCoinsAction->setChecked(true);
     if (walletFrame) walletFrame->gotoSendCoinsPage(addr);
 }
@@ -1384,6 +1404,95 @@ void BitcoinGUI::toggleNetworkActive()
         clientModel->setNetworkActive(!clientModel->getNetworkActive());
     }
 }
+
+void BitcoinGUI::setEnabledExportAction(bool state) {
+//    TODO:
+//    if (state) {
+//        exportAction->setEnabled(true);
+//        exportAction->setIcon(QIcon(themeManager->getCurrent()->getMainMenuExportNormalBtnIco()));
+//    } else {
+//        exportAction->setEnabled(false);
+//        exportAction->setIcon(QIcon(themeManager->getCurrent()->getMainMenuExportDeactivatedBtnIco()));
+//    }
+}
+
+void BitcoinGUI::refreshStyle()
+{
+    qApp->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getStyleSheet());
+    fakeToolbarForBlueLine->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getMenuHeaderStyle());
+    if(walletFrame)
+    {
+        updateToolBarStyleBySelectedScreen(currentScreen);
+        walletFrame->refreshStyle();
+    }
+    rpcConsole->refreshStyle();
+
+    frameBlocks->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getStatusBarBackgroundColor());
+//    labelEncryptionIcon->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getStatusBarBackgroundColor());
+    labelStakingIcon->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getStatusBarBackgroundColor());
+//    labelConnectionsIcon->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getStatusBarBackgroundColor());
+    labelOnionIcon->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getStatusBarBackgroundColor());
+    labelBlocksIcon->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getStatusBarBackgroundColor());
+    progressBarLabel->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getProgressBarStyle());
+    statusBar()->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getStatusBarBackgroundColor());
+
+}
+
+void BitcoinGUI::updateToolBarStyleBySelectedScreen(int screen)
+{
+    ((QToolButton*)toolbar->widgetForAction(overviewAction))->setIcon(QIcon(platformStyle->getThemeManager()->getCurrent()->getMainMenuOverviewNormalBtnIco()));
+    ((QToolButton*)toolbar->widgetForAction(sendCoinsAction))->setIcon(QIcon(platformStyle->getThemeManager()->getCurrent()->getMainMenuSendcoinsNormalBtnIco()));
+    ((QToolButton*)toolbar->widgetForAction(receiveCoinsAction))->setIcon(QIcon(platformStyle->getThemeManager()->getCurrent()->getMainMenuReceiveCoinsNormalBtnIco()));
+    ((QToolButton*)toolbar->widgetForAction(historyAction))->setIcon(QIcon(platformStyle->getThemeManager()->getCurrent()->getMainMenuTransactionsNormalBtnIco()));
+//    ((QToolButton*)toolbar->widgetForAction(addressBookAction))->setIcon(QIcon(platformStyle->getThemeManager()->getCurrent()->getMainMenuAddressBookNormalBtnIco()));
+//    ((QToolButton*)toolbar->widgetForAction(messageAction))->setIcon(QIcon(platformStyle->getThemeManager()->getCurrent()->getMainMenuMessagesNormalBtnIco()));
+//    ((QToolButton*)toolbar->widgetForAction(exportAction))->setIcon(QIcon(platformStyle->getThemeManager()->getCurrent()->getMainMenuExportNormalBtnIco()));
+//    ((QToolButton*)toolbar->widgetForAction(unlockWalletAction))->setIcon(QIcon(platformStyle->getThemeManager()->getCurrent()->getMainMenuUnlockWalletNormalBtnIco()));
+//    ((QToolButton*)toolbar->widgetForAction(lockWalletAction))->setIcon(QIcon(platformStyle->getThemeManager()->getCurrent()->getMainMenuLockWalletNormalBtnIco()));
+
+    switch(screen) {
+        case SCREEN_OVERVIEW:
+            ((QToolButton*)toolbar->widgetForAction(overviewAction))->setIcon(QIcon(platformStyle->getThemeManager()->getCurrent()->getMainMenuOverviewSelectedBtnIco()));
+            break;
+
+        case SCREEN_SENDCOINS:
+            ((QToolButton*)toolbar->widgetForAction(sendCoinsAction))->setIcon(QIcon(platformStyle->getThemeManager()->getCurrent()->getMainMenuSendcoinsSelectedBtnIco()));
+            break;
+
+        case SCREEN_RECEIVECOINS:
+            ((QToolButton*)toolbar->widgetForAction(receiveCoinsAction))->setIcon(QIcon(platformStyle->getThemeManager()->getCurrent()->getMainMenuReceiveCoinsSelectedBtnIco()));
+            break;
+
+        case SCREEN_TRANSACTIONS:
+            ((QToolButton*)toolbar->widgetForAction(historyAction))->setIcon(QIcon(platformStyle->getThemeManager()->getCurrent()->getMainMenuTransactionsSelectedBtnIco()));
+            break;
+
+//        case SCREEN_ADDRESSBOOK:
+//            ((QToolButton*)toolbar->widgetForAction(addressBookAction))->setIcon(QIcon(platformStyle->getThemeManager()->getCurrent()->getMainMenuAddressBookSelectedBtnIco()));
+//            break;
+//
+//        case SCREEN_MESSAGES:
+//            ((QToolButton*)toolbar->widgetForAction(messageAction))->setIcon(QIcon(platformStyle->getThemeManager()->getCurrent()->getMainMenuMessagesSelectedBtnIco()));
+//            break;
+//
+//        case SCREEN_EXPORT:
+//            ((QToolButton*)toolbar->widgetForAction(exportAction))->setIcon(QIcon(platformStyle->getThemeManager()->getCurrent()->getMainMenuExportSelectedBtnIco()));
+//            break;
+
+//        case SCREEN_UNLOCKWALLET:
+//            ((QToolButton*)toolbar->widgetForAction(unlockWalletAction))->setIcon(QIcon(platformStyle->getThemeManager()->getCurrent()->getMainMenuUnlockWalletSelectedBtnIco()));
+//            ((QToolButton*)toolbar->widgetForAction(lockWalletAction))->setIcon(QIcon(platformStyle->getThemeManager()->getCurrent()->getMainMenuLockWalletSelectedBtnIco()));
+//            break;
+
+//        case SCREEN_DEEPVAULT:
+//            ((QToolButton*)toolbar->widgetForAction(deepVaultAction))->setIcon(QIcon(platformStyle->getThemeManager()->getCurrent()->getMainMenuDeepVaultSelectedBtnIco()));
+//            break;
+
+        default:
+            break;
+    }
+}
+
 
 UnitDisplayStatusBarControl::UnitDisplayStatusBarControl(const PlatformStyle *platformStyle) :
     optionsModel(0),

@@ -44,6 +44,9 @@ public:
 
     void setModel(WalletModel *model);
 
+    /** DeepOnion Theme Change */
+    void refreshStyle();
+
 public Q_SLOTS:
     void clear();
     void reject();

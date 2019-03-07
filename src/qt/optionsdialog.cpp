@@ -24,7 +24,7 @@
 #include <QMessageBox>
 #include <QTimer>
 
-OptionsDialog::OptionsDialog(QWidget *parent, bool enableWallet) :
+OptionsDialog::OptionsDialog(const PlatformStyle *_platformStyle, QWidget *parent, bool enableWallet) :
     QDialog(parent),
     ui(new Ui::OptionsDialog),
     model(0),
@@ -110,6 +110,10 @@ OptionsDialog::OptionsDialog(QWidget *parent, bool enableWallet) :
     ui->thirdPartyTxUrls->setPlaceholderText("https://example.com/tx/%s");
 #endif
 
+    ui->theme->addItem(_platformStyle->getThemeManager()->getThemeName(THEME_FANCY_PURPLE), "Fancy Purple");
+    ui->theme->addItem(_platformStyle->getThemeManager()->getThemeName(THEME_LIGHT_PURPLE), "Light Purple");
+    ui->theme->addItem(_platformStyle->getThemeManager()->getThemeName(THEME_ORIGINAL_DARK), "Original Dark");
+    ui->theme->addItem(_platformStyle->getThemeManager()->getThemeName(THEME_ORIGINAL_LIGHT), "Original Light");
     ui->unit->setModel(new BitcoinUnits(this));
 
     /* Widget-to-option mapper */
@@ -200,6 +204,7 @@ void OptionsDialog::setMapper()
 #endif
 
     /* Display */
+    mapper->addMapping(ui->theme, OptionsModel::Theme);
     mapper->addMapping(ui->lang, OptionsModel::Language);
     mapper->addMapping(ui->unit, OptionsModel::DisplayUnit);
     mapper->addMapping(ui->thirdPartyTxUrls, OptionsModel::ThirdPartyTxUrls);

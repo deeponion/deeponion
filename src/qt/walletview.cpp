@@ -340,3 +340,16 @@ void WalletView::requestedSyncWarningInfo()
 {
     Q_EMIT outOfSyncWarningClicked();
 }
+
+void WalletView::refreshStyle()
+{
+    overviewPage->refreshStyle();
+    sendCoinsPage->refreshStyle();
+    receiveCoinsPage->refreshStyle();
+    transactionView->refreshStyle();
+    usedSendingAddressesPage->refreshStyle();
+    usedReceivingAddressesPage->refreshStyle();
+//    messagePage->refreshStyle();
+//    deepVaultPage->refreshStyle();
+//    signVerifyMessageDialog->refreshStyle();
+}

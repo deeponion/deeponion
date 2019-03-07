@@ -35,9 +35,15 @@
 #include <QUrl>
 #include <QVBoxLayout>
 
-TransactionView::TransactionView(const PlatformStyle *platformStyle, QWidget *parent) :
-    QWidget(parent), model(0), transactionProxyModel(0),
-    transactionView(0), abandonAction(0), bumpFeeAction(0), columnResizingFixer(0)
+TransactionView::TransactionView(const PlatformStyle *_platformStyle, QWidget *parent) :
+    QWidget(parent),
+    model(0),
+    transactionProxyModel(0),
+    transactionView(0),
+    abandonAction(0),
+    bumpFeeAction(0),
+    columnResizingFixer(0),
+    platformStyle(_platformStyle)
 {
     setContentsMargins(0,0,0,0);
 
@@ -654,3 +660,16 @@ void TransactionView::updateWatchOnlyColumn(bool fHaveWatchOnly)
     watchOnlyWidget->setVisible(fHaveWatchOnly);
     transactionView->setColumnHidden(TransactionTableModel::Watchonly, !fHaveWatchOnly);
 }
+
+void TransactionView::refreshStyle()
+{
+    pageTitleLabel->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getMainHeaderStyle());
+    watchOnlyWidget->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQComboboxTransactionsFilteringStyle());
+    dateWidget->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQComboboxTransactionsFilteringStyle());
+    typeWidget->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQComboboxTransactionsFilteringStyle());
+    search_widget->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQLabelGeneralStyle());
+    amountWidget->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQLabelGeneralStyle());
+    transactionView->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQTableGeneralStyle());
+    transactionView->horizontalHeader()->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQListHeaderGeneralStyle());
+}
+

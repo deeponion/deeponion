@@ -7,6 +7,7 @@
 
 #include <QDialog>
 #include <QValidator>
+#include <qt/platformstyle.h>
 
 class OptionsModel;
 class QValidatedLineEdit;
@@ -37,7 +38,7 @@ class OptionsDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit OptionsDialog(QWidget *parent, bool enableWallet);
+    explicit OptionsDialog(const PlatformStyle *_platformStyle, QWidget *parent, bool enableWallet);
     ~OptionsDialog();
 
     void setModel(OptionsModel *model);

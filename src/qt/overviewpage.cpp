@@ -108,7 +108,7 @@ public:
 };
 #include <qt/overviewpage.moc>
 
-OverviewPage::OverviewPage(const PlatformStyle *platformStyle, QWidget *parent) :
+OverviewPage::OverviewPage(const PlatformStyle *_platformStyle, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::OverviewPage),
     clientModel(0),
@@ -121,7 +121,8 @@ OverviewPage::OverviewPage(const PlatformStyle *platformStyle, QWidget *parent) 
     currentWatchUnconfBalance(-1),
     currentWatchImmatureBalance(-1),
     currentWatchStakeBalance(-1),
-    txdelegate(new TxViewDelegate(platformStyle, this))
+    txdelegate(new TxViewDelegate(_platformStyle, this)),
+    platformStyle(_platformStyle)
 {
     ui->setupUi(this);
 
@@ -303,4 +304,16 @@ void OverviewPage::showOutOfSyncWarning(bool fShow)
 {
     ui->labelWalletStatus->setVisible(fShow);
 //    ui->labelTransactionsStatus->setVisible(fShow);
+}
+
+void OverviewPage::refreshStyle()
+{
+    ui->wallet_summary->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQFrameGeneralStyle());
+    ui->page_title->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getMainHeaderStyle());
+    ui->walletSummaryHeader->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getSubSectionTitleStyle());
+    ui->do_icon->setIcon(QIcon(platformStyle->getThemeManager()->getCurrent()->getDeepOnionLogo()));
+
+    // DeepOnion: Style up the Transaction page.
+    ui->listTransactions->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQTableGeneralStyle());
+    ui->listTransactions->horizontalHeader()->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQListHeaderGeneralStyle());
 }

@@ -34,7 +34,7 @@ class TransactionView : public QWidget
     Q_OBJECT
 
 public:
-    explicit TransactionView(const PlatformStyle *platformStyle, QWidget *parent = 0);
+    explicit TransactionView(const PlatformStyle *_platformStyle, QWidget *parent = 0);
 
     void setModel(WalletModel *model);
 
@@ -85,6 +85,8 @@ private:
 
     GUIUtil::TableViewLastColumnResizingFixer *columnResizingFixer;
 
+    const PlatformStyle *platformStyle;
+
     virtual void resizeEvent(QResizeEvent* event);
 
     bool eventFilter(QObject *obj, QEvent *event);
@@ -119,6 +121,8 @@ public Q_SLOTS:
     void changedSearch();
     void exportClicked();
     void focusTransaction(const QModelIndex&);
+    /** DeepOnion Theme Change */
+    void refreshStyle();
 
 };
 

@@ -44,6 +44,8 @@ public:
     void setAddress(const QString &address);
     void pasteEntry(const SendCoinsRecipient &rv);
     bool handlePaymentRequest(const SendCoinsRecipient &recipient);
+    /** DeepOnion Theme Change */
+    void refreshStyle();
 
 public Q_SLOTS:
     void clear();

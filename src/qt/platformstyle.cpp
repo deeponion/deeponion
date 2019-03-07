@@ -94,8 +94,6 @@ PlatformStyle::PlatformStyle(const QString &_name, bool _imagesOnButtons, bool _
     }
     // Determine text color
     textColor = QColor(QApplication::palette().color(QPalette::WindowText));
-    // Init the Theme Manager
-    themeManager->applyCurrentTheme();
 }
 
 QImage PlatformStyle::SingleColorImage(const QString& filename) const

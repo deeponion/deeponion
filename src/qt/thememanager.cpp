@@ -12,7 +12,7 @@
 ThemeManager::ThemeManager()
 {
     defaultTheme = THEME_FANCY_PURPLE;
-    // printf(">> def theme = %d\n", defaultTheme);
+//    printf(">> def theme = %d\n", defaultTheme);
 
     allThemes[THEME_ORIGINAL_DARK] = new ThemeOriginalDark();
     allThemes[THEME_ORIGINAL_LIGHT] = new ThemeOriginalLight();
@@ -23,12 +23,14 @@ ThemeManager::ThemeManager()
     themeTypeToName[THEME_ORIGINAL_LIGHT] = QString("Original Light");
     themeTypeToName[THEME_FANCY_PURPLE] = QString("Fancy Purple");
     themeTypeToName[THEME_LIGHT_PURPLE] = QString("Light Purple");
+
+    current = allThemes[defaultTheme];
 }
 
 void ThemeManager::applyCurrentTheme() {
     QSettings settings;
     QString currentTheme = settings.value("theme", getThemeName(defaultTheme)).toString();
-	// printf(">> currentTheme = %s\n", currentTheme.toStdString().c_str());
+//	printf(">> currentTheme = %s\n", currentTheme.toStdString().c_str());
 
     ThemeType currentType = getThemeType(currentTheme);
     if(allThemes.find(currentType) != allThemes.end())
@@ -39,7 +41,7 @@ void ThemeManager::applyCurrentTheme() {
 
 void ThemeManager::switchTheme(QString newTypeS)
 {
-    // printf(">> newtype = %s\n", newTypeS.toStdString().c_str());
+//    printf(">> newtype = %s\n", newTypeS.toStdString().c_str());
     ThemeType currentType = getThemeType(newTypeS);	
     if(allThemes.find(currentType) != allThemes.end())
     	current = allThemes[currentType];
@@ -65,10 +67,10 @@ ThemeType ThemeManager::getThemeType(QString themeName) {
     for (it = themeTypeToName.begin(); it != themeTypeToName.end(); ++it )
     {
     	if (it->second == themeName)
-	{
+    	{
         	type = it->first;
-		break;
-	}
+        	break;
+    	}
     }
     return type;
 }
