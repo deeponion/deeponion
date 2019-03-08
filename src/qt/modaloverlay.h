@@ -8,6 +8,8 @@
 #include <QDateTime>
 #include <QWidget>
 
+class PlatformStyle;
+
 //! The required delta of headers to the estimated number of available headers until we show the IBD progress
 static constexpr int HEADER_HEIGHT_DELTA_SYNC = 24;
 
@@ -21,7 +23,7 @@ class ModalOverlay : public QWidget
     Q_OBJECT
 
 public:
-    explicit ModalOverlay(QWidget *parent);
+    explicit ModalOverlay(const PlatformStyle *_platformStyle, QWidget *parent);
     ~ModalOverlay();
 
 public Q_SLOTS:
@@ -33,6 +35,8 @@ public Q_SLOTS:
     void showHide(bool hide = false, bool userRequested = false);
     void closeClicked();
     bool isLayerVisible() const { return layerIsVisible; }
+    /** DeepOnion Theme Change */
+    void refreshStyle();
 
 protected:
     bool eventFilter(QObject * obj, QEvent * ev);
@@ -45,6 +49,7 @@ private:
     QVector<QPair<qint64, double> > blockProcessTime;
     bool layerIsVisible;
     bool userClosed;
+    const PlatformStyle *platformStyle;
 };
 
 #endif // BITCOIN_QT_MODALOVERLAY_H

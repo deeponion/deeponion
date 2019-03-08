@@ -8,17 +8,19 @@
 #include <qt/guiutil.h>
 
 #include <chainparams.h>
+#include <qt/platformstyle.h>
 
 #include <QResizeEvent>
 #include <QPropertyAnimation>
 
-ModalOverlay::ModalOverlay(QWidget *parent) :
+ModalOverlay::ModalOverlay(const PlatformStyle *_platformStyle, QWidget *parent) :
 QWidget(parent),
 ui(new Ui::ModalOverlay),
 bestHeaderHeight(0),
 bestHeaderDate(QDateTime()),
 layerIsVisible(false),
-userClosed(false)
+userClosed(false),
+platformStyle(_platformStyle)
 {
     ui->setupUi(this);
     connect(ui->closeButton, SIGNAL(clicked()), this, SLOT(closeClicked()));
@@ -29,6 +31,9 @@ userClosed(false)
 
     blockProcessTime.clear();
     setVisible(false);
+    ui->bgWidget->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getStyleSheet());
+    ui->contentWidget->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getStyleSheet());
+
 }
 
 ModalOverlay::~ModalOverlay()
@@ -171,4 +176,10 @@ void ModalOverlay::closeClicked()
 {
     showHide(true);
     userClosed = true;
+}
+
+void ModalOverlay::refreshStyle()
+{
+    ui->bgWidget->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getStyleSheet());
+    ui->contentWidget->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getStyleSheet());
 }

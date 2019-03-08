@@ -922,7 +922,6 @@ void SendCoinsDialog::refreshStyle()
             entry->refreshStyle();
         }
     }
-
 }
 
 SendConfirmationDialog::SendConfirmationDialog(const QString &title, const QString &text, int _secDelay,
