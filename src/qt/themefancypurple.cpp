@@ -154,6 +154,8 @@ void ThemeFancyPurple::init()
 	aboutImg = ":/images/about_dark_purple";
 	fontBiggerIco = ":/icons/fontbigger_dark";
 	fontSmallerIco = ":/icons/fontsmaller_dark";
+    hdEnabledIco = ":/icons/hd_enabled_white";
+    hdDisabledIco = ":/icons/hd_disabled_white";
 	qTreeWidget = "QTreeView { color: " + text_color + "; background-color:" + frame_background + "; alternate-background-color: " + tree_item_alternate_background + ";} \
 		QTreeView::item {color: " + text_color + "; background-color: " + frame_background + "; border: 1px solid " + frame_background + ";} \
 		QTreeView::item:hover {color: " + text_color + "; background-color: " + selected_item_background + "; border: 1px solid " + frame_background + ";}";

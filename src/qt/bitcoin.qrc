@@ -53,6 +53,8 @@
     <file alias="transaction_abandoned">res/icons/transaction_abandoned.png</file>
     <file alias="hd_enabled">res/icons/hd_enabled.png</file>
     <file alias="hd_disabled">res/icons/hd_disabled.png</file>
+    <file alias="hd_enabled_white">res/icons/hd_enabled_white.png</file>
+    <file alias="hd_disabled_white">res/icons/hd_disabled_white.png</file>
     <file alias="network_disabled">res/icons/network_disabled.png</file>
     <file alias="tor_active">res/icons/tor.png</file>
     <file alias="tor_inactive">res/icons/tor2.png</file>

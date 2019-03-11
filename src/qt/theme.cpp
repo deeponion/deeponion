@@ -81,10 +81,17 @@ const QString Theme::getFontSmallerIco() const {
     return fontSmallerIco;
 }
 
+const QString Theme::getHDEnabledIco() const {
+    return hdEnabledIco;
+}
+
+const QString Theme::getHDDisabledIco() const {
+    return hdDisabledIco;
+}
+
 const QString Theme::getQTreeWidget() const {
     return qTreeWidget;
 }
-
 
 const QString Theme::getMainMenuOverviewNormalBtnIco() const {
     return mainMenuOverviewNormalBtnIco;

@@ -1238,7 +1238,12 @@ bool BitcoinGUI::handlePaymentRequest(const SendCoinsRecipient& recipient)
 
 void BitcoinGUI::setHDStatus(int hdEnabled)
 {
-    labelWalletHDStatusIcon->setPixmap(platformStyle->SingleColorIcon(hdEnabled ? ":/icons/hd_enabled" : ":/icons/hd_disabled").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
+    this->hdEnabled = hdEnabled;
+    if(hdEnabled) {
+        labelWalletHDStatusIcon->setPixmap(platformStyle->SingleColorIcon(platformStyle->getThemeManager()->getCurrent()->getHDEnabledIco()).pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
+    } else {
+        labelWalletHDStatusIcon->setPixmap(platformStyle->SingleColorIcon(platformStyle->getThemeManager()->getCurrent()->getHDDisabledIco()).pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
+    }
     labelWalletHDStatusIcon->setToolTip(hdEnabled ? tr("HD key generation is <b>enabled</b>") : tr("HD key generation is <b>disabled</b>"));
 
     // eventually disable the QLabel to set its opacity to 50% 
@@ -1435,6 +1440,7 @@ void BitcoinGUI::refreshStyle()
     labelBlocksIcon->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getStatusBarBackgroundColor());
     progressBarLabel->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getProgressBarStyle());
     statusBar()->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getStatusBarBackgroundColor());
+    setHDStatus(hdEnabled);
 
     modalOverlay->refreshStyle();
 

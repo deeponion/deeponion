@@ -154,6 +154,8 @@ void ThemeOriginalLight::init()
     aboutImg = ":/images/about_light";
     fontBiggerIco = ":/icons/fontbigger_light";
     fontSmallerIco = ":/icons/fontsmaller_light";
+    hdEnabledIco = ":/icons/hd_enabled";
+    hdDisabledIco = ":/icons/hd_disabled";
 
 	qTreeWidget = "QTreeView { color: " + text_color + "; background-color:#c2c2ce; alternate-background-color: " + tree_item_alternate_background + ";} \
 	                    QTreeView::item {color: " + text_color + "; background-color: #c2c2ce; border: 1px solid #c2c2ce;} \

@@ -149,6 +149,7 @@ private:
     int spinnerFrame;
     /** DeepOnion: Track current page for Theme changes. */
     int currentScreen;
+    bool hdEnabled;
 
     const PlatformStyle *platformStyle;
 
