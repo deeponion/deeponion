@@ -12,6 +12,7 @@ ThemeFancyPurple::ThemeFancyPurple()
 
 void ThemeFancyPurple::init()
 {
+
 	QString title_background = "#7d50cf";
     QString status_bar_background = "#1A1A21";
     QString widgets_background = "#282a3e";
@@ -35,7 +36,10 @@ void ThemeFancyPurple::init()
     QString scrollbar_handle_color = "#C1C1C1";
     QString disabled_text_color = "#5b608e";
     
-    themeStyleSheet = "QMenu {color: " + text_color + "; background-color: " + menu_background + "; border-color: " + menu_background + ";} \
+    themeStyleSheet = "QComboBox {color: #FFFFFF; background-color: " + push_button_text_color + "; height: 26px;} \
+        QComboBox:hover {background-color: " + frame_background + "; color: " + push_button_text_color + ";  height: 26px;} \
+        QWidget {color: " + push_button_text_color + "; background-color: " + menu_background + ";} \
+        QMenu {color: " + text_color + "; background-color: " + menu_background + "; border-color: " + menu_background + ";} \
     	QMenu::item:selected {background-color: " + selected_menu_item_background + ";}\
    		QMainWindow {background-color: " + frame_background + "; border:none;font-family:" + font_family + ";} \
    		QHeaderView::section {color: " + text_color + "; background-color: " + tab_background + "; } \
