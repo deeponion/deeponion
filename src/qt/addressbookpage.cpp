@@ -76,6 +76,10 @@ AddressBookPage::AddressBookPage(const PlatformStyle *platformStyle, Mode _mode,
         break;
     }
 
+    //DeepOnion: Theme
+    ui->tableView->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQTableGeneralStyle());
+    ui->tableView->horizontalHeader()->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQListHeaderGeneralStyle());
+
     // Context menu actions
     QAction *copyAddressAction = new QAction(tr("&Copy Address"), this);
     QAction *copyLabelAction = new QAction(tr("Copy &Label"), this);
