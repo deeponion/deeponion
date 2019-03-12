@@ -6,6 +6,7 @@
 
 #include <qt/guiconstants.h>
 
+#include <util.h>
 #include <QApplication>
 #include <QColor>
 #include <QImage>
@@ -23,7 +24,7 @@ static const struct {
     {"macosx", false, false, true},
     {"windows", true, false, false},
     /* Other: linux, unix, ... */
-    {"other", true, true, false}
+    {"other", true, false, false}
 };
 static const unsigned platform_styles_count = sizeof(platform_styles)/sizeof(*platform_styles);
 
@@ -98,9 +99,9 @@ PlatformStyle::PlatformStyle(const QString &_name, bool _imagesOnButtons, bool _
 
 QImage PlatformStyle::SingleColorImage(const QString& filename) const
 {
-    if (!colorizeIcons)
+	if (!colorizeIcons)
         return QImage(filename);
-    return ColorizeImage(filename, SingleColor());
+	return ColorizeImage(filename, SingleColor());
 }
 
 QIcon PlatformStyle::SingleColorIcon(const QString& filename) const
@@ -112,23 +113,29 @@ QIcon PlatformStyle::SingleColorIcon(const QString& filename) const
 
 QIcon PlatformStyle::SingleColorIcon(const QIcon& icon) const
 {
-    if (!colorizeIcons)
+	if (!colorizeIcons)
         return icon;
-    return ColorizeIcon(icon, SingleColor());
+	return ColorizeIcon(icon, SingleColor());
 }
 
 QIcon PlatformStyle::TextColorIcon(const QString& filename) const
 {
+	if (!colorizeIcons)
+		return QIcon(filename);
     return ColorizeIcon(filename, TextColor());
 }
 
 QIcon PlatformStyle::TextColorIcon(const QIcon& icon) const
 {
+	if (!colorizeIcons)
+		return icon;
     return ColorizeIcon(icon, TextColor());
 }
 
 const PlatformStyle *PlatformStyle::instantiate(const QString &platformId)
 {
+	LogPrintf(">> Platform is %s\n", platformId.toStdString().c_str());
+	
     for (unsigned x=0; x<platform_styles_count; ++x)
     {
         if (platformId == platform_styles[x].platformId)
