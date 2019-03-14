@@ -214,7 +214,8 @@ BitcoinGUI::BitcoinGUI(const PlatformStyle *_platformStyle, const NetworkStyle *
     QHBoxLayout *frameBlocksLayout = new QHBoxLayout(frameBlocks);
     frameBlocksLayout->setContentsMargins(3,0,3,0);
     frameBlocksLayout->setSpacing(3);
-    unitDisplayControl = new UnitDisplayStatusBarControl(platformStyle);
+    unitDisplayControl = new UnitDisplayStatusBarControl();
+    unitDisplayControl->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getStatusBarBackgroundColor());
     labelWalletEncryptionIcon = new QLabel();
     labelWalletHDStatusIcon = new QLabel();
     connectionsControl = new GUIUtil::ClickableLabel();
@@ -1441,6 +1442,7 @@ void BitcoinGUI::refreshStyle()
     progressBarLabel->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getProgressBarStyle());
     statusBar()->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getStatusBarBackgroundColor());
     setHDStatus(hdEnabled);
+    unitDisplayControl->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getStatusBarBackgroundColor());
 
     modalOverlay->refreshStyle();
 
@@ -1502,7 +1504,7 @@ void BitcoinGUI::updateToolBarStyleBySelectedScreen(int screen)
 }
 
 
-UnitDisplayStatusBarControl::UnitDisplayStatusBarControl(const PlatformStyle *platformStyle) :
+UnitDisplayStatusBarControl::UnitDisplayStatusBarControl() :
     optionsModel(0),
     menu(0)
 {
@@ -1518,8 +1520,6 @@ UnitDisplayStatusBarControl::UnitDisplayStatusBarControl(const PlatformStyle *pl
     setMinimumSize(max_width, 0);
     setAlignment(Qt::AlignRight | Qt::AlignVCenter);
 
-    setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getStatusBarBackgroundColor());
-//    setStyleSheet(QString("QLabel { color : %1 }").arg(platformStyle->SingleColor().name()));
 }
 
 /** So that it responds to button clicks */

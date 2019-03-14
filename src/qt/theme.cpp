@@ -89,6 +89,10 @@ const QString Theme::getHDDisabledIco() const {
     return hdDisabledIco;
 }
 
+const QString Theme::getWarningIco() const {
+    return warningIco;
+}
+
 const QString Theme::getQTreeWidget() const {
     return qTreeWidget;
 }

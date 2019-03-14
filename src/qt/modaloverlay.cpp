@@ -31,9 +31,11 @@ platformStyle(_platformStyle)
 
     blockProcessTime.clear();
     setVisible(false);
-    ui->bgWidget->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getStyleSheet());
-//    ui->contentWidget->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getStyleSheet());
-//    setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQFrameGeneralStyle());
+
+    // DeepOnion: Theme
+    ui->contentWidget->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getStyleSheet());
+    ui->warningIcon->setIcon(platformStyle->SingleColorIcon(platformStyle->getThemeManager()->getCurrent()->getWarningIco()));
+    ui->warningIcon->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQFrameGeneralStyle());
 }
 
 ModalOverlay::~ModalOverlay()
@@ -180,6 +182,8 @@ void ModalOverlay::closeClicked()
 
 void ModalOverlay::refreshStyle()
 {
-//    ui->bgWidget->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getStyleSheet());
-//    ui->contentWidget->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getStyleSheet());
+    // DeepOnion: Theme
+    ui->contentWidget->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getStyleSheet());
+    ui->warningIcon->setIcon(platformStyle->SingleColorIcon(platformStyle->getThemeManager()->getCurrent()->getWarningIco()));
+    ui->warningIcon->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQFrameGeneralStyle());
 }

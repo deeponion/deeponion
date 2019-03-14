@@ -156,6 +156,7 @@ void ThemeLightPurple::init()
     fontSmallerIco = ":/icons/fontsmaller_light";
     hdEnabledIco = ":/icons/hd_enabled";
     hdDisabledIco = ":/icons/hd_disabled";
+    warningIco = ":/icons/warning";
     qTreeWidget = "QTreeView { color: " + text_color + "; background-color:#c2c2ce; alternate-background-color: " + tree_item_alternate_background + ";} \
                         QTreeView::item {color: " + text_color + "; background-color: #c2c2ce; border: 1px solid #c2c2ce;} \
                         QTreeView::item:hover {color: " + text_color + "; background-color: " + selected_item_background + "; border: 1px solid #c2c2ce;}";

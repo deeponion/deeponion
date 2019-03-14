@@ -34,6 +34,7 @@ public:
     const QString getQTreeWidget() const;
     const QString getHDEnabledIco() const;
     const QString getHDDisabledIco() const;
+    const QString getWarningIco() const;
 
     const QString getMainMenuOverviewNormalBtnIco() const;
     const QString getMainMenuSendcoinsNormalBtnIco() const;
@@ -118,6 +119,7 @@ protected:
     QString fontSmallerIco;
     QString hdEnabledIco;
     QString hdDisabledIco;
+    QString warningIco;
     QString qTreeWidget;
 	QString statusBarBackgroundColor;
     QString progressBarStyle;

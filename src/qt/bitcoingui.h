@@ -295,7 +295,7 @@ class UnitDisplayStatusBarControl : public QLabel
     Q_OBJECT
 
 public:
-    explicit UnitDisplayStatusBarControl(const PlatformStyle *platformStyle);
+    explicit UnitDisplayStatusBarControl();
     /** Lets the control know about the Options Model (and its signals) */
     void setOptionsModel(OptionsModel *optionsModel);
 
