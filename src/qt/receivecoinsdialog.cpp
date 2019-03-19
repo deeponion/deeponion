@@ -59,6 +59,7 @@ ReceiveCoinsDialog::ReceiveCoinsDialog(const PlatformStyle *_platformStyle, QWid
     // DeepOnion: Theme
     ui->pageTitle->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getMainHeaderStyle());
     ui->reqAmount->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getPayAmountStyle());
+    ui->reqAmount->refreshStyle(platformStyle);
     ui->recentRequestsView->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQTableGeneralStyle());
     ui->recentRequestsView->horizontalHeader()->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQListHeaderGeneralStyle());
     ui->recentRequestsView->setAlternatingRowColors(true);
@@ -304,6 +305,7 @@ void ReceiveCoinsDialog::refreshStyle()
 {
     ui->pageTitle->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getMainHeaderStyle());
     ui->reqAmount->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getPayAmountStyle());
+    ui->reqAmount->refreshStyle(platformStyle);
     ui->recentRequestsView->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQTableGeneralStyle());
     ui->recentRequestsView->horizontalHeader()->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQListHeaderGeneralStyle());
 }

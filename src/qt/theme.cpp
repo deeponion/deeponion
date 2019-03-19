@@ -61,6 +61,10 @@ const QString Theme::getQComboboxDateRangeStyle() const {
     return qComboboxDateRangeStyle;
 }
 
+const QString Theme::getQComboboxValueStyle() const {
+    return qComboboxValueStyle;
+}
+
 const QString Theme::getQToolBtnStyle() const {
     return qToolBtnStyle;
 }

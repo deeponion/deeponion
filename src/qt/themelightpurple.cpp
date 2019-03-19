@@ -146,6 +146,10 @@ void ThemeLightPurple::init()
                         QComboBox::down-arrow { width: 14px; height: 14px; image: url(:/icons/arrow_down_white);}";
     qComboboxDateRangeStyle = "background-color: " + frame_background + "; color: " + title_background + "; font-size: 12px; font-family: " + font_family + ";\
                         border: none; QComboBox::drop-down {border: none}";
+    qComboboxValueStyle = "QComboBox { background-color: " + frame_background + "; color: " + text_color + "; font-size: 14px; font-family: " + font_family + "; border: none; }\
+        QComboBox::drop-down {border: none;  background: " + title_background + "; width: 30px; height: 30px;}\
+        QComboBox::down-arrow { width: 10px; height: 10px; image: url(:/icons/arrow_down_white);}\
+        QAbstractItemView {min-height: 70px; min-width: 100px;}";
     qToolBtnStyle = "{color:" + push_button_text_color + "; background-color: " + menu_background + "; padding: 3px; border: none;}";
     qPushBtnStyle = "QPushButton {font-family:" + font_family + "; border: 1px solid " + push_button_border_color + "; background-color: " + menu_background + "; color: " + push_button_text_color + "; padding: 8px}\
                         QPushButton:pressed {font-family:" + font_family + "; border: 1px solid " + push_button_border_color + "; background-color: " + push_button_background + "; color: " + title_background + "}\

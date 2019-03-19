@@ -26,6 +26,7 @@ public:
     const QString getInformationBtnStyle() const;
     const QString getQComboboxTransactionsFilteringStyle() const;
     const QString getQComboboxDateRangeStyle() const;
+    const QString getQComboboxValueStyle() const;
     const QString getQToolBtnStyle() const;
     const QString getQPushBtnStyle() const;
     const QString getAboutImg() const;
@@ -112,6 +113,7 @@ protected:
     QString informationBtnStyle;
     QString qComboboxTransactionsFilteringStyle;
     QString qComboboxDateRangeStyle;
+    QString qComboboxValueStyle;
     QString qToolBtnStyle;
     QString qPushBtnStyle;
     QString aboutImg;

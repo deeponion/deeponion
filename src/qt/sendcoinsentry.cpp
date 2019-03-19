@@ -51,6 +51,7 @@ SendCoinsEntry::SendCoinsEntry(const PlatformStyle *_platformStyle, QWidget *par
     ui->payTo->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQLineEdit());
     ui->addAsLabel->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQLineEdit());
     ui->payAmount->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getPayAmountStyle());
+    ui->payAmount->refreshStyle(platformStyle);
     ui->payToLabel->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQLabelGeneralStyle());
     ui->labellLabel->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQLabelGeneralStyle());
     ui->labellNarration->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQLabelGeneralStyle());
@@ -332,6 +333,7 @@ void SendCoinsEntry::refreshStyle()
     ui->payTo->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQLineEdit());
     ui->addAsLabel->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQLineEdit());
     ui->payAmount->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getPayAmountStyle());
+    ui->payAmount->refreshStyle(platformStyle);
     ui->payToLabel->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQLabelGeneralStyle());
     ui->labellLabel->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQLabelGeneralStyle());
     ui->labellNarration->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQLabelGeneralStyle());

@@ -35,7 +35,10 @@ void ThemeOriginalDark::init()
     QString scrollbar_handle_color = "#C1C1C1";
     QString disabled_text_color = "#757596";
 
-    themeStyleSheet = "QMenu {color: " + text_color + "; background-color: " + menu_background + "; border-color: " + menu_background + ";} \
+    themeStyleSheet = "QComboBox {color: #FFFFFF; background-color: " + push_button_text_color + "; height: 26px;} \
+        QComboBox:hover {background-color: " + frame_background + "; color: " + push_button_text_color + ";  height: 26px;} \
+        QWidget {color: " + push_button_text_color + "; background-color: " + menu_background + ";} \
+        QMenu {color: " + text_color + "; background-color: " + menu_background + "; border-color: " + menu_background + ";} \
     	QMenu::item:selected {background-color: " + selected_menu_item_background + ";}\
    		QMainWindow {background-color: " + frame_background + "; border:none;font-family:" + font_family + ";} \
    		QHeaderView::section {color: " + text_color + "; background-color: " + tab_background + "; } \
@@ -142,6 +145,10 @@ void ThemeOriginalDark::init()
 		QComboBox::down-arrow { width: 14px; height: 14px; image: url(:/icons/arrow_down_white);}";
 	qComboboxDateRangeStyle = "background-color: " + frame_background + "; color: " + text_color + "; font-size: 14px; font-family: " + font_family + ";\
 		border: none; QComboBox::drop-down {border: none}";
+    qComboboxValueStyle = "QComboBox { background-color: " + frame_background + "; color: " + text_color + "; font-size: 14px; font-family: " + font_family + "; border: none; }\
+        QComboBox::drop-down {border: none;  background: " + title_background + "; width: 30px; height: 30px;}\
+        QComboBox::down-arrow { width: 10px; height: 10px; image: url(:/icons/arrow_down_white);}\
+        QAbstractItemView {min-height: 70px; min-width: 100px;}";
 	qToolBtnStyle = "{color: " + text_color + "; background-color: " + frame_background + "; padding: 3px; border: none;}";
 	qPushBtnStyle = "QPushButton {font-family:" + font_family + "; border: 1px solid " + push_button_border_color + "; background-color: " + input_background + "; color: " + push_button_text_color + "; padding: 8px}\
 		QPushButton:pressed {font-family:" + font_family + "; border: 1px solid " + push_button_border_color + "; background-color: " + push_button_background + "; color: " + push_button_text_color + "}\

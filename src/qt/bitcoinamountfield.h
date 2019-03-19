@@ -10,6 +10,7 @@
 #include <QWidget>
 
 class AmountSpinBox;
+class PlatformStyle;
 
 QT_BEGIN_NAMESPACE
 class QValueComboBox;
@@ -55,6 +56,9 @@ public:
         in these cases we have to set it up manually.
     */
     QWidget *setupTabChain(QWidget *prev);
+
+    /** DeepOnion: Theme */
+    void refreshStyle(const PlatformStyle *platformStyle);
 
 Q_SIGNALS:
     void valueChanged();

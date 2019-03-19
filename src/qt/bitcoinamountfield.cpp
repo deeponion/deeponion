@@ -7,6 +7,7 @@
 #include <qt/bitcoinunits.h>
 #include <qt/guiconstants.h>
 #include <qt/qvaluecombobox.h>
+#include <qt/platformstyle.h>
 
 #include <QApplication>
 #include <QAbstractSpinBox>
@@ -300,3 +301,9 @@ void BitcoinAmountField::setSingleStep(const CAmount& step)
 {
     amount->setSingleStep(step);
 }
+
+void BitcoinAmountField::refreshStyle(const PlatformStyle *platformStyle)
+{
+    unit->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQComboboxValueStyle());
+}
+
