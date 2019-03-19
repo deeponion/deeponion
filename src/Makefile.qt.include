@@ -471,8 +471,17 @@ if ENABLE_WALLET
 BITCOIN_QT_CPP += $(BITCOIN_QT_WALLET_CPP)
 endif
 
-RES_IMAGES = 
-
+RES_IMAGES = \
+  qt/res/images/about.png \
+  qt/res/images/colored-wallet-logo.png \
+  qt/res/images/dvbanner.png \
+  qt/res/images/splash.png \
+  qt/res/images/splash_testnet.png \
+  qt/res/images/wallet-purple-white.png \
+  qt/res/images/wallet-purple.png \
+  qt/res/images/about.png \
+  qt/res/images/wallet.png
+  
 RES_CSS = \
   qt/res/css/default.css
   

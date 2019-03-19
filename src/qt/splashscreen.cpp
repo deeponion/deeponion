@@ -50,7 +50,7 @@ SplashScreen::SplashScreen(Qt::WindowFlags f, const NetworkStyle *networkStyle) 
     QString font            = QApplication::font().toString();
 
     // create a bitmap according to device pixelratio
-    QSize splashSize(480*devicePixelRatio,320*devicePixelRatio);
+    QSize splashSize(800*devicePixelRatio,505*devicePixelRatio);
     pixmap = QPixmap(splashSize);
 
 #if QT_VERSION > 0x050100
@@ -68,10 +68,10 @@ SplashScreen::SplashScreen(Qt::WindowFlags f, const NetworkStyle *networkStyle) 
     QRect rGradient(QPoint(0,0), splashSize);
     pixPaint.fillRect(rGradient, gradient);
 
-    // draw the bitcoin icon, expected size of PNG: 1024x1024
-    QRect rectIcon(QPoint(-150,-122), QSize(430,430));
+    // draw the bitcoin icon, expected size of PNG: 800x505
+    QRect rectIcon(QPoint(0,0), QSize(800,505));
 
-    const QSize requiredSize(1024,1024);
+    const QSize requiredSize(800,505);
     QPixmap icon(networkStyle->getAppIcon().pixmap(requiredSize));
 
     pixPaint.drawPixmap(rectIcon, icon);
