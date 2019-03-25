@@ -42,6 +42,7 @@ public:
     }
 
     void setClientModel(ClientModel *model);
+    void updateBlockchainStatus();
 
     enum MessageClass {
         MC_ERROR,

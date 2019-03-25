@@ -17,6 +17,7 @@
 #include <rpc/server.h>
 #include <rpc/client.h>
 #include <util.h>
+#include <validation.h>
 
 #include <openssl/crypto.h>
 
@@ -577,7 +578,11 @@ void RPCConsole::setClientModel(ClientModel *model)
         updateTrafficStats(model->getTotalBytesRecv(), model->getTotalBytesSent());
         connect(model, SIGNAL(bytesChanged(quint64,quint64)), this, SLOT(updateTrafficStats(quint64, quint64)));
 
+        updateBlockchainStatus();
+        connect(model, SIGNAL(BlockchainStatusChanged(int)), this, SLOT(updateBlockchainStatus()));
+
         connect(model, SIGNAL(mempoolSizeChanged(long,size_t)), this, SLOT(setMempoolSize(long,size_t)));
+
 
         // set up peer table
         ui->peerWidget->setModel(model->getPeerTableModel());
@@ -1244,4 +1249,54 @@ void RPCConsole::refreshStyle()
     ui->clearButton->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQToolBtnStyle());
     ui->fontBiggerButton->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQToolBtnStyle());
     ui->fontSmallerButton->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQToolBtnStyle());
+}
+
+void RPCConsole::updateBlockchainStatus()
+{
+    QString text;
+
+    if(blockchainStatus == -2)
+        text = QString("The authenticity of the DeepOnion blockchain has not yet been verified.");
+    else if(blockchainStatus == -1)
+        text = QString("The DeepOnion blockchain is not fully sychronized.");
+    else if(blockchainStatus == 0)
+        text = QString("The DeepOnion blockchain synchronized, but it does not match the latest checkpoint hash at Block ")
+            + QString::number(LAST_REGISTERED_BLOCK_HEIGHT) + QString(" (which is registered and guaranteed by the Bitcoin blockchain). ")
+            + QString("So you are most likely on a forked chain, please resync with official peers at https://deeponion.org.");
+    else
+        text = QString("The DeepOnion blockchain is fully synchronized. It is authentic! It is guaranteed by the Bitcoin blockchain ")
+            + QString("(the most secure immutable database in the world) up to Block ")
+            + QString::number(LAST_REGISTERED_BLOCK_HEIGHT) + QString(".");
+
+    ui->labelBlockchainInfo->setStyleSheet(text);
+
+    QString detailsText;
+
+    if(blockchainStatus == -2)
+        detailsText = QString("The authenticity of the DeepOnion blockchain has not yet been verified. ")
+            + QString("Please change your settings in the conf file in order to verify it");
+    else if(blockchainStatus == -1)
+        detailsText = QString("We can't verify the DeepOnion blockchain as it is not fully sychronized yet. ")
+            + QString("Please wait until it is fully synchronized and check back.");
+    else if(blockchainStatus == 0)
+        detailsText = QString("The DeepOnion blockchain sychronized, but it does not match the latest checkpoint hash at Block ")
+            + QString::number(LAST_REGISTERED_BLOCK_HEIGHT) + QString(" (which is registered and guaranteed by the Bitcoin blockchain). ")
+            + QString("So you are most likely on a forked chain, please resync with official peers at https://deeponion.org.");
+    else
+        detailsText = QString("The current DeepOnion blockchain you are using matches the hash registered in the Bitcoin blockchain at height ")
+            + QString::number(LAST_REGISTERED_BTC_BLOCK_HEIGHT) + QString(". The matched hash is ") 
+            + QString::fromUtf8(LAST_REGISTERED_BLOCKCHAIN_HASH.c_str()) + QString(", which is registered at Bitcoin blockchain at Block ")
+            + QString::number(LAST_REGISTERED_BTC_BLOCK_HEIGHT) + QString(", with txid ")
+            + QString::fromUtf8(LAST_REGISTERED_BTC_TX.c_str()) + QString(".");
+
+    QString stylesheet;
+
+    if(blockchainStatus < 0 )
+		stylesheet = "QLabel {font-weight: bold; color: white;}";
+	else if(blockchainStatus == 0)
+		stylesheet = "QLabel {font-weight: bold; color: red;}";
+	else
+		stylesheet = "QLabel {font-weight: bold; color: green;}";
+
+    ui->labelBlockchainInfo->setStyleSheet(stylesheet);
 }
