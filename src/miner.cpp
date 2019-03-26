@@ -747,6 +747,7 @@ void StakeMiner()
 		catch (const std::exception& e)
 		{
 			LogPrint(BCLog::POS, "StakeMiner() Got Error: %s\n", e.what());
+                        MilliSleep(1000);
 		}
     }
 
