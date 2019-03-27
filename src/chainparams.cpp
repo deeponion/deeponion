@@ -168,24 +168,31 @@ public:
 
         checkpointData = {
             {
-            	{  1000, uint256S("0x0000000000850dc77a9601bc78cc6404bf24923475194c392accdb176c8e74da")},
-            	{ 10000, uint256S("0xc304f427bac3bef29e3faf8fe17d483a1e61d3a1749f9a0ac7ece4c1e544bbaa")},
-            	{ 50008, uint256S("0x00000000000a70b080e12cab200125ecffeebfae7c7fe7c914311a2b1056cf5b")},
-            	{100000, uint256S("0x00000000000338c044ce7a397242372cbc5d71ad7bad08c88089d0011de30f83")},
-            	{150006, uint256S("0x000000000000b5655b0eb5215167d4e18df3c5a43f67494f0385f87be6956114")},
-            	{200830, uint256S("0x000000000000dc867b2fad981c9e4ead671ebe1e0069ba7c9f43ba5a8ef67a07")},
-            	{250008, uint256S("0x00000000000069afef0ee5775301da6815092c4bd1a45928e33da5a894e55e00")},
-            	{300836, uint256S("0x00000000000047d897f3eac5fcacc831f0f77dfbf70222467ee2360dcbc4b266")},
-            	{350003, uint256S("0x0000000000001e6123edc0c5c8ca04ccee16aeb23455d02f12ba8d636516ee52")},
-            	{400002, uint256S("0x0000000000002945e035c7fabd433932269af99f5c033a6c9cea229b67751ba1")},
-            	{450000, uint256S("0x0000000000009bee8de0c52e5f4ea17a69e044b39718b62824eb67768ad18f4e")},
-            	{500001, uint256S("0x00000000000021a4ea50e863c7f9c3ab7a9ef1b452e498a0c5369a03fe224aec")},
-            	{550004, uint256S("0x0000000000008784d0e68a519407498b08d0b56b23726e4bfcc0843017d7d011")},
-            	{600014, uint256S("0x000000000000150feaa5a9669a7b58589333c8195770b675f873fc236cb9f6ce")},
-            	{650002, uint256S("0x000000000000007bc8502ddd5a6f0ce8fbf499a9c189ba4f6a42c6e3a7698b0f")},
-            	{700006, uint256S("0x00000000000052dd063e278fc0d3c95ebcfaa646215c350b7b8f505d6dc7e331")},
-            	{750001, uint256S("0x000000000000792fb98a1a8461e50a910543d90b712b2303e49779ee94238b27")},
-            	{773216, uint256S("0x0000000000007c8f13a40e050b76c3ce6a937992ee13a36ea5c362a4c705477b")},
+			    {   1000, uint256S("0x0000000000850dc77a9601bc78cc6404bf24923475194c392accdb176c8e74da")},
+				{  10000, uint256S("0xc304f427bac3bef29e3faf8fe17d483a1e61d3a1749f9a0ac7ece4c1e544bbaa")},
+			    {  50008, uint256S("0x00000000000a70b080e12cab200125ecffeebfae7c7fe7c914311a2b1056cf5b")},
+			    { 100000, uint256S("0x00000000000338c044ce7a397242372cbc5d71ad7bad08c88089d0011de30f83")},
+			    { 150006, uint256S("0x000000000000b5655b0eb5215167d4e18df3c5a43f67494f0385f87be6956114")},
+			    { 200830, uint256S("0x000000000000dc867b2fad981c9e4ead671ebe1e0069ba7c9f43ba5a8ef67a07")},
+			    { 250008, uint256S("0x00000000000069afef0ee5775301da6815092c4bd1a45928e33da5a894e55e00")},
+			    { 300836, uint256S("0x00000000000047d897f3eac5fcacc831f0f77dfbf70222467ee2360dcbc4b266")},
+			    { 350003, uint256S("0x0000000000001e6123edc0c5c8ca04ccee16aeb23455d02f12ba8d636516ee52")},
+			    { 400002, uint256S("0x0000000000002945e035c7fabd433932269af99f5c033a6c9cea229b67751ba1")},
+			    { 450000, uint256S("0x0000000000009bee8de0c52e5f4ea17a69e044b39718b62824eb67768ad18f4e")},
+			    { 500001, uint256S("0x00000000000021a4ea50e863c7f9c3ab7a9ef1b452e498a0c5369a03fe224aec")},
+			    { 550004, uint256S("0x0000000000008784d0e68a519407498b08d0b56b23726e4bfcc0843017d7d011")},
+			    { 600014, uint256S("0x000000000000150feaa5a9669a7b58589333c8195770b675f873fc236cb9f6ce")},
+			    { 650002, uint256S("0x000000000000007bc8502ddd5a6f0ce8fbf499a9c189ba4f6a42c6e3a7698b0f")},
+			    { 700006, uint256S("0x00000000000052dd063e278fc0d3c95ebcfaa646215c350b7b8f505d6dc7e331")},
+			    { 750001, uint256S("0x000000000000792fb98a1a8461e50a910543d90b712b2303e49779ee94238b27")},
+			    { 800002, uint256S("0x000000000000b799930f12a319238e283590d7480ac5ca711679548c33e8ebf1")},
+			    { 850000, uint256S("0x0000000000019d6b3b3a832567200db8b548f445ba78da7cc6c2fbe8e305c693")},
+			    { 900012, uint256S("0x00000000000027b3afa207c5cb8c3e4232129273fa020b9a463d567a01f726cd")},
+			    { 950005, uint256S("0x00000000000514c239cbb998a2d7b2a503b57d86b4739f8285fa05ef13fcabf2")},
+			    {1000006, uint256S("0x000000000005283dc62422cca1f4d09eaf220e41d9812ac7f659f4b7cb2c65c2")},
+			    {1050000, uint256S("0x000000000001ccf45545c4d685142d4ac5ca2f485b2f8d8c5e023de1d2f13228")},
+			    {1100013, uint256S("0x0000000000008d7041a212b8ca38e71732b3dcbed3075ed01959a82886a89d02")},
+			    {1118505, uint256S("0x000000000003c8328fbeafeb99a58030ab31d6ba52e17e111abd615d8cd8c6b9")},
             }
         };
 
@@ -197,25 +204,32 @@ public:
             0.046    // * estimated number of transactions per second after that timestamp
         };
 
-        mapStakeModifierCheckpoints.insert(std::pair<int, unsigned int>(0, 0xfd11f4e7u));
-        mapStakeModifierCheckpoints.insert(std::pair<int, unsigned int>(1000, 0x353653feu));
-        mapStakeModifierCheckpoints.insert(std::pair<int, unsigned int>(10000, 0x8c341084u));
-        mapStakeModifierCheckpoints.insert(std::pair<int, unsigned int>(50008, 0x9f0053f2u));
-        mapStakeModifierCheckpoints.insert(std::pair<int, unsigned int>(100000, 0xaf212909u));
-        mapStakeModifierCheckpoints.insert(std::pair<int, unsigned int>(150006, 0x3883af95u));
-        mapStakeModifierCheckpoints.insert(std::pair<int, unsigned int>(200830, 0xf2daec0au));
-        mapStakeModifierCheckpoints.insert(std::pair<int, unsigned int>(250008, 0x76bd1777u));
-        mapStakeModifierCheckpoints.insert(std::pair<int, unsigned int>(300836, 0x18dbac5eu));
-        mapStakeModifierCheckpoints.insert(std::pair<int, unsigned int>(350003, 0x17223fa8u));
-        mapStakeModifierCheckpoints.insert(std::pair<int, unsigned int>(400002, 0xd1662b8fu));
-        mapStakeModifierCheckpoints.insert(std::pair<int, unsigned int>(450000, 0x0fc0c8d3u));
-        mapStakeModifierCheckpoints.insert(std::pair<int, unsigned int>(500001, 0x17ac1811u));
-        mapStakeModifierCheckpoints.insert(std::pair<int, unsigned int>(550004, 0xcfb3340fu));
-        mapStakeModifierCheckpoints.insert(std::pair<int, unsigned int>(600014, 0x74d7cf8cu));
-        mapStakeModifierCheckpoints.insert(std::pair<int, unsigned int>(650002, 0xda8bce79u));
-        mapStakeModifierCheckpoints.insert(std::pair<int, unsigned int>(700006, 0x42463050u));
-        mapStakeModifierCheckpoints.insert(std::pair<int, unsigned int>(750001, 0x4d3e1fe6u));
-        mapStakeModifierCheckpoints.insert(std::pair<int, unsigned int>(773216, 0x349152bcu));
+        mapStakeModifierCheckpoints.insert(std::pair<int, unsigned int>(      0, 0xfd11f4e7u));
+        mapStakeModifierCheckpoints.insert(std::pair<int, unsigned int>(   1000, 0x353653feu));
+        mapStakeModifierCheckpoints.insert(std::pair<int, unsigned int>(  10000, 0x8c341084u));
+        mapStakeModifierCheckpoints.insert(std::pair<int, unsigned int>(  50008, 0x9f0053f2u));
+        mapStakeModifierCheckpoints.insert(std::pair<int, unsigned int>( 100000, 0xaf212909u));
+        mapStakeModifierCheckpoints.insert(std::pair<int, unsigned int>( 150006, 0x3883af95u));
+        mapStakeModifierCheckpoints.insert(std::pair<int, unsigned int>( 200830, 0xf2daec0au));
+        mapStakeModifierCheckpoints.insert(std::pair<int, unsigned int>( 250008, 0x76bd1777u));
+        mapStakeModifierCheckpoints.insert(std::pair<int, unsigned int>( 300836, 0x18dbac5eu));
+        mapStakeModifierCheckpoints.insert(std::pair<int, unsigned int>( 350003, 0x17223fa8u));
+        mapStakeModifierCheckpoints.insert(std::pair<int, unsigned int>( 400002, 0xd1662b8fu));
+        mapStakeModifierCheckpoints.insert(std::pair<int, unsigned int>( 450000, 0x0fc0c8d3u));
+        mapStakeModifierCheckpoints.insert(std::pair<int, unsigned int>( 500001, 0x17ac1811u));
+        mapStakeModifierCheckpoints.insert(std::pair<int, unsigned int>( 550004, 0xcfb3340fu));
+        mapStakeModifierCheckpoints.insert(std::pair<int, unsigned int>( 600014, 0x74d7cf8cu));
+        mapStakeModifierCheckpoints.insert(std::pair<int, unsigned int>( 650002, 0xda8bce79u));
+        mapStakeModifierCheckpoints.insert(std::pair<int, unsigned int>( 700006, 0x42463050u));
+        mapStakeModifierCheckpoints.insert(std::pair<int, unsigned int>( 750001, 0x4d3e1fe6u));
+        mapStakeModifierCheckpoints.insert(std::pair<int, unsigned int>( 800002, 0x0c90205du));
+        mapStakeModifierCheckpoints.insert(std::pair<int, unsigned int>( 850000, 0x40f52778u));
+        mapStakeModifierCheckpoints.insert(std::pair<int, unsigned int>( 900012, 0xa3e7b278u));
+        mapStakeModifierCheckpoints.insert(std::pair<int, unsigned int>( 950005, 0xf364b26cu));
+        mapStakeModifierCheckpoints.insert(std::pair<int, unsigned int>(1000006, 0x75801cf9u));
+        mapStakeModifierCheckpoints.insert(std::pair<int, unsigned int>(1050000, 0x2f3cfae9u));
+        mapStakeModifierCheckpoints.insert(std::pair<int, unsigned int>(1100013, 0xb92618a7u));
+        mapStakeModifierCheckpoints.insert(std::pair<int, unsigned int>(1118505, 0xed836afeu));
     }
 };
 
