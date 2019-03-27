@@ -1268,7 +1268,7 @@ void RPCConsole::updateBlockchainStatus()
             + QString("(the most secure immutable database in the world) up to Block ")
             + QString::number(LAST_REGISTERED_BLOCK_HEIGHT) + QString(".");
 
-    ui->labelBlockchainInfo->setStyleSheet(text);
+    ui->labelBlockchainInfo->setText(text);
 
     QString detailsText;
 
