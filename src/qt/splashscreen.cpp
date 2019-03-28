@@ -98,7 +98,7 @@ SplashScreen::SplashScreen(Qt::WindowFlags f, const NetworkStyle *networkStyle) 
     fm = pixPaint.fontMetrics();
     int versionTextWidth  = fm.width(versionText);
     if(versionTextWidth > titleTextWidth+paddingRight-10) {
-        QFont f = QFont(font, 12*fontFactor);
+        QFont f = QFont(font, 10*fontFactor);
         f.setWeight(QFont::Bold);
         pixPaint.setFont(f);
         titleVersionVSpace -= 5;
