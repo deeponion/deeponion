@@ -20,7 +20,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>4</number>
      </property>
      <widget class="QWidget" name="tabMain">
       <attribute name="title">
@@ -663,7 +663,7 @@
         </layout>
        </item>
        <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_3_Display">
+        <layout class="QHBoxLayout" name="horizontalLayout_4_Display">
          <item>
           <widget class="QLabel" name="thirdPartyTxUrlsLabel">
            <property name="toolTip">
