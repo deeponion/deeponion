@@ -73,12 +73,12 @@
         <enum>Qt::Vertical</enum>
        </property>
        <property name="sizeType">
-        <enum>QSizePolicy::Fixed</enum>
+        <enum>QSizePolicy::Minimum</enum>
        </property>
        <property name="sizeHint" stdset="0">
         <size>
          <width>20</width>
-         <height>40</height>
+         <height>20</height>
         </size>
        </property>
       </spacer>
@@ -94,11 +94,11 @@
           <enum>Qt::Horizontal</enum>
          </property>
          <property name="sizeType">
-          <enum>QSizePolicy::Fixed</enum>
+          <enum>QSizePolicy::Minimum</enum>
          </property>
          <property name="sizeHint" stdset="0">
           <size>
-           <width>60</width>
+           <width>20</width>
            <height>20</height>
           </size>
          </property>
@@ -299,7 +299,7 @@
                       <widget class="QLabel" name="labelTotal">
                        <property name="font">
                         <font>
-                         <pointsize>10</pointsize>
+                         <pointsize>9</pointsize>
                          <weight>75</weight>
                          <bold>true</bold>
                         </font>
@@ -319,7 +319,7 @@
                       <widget class="QLabel" name="labelTotalUnit">
                        <property name="font">
                         <font>
-                         <pointsize>10</pointsize>
+                         <pointsize>9</pointsize>
                         </font>
                        </property>
                        <property name="text">
@@ -359,7 +359,7 @@
                       <widget class="QLabel" name="labelBalance">
                        <property name="font">
                         <font>
-                         <pointsize>10</pointsize>
+                         <pointsize>9</pointsize>
                          <weight>75</weight>
                          <bold>true</bold>
                         </font>
@@ -379,7 +379,7 @@
                       <widget class="QLabel" name="labelBalanceUnit">
                        <property name="font">
                         <font>
-                         <pointsize>10</pointsize>
+                         <pointsize>9</pointsize>
                         </font>
                        </property>
                        <property name="text">
@@ -419,7 +419,7 @@
                       <widget class="QLabel" name="labelStake">
                        <property name="font">
                         <font>
-                         <pointsize>10</pointsize>
+                         <pointsize>9</pointsize>
                          <weight>75</weight>
                          <bold>true</bold>
                         </font>
@@ -439,7 +439,7 @@
                       <widget class="QLabel" name="labelStakeUnit">
                        <property name="font">
                         <font>
-                         <pointsize>10</pointsize>
+                         <pointsize>9</pointsize>
                         </font>
                        </property>
                        <property name="text">
@@ -479,7 +479,7 @@
                       <widget class="QLabel" name="labelUnconfirmed">
                        <property name="font">
                         <font>
-                         <pointsize>10</pointsize>
+                         <pointsize>9</pointsize>
                          <weight>75</weight>
                          <bold>true</bold>
                         </font>
@@ -499,7 +499,7 @@
                       <widget class="QLabel" name="labelUnconfirmedUnit">
                        <property name="font">
                         <font>
-                         <pointsize>10</pointsize>
+                         <pointsize>9</pointsize>
                         </font>
                        </property>
                        <property name="text">
@@ -539,7 +539,7 @@
                       <widget class="QLabel" name="labelImmature">
                        <property name="font">
                         <font>
-                         <pointsize>10</pointsize>
+                         <pointsize>9</pointsize>
                          <weight>75</weight>
                          <bold>true</bold>
                         </font>
@@ -559,7 +559,7 @@
                       <widget class="QLabel" name="labelImmatureUnit">
                        <property name="font">
                         <font>
-                         <pointsize>10</pointsize>
+                         <pointsize>9</pointsize>
                         </font>
                        </property>
                        <property name="text">
@@ -692,11 +692,11 @@
           <enum>Qt::Horizontal</enum>
          </property>
          <property name="sizeType">
-          <enum>QSizePolicy::Fixed</enum>
+          <enum>QSizePolicy::Minimum</enum>
          </property>
          <property name="sizeHint" stdset="0">
           <size>
-           <width>60</width>
+           <width>20</width>
            <height>20</height>
           </size>
          </property>
