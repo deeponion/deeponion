@@ -180,7 +180,7 @@ static void ShowProgress(SplashScreen *splash, const std::string &title, int nPr
     InitMessage(splash, title + std::string("\t") +
             (resume_possible ? _("(press q to shutdown and continue later)")
                                 : _("press q to shutdown")) +
-            strprintf("\n%d", nProgress) + "%");
+            strprintf("\t%d", nProgress) + "%");
 }
 
 static void ShowProgressNoResume(SplashScreen *splash, const std::string &title, int nProgress)

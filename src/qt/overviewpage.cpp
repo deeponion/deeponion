@@ -174,11 +174,17 @@ void OverviewPage::setBalance(const CAmount& balance, const CAmount& unconfirmed
     currentWatchUnconfBalance = watchUnconfBalance;
     currentWatchImmatureBalance = watchImmatureBalance;
     currentWatchStakeBalance = watchStakeBalance;
-    ui->labelBalance->setText(BitcoinUnits::formatWithUnit(unit, balance, false, BitcoinUnits::separatorAlways));
-    ui->labelUnconfirmed->setText(BitcoinUnits::formatWithUnit(unit, unconfirmedBalance, false, BitcoinUnits::separatorAlways));
-    ui->labelImmature->setText(BitcoinUnits::formatWithUnit(unit, immatureBalance, false, BitcoinUnits::separatorAlways));
-    ui->labelStake->setText(BitcoinUnits::formatWithUnit(unit, stakeBalance, false, BitcoinUnits::separatorAlways));
-    ui->labelTotal->setText(BitcoinUnits::formatWithUnit(unit, balance + unconfirmedBalance + immatureBalance + stakeBalance, false, BitcoinUnits::separatorAlways));
+    ui->labelBalance->setText(BitcoinUnits::format(unit, balance, false, BitcoinUnits::separatorAlways));
+    ui->labelUnconfirmed->setText(BitcoinUnits::format(unit, unconfirmedBalance, false, BitcoinUnits::separatorAlways));
+    ui->labelImmature->setText(BitcoinUnits::format(unit, immatureBalance, false, BitcoinUnits::separatorAlways));
+    ui->labelStake->setText(BitcoinUnits::format(unit, stakeBalance, false, BitcoinUnits::separatorAlways));
+    ui->labelTotal->setText(BitcoinUnits::format(unit, balance + unconfirmedBalance + immatureBalance + stakeBalance, false, BitcoinUnits::separatorAlways));
+    ui->labelBalanceUnit->setText(BitcoinUnits::shortName(unit));
+    ui->labelUnconfirmedUnit->setText(BitcoinUnits::shortName(unit));
+    ui->labelImmatureUnit->setText(BitcoinUnits::shortName(unit));
+    ui->labelStakeUnit->setText(BitcoinUnits::shortName(unit));
+    ui->labelTotalUnit->setText(BitcoinUnits::shortName(unit));
+    
 // TODO
 //    ui->labelWatchAvailable->setText(BitcoinUnits::formatWithUnit(unit, watchOnlyBalance, false, BitcoinUnits::separatorAlways));
 //    ui->labelWatchPending->setText(BitcoinUnits::formatWithUnit(unit, watchUnconfBalance, false, BitcoinUnits::separatorAlways));
@@ -196,8 +202,11 @@ void OverviewPage::setBalance(const CAmount& balance, const CAmount& unconfirmed
     // for symmetry reasons also show immature label when the watch-only one is shown
     ui->labelImmature->setVisible(showImmature || showWatchOnlyImmature);
     ui->labelImmatureText->setVisible(showImmature || showWatchOnlyImmature);
+    ui->labelImmatureUnit->setVisible(showImmature || showWatchOnlyImmature);
     ui->labelStake->setVisible(showStake || showWatchOnlyStake);
     ui->labelStakeText->setVisible(showStake || showWatchOnlyStake);
+    ui->labelStakeUnit->setVisible(showStake || showWatchOnlyStake);
+    
 // TODO
 //    ui->labelWatchImmature->setVisible(showWatchOnlyImmature); // show watch-only immature balance
 //    ui->labelWatchStake->setVisible(showWatchOnlyStake); // show watch-only stake balance
