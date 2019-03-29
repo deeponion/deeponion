@@ -214,14 +214,43 @@ BitcoinGUI::BitcoinGUI(const PlatformStyle *_platformStyle, const NetworkStyle *
     QHBoxLayout *frameBlocksLayout = new QHBoxLayout(frameBlocks);
     frameBlocksLayout->setContentsMargins(3,0,3,0);
     frameBlocksLayout->setSpacing(3);
+    int statusIconLabelHeight = 32;
+    
     unitDisplayControl = new UnitDisplayStatusBarControl();
     unitDisplayControl->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getStatusBarBackgroundColor());
+    unitDisplayControl->setMinimumWidth(statusIconLabelHeight);
+    unitDisplayControl->setMinimumHeight(statusIconLabelHeight);
+    
     labelWalletEncryptionIcon = new QLabel();
+    labelWalletEncryptionIcon->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getStatusBarBackgroundColor());
+    labelWalletEncryptionIcon->setMinimumWidth(statusIconLabelHeight);
+    labelWalletEncryptionIcon->setMinimumHeight(statusIconLabelHeight);
+    
     labelWalletHDStatusIcon = new QLabel();
+    labelWalletHDStatusIcon->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getStatusBarBackgroundColor());
+    labelWalletHDStatusIcon->setMinimumWidth(statusIconLabelHeight);
+    labelWalletHDStatusIcon->setMinimumHeight(statusIconLabelHeight);
+    
     connectionsControl = new GUIUtil::ClickableLabel();
-    labelBlocksIcon = new GUIUtil::ClickableLabel();
+    connectionsControl->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getStatusBarBackgroundColor());
+    connectionsControl->setMinimumWidth(statusIconLabelHeight);
+    connectionsControl->setMinimumHeight(statusIconLabelHeight);
+	
+	labelBlocksIcon = new GUIUtil::ClickableLabel();
+	labelBlocksIcon->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getStatusBarBackgroundColor());
+	labelBlocksIcon->setMinimumWidth(statusIconLabelHeight);
+	labelBlocksIcon->setMinimumHeight(statusIconLabelHeight);
+
     labelStakingIcon = new QLabel();
-    labelOnionIcon = new QLabel();    
+    labelStakingIcon->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getStatusBarBackgroundColor());
+    labelStakingIcon->setMinimumWidth(statusIconLabelHeight);
+    labelStakingIcon->setMinimumHeight(statusIconLabelHeight);
+
+    labelOnionIcon = new QLabel();
+    labelOnionIcon->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getStatusBarBackgroundColor());
+    labelOnionIcon->setMinimumWidth(statusIconLabelHeight);
+    labelOnionIcon->setMinimumHeight(statusIconLabelHeight);
+
     if(enableWallet)
     {
         frameBlocksLayout->addStretch();
@@ -240,7 +269,7 @@ BitcoinGUI::BitcoinGUI(const PlatformStyle *_platformStyle, const NetworkStyle *
     frameBlocksLayout->addWidget(labelBlocksIcon);
     frameBlocksLayout->addStretch();
 
-    // Stacking icon 
+    // Staking icon 
     
     //if (GetBoolArg("-staking", true))
     //{
@@ -269,8 +298,8 @@ BitcoinGUI::BitcoinGUI(const PlatformStyle *_platformStyle, const NetworkStyle *
     statusBar()->addWidget(progressBar);
     statusBar()->addPermanentWidget(frameBlocks);
     statusBar()->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getStatusBarBackgroundColor());
-    statusBar()->setMinimumHeight(56);
-    statusBar()->setMaximumHeight(56);
+    statusBar()->setMinimumHeight(50);
+    statusBar()->setMaximumHeight(50);
 
     // Install event filter to be able to catch status tip events (QEvent::StatusTip)
     this->installEventFilter(this);
@@ -322,7 +351,7 @@ void BitcoinGUI::createActions()
     overviewAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_1));
     tabGroup->addAction(overviewAction);
 
-    sendCoinsAction = new QAction(platformStyle->SingleColorIcon(platformStyle->getThemeManager()->getCurrent()->getMainMenuSendcoinsNormalBtnIco()), tr("&Send"), this);
+    sendCoinsAction = new QAction(platformStyle->SingleColorIcon(platformStyle->getThemeManager()->getCurrent()->getMainMenuSendcoinsNormalBtnIco()), tr("&Send Coins"), this);
     sendCoinsAction->setStatusTip(tr("Send coins to a DeepOnion address"));
     sendCoinsAction->setToolTip(sendCoinsAction->statusTip());
     sendCoinsAction->setCheckable(true);
@@ -333,7 +362,7 @@ void BitcoinGUI::createActions()
     sendCoinsMenuAction->setStatusTip(sendCoinsAction->statusTip());
     sendCoinsMenuAction->setToolTip(sendCoinsMenuAction->statusTip());
 
-    receiveCoinsAction = new QAction(platformStyle->SingleColorIcon(platformStyle->getThemeManager()->getCurrent()->getMainMenuReceiveCoinsNormalBtnIco()), tr("&Receive"), this);
+    receiveCoinsAction = new QAction(platformStyle->SingleColorIcon(platformStyle->getThemeManager()->getCurrent()->getMainMenuReceiveCoinsNormalBtnIco()), tr("&Receive Coins"), this);
     receiveCoinsAction->setStatusTip(tr("Request payments (generates QR codes and DeepOnion: URIs)"));
     receiveCoinsAction->setToolTip(receiveCoinsAction->statusTip());
     receiveCoinsAction->setCheckable(true);
@@ -538,6 +567,9 @@ void BitcoinGUI::createToolBars()
         toolbar->addAction(sendCoinsAction);
         toolbar->addAction(receiveCoinsAction);
         toolbar->addAction(historyAction);
+        toolbar->addAction(unlockWalletAction);
+        toolbar->addAction(lockWalletAction);
+        
         overviewAction->setChecked(true);
 
 /* don't override the background color of the toolbar on mac os x due to
