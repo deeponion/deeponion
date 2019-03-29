@@ -97,6 +97,7 @@ BitcoinGUI::BitcoinGUI(const PlatformStyle *_platformStyle, const NetworkStyle *
     appMenuBar(0),
     overviewAction(0),
     historyAction(0),
+    addressBookAction(0),
     quitAction(0),
     sendCoinsAction(0),
     sendCoinsMenuAction(0),
@@ -380,6 +381,13 @@ void BitcoinGUI::createActions()
     historyAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_4));
     tabGroup->addAction(historyAction);
 
+    addressBookAction = new QAction(platformStyle->SingleColorIcon(platformStyle->getThemeManager()->getCurrent()->getMainMenuAddressBookNormalBtnIco()), tr("&Address Book"), this);
+    addressBookAction->setStatusTip(tr("Edit the list of stored addresses and labels"));
+    addressBookAction->setToolTip(addressBookAction->statusTip());
+    addressBookAction->setCheckable(false);
+    addressBookAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_5));
+    tabGroup->addAction(addressBookAction);
+
 #ifdef ENABLE_WALLET
     // These showNormalIfMinimized are needed because Send Coins and Receive Coins
     // can be triggered from the tray menu, and need to show the GUI to be useful.
@@ -395,6 +403,8 @@ void BitcoinGUI::createActions()
     connect(receiveCoinsMenuAction, SIGNAL(triggered()), this, SLOT(gotoReceiveCoinsPage()));
     connect(historyAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
     connect(historyAction, SIGNAL(triggered()), this, SLOT(gotoHistoryPage()));
+    connect(addressBookAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
+    connect(addressBookAction, SIGNAL(triggered()), this, SLOT(gotoAddressBookPage()));
 #endif // ENABLE_WALLET
 
     quitAction = new QAction(platformStyle->TextColorIcon(":/icons/quit"), tr("E&xit"), this);
@@ -422,11 +432,13 @@ void BitcoinGUI::createActions()
     backupWalletAction->setStatusTip(tr("Backup wallet to another location"));
     changePassphraseAction = new QAction(platformStyle->TextColorIcon(":/icons/key"), tr("&Change Passphrase..."), this);
     changePassphraseAction->setStatusTip(tr("Change the passphrase used for wallet encryption"));
-    unlockWalletAction = new QAction(platformStyle->TextColorIcon(":/icons/lock_open"), tr("&Unlock Wallet..."), this);
+    unlockWalletAction = new QAction(platformStyle->TextColorIcon(platformStyle->getThemeManager()->getCurrent()->getMainMenuUnlockWalletNormalBtnIco()), tr("&Unlock Wallet..."), this);
     unlockWalletAction->setToolTip(tr("Unlock wallet"));
     unlockWalletAction->setObjectName("unlockWalletAction");
-    lockWalletAction = new QAction(platformStyle->TextColorIcon(":/icons/lock_closed"), tr("&Lock Wallet"), this);
+    tabGroup->addAction(unlockWalletAction);
+    lockWalletAction = new QAction(platformStyle->TextColorIcon(platformStyle->getThemeManager()->getCurrent()->getMainMenuLockWalletNormalBtnIco()), tr("&Lock Wallet"), this);
     lockWalletAction->setToolTip(tr("Lock wallet"));
+    tabGroup->addAction(lockWalletAction);
     signMessageAction = new QAction(platformStyle->TextColorIcon(":/icons/edit"), tr("Sign &message..."), this);
     signMessageAction->setStatusTip(tr("Sign messages with your DeepOnion addresses to prove you own them"));
     verifyMessageAction = new QAction(platformStyle->TextColorIcon(":/icons/verify"), tr("&Verify message..."), this);
@@ -567,9 +579,9 @@ void BitcoinGUI::createToolBars()
         toolbar->addAction(sendCoinsAction);
         toolbar->addAction(receiveCoinsAction);
         toolbar->addAction(historyAction);
+        toolbar->addAction(addressBookAction);
         toolbar->addAction(unlockWalletAction);
         toolbar->addAction(lockWalletAction);
-        
         overviewAction->setChecked(true);
 
 /* don't override the background color of the toolbar on mac os x due to
@@ -814,6 +826,11 @@ void BitcoinGUI::gotoOverviewPage()
     currentScreen = SCREEN_OVERVIEW;
     overviewAction->setChecked(true);
     if (walletFrame) walletFrame->gotoOverviewPage();
+}
+
+void BitcoinGUI::gotoAddressBookPage()
+{
+    if (walletFrame) walletFrame->usedSendingAddresses();
 }
 
 void BitcoinGUI::gotoHistoryPage()
@@ -1486,11 +1503,11 @@ void BitcoinGUI::updateToolBarStyleBySelectedScreen(int screen)
     ((QToolButton*)toolbar->widgetForAction(sendCoinsAction))->setIcon(QIcon(platformStyle->getThemeManager()->getCurrent()->getMainMenuSendcoinsNormalBtnIco()));
     ((QToolButton*)toolbar->widgetForAction(receiveCoinsAction))->setIcon(QIcon(platformStyle->getThemeManager()->getCurrent()->getMainMenuReceiveCoinsNormalBtnIco()));
     ((QToolButton*)toolbar->widgetForAction(historyAction))->setIcon(QIcon(platformStyle->getThemeManager()->getCurrent()->getMainMenuTransactionsNormalBtnIco()));
-//    ((QToolButton*)toolbar->widgetForAction(addressBookAction))->setIcon(QIcon(platformStyle->getThemeManager()->getCurrent()->getMainMenuAddressBookNormalBtnIco()));
+    ((QToolButton*)toolbar->widgetForAction(addressBookAction))->setIcon(QIcon(platformStyle->getThemeManager()->getCurrent()->getMainMenuAddressBookNormalBtnIco()));
 //    ((QToolButton*)toolbar->widgetForAction(messageAction))->setIcon(QIcon(platformStyle->getThemeManager()->getCurrent()->getMainMenuMessagesNormalBtnIco()));
 //    ((QToolButton*)toolbar->widgetForAction(exportAction))->setIcon(QIcon(platformStyle->getThemeManager()->getCurrent()->getMainMenuExportNormalBtnIco()));
-//    ((QToolButton*)toolbar->widgetForAction(unlockWalletAction))->setIcon(QIcon(platformStyle->getThemeManager()->getCurrent()->getMainMenuUnlockWalletNormalBtnIco()));
-//    ((QToolButton*)toolbar->widgetForAction(lockWalletAction))->setIcon(QIcon(platformStyle->getThemeManager()->getCurrent()->getMainMenuLockWalletNormalBtnIco()));
+    ((QToolButton*)toolbar->widgetForAction(unlockWalletAction))->setIcon(QIcon(platformStyle->getThemeManager()->getCurrent()->getMainMenuUnlockWalletNormalBtnIco()));
+    ((QToolButton*)toolbar->widgetForAction(lockWalletAction))->setIcon(QIcon(platformStyle->getThemeManager()->getCurrent()->getMainMenuLockWalletNormalBtnIco()));
 
     switch(screen) {
         case SCREEN_OVERVIEW:
@@ -1521,14 +1538,10 @@ void BitcoinGUI::updateToolBarStyleBySelectedScreen(int screen)
 //            ((QToolButton*)toolbar->widgetForAction(exportAction))->setIcon(QIcon(platformStyle->getThemeManager()->getCurrent()->getMainMenuExportSelectedBtnIco()));
 //            break;
 
-//        case SCREEN_UNLOCKWALLET:
-//            ((QToolButton*)toolbar->widgetForAction(unlockWalletAction))->setIcon(QIcon(platformStyle->getThemeManager()->getCurrent()->getMainMenuUnlockWalletSelectedBtnIco()));
-//            ((QToolButton*)toolbar->widgetForAction(lockWalletAction))->setIcon(QIcon(platformStyle->getThemeManager()->getCurrent()->getMainMenuLockWalletSelectedBtnIco()));
-//            break;
-
-//        case SCREEN_DEEPVAULT:
-//            ((QToolButton*)toolbar->widgetForAction(deepVaultAction))->setIcon(QIcon(platformStyle->getThemeManager()->getCurrent()->getMainMenuDeepVaultSelectedBtnIco()));
-//            break;
+        case SCREEN_UNLOCKWALLET:
+            ((QToolButton*)toolbar->widgetForAction(unlockWalletAction))->setIcon(QIcon(platformStyle->getThemeManager()->getCurrent()->getMainMenuUnlockWalletSelectedBtnIco()));
+            ((QToolButton*)toolbar->widgetForAction(lockWalletAction))->setIcon(QIcon(platformStyle->getThemeManager()->getCurrent()->getMainMenuLockWalletSelectedBtnIco()));
+            break;
 
         default:
             break;

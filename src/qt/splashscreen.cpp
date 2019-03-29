@@ -103,7 +103,9 @@ SplashScreen::SplashScreen(Qt::WindowFlags f, const NetworkStyle *networkStyle) 
         pixPaint.setFont(f);
         titleVersionVSpace -= 5;
     }
+    pixPaint.setPen(0xEFBDF9);
     pixPaint.drawText(pixmap.width()/devicePixelRatio-titleTextWidth-paddingRight+2,paddingTop+titleVersionVSpace+10,versionText);
+    pixPaint.setPen(Qt::white);
 
     // draw copyright stuff
     {
