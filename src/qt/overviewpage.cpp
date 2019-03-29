@@ -19,7 +19,7 @@
 #include <QPainter>
 
 #define DECORATION_SIZE 54
-#define NUM_ITEMS 5
+#define NUM_ITEMS 8
 
 class TxViewDelegate : public QAbstractItemDelegate
 {
@@ -261,17 +261,12 @@ void OverviewPage::setWalletModel(WalletModel *model)
         ui->listTransactions->setSortingEnabled(true);
         ui->listTransactions->sortByColumn(TransactionTableModel::Status, Qt::DescendingOrder);
         ui->listTransactions->verticalHeader()->hide();
-        ui->listTransactions->horizontalHeader()->resizeSection(
-                TransactionTableModel::Status, 28);
-        ui->listTransactions->horizontalHeader()->resizeSection(
-                TransactionTableModel::Watchonly, 28);
-        ui->listTransactions->horizontalHeader()->resizeSection(
-                TransactionTableModel::Date, 120);
-        ui->listTransactions->horizontalHeader()->resizeSection(
-                TransactionTableModel::Type, 120);
+        ui->listTransactions->horizontalHeader()->resizeSection(TransactionTableModel::Status, 28);
+        ui->listTransactions->horizontalHeader()->resizeSection(TransactionTableModel::Watchonly, 28);
+        ui->listTransactions->horizontalHeader()->resizeSection(TransactionTableModel::Date, 120);
+        ui->listTransactions->horizontalHeader()->resizeSection(TransactionTableModel::Type, 120);
         ui->listTransactions->horizontalHeader()->setSectionResizeMode(TransactionTableModel::ToAddress, QHeaderView::Stretch);
-        ui->listTransactions->horizontalHeader()->resizeSection(
-                TransactionTableModel::Amount, 120);
+        ui->listTransactions->horizontalHeader()->resizeSection(TransactionTableModel::Amount, 120);
 
         // Keep up to date with wallet
         setBalance(model->getBalance(), model->getUnconfirmedBalance(), model->getImmatureBalance(), model->getStakeBalance(),
