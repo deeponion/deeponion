@@ -31,7 +31,7 @@ WalletFrame::WalletFrame(const PlatformStyle *_platformStyle, BitcoinGUI *_gui) 
     noWallet->setAlignment(Qt::AlignCenter);
     walletStack->addWidget(noWallet);
 
-    setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getCentralWidgetStyle());
+    walletStack->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getCentralWidgetStyle());
 }
 
 WalletFrame::~WalletFrame()
@@ -223,7 +223,7 @@ void WalletFrame::outOfSyncWarningClicked()
 
 void WalletFrame::refreshStyle()
 {
-    setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getCentralWidgetStyle());
+	walletStack->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getCentralWidgetStyle());
     QMap<QString, WalletView*>::const_iterator i;
     for (i = mapWalletViews.constBegin(); i != mapWalletViews.constEnd(); ++i) {
         i.value()->refreshStyle();
