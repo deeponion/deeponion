@@ -18,11 +18,11 @@ void ThemeLightPurple::init()
     widgets_background = "#D8D8D8";
     menu_background = "#bdc9db";
     input_background = "#FFFFFF"; 
-    frame_background = "#FFFFFF";
+    frame_background = "#bdc9db";
     font_family = "'Helvetica Neue'";
     selected_item_background = "#79a6d2";
     text_color = "#2B2B37";
-    alternate_background = "#D8D8D8"; 
+    alternate_background = "#FFFFFF"; 
     tab_background = "#474757"; //unused
     selected_tab_background = "#7272a3"; //unused
     secondary_label_color = "#898994"; //unused
