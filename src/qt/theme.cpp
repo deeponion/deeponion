@@ -77,10 +77,10 @@ void Theme::init2() {
 		QScrollBar::handle:vertical {border-radius: 4px; background: " + scrollbar_handle_color + "; min-height: 25px; max-width: 12px; } \
 		QScrollBar::add-line:vertical { background: " + alternate_background + "; height: 0px; subcontrol-position: bottom; subcontrol-origin: margin;} \
 		QScrollBar::sub-line:vertical { background: " + alternate_background + "; height: 0px; subcontrol-position: top; subcontrol-origin: margin;}";
-	qListHeaderGeneralStyle = "QHeaderView::section {background-color: " + title_background + "; color: " + text_color + "; border: none; \
-		font-size: 14px; font-family: Helvetica Neue; \
+	qListHeaderGeneralStyle = "QHeaderView::section {background-color: " + table_header_background + "; color: " + text_color + "; border: none; \
+		font-size: 12px; font-family: Helvetica Neue; \
 		padding-left: 8px; padding-right: 8px; \
-		padding-top: 14px; padding-bottom: 14px;}";
+		padding-top: 8px; padding-bottom: 8px;}";
 	qLineEdit = "QLineEdit {background-color: " + input_background + "; color: " + text_color + "; padding-left: 5px; font-family: " + font_family + "; height: 32px;}  QLineEdit:ContextMenu {height: 200px;}";
 	qLineEditPassword = "QLineEdit {background-color: " + input_background + "; color: " + text_color + "; padding-left: 5px; font-family: " + font_family + "; height: 32px;}  QLineEdit:ContextMenu {height: 200px;}";
 	payAmountStyle = "background-color: " + input_background + "; color: " + text_color + "; padding-left: 5px; font-family: " + font_family + "; height: 32px;";

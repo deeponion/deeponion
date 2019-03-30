@@ -36,7 +36,8 @@ void ThemeOriginalDark::init()
     tableview_text_color = "#D5D5D9";
     scrollbar_handle_color = "#C1C1C1";
     disabled_text_color = "#757596";
-             
+    table_header_background = "#314c81";
+    
 	mainMenuOverviewNormalBtnIco = ":/icons/OverviewS";
 	mainMenuSendcoinsNormalBtnIco = ":/icons/SendCoinsS";
 	mainMenuReceiveCoinsNormalBtnIco = ":/icons/ReceiveCoinsS";

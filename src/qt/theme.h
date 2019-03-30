@@ -161,6 +161,7 @@ protected:
     QString tableview_text_color;
     QString scrollbar_handle_color;
     QString disabled_text_color;
+    QString table_header_background;
 };
 
 

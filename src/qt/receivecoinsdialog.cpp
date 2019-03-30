@@ -311,5 +311,7 @@ void ReceiveCoinsDialog::refreshStyle()
     ui->reqAmount->refreshStyle(platformStyle);
     ui->recentRequestsView->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQTableGeneralStyle());
     ui->recentRequestsView->horizontalHeader()->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQListHeaderGeneralStyle());
+    ui->labelRequestCoinTitle->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getSubSectionTitleStyle());
+    ui->labelRequestedPaymentHistory->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getSubSectionTitleStyle());
 }
 
