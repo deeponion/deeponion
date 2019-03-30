@@ -689,13 +689,6 @@
             <number>0</number>
            </property>
            <item>
-            <layout class="QVBoxLayout" name="entries">
-             <property name="spacing">
-              <number>6</number>
-             </property>
-            </layout>
-           </item>
-           <item>
             <widget class="QLabel" name="sendCoinsFormTitle">
              <property name="minimumSize">
               <size>
@@ -717,6 +710,16 @@
               <string>Send Coins</string>
              </property>
             </widget>
+           </item>
+           <item>
+            <layout class="QVBoxLayout" name="entries">
+             <property name="spacing">
+              <number>6</number>
+             </property>
+             <property name="bottomMargin">
+              <number>0</number>
+             </property>
+            </layout>
            </item>
            <item>
             <spacer name="verticalSpacer">

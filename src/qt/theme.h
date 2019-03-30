@@ -1,6 +1,7 @@
-//
-// Created by arcas on 5/18/2018.
-//
+// Copyright (c) 2017-2019 The DeepOnion developers
+// Distributed under the MIT software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php
+
 
 #ifndef DEEPONION_THEME_THEME_H
 #define DEEPONION_THEME_THEME_H
@@ -9,6 +10,7 @@
 
 
 class Theme {
+	
 public:
 	
     const QString getStyleSheet() const;
@@ -74,6 +76,8 @@ public:
 
 
 protected:
+	void init2();
+	
     QString themeStyleSheet;
     QString centralWidgetStyle;
 
@@ -134,6 +138,29 @@ protected:
     QString subSectionTitleStyle;
     QString roundedButtonStyle;
     QString deepOnionLogo;
+    
+	QString title_background;
+    QString status_bar_background;
+    QString widgets_background;
+    QString menu_background;
+    QString input_background;
+    QString frame_background;
+    QString font_family;
+    QString selected_item_background;
+    QString text_color;
+    QString alternate_background;
+    QString tab_background;
+    QString selected_tab_background;
+    QString secondary_label_color;
+    QString push_button_text_color;
+    QString push_button_border_color;
+    QString push_button_background;
+    QString selected_menu_item_background;
+    QString tree_item_alternate_background;
+    QString progress_bar_background;
+    QString tableview_text_color;
+    QString scrollbar_handle_color;
+    QString disabled_text_color;
 };
 
 
