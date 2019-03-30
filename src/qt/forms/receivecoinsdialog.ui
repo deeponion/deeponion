@@ -401,7 +401,7 @@
              <string notr="true">background-color: #486EBA; color: white;</string>
             </property>
             <property name="text">
-             <string>Requested payments history</string>
+             <string>Requested Payments History</string>
             </property>
            </widget>
           </item>
