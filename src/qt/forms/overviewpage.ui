@@ -175,7 +175,9 @@
                   <widget class="QLabel" name="section_title_wallet_summary">
                    <property name="font">
                     <font>
-                     <pointsize>12</pointsize>
+                     <pointsize>11</pointsize>
+                     <weight>75</weight>
+                     <bold>true</bold>
                     </font>
                    </property>
                    <property name="styleSheet">

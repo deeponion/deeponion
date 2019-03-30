@@ -63,6 +63,9 @@ ReceiveCoinsDialog::ReceiveCoinsDialog(const PlatformStyle *_platformStyle, QWid
     ui->recentRequestsView->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQTableGeneralStyle());
     ui->recentRequestsView->horizontalHeader()->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQListHeaderGeneralStyle());
     ui->recentRequestsView->setAlternatingRowColors(true);
+    ui->labelRequestCoinTitle->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getSubSectionTitleStyle());
+    ui->labelRequestedPaymentHistory->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getSubSectionTitleStyle());
+
 //    ui->label->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQLabelGeneralStyle());
 //    ui->label_3->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQLabelGeneralStyle());
 //    ui->label_5->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQLabelGeneralStyle());
