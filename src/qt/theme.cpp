@@ -67,7 +67,7 @@ void Theme::init2() {
         QScrollBar::add-line:horizontal { background: " + alternate_background + "; height: 0px; subcontrol-position: bottom; subcontrol-origin: margin;}\
         QScrollBar::sub-line:horizontal { background: " + alternate_background + "; height: 0px; subcontrol-position: top; subcontrol-origin: margin;}";
 
-	centralWidgetStyle = "background: " + frame_background + "";
+	centralWidgetStyle = "background: " + input_background + "";
 
 	qFrameGeneralStyle = "background-color: " + frame_background + ";";
 	qFrameSecondaryMenuGeneralStyle = "background-color: " + push_button_background + "; padding: 8px;";
