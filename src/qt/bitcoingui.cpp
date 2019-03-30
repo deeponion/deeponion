@@ -825,11 +825,14 @@ void BitcoinGUI::gotoOverviewPage()
 {
     currentScreen = SCREEN_OVERVIEW;
     overviewAction->setChecked(true);
+    updateToolBarStyleBySelectedScreen(currentScreen);
     if (walletFrame) walletFrame->gotoOverviewPage();
 }
 
 void BitcoinGUI::gotoAddressBookPage()
 {
+	// currentScreen = SCREEN_ADDRESSBOOK;
+	// updateToolBarStyleBySelectedScreen(currentScreen);
     if (walletFrame) walletFrame->usedSendingAddresses();
 }
 
@@ -837,6 +840,7 @@ void BitcoinGUI::gotoHistoryPage()
 {
     currentScreen = SCREEN_TRANSACTIONS;
     historyAction->setChecked(true);
+    updateToolBarStyleBySelectedScreen(currentScreen);
     if (walletFrame) walletFrame->gotoHistoryPage();
 }
 
@@ -844,6 +848,7 @@ void BitcoinGUI::gotoReceiveCoinsPage()
 {
     currentScreen = SCREEN_RECEIVECOINS;
     receiveCoinsAction->setChecked(true);
+    updateToolBarStyleBySelectedScreen(currentScreen);
     if (walletFrame) walletFrame->gotoReceiveCoinsPage();
 }
 
@@ -851,6 +856,7 @@ void BitcoinGUI::gotoSendCoinsPage(QString addr)
 {
     currentScreen = SCREEN_SENDCOINS;
     sendCoinsAction->setChecked(true);
+    updateToolBarStyleBySelectedScreen(currentScreen);
     if (walletFrame) walletFrame->gotoSendCoinsPage(addr);
 }
 
@@ -1526,10 +1532,10 @@ void BitcoinGUI::updateToolBarStyleBySelectedScreen(int screen)
             ((QToolButton*)toolbar->widgetForAction(historyAction))->setIcon(QIcon(platformStyle->getThemeManager()->getCurrent()->getMainMenuTransactionsSelectedBtnIco()));
             break;
 
-//        case SCREEN_ADDRESSBOOK:
-//            ((QToolButton*)toolbar->widgetForAction(addressBookAction))->setIcon(QIcon(platformStyle->getThemeManager()->getCurrent()->getMainMenuAddressBookSelectedBtnIco()));
-//            break;
-//
+        case SCREEN_ADDRESSBOOK:
+            ((QToolButton*)toolbar->widgetForAction(addressBookAction))->setIcon(QIcon(platformStyle->getThemeManager()->getCurrent()->getMainMenuAddressBookSelectedBtnIco()));
+            break;
+
 //        case SCREEN_MESSAGES:
 //            ((QToolButton*)toolbar->widgetForAction(messageAction))->setIcon(QIcon(platformStyle->getThemeManager()->getCurrent()->getMainMenuMessagesSelectedBtnIco()));
 //            break;
@@ -1622,3 +1628,4 @@ void UnitDisplayStatusBarControl::onMenuSelection(QAction* action)
         optionsModel->setDisplayUnit(action->data());
     }
 }
+

@@ -35,7 +35,7 @@ void ThemeLightPurple::init()
     tableview_text_color = "#565656";
     scrollbar_handle_color = " rgba(255, 255, 255, 0%)";
     disabled_text_color = "#757596";
-    table_header_background = "#d699ff";
+    table_header_background = "#b49be4";
     
     mainMenuOverviewNormalBtnIco = ":/icons/purple/overview";
     mainMenuSendcoinsNormalBtnIco = ":/icons/purple/send";

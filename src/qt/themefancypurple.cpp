@@ -36,7 +36,7 @@ void ThemeFancyPurple::init()
     tableview_text_color = "#D5D5D9";
     scrollbar_handle_color = "#C1C1C1";
     disabled_text_color = "#5b608e";
-    table_header_background = "#4c0080";
+    table_header_background = "#351b64";
 
 	mainMenuOverviewNormalBtnIco = ":/icons/OverviewS";
 	mainMenuSendcoinsNormalBtnIco = ":/icons/SendCoinsS";
