@@ -29,9 +29,9 @@ NetworkStyle::NetworkStyle(const QString &_appName, const int iconColorHueShift,
     // load pixmap
     QPixmap pixmap;
     if (std::char_traits<char>::length(_titleAddText) == 0) {
-        pixmap.load(":/images/splash");
+        pixmap.load(":/icons/deeponion");
     } else {
-        pixmap.load(":/images/splash_testnet");
+        pixmap.load(":/icons/deeponion_testnet");
     }
 
     if(iconColorHueShift != 0 && iconColorSaturationReduction != 0)
