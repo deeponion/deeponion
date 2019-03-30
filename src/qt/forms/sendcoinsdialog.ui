@@ -92,6 +92,35 @@
      <item>
       <layout class="QVBoxLayout" name="verticalLayout_3">
        <item>
+        <widget class="QLabel" name="labelCoinControlFeatures">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>42</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>11</pointsize>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: #486EBA; color: white;</string>
+         </property>
+         <property name="text">
+          <string>Coin Control Features</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QFrame" name="frameCoinControl">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -146,35 +175,6 @@
               <property name="bottomMargin">
                <number>15</number>
               </property>
-              <item>
-               <widget class="QLabel" name="labelCoinControlFeatures">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="minimumSize">
-                 <size>
-                  <width>0</width>
-                  <height>42</height>
-                 </size>
-                </property>
-                <property name="font">
-                 <font>
-                  <pointsize>11</pointsize>
-                  <weight>75</weight>
-                  <bold>true</bold>
-                 </font>
-                </property>
-                <property name="styleSheet">
-                 <string notr="true">background-color: #486EBA; color: white;</string>
-                </property>
-                <property name="text">
-                 <string>Coin Control Features</string>
-                </property>
-               </widget>
-              </item>
              </layout>
             </item>
             <item>
@@ -672,7 +672,7 @@
             <x>0</x>
             <y>0</y>
             <width>1000</width>
-            <height>92</height>
+            <height>89</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0,1">
