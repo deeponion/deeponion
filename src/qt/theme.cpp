@@ -83,16 +83,16 @@ void Theme::init2() {
 		padding-top: 8px; padding-bottom: 8px;}";
 	qLineEdit = "QLineEdit {background-color: " + input_background + "; color: " + text_color + "; padding-left: 5px; font-family: " + font_family + "; height: 32px;}  QLineEdit:ContextMenu {height: 200px;}";
 	qLineEditPassword = "QLineEdit {background-color: " + input_background + "; color: " + text_color + "; padding-left: 5px; font-family: " + font_family + "; height: 32px;}  QLineEdit:ContextMenu {height: 200px;}";
-	payAmountStyle = "background-color: " + input_background + "; color: " + text_color + "; padding-left: 5px; font-family: " + font_family + "; height: 32px;";
+	payAmountStyle = "background-color: " + input_background + "; color: " + text_color + "; padding-left: 5px; font-family: " + font_family + "; height: 28px;";
 	iconTextButtonStyle = "QPushButton, QPushButton:hover {color: " + text_color + "; border: none; background-color: rgba(255, 255, 255, 0);}";
 	informationBtnStyle = "background-color: " + frame_background + "; border: none";
-	qComboboxTransactionsFilteringStyle = "QComboBox { background-color: " + frame_background + "; color: " + text_color + "; font-size: 14px; font-family: " + font_family + ";\
+	qComboboxTransactionsFilteringStyle = "QComboBox { background-color: " + frame_background + "; color: " + text_color + "; font-size: 12px; font-family: " + font_family + ";\
 		padding-left: 8px; padding-top: 4px; padding-bottom: 4px; border: none; }\
 		QComboBox::drop-down {border: none; background: " + title_background + "; width: 30px;}\
-		QComboBox::down-arrow { width: 14px; height: 14px; image: url(:/icons/arrow_down_white);}";
-	qComboboxDateRangeStyle = "background-color: " + frame_background + "; color: " + text_color + "; font-size: 14px; font-family: " + font_family + ";\
+		QComboBox::down-arrow { width: 14px; height: 12px; image: url(:/icons/arrow_down_white);}";
+	qComboboxDateRangeStyle = "background-color: " + frame_background + "; color: " + text_color + "; font-size: 12px; font-family: " + font_family + ";\
 		border: none; QComboBox::drop-down {border: none}";
-	qComboboxValueStyle = "QComboBox { background-color: " + frame_background + "; color: " + text_color + "; font-size: 14px; font-family: " + font_family + "; border: none; }\
+	qComboboxValueStyle = "QComboBox { background-color: " + frame_background + "; color: " + text_color + "; font-size: 12px; font-family: " + font_family + "; border: none; }\
         QComboBox::drop-down {border: none;  background: " + title_background + "; width: 30px; height: 30px;}\
         QComboBox::down-arrow { width: 10px; height: 10px; image: url(:/icons/arrow_down_white);}\
 	    QAbstractItemView {min-height: 70px; min-width: 100px;}";
