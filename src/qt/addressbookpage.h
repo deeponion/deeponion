@@ -60,6 +60,7 @@ private:
     QMenu *contextMenu;
     QAction *deleteAction; // to be able to explicitly disable it
     QString newAddressToSelect;
+    const PlatformStyle *platformStyle;
 
 private Q_SLOTS:
     /** Delete currently selected address entry */

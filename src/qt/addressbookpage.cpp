@@ -21,12 +21,13 @@
 #include <QMessageBox>
 #include <QSortFilterProxyModel>
 
-AddressBookPage::AddressBookPage(const PlatformStyle *platformStyle, Mode _mode, Tabs _tab, QWidget *parent, QString title) :
+AddressBookPage::AddressBookPage(const PlatformStyle *_platformStyle, Mode _mode, Tabs _tab, QWidget *parent, QString title) :
     QDialog(parent),
     ui(new Ui::AddressBookPage),
     model(0),
     mode(_mode),
-    tab(_tab)
+    tab(_tab),
+	platformStyle(_platformStyle)
 {
     ui->setupUi(this);
 
