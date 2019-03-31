@@ -58,8 +58,6 @@ WalletView::WalletView(const PlatformStyle *_platformStyle, QWidget *parent):
     receiveCoinsPage = new ReceiveCoinsDialog(platformStyle);
     sendCoinsPage = new SendCoinsDialog(platformStyle);
 
-    // usedSendingAddressesPage = new AddressBookPage(platformStyle, AddressBookPage::ForEditing, AddressBookPage::SendingTab, this);
-    // usedReceivingAddressesPage = new AddressBookPage(platformStyle, AddressBookPage::ForEditing, AddressBookPage::ReceivingTab, this);
     usedSendingAddressesPage = new AddressBookPage(platformStyle, AddressBookPage::ForEditing, AddressBookPage::SendingTab, 0, QString("Address Book"));
     usedReceivingAddressesPage = new AddressBookPage(platformStyle, AddressBookPage::ForEditing, AddressBookPage::ReceivingTab, 0, QString("Receiving Addresses"));
 
@@ -363,6 +361,9 @@ void WalletView::refreshStyle()
     transactionView->refreshStyle();
     usedSendingAddressesPage->refreshStyle();
     usedReceivingAddressesPage->refreshStyle();
+    usedSendingAddressesPage->refreshStyle();
+    usedReceivingAddressesPage->refreshStyle();
+
 //    messagePage->refreshStyle();
 //    deepVaultPage->refreshStyle();
 //    signVerifyMessageDialog->refreshStyle();

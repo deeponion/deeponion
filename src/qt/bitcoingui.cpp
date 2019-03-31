@@ -1531,11 +1531,12 @@ void BitcoinGUI::updateToolBarStyleBySelectedScreen(int screen)
     ((QToolButton*)toolbar->widgetForAction(receiveCoinsAction))->setIcon(QIcon(platformStyle->getThemeManager()->getCurrent()->getMainMenuReceiveCoinsNormalBtnIco()));
     ((QToolButton*)toolbar->widgetForAction(historyAction))->setIcon(QIcon(platformStyle->getThemeManager()->getCurrent()->getMainMenuTransactionsNormalBtnIco()));
     ((QToolButton*)toolbar->widgetForAction(addressBookAction))->setIcon(QIcon(platformStyle->getThemeManager()->getCurrent()->getMainMenuAddressBookNormalBtnIco()));
-//    ((QToolButton*)toolbar->widgetForAction(messageAction))->setIcon(QIcon(platformStyle->getThemeManager()->getCurrent()->getMainMenuMessagesNormalBtnIco()));
-//    ((QToolButton*)toolbar->widgetForAction(exportAction))->setIcon(QIcon(platformStyle->getThemeManager()->getCurrent()->getMainMenuExportNormalBtnIco()));
     ((QToolButton*)toolbar->widgetForAction(unlockWalletAction))->setIcon(QIcon(platformStyle->getThemeManager()->getCurrent()->getMainMenuUnlockWalletNormalBtnIco()));
     ((QToolButton*)toolbar->widgetForAction(lockWalletAction))->setIcon(QIcon(platformStyle->getThemeManager()->getCurrent()->getMainMenuLockWalletNormalBtnIco()));
-
+    ((QToolButton*)toolbar->widgetForAction(receivingAddressAction))->setIcon(QIcon(platformStyle->getThemeManager()->getCurrent()->getMainMenuReceiveCoinsNormalBtnIco()));
+    //    ((QToolButton*)toolbar->widgetForAction(messageAction))->setIcon(QIcon(platformStyle->getThemeManager()->getCurrent()->getMainMenuMessagesNormalBtnIco()));
+    //    ((QToolButton*)toolbar->widgetForAction(exportAction))->setIcon(QIcon(platformStyle->getThemeManager()->getCurrent()->getMainMenuExportNormalBtnIco()));
+    
     switch(screen) {
         case SCREEN_OVERVIEW:
             ((QToolButton*)toolbar->widgetForAction(overviewAction))->setIcon(QIcon(platformStyle->getThemeManager()->getCurrent()->getMainMenuOverviewSelectedBtnIco()));
@@ -1557,6 +1558,15 @@ void BitcoinGUI::updateToolBarStyleBySelectedScreen(int screen)
             ((QToolButton*)toolbar->widgetForAction(addressBookAction))->setIcon(QIcon(platformStyle->getThemeManager()->getCurrent()->getMainMenuAddressBookSelectedBtnIco()));
             break;
 
+        case SCREEN_UNLOCKWALLET:
+            ((QToolButton*)toolbar->widgetForAction(unlockWalletAction))->setIcon(QIcon(platformStyle->getThemeManager()->getCurrent()->getMainMenuUnlockWalletSelectedBtnIco()));
+            ((QToolButton*)toolbar->widgetForAction(lockWalletAction))->setIcon(QIcon(platformStyle->getThemeManager()->getCurrent()->getMainMenuLockWalletSelectedBtnIco()));
+            break;
+
+        case SCREEN_RECEIVINGADDRESS:
+            ((QToolButton*)toolbar->widgetForAction(receivingAddressAction))->setIcon(QIcon(platformStyle->getThemeManager()->getCurrent()->getMainMenuReceiveCoinsSelectedBtnIco()));
+            break;
+            
 //        case SCREEN_MESSAGES:
 //            ((QToolButton*)toolbar->widgetForAction(messageAction))->setIcon(QIcon(platformStyle->getThemeManager()->getCurrent()->getMainMenuMessagesSelectedBtnIco()));
 //            break;
@@ -1564,11 +1574,6 @@ void BitcoinGUI::updateToolBarStyleBySelectedScreen(int screen)
 //        case SCREEN_EXPORT:
 //            ((QToolButton*)toolbar->widgetForAction(exportAction))->setIcon(QIcon(platformStyle->getThemeManager()->getCurrent()->getMainMenuExportSelectedBtnIco()));
 //            break;
-
-        case SCREEN_UNLOCKWALLET:
-            ((QToolButton*)toolbar->widgetForAction(unlockWalletAction))->setIcon(QIcon(platformStyle->getThemeManager()->getCurrent()->getMainMenuUnlockWalletSelectedBtnIco()));
-            ((QToolButton*)toolbar->widgetForAction(lockWalletAction))->setIcon(QIcon(platformStyle->getThemeManager()->getCurrent()->getMainMenuLockWalletSelectedBtnIco()));
-            break;
 
         default:
             break;
