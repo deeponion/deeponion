@@ -79,17 +79,18 @@ AddressBookPage::AddressBookPage(const PlatformStyle *platformStyle, Mode _mode,
     ui->pageTitle->setText(title);
     
     // DeepOnion: Theme
-    ui->pageTitle->setStyleSheet(themeManager->getCurrent()->getMainHeaderStyle());
-    // ui->frameExplanation->setStyleSheet(themeManager->getCurrent()->getQFrameGeneralStyle());
-    // ui->informationPushButton->setIcon(QIcon(themeManager->getCurrent()->getInformationIco()));
-    // ui->informationPushButton->setStyleSheet(themeManager->getCurrent()->getInformationBtnStyle());
-    ui->labelExplanation->setStyleSheet(themeManager->getCurrent()->getQLabelGeneralStyle());
-    // ui->labelExplanation2->setStyleSheet(themeManager->getCurrent()->getQLabelGeneralStyle());
-    // ui->secondaryMenuFrame->setStyleSheet(themeManager->getCurrent()->getQFrameSecondaryMenuGeneralStyle());
-    ui->newAddress->setStyleSheet(themeManager->getCurrent()->getRoundedButtonStyle());
-    ui->copyAddress->setStyleSheet(themeManager->getCurrent()->getRoundedButtonStyle());
-    ui->deleteAddress->setStyleSheet(themeManager->getCurrent()->getRoundedButtonStyle());
-    ui->exportButton->setStyleSheet(themeManager->getCurrent()->getRoundedButtonStyle());
+    ui->pageTitle->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getMainHeaderStyle());
+    // ui->frameExplanation->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQFrameGeneralStyle());
+    // ui->informationPushButton->setIcon(QIcon(platformStyle->getThemeManager()->getCurrent()->getInformationIco()));
+    // ui->informationPushButton->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getInformationBtnStyle());
+    ui->labelExplanation->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQLabelGeneralStyle());
+    // ui->labelExplanation2->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQLabelGeneralStyle());
+    // ui->secondaryMenuFrame->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQFrameSecondaryMenuGeneralStyle());
+    ui->newAddress->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getRoundedButtonStyle());
+    ui->copyAddress->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getRoundedButtonStyle());
+    ui->deleteAddress->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getRoundedButtonStyle());
+    ui->exportButton->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getRoundedButtonStyle());
+    
     ui->tableView->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQTableGeneralStyle());
     ui->tableView->horizontalHeader()->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQListHeaderGeneralStyle());
 
@@ -331,17 +332,17 @@ void AddressBookPage::selectNewAddress(const QModelIndex &parent, int begin, int
 
 void AddressBookPage::refreshStyle()
 {
-    ui->pageTitle->setStyleSheet(themeManager->getCurrent()->getMainHeaderStyle());
-    // ui->frameExplanation->setStyleSheet(themeManager->getCurrent()->getQFrameGeneralStyle());
-    // ui->informationPushButton->setIcon(QIcon(themeManager->getCurrent()->getInformationIco()));
-    // ui->informationPushButton->setStyleSheet(themeManager->getCurrent()->getInformationBtnStyle());
-    ui->labelExplanation->setStyleSheet(themeManager->getCurrent()->getQLabelGeneralStyle());
-    // ui->labelExplanation2->setStyleSheet(themeManager->getCurrent()->getQLabelGeneralStyle());
-    // ui->secondaryMenuFrame->setStyleSheet(themeManager->getCurrent()->getQFrameSecondaryMenuGeneralStyle());
-    ui->newAddress->setStyleSheet(themeManager->getCurrent()->getRoundedButtonStyle());
-    ui->copyAddress->setStyleSheet(themeManager->getCurrent()->getRoundedButtonStyle());
-    ui->deleteAddress->setStyleSheet(themeManager->getCurrent()->getRoundedButtonStyle());
-    ui->exportButton->setStyleSheet(themeManager->getCurrent()->getRoundedButtonStyle());
+    ui->pageTitle->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getMainHeaderStyle());
+    // ui->frameExplanation->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQFrameGeneralStyle());
+    // ui->informationPushButton->setIcon(QIcon(platformStyle->getThemeManager()->getCurrent()->getInformationIco()));
+    // ui->informationPushButton->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getInformationBtnStyle());
+    ui->labelExplanation->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQLabelGeneralStyle());
+    // ui->labelExplanation2->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQLabelGeneralStyle());
+    // ui->secondaryMenuFrame->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQFrameSecondaryMenuGeneralStyle());
+    ui->newAddress->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getRoundedButtonStyle());
+    ui->copyAddress->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getRoundedButtonStyle());
+    ui->deleteAddress->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getRoundedButtonStyle());
+    ui->exportButton->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getRoundedButtonStyle());
     
     ui->tableView->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQTableGeneralStyle());
     ui->tableView->horizontalHeader()->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQListHeaderGeneralStyle());
