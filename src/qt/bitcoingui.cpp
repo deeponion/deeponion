@@ -875,7 +875,7 @@ void BitcoinGUI::gotoAddressBookPage()
 void BitcoinGUI::gotoReceiveAddressPage()
 {
 	currentScreen = SCREEN_RECEIVINGADDRESS;
-	sendCoinsAction->setChecked(true);
+	receivingAddressAction->setChecked(true); 
 	updateToolBarStyleBySelectedScreen(currentScreen);
     if (walletFrame) walletFrame->gotoReceiveAddressPage();
 }
