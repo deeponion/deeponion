@@ -52,7 +52,8 @@ enum Screen_Name
     SCREEN_MESSAGES = 5,
     SCREEN_EXPORT = 6,
     SCREEN_UNLOCKWALLET = 7,
-    SCREEN_DEEPVAULT = 8
+    SCREEN_DEEPVAULT = 8,
+	SCREEN_RECEIVINGADDRESS = 9
 };
 
 /**
@@ -123,6 +124,7 @@ private:
     QAction *aboutAction;
     QAction *receiveCoinsAction;
     QAction *receiveCoinsMenuAction;
+    QAction *receivingAddressAction;
     QAction *optionsAction;
     QAction *toggleHideAction;
     QAction *encryptWalletAction;
@@ -230,6 +232,8 @@ private Q_SLOTS:
     void gotoSendCoinsPage(QString addr = "");
     /** Open Address Book */
     void gotoAddressBookPage();
+    /** Open Receiving Address */
+    void gotoReceiveAddressPage();
 
     /** Show Sign/Verify Message dialog and switch to sign message tab */
     void gotoSignMessageTab(QString addr = "");

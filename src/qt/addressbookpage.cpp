@@ -21,7 +21,7 @@
 #include <QMessageBox>
 #include <QSortFilterProxyModel>
 
-AddressBookPage::AddressBookPage(const PlatformStyle *platformStyle, Mode _mode, Tabs _tab, QWidget *parent) :
+AddressBookPage::AddressBookPage(const PlatformStyle *platformStyle, Mode _mode, Tabs _tab, QWidget *parent, QString title) :
     QDialog(parent),
     ui(new Ui::AddressBookPage),
     model(0),
@@ -76,6 +76,8 @@ AddressBookPage::AddressBookPage(const PlatformStyle *platformStyle, Mode _mode,
         break;
     }
 
+    ui->pageTitle->setText(title);
+    
     //DeepOnion: Theme
     ui->tableView->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQTableGeneralStyle());
     ui->tableView->horizontalHeader()->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQListHeaderGeneralStyle());

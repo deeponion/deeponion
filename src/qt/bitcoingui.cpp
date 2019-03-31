@@ -363,7 +363,7 @@ void BitcoinGUI::createActions()
     sendCoinsMenuAction->setStatusTip(sendCoinsAction->statusTip());
     sendCoinsMenuAction->setToolTip(sendCoinsMenuAction->statusTip());
 
-    receiveCoinsAction = new QAction(platformStyle->SingleColorIcon(platformStyle->getThemeManager()->getCurrent()->getMainMenuReceiveCoinsNormalBtnIco()), tr("&Receive Coins"), this);
+    receiveCoinsAction = new QAction(platformStyle->SingleColorIcon(platformStyle->getThemeManager()->getCurrent()->getMainMenuReceiveCoinsNormalBtnIco()), tr("&Request Payment"), this);
     receiveCoinsAction->setStatusTip(tr("Request payments (generates QR codes and DeepOnion: URIs)"));
     receiveCoinsAction->setToolTip(receiveCoinsAction->statusTip());
     receiveCoinsAction->setCheckable(true);
@@ -373,7 +373,14 @@ void BitcoinGUI::createActions()
     receiveCoinsMenuAction = new QAction(platformStyle->TextColorIcon(platformStyle->getThemeManager()->getCurrent()->getMainMenuReceiveCoinsNormalBtnIco()), receiveCoinsAction->text(), this);
     receiveCoinsMenuAction->setStatusTip(receiveCoinsAction->statusTip());
     receiveCoinsMenuAction->setToolTip(receiveCoinsMenuAction->statusTip());
-
+    
+    receivingAddressAction = new QAction(platformStyle->TextColorIcon(platformStyle->getThemeManager()->getCurrent()->getMainMenuSendcoinsNormalBtnIco()), tr("&Receive Addresses"), this);
+    receivingAddressAction->setStatusTip(tr("Show wallet receiving addresses"));
+    receivingAddressAction->setToolTip(receivingAddressAction->statusTip());
+    receivingAddressAction->setCheckable(true);
+    receivingAddressAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_6));
+    tabGroup->addAction(receivingAddressAction);
+    
     historyAction = new QAction(platformStyle->SingleColorIcon(platformStyle->getThemeManager()->getCurrent()->getMainMenuTransactionsNormalBtnIco()), tr("&Transactions"), this);
     historyAction->setStatusTip(tr("Browse transaction history"));
     historyAction->setToolTip(historyAction->statusTip());
@@ -405,6 +412,8 @@ void BitcoinGUI::createActions()
     connect(historyAction, SIGNAL(triggered()), this, SLOT(gotoHistoryPage()));
     connect(addressBookAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
     connect(addressBookAction, SIGNAL(triggered()), this, SLOT(gotoAddressBookPage()));
+    connect(receivingAddressAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
+    connect(receivingAddressAction, SIGNAL(triggered()), this, SLOT(gotoReceiveAddressPage()));
 #endif // ENABLE_WALLET
 
     quitAction = new QAction(platformStyle->TextColorIcon(":/icons/quit"), tr("E&xit"), this);
@@ -571,13 +580,13 @@ void BitcoinGUI::createToolBars()
         toolbar->setFixedWidth(toolBarWidth);
         addToolBar(Qt::LeftToolBarArea, toolbar);
 
-
         toolbar->setContextMenuPolicy(Qt::PreventContextMenu);
         toolbar->setMovable(false);
         toolbar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
         toolbar->addAction(overviewAction);
         toolbar->addAction(sendCoinsAction);
         toolbar->addAction(receiveCoinsAction);
+        toolbar->addAction(receivingAddressAction);
         toolbar->addAction(historyAction);
         toolbar->addAction(addressBookAction);
         toolbar->addAction(unlockWalletAction);
@@ -690,6 +699,8 @@ void BitcoinGUI::setWalletActionsEnabled(bool enabled)
     sendCoinsMenuAction->setEnabled(enabled);
     receiveCoinsAction->setEnabled(enabled);
     receiveCoinsMenuAction->setEnabled(enabled);
+    addressBookAction->setEnabled(enabled);
+    receivingAddressAction->setEnabled(enabled);
     historyAction->setEnabled(enabled);
     encryptWalletAction->setEnabled(enabled);
     backupWalletAction->setEnabled(enabled);
@@ -829,13 +840,6 @@ void BitcoinGUI::gotoOverviewPage()
     if (walletFrame) walletFrame->gotoOverviewPage();
 }
 
-void BitcoinGUI::gotoAddressBookPage()
-{
-	// currentScreen = SCREEN_ADDRESSBOOK;
-	// updateToolBarStyleBySelectedScreen(currentScreen);
-    if (walletFrame) walletFrame->usedSendingAddresses();
-}
-
 void BitcoinGUI::gotoHistoryPage()
 {
     currentScreen = SCREEN_TRANSACTIONS;
@@ -858,6 +862,22 @@ void BitcoinGUI::gotoSendCoinsPage(QString addr)
     sendCoinsAction->setChecked(true);
     updateToolBarStyleBySelectedScreen(currentScreen);
     if (walletFrame) walletFrame->gotoSendCoinsPage(addr);
+}
+
+void BitcoinGUI::gotoAddressBookPage()
+{
+	currentScreen = SCREEN_ADDRESSBOOK;
+	addressBookAction->setChecked(true);
+	updateToolBarStyleBySelectedScreen(currentScreen);
+    if (walletFrame) walletFrame->gotoAddressBookPage();
+}
+
+void BitcoinGUI::gotoReceiveAddressPage()
+{
+	currentScreen = SCREEN_RECEIVINGADDRESS;
+	sendCoinsAction->setChecked(true);
+	updateToolBarStyleBySelectedScreen(currentScreen);
+    if (walletFrame) walletFrame->gotoReceiveAddressPage();
 }
 
 void BitcoinGUI::gotoSignMessageTab(QString addr)

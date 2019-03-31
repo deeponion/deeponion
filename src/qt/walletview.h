@@ -75,10 +75,14 @@ public Q_SLOTS:
     void gotoOverviewPage();
     /** Switch to history (transactions) page */
     void gotoHistoryPage();
-    /** Switch to receive coins page */
+    /** Switch to receive coins (request payment) page */
     void gotoReceiveCoinsPage();
     /** Switch to send coins page */
     void gotoSendCoinsPage(QString addr = "");
+    /** Switch to address book page */
+    void gotoAddressBookPage();
+    /** Switch to receiving addresses page */
+    void gotoReceiveAddressPage();
 
     /** Show Sign/Verify Message dialog and switch to sign message tab */
     void gotoSignMessageTab(QString addr = "");
