@@ -578,8 +578,8 @@ void RPCConsole::setClientModel(ClientModel *model)
         updateTrafficStats(model->getTotalBytesRecv(), model->getTotalBytesSent());
         connect(model, SIGNAL(bytesChanged(quint64,quint64)), this, SLOT(updateTrafficStats(quint64, quint64)));
 
-        updateBlockchainStatus();
-        connect(model, SIGNAL(BlockchainStatusChanged(int)), this, SLOT(updateBlockchainStatus()));
+        setBlockchainStatus(blockchainStatus);
+        connect(model, SIGNAL(BlockchainStatusChanged(int)), this, SLOT(setBlockchainStatus(int)));
 
         connect(model, SIGNAL(mempoolSizeChanged(long,size_t)), this, SLOT(setMempoolSize(long,size_t)));
 
@@ -851,6 +851,13 @@ void RPCConsole::setNumBlocks(int count, const QDateTime& blockDate, double nVer
         ui->numberOfBlocks->setText(QString::number(count));
         ui->lastBlockTime->setText(blockDate.toString());
     }
+}
+
+void RPCConsole::setBlockchainStatus(int status)
+{
+    if (!clientModel)
+        return;
+    updateBlockchainStatus();
 }
 
 void RPCConsole::setMempoolSize(long numberOfTxs, size_t dynUsage)
@@ -1253,6 +1260,7 @@ void RPCConsole::refreshStyle()
 
 void RPCConsole::updateBlockchainStatus()
 {
+
     QString text;
 
     if(blockchainStatus == -2)

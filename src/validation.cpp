@@ -17,6 +17,7 @@
 #include <cuckoocache.h>
 #include <hash.h>
 #include <init.h>
+#include <net.h>
 #include <policy/fees.h>
 #include <policy/policy.h>
 #include <policy/rbf.h>
@@ -5197,6 +5198,8 @@ void ScanBlockchainForHash(bool bSplashDisplay)
 {
     LogPrintf(">> calling ScanBlockchainForHash ...\n");
 
+    int prevStatus = 0;
+
     fAbortScanForHash = false;
 
     CBlockIndex *pindex= chainActive.Genesis();
@@ -5256,9 +5259,13 @@ void ScanBlockchainForHash(bool bSplashDisplay)
     else
         uiInterface.ShowProgressNoResume(_("Verifying blockchain hash..."), 100);
 
+    if(blockchainStatus != prevStatus) {
+        prevStatus = blockchainStatus;
+        uiInterface.NotifyBlockchainStatusChanged(prevStatus);
+    }
+
     LogPrintf(">> blockchain hash at %d: %s\n", LAST_REGISTERED_BLOCK_HEIGHT, hash0.c_str());
     LogPrintf(">> blockchainStatus = %d\n", blockchainStatus);
-
 }
 
 

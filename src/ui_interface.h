@@ -86,6 +86,9 @@ public:
     /** Network activity state changed. */
     boost::signals2::signal<void (bool networkActive)> NotifyNetworkActiveChanged;
 
+    /** DeepOnion Update Blockchain Verification Status */
+    boost::signals2::signal<void (int newStatus)> NotifyBlockchainStatusChanged;
+
     /**
      * Status bar alerts changed.
      */

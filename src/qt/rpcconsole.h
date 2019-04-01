@@ -42,7 +42,6 @@ public:
     }
 
     void setClientModel(ClientModel *model);
-    void updateBlockchainStatus();
 
     enum MessageClass {
         MC_ERROR,
@@ -119,6 +118,8 @@ public Q_SLOTS:
     void setTabFocus(enum TabTypes tabType);
     /** DeepOnion Theme Change */
     void refreshStyle();
+    /** DeepOnion Set Blockchain Verification Status shown in the UI*/
+    void setBlockchainStatus(int status);
 
 Q_SIGNALS:
     // For RPC command executor
@@ -157,6 +158,9 @@ private:
 
     /** Update UI with latest network info from model. */
     void updateNetworkState();
+
+    /** DeepOnion Update Blockchain Verification Status */
+    void updateBlockchainStatus();
 };
 
 #endif // BITCOIN_QT_RPCCONSOLE_H
