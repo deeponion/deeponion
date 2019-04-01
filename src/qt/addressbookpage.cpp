@@ -35,12 +35,10 @@ AddressBookPage::AddressBookPage(const PlatformStyle *_platformStyle, Mode _mode
         ui->newAddress->setIcon(QIcon());
         ui->copyAddress->setIcon(QIcon());
         ui->deleteAddress->setIcon(QIcon());
-        ui->exportButton->setIcon(QIcon());
     } else {
         ui->newAddress->setIcon(platformStyle->SingleColorIcon(":/icons/add"));
         ui->copyAddress->setIcon(platformStyle->SingleColorIcon(":/icons/editcopy"));
         ui->deleteAddress->setIcon(platformStyle->SingleColorIcon(":/icons/remove"));
-        ui->exportButton->setIcon(platformStyle->SingleColorIcon(":/icons/export"));
     }
 
     switch(mode)
@@ -55,7 +53,6 @@ AddressBookPage::AddressBookPage(const PlatformStyle *_platformStyle, Mode _mode
         ui->tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
         ui->tableView->setFocus();
         ui->closeButton->setText(tr("C&hoose"));
-        ui->exportButton->hide();
         break;
     case ForEditing:
         switch(tab)
@@ -90,7 +87,6 @@ AddressBookPage::AddressBookPage(const PlatformStyle *_platformStyle, Mode _mode
     ui->newAddress->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getRoundedButtonStyle());
     ui->copyAddress->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getRoundedButtonStyle());
     ui->deleteAddress->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getRoundedButtonStyle());
-    ui->exportButton->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getRoundedButtonStyle());
     
     ui->tableView->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQTableGeneralStyle());
     ui->tableView->horizontalHeader()->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQListHeaderGeneralStyle());
@@ -343,7 +339,6 @@ void AddressBookPage::refreshStyle()
     ui->newAddress->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getRoundedButtonStyle());
     ui->copyAddress->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getRoundedButtonStyle());
     ui->deleteAddress->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getRoundedButtonStyle());
-    ui->exportButton->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getRoundedButtonStyle());
     
     ui->tableView->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQTableGeneralStyle());
     ui->tableView->horizontalHeader()->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQListHeaderGeneralStyle());

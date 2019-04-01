@@ -98,6 +98,7 @@ BitcoinGUI::BitcoinGUI(const PlatformStyle *_platformStyle, const NetworkStyle *
     overviewAction(0),
     historyAction(0),
     addressBookAction(0),
+    exportAction(0),
     quitAction(0),
     sendCoinsAction(0),
     sendCoinsMenuAction(0),
@@ -391,7 +392,7 @@ void BitcoinGUI::createActions()
     addressBookAction = new QAction(platformStyle->SingleColorIcon(platformStyle->getThemeManager()->getCurrent()->getMainMenuAddressBookNormalBtnIco()), tr("&Address Book"), this);
     addressBookAction->setStatusTip(tr("Edit the list of stored addresses and labels"));
     addressBookAction->setToolTip(addressBookAction->statusTip());
-    addressBookAction->setCheckable(false);
+    addressBookAction->setCheckable(true);
     addressBookAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_5));
     tabGroup->addAction(addressBookAction);
 
@@ -469,6 +470,14 @@ void BitcoinGUI::createActions()
     showHelpMessageAction = new QAction(platformStyle->TextColorIcon(":/icons/info"), tr("&Command-line options"), this);
     showHelpMessageAction->setMenuRole(QAction::NoRole);
     showHelpMessageAction->setStatusTip(tr("Show the %1 help message to get a list with possible DeepOnion command-line options").arg(tr(PACKAGE_NAME)));
+
+    exportAction = new QAction(platformStyle->SingleColorIcon(platformStyle->getThemeManager()->getCurrent()->getMainMenuExportNormalBtnIco()), tr("&Export..."), this);
+    exportAction->setStatusTip(tr("Export the data in the current tab to a file"));
+    exportAction->setToolTip(exportAction->statusTip());
+    exportAction->setCheckable(false);
+    exportAction->setEnabled(false);
+    exportAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_7));
+    tabGroup->addAction(exportAction);
 
     connect(quitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
     connect(aboutAction, SIGNAL(triggered()), this, SLOT(aboutClicked()));
@@ -591,6 +600,7 @@ void BitcoinGUI::createToolBars()
         toolbar->addAction(addressBookAction);
         toolbar->addAction(unlockWalletAction);
         toolbar->addAction(lockWalletAction);
+        toolbar->addAction(exportAction);
         overviewAction->setChecked(true);
 
 /* don't override the background color of the toolbar on mac os x due to
@@ -837,6 +847,8 @@ void BitcoinGUI::gotoOverviewPage()
     currentScreen = SCREEN_OVERVIEW;
     overviewAction->setChecked(true);
     updateToolBarStyleBySelectedScreen(currentScreen);
+    setEnabledExportAction(false);
+    disconnect(exportAction, SIGNAL(triggered()), 0, 0);
     if (walletFrame) walletFrame->gotoOverviewPage();
 }
 
@@ -845,7 +857,8 @@ void BitcoinGUI::gotoHistoryPage()
     currentScreen = SCREEN_TRANSACTIONS;
     historyAction->setChecked(true);
     updateToolBarStyleBySelectedScreen(currentScreen);
-    if (walletFrame) walletFrame->gotoHistoryPage();
+    setEnabledExportAction(true);
+    if (walletFrame) walletFrame->gotoHistoryPage(exportAction);
 }
 
 void BitcoinGUI::gotoReceiveCoinsPage()
@@ -853,6 +866,8 @@ void BitcoinGUI::gotoReceiveCoinsPage()
     currentScreen = SCREEN_RECEIVECOINS;
     receiveCoinsAction->setChecked(true);
     updateToolBarStyleBySelectedScreen(currentScreen);
+    setEnabledExportAction(false);
+    disconnect(exportAction, SIGNAL(triggered()), 0, 0);
     if (walletFrame) walletFrame->gotoReceiveCoinsPage();
 }
 
@@ -861,6 +876,8 @@ void BitcoinGUI::gotoSendCoinsPage(QString addr)
     currentScreen = SCREEN_SENDCOINS;
     sendCoinsAction->setChecked(true);
     updateToolBarStyleBySelectedScreen(currentScreen);
+    setEnabledExportAction(false);
+    disconnect(exportAction, SIGNAL(triggered()), 0, 0);
     if (walletFrame) walletFrame->gotoSendCoinsPage(addr);
 }
 
@@ -869,7 +886,8 @@ void BitcoinGUI::gotoAddressBookPage()
 	currentScreen = SCREEN_ADDRESSBOOK;
 	addressBookAction->setChecked(true);
 	updateToolBarStyleBySelectedScreen(currentScreen);
-    if (walletFrame) walletFrame->gotoAddressBookPage();
+    setEnabledExportAction(true);
+    if (walletFrame) walletFrame->gotoAddressBookPage(exportAction);
 }
 
 void BitcoinGUI::gotoReceiveAddressPage()
@@ -877,7 +895,9 @@ void BitcoinGUI::gotoReceiveAddressPage()
 	currentScreen = SCREEN_RECEIVINGADDRESS;
 	receivingAddressAction->setChecked(true); 
 	updateToolBarStyleBySelectedScreen(currentScreen);
-    if (walletFrame) walletFrame->gotoReceiveAddressPage();
+    setEnabledExportAction(true);
+    disconnect(exportAction, SIGNAL(triggered()), 0, 0);
+    if (walletFrame) walletFrame->gotoReceiveAddressPage(exportAction);
 }
 
 void BitcoinGUI::gotoSignMessageTab(QString addr)
@@ -1487,14 +1507,13 @@ void BitcoinGUI::toggleNetworkActive()
 }
 
 void BitcoinGUI::setEnabledExportAction(bool state) {
-//    TODO:
-//    if (state) {
-//        exportAction->setEnabled(true);
-//        exportAction->setIcon(QIcon(themeManager->getCurrent()->getMainMenuExportNormalBtnIco()));
-//    } else {
-//        exportAction->setEnabled(false);
-//        exportAction->setIcon(QIcon(themeManager->getCurrent()->getMainMenuExportDeactivatedBtnIco()));
-//    }
+    if (state) {
+        exportAction->setEnabled(true);
+        exportAction->setIcon(QIcon(platformStyle->getThemeManager()->getCurrent()->getMainMenuExportNormalBtnIco()));
+    } else {
+        exportAction->setEnabled(false);
+        exportAction->setIcon(QIcon(platformStyle->getThemeManager()->getCurrent()->getMainMenuExportDeactivatedBtnIco()));
+    }
 }
 
 void BitcoinGUI::refreshStyle()
@@ -1535,7 +1554,7 @@ void BitcoinGUI::updateToolBarStyleBySelectedScreen(int screen)
     ((QToolButton*)toolbar->widgetForAction(lockWalletAction))->setIcon(QIcon(platformStyle->getThemeManager()->getCurrent()->getMainMenuLockWalletNormalBtnIco()));
     ((QToolButton*)toolbar->widgetForAction(receivingAddressAction))->setIcon(QIcon(platformStyle->getThemeManager()->getCurrent()->getMainMenuReceiveCoinsNormalBtnIco()));
     //    ((QToolButton*)toolbar->widgetForAction(messageAction))->setIcon(QIcon(platformStyle->getThemeManager()->getCurrent()->getMainMenuMessagesNormalBtnIco()));
-    //    ((QToolButton*)toolbar->widgetForAction(exportAction))->setIcon(QIcon(platformStyle->getThemeManager()->getCurrent()->getMainMenuExportNormalBtnIco()));
+    ((QToolButton*)toolbar->widgetForAction(exportAction))->setIcon(QIcon(platformStyle->getThemeManager()->getCurrent()->getMainMenuExportNormalBtnIco()));
     
     switch(screen) {
         case SCREEN_OVERVIEW:
@@ -1571,9 +1590,9 @@ void BitcoinGUI::updateToolBarStyleBySelectedScreen(int screen)
 //            ((QToolButton*)toolbar->widgetForAction(messageAction))->setIcon(QIcon(platformStyle->getThemeManager()->getCurrent()->getMainMenuMessagesSelectedBtnIco()));
 //            break;
 //
-//        case SCREEN_EXPORT:
-//            ((QToolButton*)toolbar->widgetForAction(exportAction))->setIcon(QIcon(platformStyle->getThemeManager()->getCurrent()->getMainMenuExportSelectedBtnIco()));
-//            break;
+        case SCREEN_EXPORT:
+            ((QToolButton*)toolbar->widgetForAction(exportAction))->setIcon(QIcon(platformStyle->getThemeManager()->getCurrent()->getMainMenuExportSelectedBtnIco()));
+            break;
 
         default:
             break;

@@ -193,23 +193,6 @@
           </spacer>
          </item>
          <item>
-          <widget class="QPushButton" name="exportButton">
-           <property name="toolTip">
-            <string>Export the data in the current tab to a file</string>
-           </property>
-           <property name="text">
-            <string>&amp;Export</string>
-           </property>
-           <property name="icon">
-            <iconset resource="../bitcoin.qrc">
-             <normaloff>:/icons/export</normaloff>:/icons/export</iconset>
-           </property>
-           <property name="autoDefault">
-            <bool>false</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
           <widget class="QPushButton" name="closeButton">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Minimum" vsizetype="Minimum">

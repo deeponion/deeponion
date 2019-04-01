@@ -114,6 +114,7 @@ private:
     QAction *overviewAction;
     QAction *historyAction;
     QAction *addressBookAction;
+    QAction *exportAction;
     QAction *quitAction;
     QAction *sendCoinsAction;
     QAction *sendCoinsMenuAction;
