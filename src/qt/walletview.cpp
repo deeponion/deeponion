@@ -361,8 +361,6 @@ void WalletView::refreshStyle()
     transactionView->refreshStyle();
     usedSendingAddressesPage->refreshStyle();
     usedReceivingAddressesPage->refreshStyle();
-    usedSendingAddressesPage->refreshStyle();
-    usedReceivingAddressesPage->refreshStyle();
 
 //    messagePage->refreshStyle();
 //    deepVaultPage->refreshStyle();

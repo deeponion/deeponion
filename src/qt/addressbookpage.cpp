@@ -55,6 +55,7 @@ AddressBookPage::AddressBookPage(const PlatformStyle *_platformStyle, Mode _mode
         ui->tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
         ui->tableView->setFocus();
         ui->closeButton->setText(tr("C&hoose"));
+        ui->closeButton->hide();
         ui->exportButton->hide();
         break;
     case ForEditing:
