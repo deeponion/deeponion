@@ -121,11 +121,11 @@ void WalletFrame::gotoOverviewPage()
         i.value()->gotoOverviewPage();
 }
 
-void WalletFrame::gotoHistoryPage()
+void WalletFrame::gotoHistoryPage(QAction *exportAction)
 {
     QMap<QString, WalletView*>::const_iterator i;
     for (i = mapWalletViews.constBegin(); i != mapWalletViews.constEnd(); ++i)
-        i.value()->gotoHistoryPage();
+        i.value()->gotoHistoryPage(exportAction);
 }
 
 void WalletFrame::gotoReceiveCoinsPage()
@@ -142,18 +142,18 @@ void WalletFrame::gotoSendCoinsPage(QString addr)
         i.value()->gotoSendCoinsPage(addr);
 }
 
-void WalletFrame::gotoAddressBookPage()
+void WalletFrame::gotoAddressBookPage(QAction *exportAction)
 {
     QMap<QString, WalletView*>::const_iterator i;
     for (i = mapWalletViews.constBegin(); i != mapWalletViews.constEnd(); ++i)
-        i.value()->gotoAddressBookPage();
+        i.value()->gotoAddressBookPage(exportAction);
 }
 
-void WalletFrame::gotoReceiveAddressPage()
+void WalletFrame::gotoReceiveAddressPage(QAction *exportAction)
 {
     QMap<QString, WalletView*>::const_iterator i;
     for (i = mapWalletViews.constBegin(); i != mapWalletViews.constEnd(); ++i)
-        i.value()->gotoReceiveAddressPage();
+        i.value()->gotoReceiveAddressPage(exportAction);
 }
 
 void WalletFrame::gotoSignMessageTab(QString addr)

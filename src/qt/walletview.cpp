@@ -40,17 +40,17 @@ WalletView::WalletView(const PlatformStyle *_platformStyle, QWidget *parent):
 
     transactionsPage = new QWidget(this);
     QVBoxLayout *vbox = new QVBoxLayout();
-    QHBoxLayout *hbox_buttons = new QHBoxLayout();
+//    QHBoxLayout *hbox_buttons = new QHBoxLayout();
     transactionView = new TransactionView(platformStyle, this);
     vbox->addWidget(transactionView);
-    QPushButton *exportButton = new QPushButton(tr("&Export"), this);
-    exportButton->setToolTip(tr("Export the data in the current tab to a file"));
-    if (platformStyle->getImagesOnButtons()) {
-        exportButton->setIcon(platformStyle->SingleColorIcon(":/icons/export"));
-    }
-    hbox_buttons->addStretch();
-    hbox_buttons->addWidget(exportButton);
-    vbox->addLayout(hbox_buttons);
+//    QPushButton *exportButton = new QPushButton(tr("&Export"), this);
+//    exportButton->setToolTip(tr("Export the data in the current tab to a file"));
+//    if (platformStyle->getImagesOnButtons()) {
+//        exportButton->setIcon(platformStyle->SingleColorIcon(":/icons/export"));
+//    }
+//    hbox_buttons->addStretch();
+//    hbox_buttons->addWidget(exportButton);
+//    vbox->addLayout(hbox_buttons);
     vbox->setContentsMargins(0,0,0,0);
     vbox->setSpacing(0);
     transactionsPage->setLayout(vbox);
@@ -76,7 +76,7 @@ WalletView::WalletView(const PlatformStyle *_platformStyle, QWidget *parent):
     connect(transactionView, SIGNAL(doubleClicked(QModelIndex)), transactionView, SLOT(showDetails()));
 
     // Clicking on "Export" allows to export the transaction list
-    connect(exportButton, SIGNAL(clicked()), transactionView, SLOT(exportClicked()));
+//    connect(exportButton, SIGNAL(clicked()), transactionView, SLOT(exportClicked()));
 
     // Pass through messages from sendCoinsPage
     connect(sendCoinsPage, SIGNAL(message(QString,QString,unsigned int)), this, SIGNAL(message(QString,QString,unsigned int)));
@@ -178,8 +178,11 @@ void WalletView::gotoOverviewPage()
     setCurrentWidget(overviewPage);
 }
 
-void WalletView::gotoHistoryPage()
+void WalletView::gotoHistoryPage(QAction *exportAction)
 {
+    disconnect(exportAction, SIGNAL(triggered()), 0, 0);
+    connect(exportAction, SIGNAL(triggered()), transactionView, SLOT(exportClicked()));
+
     setCurrentWidget(transactionsPage);
 }
 
@@ -196,13 +199,19 @@ void WalletView::gotoSendCoinsPage(QString addr)
         sendCoinsPage->setAddress(addr);
 }
 
-void WalletView::gotoAddressBookPage()
+void WalletView::gotoAddressBookPage(QAction *exportAction)
 {
+    disconnect(exportAction, SIGNAL(triggered()), 0, 0);
+    connect(exportAction, SIGNAL(triggered()), usedSendingAddressesPage, SLOT(on_exportButton_clicked()));
+
     setCurrentWidget(usedSendingAddressesPage);
 }
 
-void WalletView::gotoReceiveAddressPage()
+void WalletView::gotoReceiveAddressPage(QAction *exportAction)
 {
+    disconnect(exportAction, SIGNAL(triggered()), 0, 0);
+    connect(exportAction, SIGNAL(triggered()), usedReceivingAddressesPage, SLOT(on_exportButton_clicked()));
+
     setCurrentWidget(usedReceivingAddressesPage);
 }
 

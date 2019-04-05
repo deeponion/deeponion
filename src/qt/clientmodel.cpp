@@ -152,7 +152,7 @@ void ClientModel::updateTimer()
     // the following calls will acquire the required lock
     Q_EMIT mempoolSizeChanged(getMempoolSize(), getMempoolDynamicUsage());
     Q_EMIT bytesChanged(getTotalBytesRecv(), getTotalBytesSent());
-    Q_EMIT BlockchainStatusChanged(blockchainStatus);
+
 }
 
 void ClientModel::updateNumConnections(int numConnections)
@@ -173,6 +173,11 @@ void ClientModel::updateAlert()
 bool ClientModel::inInitialBlockDownload() const
 {
     return IsInitialBlockDownload();
+}
+
+void ClientModel::updateBlockchainStatus(int status)
+{
+    Q_EMIT BlockchainStatusChanged(status);
 }
 
 enum BlockSource ClientModel::getBlockSource() const
@@ -280,6 +285,13 @@ static void NotifyAlertChanged(ClientModel *clientmodel)
     QMetaObject::invokeMethod(clientmodel, "updateAlert", Qt::QueuedConnection);
 }
 
+static void NotifyBlockchainStatusChanged(ClientModel *clientmodel, int newStatus)
+{
+    qDebug() << "NotifyBlockchainStatusChanged: " + QString::number(newStatus);
+    QMetaObject::invokeMethod(clientmodel, "updateBlockchainStatus", Qt::QueuedConnection,
+                              Q_ARG(int, newStatus));
+}
+
 static void BannedListChanged(ClientModel *clientmodel)
 {
     qDebug() << QString("%1: Requesting update for peer banlist").arg(__func__);
@@ -324,6 +336,7 @@ void ClientModel::subscribeToCoreSignals()
     uiInterface.BannedListChanged.connect(boost::bind(BannedListChanged, this));
     uiInterface.NotifyBlockTip.connect(boost::bind(BlockTipChanged, this, _1, _2, false));
     uiInterface.NotifyHeaderTip.connect(boost::bind(BlockTipChanged, this, _1, _2, true));
+    uiInterface.NotifyBlockchainStatusChanged.connect(boost::bind(NotifyBlockchainStatusChanged, this, _1));
 }
 
 void ClientModel::unsubscribeFromCoreSignals()
@@ -336,4 +349,5 @@ void ClientModel::unsubscribeFromCoreSignals()
     uiInterface.BannedListChanged.disconnect(boost::bind(BannedListChanged, this));
     uiInterface.NotifyBlockTip.disconnect(boost::bind(BlockTipChanged, this, _1, _2, false));
     uiInterface.NotifyHeaderTip.disconnect(boost::bind(BlockTipChanged, this, _1, _2, true));
+    uiInterface.NotifyBlockchainStatusChanged.disconnect(boost::bind(NotifyBlockchainStatusChanged, this, _1));
 }

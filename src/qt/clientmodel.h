@@ -115,6 +115,7 @@ public Q_SLOTS:
     void updateNetworkActive(bool networkActive);
     void updateAlert();
     void updateBanlist();
+    void updateBlockchainStatus(int status);
 };
 
 #endif // BITCOIN_QT_CLIENTMODEL_H
