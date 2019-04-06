@@ -52,8 +52,6 @@ AddressBookPage::AddressBookPage(const PlatformStyle *_platformStyle, Mode _mode
         connect(ui->tableView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(accept()));
         ui->tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
         ui->tableView->setFocus();
-        ui->closeButton->setText(tr("C&hoose"));
-        ui->closeButton->hide();
         break;
     case ForEditing:
         switch(tab)
@@ -114,8 +112,6 @@ AddressBookPage::AddressBookPage(const PlatformStyle *_platformStyle, Mode _mode
     connect(deleteAction, SIGNAL(triggered()), this, SLOT(on_deleteAddress_clicked()));
 
     connect(ui->tableView, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(contextualMenu(QPoint)));
-
-    connect(ui->closeButton, SIGNAL(clicked()), this, SLOT(accept()));
 }
 
 AddressBookPage::~AddressBookPage()
