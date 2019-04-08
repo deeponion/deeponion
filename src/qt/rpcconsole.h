@@ -15,6 +15,7 @@
 #include <QThread>
 
 class ClientModel;
+class WalletModel;
 class PlatformStyle;
 class RPCTimerInterface;
 
@@ -58,6 +59,10 @@ public:
         TAB_PEERS = 3
     };
 
+private:
+    void subscribeToCoreSignals();
+    void unsubscribeFromCoreSignals();
+
 protected:
     virtual bool eventFilter(QObject* obj, QEvent *event);
     void keyPressEvent(QKeyEvent *);
@@ -67,6 +72,10 @@ private Q_SLOTS:
     void on_tabWidget_currentChanged(int index);
     /** open the debug.log from the current datadir */
     void on_openDebugLogfileButton_clicked();
+    /** Verify Blockchain Hash */
+    void on_verifyBlockchainButton_clicked();
+    /** open the blockchain info page */
+    void on_showMeDetailsButton_clicked();
     /** change the time range of the network traffic graph */
     void on_sldGraphRange_valueChanged(int value);
     /** update traffic statistics */
@@ -125,6 +134,7 @@ Q_SIGNALS:
     // For RPC command executor
     void stopExecutor();
     void cmdRequest(const QString &command);
+    void showProgress(const QString &title, int nProgress);
 
 private:
     void startExecutor();
@@ -144,6 +154,7 @@ private:
 
     Ui::RPCConsole *ui;
     ClientModel *clientModel;
+    WalletModel *walletModel;
     QStringList history;
     int historyPtr;
     QString cmdBeforeBrowsing;

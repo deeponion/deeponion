@@ -9,9 +9,12 @@
 #include <qt/rpcconsole.h>
 #include <qt/forms/ui_debugwindow.h>
 
+#include <qt/blockchaindialog.h>
+
 #include <qt/bantablemodel.h>
 #include <qt/clientmodel.h>
 #include <qt/platformstyle.h>
+#include <qt/walletmodel.h>
 #include <chainparams.h>
 #include <netbase.h>
 #include <rpc/server.h>
@@ -503,12 +506,15 @@ RPCConsole::RPCConsole(const PlatformStyle *_platformStyle, QWidget *parent) :
     ui->detailWidget->hide();
     ui->peerHeading->setText(tr("Select a peer to view detailed information."));
 
+    subscribeToCoreSignals();
+
     consoleFontSize = settings.value(fontSizeSettingsKey, QFontInfo(QFont()).pointSize()).toInt();
     clear();
 }
 
 RPCConsole::~RPCConsole()
 {
+    unsubscribeFromCoreSignals();
     QSettings settings;
     settings.setValue("RPCConsoleWindowGeometry", saveGeometry());
     RPCUnsetTimerInterface(rpcTimerInterface);
@@ -967,6 +973,18 @@ void RPCConsole::on_openDebugLogfileButton_clicked()
     GUIUtil::openDebugLogfile();
 }
 
+void RPCConsole::on_verifyBlockchainButton_clicked()
+{
+    ScanBlockchainForHash(false);
+}
+
+void RPCConsole::on_showMeDetailsButton_clicked()
+{
+    BlockchainDialog dlg;
+    dlg.setLabelText(walletModel);
+    dlg.exec();
+}
+
 void RPCConsole::scrollToEnd()
 {
     QScrollBar *scrollbar = ui->messagesWidget->verticalScrollBar();
@@ -1260,51 +1278,33 @@ void RPCConsole::refreshStyle()
 
 void RPCConsole::updateBlockchainStatus()
 {
+    ui->labelBlockchainInfo->setStyleSheet(walletModel->getBlockchainTextStylesheet());
+    ui->labelBlockchainInfo->setText(walletModel->getBlockchainStatusText());
 
-    QString text;
+    if(blockchainStatus == 1)
+    {
+        ui->verifyBlockchainButton->setEnabled(false);
+    }
+}
 
-    if(blockchainStatus == -2)
-        text = QString("The authenticity of the DeepOnion blockchain has not yet been verified.");
-    else if(blockchainStatus == -1)
-        text = QString("The DeepOnion blockchain is not fully sychronized.");
-    else if(blockchainStatus == 0)
-        text = QString("The DeepOnion blockchain synchronized, but it does not match the latest checkpoint hash at Block ")
-            + QString::number(LAST_REGISTERED_BLOCK_HEIGHT) + QString(" (which is registered and guaranteed by the Bitcoin blockchain). ")
-            + QString("So you are most likely on a forked chain, please resync with official peers at https://deeponion.org.");
-    else
-        text = QString("The DeepOnion blockchain is fully synchronized. It is authentic! It is guaranteed by the Bitcoin blockchain ")
-            + QString("(the most secure immutable database in the world) up to Block ")
-            + QString::number(LAST_REGISTERED_BLOCK_HEIGHT) + QString(".");
+// Handlers for core signals
+static void ShowProgress(RPCConsole *rpcconsole, const std::string &title, int nProgress)
+{
+    // emits signal "showProgress"
+    QMetaObject::invokeMethod(rpcconsole, "showProgress", Qt::QueuedConnection,
+                              Q_ARG(QString, QString::fromStdString(title)),
+                              Q_ARG(int, nProgress));
+}
 
-    ui->labelBlockchainInfo->setText(text);
+void RPCConsole::subscribeToCoreSignals()
+{
+    // Connect signals to walletmodel
+    uiInterface.ShowProgress.connect(boost::bind(ShowProgress, this, _1, _2));
 
-    QString detailsText;
+}
 
-    if(blockchainStatus == -2)
-        detailsText = QString("The authenticity of the DeepOnion blockchain has not yet been verified. ")
-            + QString("Please change your settings in the conf file in order to verify it");
-    else if(blockchainStatus == -1)
-        detailsText = QString("We can't verify the DeepOnion blockchain as it is not fully sychronized yet. ")
-            + QString("Please wait until it is fully synchronized and check back.");
-    else if(blockchainStatus == 0)
-        detailsText = QString("The DeepOnion blockchain sychronized, but it does not match the latest checkpoint hash at Block ")
-            + QString::number(LAST_REGISTERED_BLOCK_HEIGHT) + QString(" (which is registered and guaranteed by the Bitcoin blockchain). ")
-            + QString("So you are most likely on a forked chain, please resync with official peers at https://deeponion.org.");
-    else
-        detailsText = QString("The current DeepOnion blockchain you are using matches the hash registered in the Bitcoin blockchain at height ")
-            + QString::number(LAST_REGISTERED_BTC_BLOCK_HEIGHT) + QString(". The matched hash is ") 
-            + QString::fromUtf8(LAST_REGISTERED_BLOCKCHAIN_HASH.c_str()) + QString(", which is registered at Bitcoin blockchain at Block ")
-            + QString::number(LAST_REGISTERED_BTC_BLOCK_HEIGHT) + QString(", with txid ")
-            + QString::fromUtf8(LAST_REGISTERED_BTC_TX.c_str()) + QString(".");
-
-    QString stylesheet;
-
-    if(blockchainStatus < 0 )
-		stylesheet = "QLabel {font-weight: bold; color: white;}";
-	else if(blockchainStatus == 0)
-		stylesheet = "QLabel {font-weight: bold; color: red;}";
-	else
-		stylesheet = "QLabel {font-weight: bold; color: green;}";
-
-    ui->labelBlockchainInfo->setStyleSheet(stylesheet);
+void RPCConsole::unsubscribeFromCoreSignals()
+{
+    // Disconnect signals from walletmodel
+    uiInterface.ShowProgress.disconnect(boost::bind(ShowProgress, this, _1, _2));
 }

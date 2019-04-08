@@ -226,6 +226,10 @@ public:
 
     int getDefaultConfirmTarget() const;
 
+    QString getBlockchainStatusText();
+    QString getBlockchainStatusDetailsText();
+    QString getBlockchainTextStylesheet();
+
 private:
     CWallet *wallet;
     bool fHaveWatchOnly;
