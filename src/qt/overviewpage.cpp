@@ -259,7 +259,7 @@ void OverviewPage::setWalletModel(WalletModel *model)
         ui->listTransactions->setModel(filter.get());
         ui->listTransactions->setAlternatingRowColors(true);
         ui->listTransactions->setSortingEnabled(true);
-        ui->listTransactions->sortByColumn(TransactionTableModel::Status, Qt::DescendingOrder);
+        ui->listTransactions->sortByColumn(TransactionTableModel::Date, Qt::DescendingOrder);
         ui->listTransactions->verticalHeader()->hide();
         ui->listTransactions->horizontalHeader()->resizeSection(TransactionTableModel::Status, 28);
         ui->listTransactions->horizontalHeader()->resizeSection(TransactionTableModel::Watchonly, 28);
