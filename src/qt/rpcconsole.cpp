@@ -975,7 +975,9 @@ void RPCConsole::on_openDebugLogfileButton_clicked()
 
 void RPCConsole::on_verifyBlockchainButton_clicked()
 {
-    ScanBlockchainForHash(false);
+    // Fire off RPC
+    ui->verifyBlockchainButton->setEnabled(false);
+    Q_EMIT cmdRequest("verifyblockchain");
 }
 
 void RPCConsole::on_showMeDetailsButton_clicked()
@@ -1284,6 +1286,8 @@ void RPCConsole::updateBlockchainStatus()
     if(blockchainStatus == 1)
     {
         ui->verifyBlockchainButton->setEnabled(false);
+    } else {
+        ui->verifyBlockchainButton->setEnabled(true);
     }
 }
 
