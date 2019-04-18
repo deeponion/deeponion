@@ -869,8 +869,8 @@ QString WalletModel::getBlockchainStatusDetailsText()
             + QString::number(LAST_REGISTERED_BLOCK_HEIGHT) + QString(" (which is registered and guaranteed by the Bitcoin blockchain). ")
             + QString("So you are most likely on a forked chain, please resync with official peers at https://deeponion.org.");
     else
-        detailsText = QString("The current DeepOnion blockchain you are using matches the hash registered in the Bitcoin blockchain at height ")
-            + QString::number(LAST_REGISTERED_BTC_BLOCK_HEIGHT) + QString(". The matched hash is ")
+        detailsText = QString("The current DeepOnion blockchain you are using up to height ")
+            + QString::number(LAST_REGISTERED_BLOCK_HEIGHT) + QString(" matches the hash registered in the Bitcoin blockchain. The matched hash is ") 
             + QString::fromUtf8(LAST_REGISTERED_BLOCKCHAIN_HASH.c_str()) + QString(", which is registered at Bitcoin blockchain at Block ")
             + QString::number(LAST_REGISTERED_BTC_BLOCK_HEIGHT) + QString(", with txid ")
             + QString::fromUtf8(LAST_REGISTERED_BTC_TX.c_str()) + QString(".");
