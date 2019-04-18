@@ -3639,6 +3639,16 @@ bool CChainState::AcceptBlockHeader(const CBlockHeader& block, CValidationState&
         if (mi == mapBlockIndex.end())
             return state.DoS(10, error("%s: prev block not found", __func__), 0, "prev-blk-not-found");
         pindexPrev = (*mi).second;
+
+        // Protect against FAKE STAKE.
+        // As detailed in this paper http://fc19.ifca.ai/preproceedings/180-preproceedings.pdf a resource exhaustion
+        // is possible if a peer is allowed to create a fake fork of headers. To successfully perform this attack
+        // and result in a DoS, the peer needs to create a fork (or multiple forks) big enough to consume all the nodes
+        // memory. Limiting the acceptable fork size to ATTACK_DETECTION_HEIGHT mitigates this attack.
+        if(block.IsProofOfStake() && !IsInitialBlockDownload() && (pindexPrev->nHeight + ATTACK_DETECTION_HEIGHT) < chainActive.Tip()->nHeight) {
+            return state.DoS(10, error("%s: Attempted resource exhaustion attack detected from height = %d Tip @ %d", __func__, pindexPrev->nHeight, chainActive.Tip()->nHeight), 0, "potential-attack-detected");
+        }
+
         if (pindexPrev->nStatus & BLOCK_FAILED_MASK)
             return state.DoS(100, error("%s: prev block invalid", __func__), REJECT_INVALID, "bad-prevblk");
         if (!ContextualCheckBlockHeader(block, state, chainparams, pindexPrev, GetAdjustedTime(), false))
@@ -3678,7 +3688,8 @@ bool ProcessNewBlockHeaders(const std::vector<CBlockHeader>& headers, CValidatio
     if (first_invalid != nullptr) first_invalid->SetNull();
     {
         LOCK(cs_main);
-         for (const CBlockHeader& header : headers) {
+        LogPrint(BCLog::NET, ">> ProcessNewBlockHeaders first in list %s\n", headers[0].GetHash().ToString().c_str());
+        for (const CBlockHeader& header : headers) {
             CBlockIndex *pindex = nullptr; // Use a temp pindex instead of ppindex to avoid a const_cast
             if (!g_chainstate.AcceptBlockHeader(header, state, chainparams, &pindex)) {
                 if (first_invalid) *first_invalid = header;

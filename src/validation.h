@@ -152,6 +152,9 @@ static const bool DEFAULT_PEERBLOOMFILTERS = true;
 /** Default for -stopatheight */
 static const int DEFAULT_STOPATHEIGHT = 0;
 
+/** Reject headers if someone attempts to start a chain this far back */
+static const int ATTACK_DETECTION_HEIGHT = 100;
+
 struct BlockHasher
 {
     size_t operator()(const uint256& hash) const { return hash.GetCheapHash(); }
