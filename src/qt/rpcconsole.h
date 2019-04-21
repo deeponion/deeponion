@@ -59,10 +59,6 @@ public:
         TAB_PEERS = 3
     };
 
-private:
-    void subscribeToCoreSignals();
-    void unsubscribeFromCoreSignals();
-
 protected:
     virtual bool eventFilter(QObject* obj, QEvent *event);
     void keyPressEvent(QKeyEvent *);
@@ -134,7 +130,6 @@ Q_SIGNALS:
     // For RPC command executor
     void stopExecutor();
     void cmdRequest(const QString &command);
-    void showProgress(const QString &title, int nProgress);
 
 private:
     void startExecutor();

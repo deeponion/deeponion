@@ -506,15 +506,12 @@ RPCConsole::RPCConsole(const PlatformStyle *_platformStyle, QWidget *parent) :
     ui->detailWidget->hide();
     ui->peerHeading->setText(tr("Select a peer to view detailed information."));
 
-    subscribeToCoreSignals();
-
     consoleFontSize = settings.value(fontSizeSettingsKey, QFontInfo(QFont()).pointSize()).toInt();
     clear();
 }
 
 RPCConsole::~RPCConsole()
 {
-    unsubscribeFromCoreSignals();
     QSettings settings;
     settings.setValue("RPCConsoleWindowGeometry", saveGeometry());
     RPCUnsetTimerInterface(rpcTimerInterface);
@@ -1289,26 +1286,4 @@ void RPCConsole::updateBlockchainStatus()
     } else {
         ui->verifyBlockchainButton->setEnabled(true);
     }
-}
-
-// Handlers for core signals
-static void ShowProgress(RPCConsole *rpcconsole, const std::string &title, int nProgress)
-{
-    // emits signal "showProgress"
-    QMetaObject::invokeMethod(rpcconsole, "showProgress", Qt::QueuedConnection,
-                              Q_ARG(QString, QString::fromStdString(title)),
-                              Q_ARG(int, nProgress));
-}
-
-void RPCConsole::subscribeToCoreSignals()
-{
-    // Connect signals to walletmodel
-    uiInterface.ShowProgress.connect(boost::bind(ShowProgress, this, _1, _2));
-
-}
-
-void RPCConsole::unsubscribeFromCoreSignals()
-{
-    // Disconnect signals from walletmodel
-    uiInterface.ShowProgress.disconnect(boost::bind(ShowProgress, this, _1, _2));
 }
