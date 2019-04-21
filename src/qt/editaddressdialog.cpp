@@ -31,6 +31,8 @@ EditAddressDialog::EditAddressDialog(Mode _mode, QWidget *parent) :
     case NewReceivingAddress:
         setWindowTitle(tr("New receiving address"));
         ui->addressEdit->setEnabled(false);
+        ui->addressEdit->setVisible(false);
+        ui->label_2->setVisible(false);
         ui->stealthCB->setEnabled(true);
         ui->stealthCB->setVisible(true);
         break;
