@@ -139,7 +139,7 @@
                 </font>
                </property>
                <property name="text">
-                <string>Attempting to spend ONIONs that are affected by not-yet-displayed transactions will not be accepted by the network.</string>
+                <string>Attempting to spend ONION that are affected by not-yet-displayed transactions will not be accepted by the network.</string>
                </property>
                <property name="textFormat">
                 <enum>Qt::RichText</enum>
