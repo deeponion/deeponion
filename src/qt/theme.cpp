@@ -84,7 +84,7 @@ void Theme::init2() {
 	qLineEdit = "QLineEdit {background-color: " + input_background + "; color: " + text_color + "; padding-left: 5px; font-family: " + font_family + "; height: 32px;}  QLineEdit:ContextMenu {height: 200px;}";
 	qLineEditPassword = "QLineEdit {background-color: " + input_background + "; color: " + text_color + "; padding-left: 5px; font-family: " + font_family + "; height: 32px;}  QLineEdit:ContextMenu {height: 200px;}";
 	payAmountStyle = "background-color: " + input_background + "; color: " + text_color + "; font-family: " + font_family + "; height: 28px;";
-	iconTextButtonStyle = "QPushButton, QPushButton:hover {color: " + text_color + "; border: none; background-color: rgba(255, 255, 255, 0);}";
+	iconTextButtonStyle = "QPushButton, QPushButton:hover {color: " + text_color + "; border: 1px solid " + push_button_border_color + "; background-color: rgba(255, 255, 255, 0);}";
 	informationBtnStyle = "background-color: " + frame_background + "; border: none";
 	qComboboxTransactionsFilteringStyle = "QComboBox { background-color: " + frame_background + "; color: " + text_color + "; font-size: 12px; font-family: " + font_family + ";\
 		padding-left: 8px; padding-top: 4px; padding-bottom: 4px; border: none; }\
