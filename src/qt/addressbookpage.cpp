@@ -83,9 +83,9 @@ AddressBookPage::AddressBookPage(const PlatformStyle *_platformStyle, Mode _mode
     ui->labelExplanation->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQLabelGeneralStyle());
     // ui->labelExplanation2->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQLabelGeneralStyle());
     // ui->secondaryMenuFrame->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQFrameSecondaryMenuGeneralStyle());
-    ui->newAddress->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getRoundedButtonStyle());
-    ui->copyAddress->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getRoundedButtonStyle());
-    ui->deleteAddress->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getRoundedButtonStyle());
+    ui->newAddress->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getIconTextButtonStyle());
+    ui->copyAddress->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getIconTextButtonStyle());
+    ui->deleteAddress->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getIconTextButtonStyle());
     
     ui->tableView->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQTableGeneralStyle());
     ui->tableView->horizontalHeader()->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQListHeaderGeneralStyle());
@@ -333,9 +333,9 @@ void AddressBookPage::refreshStyle()
     ui->labelExplanation->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQLabelGeneralStyle());
     // ui->labelExplanation2->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQLabelGeneralStyle());
     // ui->secondaryMenuFrame->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQFrameSecondaryMenuGeneralStyle());
-    ui->newAddress->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getRoundedButtonStyle());
-    ui->copyAddress->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getRoundedButtonStyle());
-    ui->deleteAddress->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getRoundedButtonStyle());
+    ui->newAddress->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getIconTextButtonStyle());
+    ui->copyAddress->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getIconTextButtonStyle());
+    ui->deleteAddress->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getIconTextButtonStyle());
     
     ui->tableView->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQTableGeneralStyle());
     ui->tableView->horizontalHeader()->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQListHeaderGeneralStyle());
