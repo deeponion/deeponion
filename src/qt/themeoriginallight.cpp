@@ -1,5 +1,6 @@
-//
-//
+// Copyright (c) 2017-2019 The DeepOnion developers
+// Distributed under the MIT software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php
 
 #include "themeoriginallight.h"
 
@@ -18,13 +19,13 @@ void ThemeOriginalLight::init()
     widgets_background = "#D8D8D8";
     menu_background = "#bdc9db";
     input_background = "#FFFFFF"; 
-    frame_background = "#FFFFFF";
+//    frame_background = "#FFFFFF";
     font_family = "'Helvetica Neue'";
     selected_item_background = "#79a6d2";
-    QString text_color = "#2B2B37";
-    alternate_background = "#D8D8D8";
-    tab_background = "#D8D8D8"; 
-    selected_tab_background = "#D8D8D8"; 
+    text_color = "#2B2B37";
+//    alternate_background = "#D8D8D8";
+//    tab_background = "#D8D8D8";
+//    selected_tab_background = "#D8D8D8";
     secondary_label_color = "#486EBA"; 
     push_button_text_color = "#2A2937";
     push_button_border_color = "#65676b";
@@ -36,6 +37,11 @@ void ThemeOriginalLight::init()
     scrollbar_handle_color = " rgba(255, 255, 255, 0%)";
     disabled_text_color = "#757596";
     table_header_background = "#314c81";
+
+    frame_background = menu_background;
+    alternate_background = menu_background;
+    tab_background = input_background;
+    selected_tab_background = selected_item_background;
 
     mainMenuOverviewNormalBtnIco = ":/icons/overview";
     mainMenuSendcoinsNormalBtnIco = ":/icons/send";

@@ -18,13 +18,9 @@ void ThemeLightPurple::init()
     widgets_background = "#D8D8D8";
     menu_background = "#ffffff";
     input_background = "#bdc9db"; 
-    frame_background = "#ffffff";
     font_family = "'Helvetica Neue'";
     selected_item_background = "#79a6d2";
     text_color = "#2B2B37";
-    alternate_background = "#FFFFFF";
-    tab_background = "#bdc9db";
-    selected_tab_background = "#79a6d2";
     secondary_label_color = "#898994"; 
     push_button_text_color = "#2A2937";
     push_button_border_color = "#65676b";
@@ -36,7 +32,12 @@ void ThemeLightPurple::init()
     scrollbar_handle_color = " rgba(255, 255, 255, 0%)";
     disabled_text_color = "#757596";
     table_header_background = "#b49be4";
-    
+
+    frame_background = menu_background;
+    alternate_background = menu_background;
+    tab_background = input_background;
+    selected_tab_background = selected_item_background;
+
     mainMenuOverviewNormalBtnIco = ":/icons/purple/overview";
     mainMenuSendcoinsNormalBtnIco = ":/icons/purple/send";
     mainMenuReceiveCoinsNormalBtnIco = ":/icons/purple/receiving_addresses";

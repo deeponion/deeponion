@@ -19,13 +19,13 @@ void ThemeFancyPurple::init()
     widgets_background = "#282a3e";
     menu_background = "#2A2937";
     input_background = "#222435";
-    frame_background = "#282a3e";
+    // frame_background = "#282a3e";
     font_family = "'Helvetica Neue'";
     selected_item_background = "#79a6d2";
     text_color = "#FFFFFF";
-    alternate_background = "#36384a";
-    tab_background = "#474757";
-    selected_tab_background = "#7272a3";
+    // alternate_background = "#36384a";
+    // tab_background = "#474757";
+    // selected_tab_background = "#7272a3";
     secondary_label_color = "#898994";
     push_button_text_color = "#e9e8e8";
     push_button_border_color = "#65676b";
@@ -37,6 +37,11 @@ void ThemeFancyPurple::init()
     scrollbar_handle_color = "#C1C1C1";
     disabled_text_color = "#5b608e";
     table_header_background = "#351b64";
+
+    frame_background = menu_background;
+    alternate_background = menu_background;
+    tab_background = input_background;
+    selected_tab_background = selected_item_background;
 
 	mainMenuOverviewNormalBtnIco = ":/icons/OverviewS";
 	mainMenuSendcoinsNormalBtnIco = ":/icons/SendCoinsS";
