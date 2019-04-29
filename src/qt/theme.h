@@ -12,7 +12,6 @@
 class Theme {
 	
 public:
-	
     const QString getStyleSheet() const;
 
 	const QString getCentralWidgetStyle() const;
@@ -76,7 +75,7 @@ public:
 
 
 protected:
-	void init2();
+	void init();
 	
     QString themeStyleSheet;
     QString centralWidgetStyle;
@@ -148,6 +147,7 @@ protected:
     QString font_family;
     QString selected_item_background;
     QString text_color;
+    QString alt_text_color;
     QString alternate_background;
     QString tab_background;
     QString selected_tab_background;

@@ -6,11 +6,13 @@
 #ifndef DEEPONION_THEME_LIGHT_PURPLE_H
 #define DEEPONION_THEME_LIGHT_PURPLE_H
 
-#include "theme.h"
+#include "themelight.h"
 
-class ThemeLightPurple : public Theme {
+class ThemeLightPurple : public ThemeLight {
 public:
 	ThemeLightPurple();
+
+protected:
     void init();
 };
 

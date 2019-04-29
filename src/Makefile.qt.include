@@ -256,6 +256,8 @@ BITCOIN_QT_H = \
   qt/signverifymessagedialog.h \
   qt/splashscreen.h \
   qt/theme.h \
+  qt/themedark.h \
+  qt/themelight.h \
   qt/themeoriginaldark.h \
   qt/themeoriginallight.h \
   qt/themefancypurple.h \
@@ -451,6 +453,8 @@ BITCOIN_QT_WALLET_CPP = \
   qt/sendcoinsentry.cpp \
   qt/signverifymessagedialog.cpp \
   qt/theme.cpp \
+  qt/themedark.cpp \
+  qt/themelight.cpp \
   qt/themeoriginaldark.cpp \
   qt/themeoriginallight.cpp \
   qt/themefancypurple.cpp \

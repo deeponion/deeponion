@@ -5,11 +5,13 @@
 #ifndef DEEPONION_THEME_ORIGINAL_LIGHT_H
 #define DEEPONION_THEME_ORIGINAL_LIGHT_H
 
-#include "theme.h"
+#include "themelight.h"
 
-class ThemeOriginalLight : public Theme {
+class ThemeOriginalLight : public ThemeLight {
 public:	
 	ThemeOriginalLight();
+	
+protected:
     void init();
 };
 

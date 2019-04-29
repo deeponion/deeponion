@@ -5,7 +5,7 @@
 
 #include "theme.h"
 
-void Theme::init2() {
+void Theme::init() {
 
     themeStyleSheet = "QComboBox {color: #FFFFFF; background-color: " + push_button_text_color + "; height: 26px;} \
         QComboBox:hover {background-color: " + frame_background + "; color: " + push_button_text_color + ";  height: 26px;} \
@@ -39,8 +39,8 @@ void Theme::init2() {
         QLabel#labelImmature {color: " + text_color + ";}\
         QToolBar {color: " + text_color + "; background-color: " + frame_background + "; border: 0px;} \
         QToolBar QToolButton {width: 180px; border:0; height:30px; padding-left: 10px; text-align:left; color: " + text_color + "; background-color: " + frame_background + "} \
-        QToolBar QToolButton:pressed {border:0; height:30px; padding-left: 10px; text-align:left; color: " + text_color + "; background-color: " + title_background + "} \
-        QToolBar QToolButton:checked {border:0; height:30px; padding-left: 10px; text-align:left; color: " + text_color + "; background-color: " + title_background + "} \
+        QToolBar QToolButton:pressed {border:0; height:30px; padding-left: 10px; text-align:left; color: " + alt_text_color + "; background-color: " + title_background + "} \
+        QToolBar QToolButton:checked {border:0; height:30px; padding-left: 10px; text-align:left; color: " + alt_text_color + "; background-color: " + title_background + "} \
         QTreeView { color: " + text_color + "; background-color:" + frame_background + "; alternate-background-color: " + tree_item_alternate_background + ";} \
         QTreeView::item {color: " + text_color + "; background-color: " + frame_background + "; border: 1px solid " + frame_background + ";} \
         QTreeView::item:hover {color: " + text_color + "; background-color: " + selected_item_background + "; border: 1px solid " + frame_background + ";} \
@@ -77,7 +77,7 @@ void Theme::init2() {
 		QScrollBar::handle:vertical {border-radius: 4px; background: " + scrollbar_handle_color + "; min-height: 25px; max-width: 12px; } \
 		QScrollBar::add-line:vertical { background: " + alternate_background + "; height: 0px; subcontrol-position: bottom; subcontrol-origin: margin;} \
 		QScrollBar::sub-line:vertical { background: " + alternate_background + "; height: 0px; subcontrol-position: top; subcontrol-origin: margin;}";
-	qListHeaderGeneralStyle = "QHeaderView::section {background-color: " + table_header_background + "; color: " + text_color + "; border: none; \
+	qListHeaderGeneralStyle = "QHeaderView::section {background-color: " + table_header_background + "; color: " + alt_text_color + "; border: none; \
 		font-size: 12px; font-family: Helvetica Neue; \
 		padding-left: 8px; padding-right: 8px; \
 		padding-top: 8px; padding-bottom: 8px;}";
@@ -111,7 +111,7 @@ void Theme::init2() {
     mainHeaderStyle = "background-color: " + title_background + "; color: white; padding-right: 10px; font-size: 24px; font-weight: bold";
     menuHeaderStyle = "QToolBar {background: " + title_background + "; border: 0px;} \
         QToolBar QToolButton {background: " + title_background + "; padding-left: 10px; padding-top: 10px; text-align:left;}";
-    subSectionTitleStyle = "padding-left: 10px; background-color: " + title_background + ";";
+    subSectionTitleStyle = "padding-left: 10px; background-color: " + title_background + "; color: " + alt_text_color + ";";
     roundedButtonStyle = "background-color: " + title_background + ";color: white;border-radius:14px;border-width:0px; margin-left: 8px;";
 }
 

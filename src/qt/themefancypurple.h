@@ -5,11 +5,13 @@
 #ifndef DEEPONION_THEME_FANCY_PURPLE_H
 #define DEEPONION_THEME_FANCY_PURPLE_H
 
-#include "theme.h"
+#include "themedark.h"
 
-class ThemeFancyPurple : public Theme {
+class ThemeFancyPurple : public ThemeDark {
 public:	
 	ThemeFancyPurple();
+	
+protected:
     void init();
 };
 

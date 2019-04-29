@@ -5,11 +5,13 @@
 #ifndef DEEPONION_THEME_ORIGINAL_DARK_H
 #define DEEPONION_THEME_ORIGINAL_DARK_H
 
-#include "theme.h"
+#include "themedark.h"
 
-class ThemeOriginalDark : public Theme {
+class ThemeOriginalDark : public ThemeDark {
 public:	
 	ThemeOriginalDark();
+	
+protected:
     void init();
 };
 
