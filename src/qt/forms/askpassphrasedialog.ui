@@ -121,7 +121,7 @@
         <string>Serves to disable the trivial sendmoney when OS account compromised. Provides no real security.</string>
        </property>
        <property name="text">
-        <string>For staking only.</string>
+        <string>For staking only</string>
        </property>
       </widget>
      </item>
