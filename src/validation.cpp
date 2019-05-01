@@ -1255,7 +1255,6 @@ int GetPowHeightTable(const CBlockIndex* pindex)
 
 	++count;
 	
-	// printf(">> Height = %d, Count = %d\n", height, count);
 	return count;
 }
 
@@ -2500,7 +2499,6 @@ void static UpdateTip(const CBlockIndex *pindexNew, const CChainParams& chainPar
       */
     if (!warningMessages.empty())
         LogPrintf(" warning='%s'", boost::algorithm::join(warningMessages, ", "));
-    // LogPrintf("\n");
 
 }
 
@@ -2516,7 +2514,6 @@ void static UpdateTip(const CBlockIndex *pindexNew, const CChainParams& chainPar
   */
 bool CChainState::DisconnectTip(CValidationState& state, const CChainParams& chainparams, DisconnectedBlockTransactions *disconnectpool)
 {
-	LogPrint(BCLog::STAKE, ">> DisconnectTip");
     CBlockIndex *pindexDelete = chainActive.Tip();
     assert(pindexDelete);
     // Read block from disk.
@@ -2643,7 +2640,6 @@ public:
  */
 bool CChainState::ConnectTip(CValidationState& state, const CChainParams& chainparams, CBlockIndex* pindexNew, const std::shared_ptr<const CBlock>& pblock, ConnectTrace& connectTrace, DisconnectedBlockTransactions &disconnectpool)
 {
-	LogPrint(BCLog::STAKE, ">> ConnectTip");
     assert(pindexNew->pprev == chainActive.Tip());
     // Read block from disk.
     int64_t nTime1 = GetTimeMicros();
@@ -3281,7 +3277,6 @@ static bool CheckBlockHeader(const CBlockHeader& block, CValidationState& state,
 
 bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::Params& consensusParams, bool fCheckPOW, bool fCheckMerkleRoot)
 {
-	// LogPrintf(">> CheckBlock\n");
     // These are checks that are independent of context.
 
     if (block.fChecked)
@@ -3478,11 +3473,6 @@ static bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationSta
     if(testNewPowValidity)
     	isProofOfStake = false;
     
-//    if(isProofOfStake)
-//    	LogPrintf(">> PoS block\n");
-//    else
-//    	LogPrintf(">> PoW block\n");
-    
     if (block.nBits != GetNextWorkRequired(pindexPrev, &block, consensusParams, isProofOfStake)) {
     	LogPrintf(">> block.nBits=%08x, getwork = %08x, hash = %s\n", 
     			block.nBits, GetNextWorkRequired(pindexPrev, &block, consensusParams, isProofOfStake), block.GetHash().ToString().c_str());
@@ -3611,7 +3601,6 @@ static bool ContextualCheckBlock(const CBlock& block, CValidationState& state, c
 
 bool CChainState::AcceptBlockHeader(const CBlockHeader& block, CValidationState& state, const CChainParams& chainparams, CBlockIndex** ppindex)
 {
-	// LogPrintf(">> AcceptBlockHeader\n");
     AssertLockHeld(cs_main);
     // Check for duplicate
     uint256 hash = block.GetHash();
@@ -3621,7 +3610,6 @@ bool CChainState::AcceptBlockHeader(const CBlockHeader& block, CValidationState&
 
         if (miSelf != mapBlockIndex.end()) {
             // Block header is already known.
-        	// LogPrintf(">> Block header is already known. miSelf->nHeight = %d\n", miSelf->second->nHeight);
             pindex = miSelf->second;
             if (ppindex)
                 *ppindex = pindex;
@@ -3727,7 +3715,6 @@ static CDiskBlockPos SaveBlockToDisk(const CBlock& block, int nHeight, const CCh
 /** Store block on disk. If dbp is non-nullptr, the file is known to already reside on disk */
 bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CValidationState& state, const CChainParams& chainparams, CBlockIndex** ppindex, bool fRequested, const CDiskBlockPos* dbp, bool* fNewBlock)
 {
-	// LogPrintf(">> AcceptBlock\n");
     const CBlock& block = *pblock;
 
     if (fNewBlock) *fNewBlock = false;
@@ -3847,8 +3834,6 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CVali
 bool CChainState::ComputeStakeModifier(CBlockIndex* pindex, const CBlock& block, const CChainParams& chainparams)
 {
     // DeepOnion: compute stake entropy bit for stake modifier
-
-	// LogPrintf(">> GetStakeEntropyBit() = %u, Blockhash = %s\n", block.GetStakeEntropyBit(), block.GetHash().ToString().c_str());
     if (!pindex->SetStakeEntropyBit(block.GetStakeEntropyBit())) 
     {
         return error("ComputeStakeModifier() : SetStakeEntropyBit() failed");
@@ -3893,7 +3878,7 @@ bool ProcessNewBlock(const CChainParams& chainparams, const std::shared_ptr<cons
         }
     }
     
-    LogPrint(BCLog::STAKE, ">> ProcessNewBlock, about NotifyHeaderTip\n");
+    // LogPrint(BCLog::STAKE, ">> ProcessNewBlock, about NotifyHeaderTip\n");
     NotifyHeaderTip();
 
     CValidationState state; // Only used to report errors, not invalidity - ignore it
@@ -3906,7 +3891,7 @@ bool ProcessNewBlock(const CChainParams& chainparams, const std::shared_ptr<cons
     CAmount immatureB = vpwallets[0]->GetImmatureBalance();
     CAmount stakeB = vpwallets[0]->GetStakeBalance();
     CAmount totalB = avilableB + unconfirmedB + immatureB + stakeB;
-    LogPrint(BCLog::STAKE, ">> avilableB = %ld, unconfirmedB = %ld, immatureB = %ld, stakeB = %ld\n", avilableB, unconfirmedB, immatureB, stakeB);
+    // LogPrint(BCLog::STAKE, ">> avilableB = %ld, unconfirmedB = %ld, immatureB = %ld, stakeB = %ld\n", avilableB, unconfirmedB, immatureB, stakeB);
     
     int h = chainActive.Tip()->nHeight;
     totalBalanceMap[h] = totalB;
@@ -3917,20 +3902,19 @@ bool ProcessNewBlock(const CChainParams& chainparams, const std::shared_ptr<cons
     	}
     }
     
-    LogPrint(BCLog::STAKE, ">> total balance = %ld, for h = %d\n", totalB, h);
-    LogPrint(BCLog::STAKE, ">> delta = %ld\n", totalB - prevTotalBalance);
+    // LogPrint(BCLog::STAKE, ">> total balance = %ld, for h = %d\n", totalB, h);
+    // LogPrint(BCLog::STAKE, ">> delta = %ld\n", totalB - prevTotalBalance);
     
     if(totalB < prevTotalBalance) 
     	LogPrint(BCLog::STAKE, ">> Error-balance: current total balance %ld is less than previous %ld\n", totalB, prevTotalBalance);
 
-    LogPrint(BCLog::STAKE, ">> ProcessNewBlock, end chainActive height = %d\n", chainActive.Tip()->nHeight);    
-    LogPrint(BCLog::STAKE, ">> ProcessNewBlock, completed\n");
+    // LogPrint(BCLog::STAKE, ">> ProcessNewBlock, end chainActive height = %d\n", chainActive.Tip()->nHeight);    
+    // LogPrint(BCLog::STAKE, ">> ProcessNewBlock, completed\n");
     return true;
 }
 
 bool TestBlockValidity(CValidationState& state, const CChainParams& chainparams, const CBlock& block, CBlockIndex* pindexPrev, bool fCheckPOW, bool fCheckMerkleRoot, bool fProofOfStake)
 {
-	// LogPrintf(">> TestBlockValidity\n");
     AssertLockHeld(cs_main);
     assert(pindexPrev && pindexPrev == chainActive.Tip());
     CCoinsViewCache viewNew(pcoinsTip.get());
@@ -4345,7 +4329,6 @@ CVerifyDB::~CVerifyDB()
 
 bool CVerifyDB::VerifyDB(const CChainParams& chainparams, CCoinsView *coinsview, int nCheckLevel, int nCheckDepth)
 {
-	// LogPrintf(">> VerifyDB\n");
     LOCK(cs_main);
     if (chainActive.Tip() == nullptr || chainActive.Tip()->pprev == nullptr)
         return true;
@@ -5207,8 +5190,6 @@ double GuessVerificationProgress(const ChainTxData& data, const CBlockIndex *pin
 
 void ScanBlockchainForHash(bool bSplashDisplay)
 {
-    LogPrintf(">> calling ScanBlockchainForHash ...\n");
-
     int prevStatus = 0;
 
     fAbortScanForHash = false;
@@ -5274,9 +5255,6 @@ void ScanBlockchainForHash(bool bSplashDisplay)
         prevStatus = blockchainStatus;
         uiInterface.NotifyBlockchainStatusChanged(prevStatus);
     }
-
-    LogPrintf(">> blockchain hash at %d: %s\n", LAST_REGISTERED_BLOCK_HEIGHT, hash0.c_str());
-    LogPrintf(">> blockchainStatus = %d\n", blockchainStatus);
 }
 
 
