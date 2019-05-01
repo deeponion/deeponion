@@ -73,6 +73,7 @@
     <file alias="DeepOnionLogo">res/icons/deepOnionLogo.png</file>
     <file alias="DeepOnionLogoPurple">res/icons/deepOnionLogo-purple.png</file>
     <file alias="DeepOnionLogoWithTextWhite">res/icons/deepOnionLogoWithTextWhite.png</file>
+    <file alias="DeepOnionLogoGreen">res/icons/deepOnionLogo-Green.png</file>
     <file alias="deepvault">res/icons/deepvault_b.png</file>
     <file alias="deepvault_s">res/icons/deepvault_s.png</file>
     <file alias="lock_open2">res/icons/lock_open2.png</file>
@@ -149,6 +150,8 @@
       <file alias="about_light">res/images/colored-wallet-logo.png</file>
       <file alias="about_dark_purple">res/images/wallet-purple-white.png</file>
       <file alias="about_light_purple">res/images/wallet-purple.png</file>
+      <file alias="about_dark_green">res/images/wallet-green-white.png</file>
+      <file alias="about_light_green">res/images/wallet-green.png</file>
       <file alias="splash">res/images/splash.png</file>
       <file alias="splash_testnet">res/images/splash_testnet.png</file>
       <file alias="wallet_logo">res/images/wallet.png</file>

@@ -8,21 +8,28 @@
 #include "themeoriginallight.h"
 #include "themefancypurple.h"
 #include "themelightpurple.h"
+#include "themedarkgreen.h"
+#include "themelightgreen.h"
+
 
 ThemeManager::ThemeManager()
 {
     defaultTheme = THEME_FANCY_PURPLE;
 //    printf(">> def theme = %d\n", defaultTheme);
 
-    allThemes[THEME_ORIGINAL_DARK] = new ThemeOriginalDark();
+    allThemes[THEME_ORIGINAL_DARK] 	= new ThemeOriginalDark();
     allThemes[THEME_ORIGINAL_LIGHT] = new ThemeOriginalLight();
-    allThemes[THEME_FANCY_PURPLE] = new ThemeFancyPurple();
-    allThemes[THEME_LIGHT_PURPLE] = new ThemeLightPurple();
+    allThemes[THEME_FANCY_PURPLE] 	= new ThemeFancyPurple();
+    allThemes[THEME_LIGHT_PURPLE] 	= new ThemeLightPurple();
+    allThemes[THEME_DARK_GREEN] 	= new ThemeDarkGreen();
+    allThemes[THEME_LIGHT_GREEN] 	= new ThemeLightGreen();
 
-    themeTypeToName[THEME_ORIGINAL_DARK] = QString("Original Dark");
-    themeTypeToName[THEME_ORIGINAL_LIGHT] = QString("Original Light");
-    themeTypeToName[THEME_FANCY_PURPLE] = QString("Fancy Purple");
-    themeTypeToName[THEME_LIGHT_PURPLE] = QString("Light Purple");
+    themeTypeToName[THEME_ORIGINAL_DARK] 	= QString("Original Dark");
+    themeTypeToName[THEME_ORIGINAL_LIGHT] 	= QString("Original Light");
+    themeTypeToName[THEME_FANCY_PURPLE]	 	= QString("Fancy Purple");
+    themeTypeToName[THEME_LIGHT_PURPLE] 	= QString("Light Purple");
+    themeTypeToName[THEME_DARK_GREEN] 		= QString("Dark Green");
+    themeTypeToName[THEME_LIGHT_GREEN] 		= QString("Light Green");
 
     current = allThemes[defaultTheme];
 }

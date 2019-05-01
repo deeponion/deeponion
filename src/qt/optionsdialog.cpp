@@ -114,6 +114,9 @@ OptionsDialog::OptionsDialog(const PlatformStyle *_platformStyle, QWidget *paren
     ui->theme->addItem(_platformStyle->getThemeManager()->getThemeName(THEME_LIGHT_PURPLE), "Light Purple");
     ui->theme->addItem(_platformStyle->getThemeManager()->getThemeName(THEME_ORIGINAL_DARK), "Original Dark");
     ui->theme->addItem(_platformStyle->getThemeManager()->getThemeName(THEME_ORIGINAL_LIGHT), "Original Light");
+    ui->theme->addItem(_platformStyle->getThemeManager()->getThemeName(THEME_DARK_GREEN), "Dark Green");
+    ui->theme->addItem(_platformStyle->getThemeManager()->getThemeName(THEME_LIGHT_GREEN), "Light Green");
+    
     ui->unit->setModel(new BitcoinUnits(this));
 
     /* Widget-to-option mapper */
