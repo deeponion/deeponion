@@ -2166,11 +2166,12 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
 
         nInputs += tx.vin.size();
 
-        // if (!tx.IsCoinBase() && !tx.IsCoinStake())
         if (!tx.IsCoinBase())
         {
             CAmount txfee = 0;
             if (!Consensus::CheckTxInputs(tx, state, view, pindex->nHeight, txfee)) {
+            	// bad tx, remove it from mempool (not activate for now)
+            	// mempool.removeRecursive(tx);
                 return error("%s: Consensus::CheckTxInputs: %s, %s", __func__, tx.GetHash().ToString(), FormatStateMessage(state));
             }
             nFees += txfee;
@@ -2203,7 +2204,6 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
                              REJECT_INVALID, "bad-blk-sigops");
 
         txdata.emplace_back(tx);
-        // if (!tx.IsCoinBase() && !tx.IsCoinStake())
         if (!tx.IsCoinBase())
         {
             std::vector<CScriptCheck> vChecks;
@@ -2252,7 +2252,6 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
             return state.DoS(100, error("ConnectBlock() : %s unable to get coin age for coinstake", block.vtx[1]->GetHash().ToString().substr(0,10).c_str()));
 
         int64_t nCalculatedStakeReward = GetProofOfStakeReward(nCoinAge, pindex->pprev);
-        // LogPrint(BCLog::ALL, ">> coinstake actual=%d vs calculated=%d\n", nStakeReward, nCalculatedStakeReward);
         if (nStakeReward > nCalculatedStakeReward)
             return state.DoS(100, error("ConnectBlock() : coinstake pays too much(actual=%d vs calculated=%d)", nStakeReward, nCalculatedStakeReward));
     }
