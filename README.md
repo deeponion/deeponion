@@ -1,77 +1,83 @@
-This is DeepOnion Rebase Codebase from Litecoin
-================================================
+![alt text](https://image.ibb.co/mfR4R6/DO.png "DeepOnion")
+=====================================
 
-https://deeponion.org
+DeepOnion (ONION) is an anonymous and untraceable cryptocurrency. All transactions are private and sent through the TOR network. The 2.0 and onwards are based on the latest codebase from Litecoin/Bitcoin.
 
-What is Litecoin?
-----------------
+The integration with TOR ensures that users are always on a secure environment. There is no client-side configuration needed. Our client will automatically join the TOR network and connect to available TOR nodes on the network (including our seed nodes). After a successful connection to the DeepOnion network, you may check your displayed IP using the DeepOnion client console, where you will see that your client is assigned a TOR hidden service address (.onion address).
 
-Litecoin is an experimental digital currency that enables instant payments to
-anyone, anywhere in the world. Litecoin uses peer-to-peer technology to operate
-with no central authority: managing transactions and issuing money are carried
-out collectively by the network. Litecoin Core is the name of open source
-software which enables the use of this currency.
+#### Pluggable Transports
 
-For more information, as well as an immediately useable, binary version of
-the Litecoin Core software, see [https://litecoin.org](https://litecoin.org).
+>DeepOnion has expanded and added the option for advanced users to configure PTs such as obfs4 & Meek. 
+>
+>Instructions:
+>
+>[Setup obfs4]( https://github.com/deeponion/deeponion/blob/master/doc/setup-obfs4.md)
+>
+>[Setup Meek]( https://github.com/deeponion/deeponion/blob/master/doc/setup-meek.md)
 
-License
+
+## Specifications
+
+| Specification | Value |
+|:-----------|:-----------|
+| Consensus Algorithm | `PoW & PoS` |
+| Mining Algorithm | `X13` |
+| Confirmations | `5 tx` |
+| Block Confirm. | `50 minted confirms` |
+| Port | `17570` |
+| RPC Port | `18580` |
+
+
+##### PoW:
+
+> - 240 sec block interval.
+> - Difficulty readjustment every block.
+> - Initial block reward will be 8 ONIONs per block.
+> - PoW block reward will be halved every year, until it reaches 1 ONION/block where it will remain.
+
+##### PoS:
+
+> - 60 sec block interval.
+> - Difficulty readjustment every block.
+> - PoS interest will be variable per year:
+> 	1st year: `10%`
+> 	2nd year: `5%`
+> 	3rd and subsequent years: `1%`
+> - Minimum holding time before the PoS will be generated is 1 day.
+> - Maximum allowed accumulated coin is 30 days.
+
+
+## Resources
+
+:package: For software downloads, please see [Downloads](https://deeponion.org/#downloads)
+
+[Whitepaper](https://deeponion.org/White-Paper.pdf) 
+
+[Roadmap](https://deeponion.org/#roadmap)
+
+[AirDrop](https://deeponion.org/airdrop.html)
+
+[Community](https://deeponion.org/community/)
+
+[Support](https://deeponion.help)
+
+
+## DeepOnion.conf file
+
+Download [DeepOnion.conf](https://deeponion.org/DeepOnion.conf.php?action=download) (right-click > save link as).
+
+For more info on how setup your .conf file, please visit https://deeponion.org/DeepOnion.conf.php
+
+License :bookmark_tabs:
 -------
 
-Litecoin Core is released under the terms of the MIT license. See [COPYING](COPYING) for more
+DeepOnion is released under the terms of the MIT license. See [COPYING](COPYING) for more
 information or see https://opensource.org/licenses/MIT.
+
+
 
 Development Process
 -------------------
 
-The `master` branch is regularly built and tested, but is not guaranteed to be
-completely stable. [Tags](https://github.com/litecoin-project/litecoin/tags) are created
-regularly to indicate new official, stable release versions of Litecoin Core.
+The `master` branch is regularly built and tested, but is not guaranteed to be completely stable. 
 
-The contribution workflow is described in [CONTRIBUTING.md](CONTRIBUTING.md).
-
-The developer [mailing list](https://groups.google.com/forum/#!forum/litecoin-dev)
-should be used to discuss complicated or controversial changes before working
-on a patch set.
-
-Developer IRC can be found on Freenode at #litecoin-dev.
-
-Testing
--------
-
-Testing and code review is the bottleneck for development; we get more pull
-requests than we can review and test on short notice. Please be patient and help out by testing
-other people's pull requests, and remember this is a security-critical project where any mistake might cost people
-lots of money.
-
-### Automated Testing
-
-Developers are strongly encouraged to write [unit tests](src/test/README.md) for new code, and to
-submit new unit tests for old code. Unit tests can be compiled and run
-(assuming they weren't disabled in configure) with: `make check`. Further details on running
-and extending unit tests can be found in [/src/test/README.md](/src/test/README.md).
-
-There are also [regression and integration tests](/test), written
-in Python, that are run automatically on the build server.
-These tests can be run (if the [test dependencies](/test) are installed) with: `test/functional/test_runner.py`
-
-The Travis CI system makes sure that every pull request is built for Windows, Linux, and OS X, and that unit/sanity tests are run automatically.
-
-### Manual Quality Assurance (QA) Testing
-
-Changes should be tested by somebody other than the developer who wrote the
-code. This is especially important for large or high-risk changes. It is useful
-to add a test plan to the pull request description if testing the changes is
-not straightforward.
-
-Translations
-------------
-
-We only accept translation fixes that are submitted through [Bitcoin Core's Transifex page](https://www.transifex.com/projects/p/bitcoin/).
-Translations are converted to Litecoin periodically.
-
-Translations are periodically pulled from Transifex and merged into the git repository. See the
-[translation process](doc/translation_process.md) for details on how this works.
-
-**Important**: We do not accept translation changes as GitHub pull requests because the next
-pull from Transifex would automatically overwrite them again.
