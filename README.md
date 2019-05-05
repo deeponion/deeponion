@@ -7,13 +7,13 @@ The integration with TOR ensures that users are always on a secure environment. 
 
 #### Pluggable Transports
 
->DeepOnion has expanded and added the option for advanced users to configure PTs such as obfs4 & Meek. 
+>DeepOnion has options for advanced users to configure PTs such as obfs4 & Meek. 
 >
 >Instructions:
 >
->[Setup obfs4]( https://github.com/deeponion/deeponion/blob/master/doc/setup-obfs4.md)
+>[Setup OBFS4]( https://github.com/deeponion/deeponion2/blob/master/doc/setup-obfs4.md )
 >
->[Setup Meek]( https://github.com/deeponion/deeponion/blob/master/doc/setup-meek.md)
+>[Setup Meek]( https://github.com/deeponion/deeponion2/blob/master/doc/setup-meek.md )
 
 
 ## Specifications
