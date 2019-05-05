@@ -1,4 +1,4 @@
-Building Litecoin
+Building DeepOnion
 ================
 
 See doc/build-*.md for instructions on building the various
