@@ -4163,13 +4163,7 @@ bool CWallet::AddStealthAddress(CStealthAddress& sxAddr)
 
     bool rv = CWalletDB(*dbw).WriteStealthAddress(sxAddr);
 
-    if (rv && !fOwned){
-        SetAddressBook(sxAddr, sxAddr.label, "send");
-        return rv;
-    }
-
-    if (rv)
-        SetAddressBook(sxAddr, sxAddr.label, "receive");
+    NotifyAddressBookChanged(this, sxAddr, sxAddr.label, fOwned,"receive", CT_NEW );
 
     return rv;
 }
