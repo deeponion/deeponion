@@ -5222,7 +5222,7 @@ void ScanBlockchainForHash(bool bSplashDisplay)
 
     if (fAbortScanForHash)
         blockchainStatus = -2;
-    else if(count != LAST_REGISTERED_BLOCK_HEIGHT)
+    else if(count < LAST_REGISTERED_BLOCK_HEIGHT)
         blockchainStatus = -1;
     else if(hash0 == LAST_REGISTERED_BLOCKCHAIN_HASH)
         blockchainStatus = 1;
