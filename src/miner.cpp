@@ -182,7 +182,7 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
 
 	if(!fProofOfStake) {
 		coinbaseTx.vout[0].scriptPubKey = scriptPubKeyIn;
-		coinbaseTx.vout[0].nValue = nFees + GetBlockSubsidy(nHeight, chainparams.GetConsensus());
+		coinbaseTx.vout[0].nValue = nFees + GetProofOfWorkReward(nHeight, pindexPrev);
 		coinbaseTx.vin[0].scriptSig = (CScript() << nHeight << CScriptNum(0)) + COINBASE_FLAGS;
 	} else {
         // Height first in coinbase required for block.version=2
@@ -660,12 +660,12 @@ void FormatHashBuffers(CBlock* pblock, char* pmidstate, char* pdata, char* phash
 
 
 
-void StakeMiner()
+void Stake()
 {
-//#ifdef ENABLE_WALLET  FIXME: UNCOMMENT
+#ifdef ENABLE_WALLET
 	bool fTryToSync = true;
 
-	LogPrint(BCLog::POS, "StakeMiner(): Starting Stake miner loop.\n");
+	LogPrint(BCLog::POS, "Stake(): Starting Stake loop.\n");
 	SetThreadPriority(THREAD_PRIORITY_LOWEST);
 	while (true) {
 		try {
@@ -718,62 +718,62 @@ void StakeMiner()
             std::unique_ptr<CBlockTemplate> pblocktemplate(BlockAssembler(Params()).CreateNewBlock(coinbase_script->reserveScript, true, true, &nFees));
 
             if (!pblocktemplate.get()) {
-    			LogPrint(BCLog::POS, "StakeMiner(): !pblocktemplate.get().\n");
+    			LogPrint(BCLog::POS, "Stake(): !pblocktemplate.get().\n");
                 return;
             }
-            LogPrint(BCLog::POS, "StakeMiner(): pblocktemplate->block.vtx[0]->vout.size(): %d\n", pblocktemplate->block.vtx[0]->vout.size());
+            LogPrint(BCLog::POS, "Stake(): pblocktemplate->block.vtx[0]->vout.size(): %d\n", pblocktemplate->block.vtx[0]->vout.size());
 
             // Trying to sign a block
-			LogPrint(BCLog::POS, "StakeMiner(): Trying to sign a block.\n");
+			LogPrint(BCLog::POS, "Stake(): Trying to sign a block.\n");
             if (SignBlock(pblocktemplate->block, *vpwallets[0], nFees))
             {
-    			LogPrint(BCLog::POS, "StakeMiner(): Signed block.\n");
+    			LogPrint(BCLog::POS, "Stake(): Signed block.\n");
                 SetThreadPriority(THREAD_PRIORITY_NORMAL);
                 CheckStake(&pblocktemplate->block, *vpwallets[0]);
                 SetThreadPriority(THREAD_PRIORITY_LOWEST);
                 MilliSleep(500);
             }
             else {
-    			LogPrint(BCLog::POS, "StakeMiner(): Couldn't Sign block.\n");
-                MilliSleep(gArgs.GetArg("-minersleep", 1000));
+    			LogPrint(BCLog::POS, "Stake(): Couldn't Sign block.\n");
+                MilliSleep(gArgs.GetArg("-stakesleep", 1000));
             }
 
         }
 		catch (const boost::thread_interrupted&)
 		{
-			LogPrint(BCLog::POS, "StakeMiner(): Stake miner loop interrupted.\n");
+			LogPrint(BCLog::POS, "Stake(): Stake  loop interrupted.\n");
 			break;
 		}
 		catch (const std::exception& e)
 		{
-			LogPrint(BCLog::POS, "StakeMiner() Got Error: %s\n", e.what());
+			LogPrint(BCLog::POS, "Stake() Got Error: %s\n", e.what());
                         MilliSleep(1000);
 		}
     }
 
-	LogPrint(BCLog::POS, "StakeMiner(): Stake miner loop finished.\n");
-// #endif FIXME: UNCOMMENT
+	LogPrint(BCLog::POS, "Stake(): Stake loop finished.\n");
+#endif
 }
 
 static std::unique_ptr<boost::thread> stake_thread;
-void StartThreadStakeMiner()
+void StartThreadStake()
 {
-	LogPrint(BCLog::POS, "StartThreadStakeMiner(): Starting Stake miner.\n");
+	LogPrint(BCLog::POS, "StartThreadStake(): Starting Stake.\n");
 	if (stake_thread) {
 		stake_thread->interrupt();
 		stake_thread->join();
 	}
-	stake_thread.reset(new boost::thread(boost::bind(&TraceThread<void (*)()>, "DeepOnion-miner", &StakeMiner)));
-	LogPrint(BCLog::POS, "StartThreadStakeMiner(): Started Stake miner.\n");
+	stake_thread.reset(new boost::thread(boost::bind(&TraceThread<void (*)()>, "DeepOnion-Stake", &Stake)));
+	LogPrint(BCLog::POS, "StartThreadStake(): Started Stake.\n");
 }
 
-void StopThreadStakeMiner()
+void StopThreadStake()
 {
-	LogPrint(BCLog::POS, "StopThreadStakeMiner(): Stopping Stake miner.\n");
+	LogPrint(BCLog::POS, "StopThreadStake(): Stopping Stake.\n");
 	if (stake_thread) {
 		stake_thread->interrupt();
 		stake_thread->join();
 	}
-	LogPrint(BCLog::POS, "StopThreadStakeMiner(): Stopped Stake miner.\n");
+	LogPrint(BCLog::POS, "StopThreadStake(): Stopped Stake .\n");
 }
 

@@ -1319,27 +1319,6 @@ CAmount GetProofOfStakeReward(int64_t nCoinAge, const CBlockIndex* pindex)
 	return nSubsidy;
 }
 
-
-// TODO: Fix for miner.cpp:167 Use Above
-CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams)
-{
-	if(nHeight == 1) {
-		CAmount nSubsidy = 18000000 * COIN;
-		return nSubsidy;
-	}
-	
-    int halvings = nHeight / consensusParams.nSubsidyHalvingInterval;
-    // Force block reward to zero when right shift is undefined.
-    if (halvings >= 64)
-        return 0;
-
-    CAmount nSubsidy = 8 * COIN;
-    
-    // Subsidy is cut in half every 131400 blocks which will occur approximately every year.
-    nSubsidy >>= halvings;
-    return nSubsidy;
-}
-
 bool IsInitialBlockDownload()
 {
     // Once this function has returned false, it must remain false.
