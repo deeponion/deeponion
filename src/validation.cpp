@@ -5181,6 +5181,11 @@ void ScanBlockchainForHash(bool bSplashDisplay)
     {
         maxBlock = pindexBest->nHeight;
     }
+    
+    if(maxBlock < LAST_REGISTERED_BLOCK_HEIGHT) 
+    {
+    	fAbortScanForHash = true;
+    }
 
     unsigned char blockchainhash[SHA256_DIGEST_LENGTH];
     SHA256_CTX sha256;
