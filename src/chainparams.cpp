@@ -81,10 +81,10 @@ public:
         strNetworkID = "main";
         consensus.nSubsidyHalvingInterval = 131400;
         consensus.BIP16Height = 0; 
-        consensus.BIP34Height = 100;
-        consensus.BIP34Hash = uint256S("fa09d204a83a768ed5a7c8d441fa62f2043abf420cff1226c7b4329aeb9d51cf");
-        consensus.BIP65Height = 1000000; // after switch
-        consensus.BIP66Height = 1000000; // after switch
+        consensus.BIP34Height = 0;
+        consensus.BIP34Hash = uint256S("000004e29458ef4f2e0abab544737b07344e6ff13718f7c2d12926166db07b5e");
+        consensus.BIP65Height = 1000000; 
+        consensus.BIP66Height = 1000000; 
         consensus.powLimit = uint256S("00000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"); 
         consensus.posLimit = uint256S("00000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"); 
         consensus.nPowTargetTimespan = 14400; 
@@ -111,8 +111,8 @@ public:
 
         // Deployment of SegWit (BIP141, BIP143, and BIP147)
         consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].bit = 1;
-        consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].nStartTime = 1577836800; // January 1, 2020
-        consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].nTimeout = 0; //1580428800; // January 31st, 2020
+        consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].nStartTime = 1609462800; // January 1, 2021
+        consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].nTimeout = 1612054800; // January 31st, 2021
 
         // The best chain should have at least this much work.
         consensus.nMinimumChainWork = uint256S("0x0000000000000000000000000000000000000000000000026510f16958ecb571");
