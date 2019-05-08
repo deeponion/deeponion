@@ -182,7 +182,7 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
 
 	if(!fProofOfStake) {
 		coinbaseTx.vout[0].scriptPubKey = scriptPubKeyIn;
-		coinbaseTx.vout[0].nValue = nFees + GetBlockSubsidy(nHeight, chainparams.GetConsensus());
+		coinbaseTx.vout[0].nValue = nFees + GetProofOfWorkReward(nHeight, pindexPrev);
 		coinbaseTx.vin[0].scriptSig = (CScript() << nHeight << CScriptNum(0)) + COINBASE_FLAGS;
 	} else {
         // Height first in coinbase required for block.version=2
