@@ -157,6 +157,7 @@ protected:
     QString push_button_background;
     QString selected_menu_item_background;
     QString tree_item_alternate_background;
+    QString progress_bar_text_color;
     QString progress_bar_background;
     QString tableview_text_color;
     QString scrollbar_handle_color;
