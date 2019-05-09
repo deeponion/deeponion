@@ -1121,9 +1121,15 @@ void BitcoinGUI::setNumBlocks(int count, const QDateTime& blockDate, double nVer
         tooltip = tr("Catching up...") + QString("<br>") + tooltip;
         if(count != prevBlocks)
         {
-            labelBlocksIcon->setPixmap(platformStyle->SingleColorIcon(QString(
-                ":/movies/spinner-%1").arg(spinnerFrame, 3, 10, QChar('0')))
-                .pixmap(STATUSBAR_ICONSIZE, STATUSBAR_ICONSIZE));
+            printf("Getting image %s\n",
+                    platformStyle->getThemeManager()->getCurrent()->getSpinnerPath()
+                    .arg(spinnerFrame, 3, 10, QChar('0')).toStdString().c_str());
+
+            labelBlocksIcon->setPixmap(platformStyle->SingleColorIcon(
+                    platformStyle->getThemeManager()->getCurrent()->getSpinnerPath()
+                    .arg(spinnerFrame, 3, 10, QChar('0')))
+                    .pixmap(STATUSBAR_ICONSIZE, STATUSBAR_ICONSIZE));
+
             spinnerFrame = (spinnerFrame + 1) % SPINNER_FRAMES;
         }
         prevBlocks = count;

@@ -73,6 +73,7 @@ public:
     const QString getRoundedButtonStyle() const;
 	const QString getDeepOnionLogo() const;
 
+    const QString getSpinnerPath() const;
 
 protected:
 	void init();
@@ -137,6 +138,7 @@ protected:
     QString subSectionTitleStyle;
     QString roundedButtonStyle;
     QString deepOnionLogo;
+    QString spinnerPath;
     
 	QString title_background;
     QString status_bar_background;

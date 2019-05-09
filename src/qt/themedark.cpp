@@ -65,5 +65,7 @@ void ThemeDark::init()
     warningIco = ":/icons/warning_white";
     deepVaultLogoIco = ":/icons/deepVaultLogoWhite";
     
+    spinnerPath = ":/movies/spinnerwhite-%1";
+
     Theme::init();
 }

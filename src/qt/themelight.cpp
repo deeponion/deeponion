@@ -51,5 +51,7 @@ void ThemeLight::init()
     warningIco = ":/icons/warning";
     deepVaultLogoIco = ":/icons/deepVaultLogoColor";
     
+    spinnerPath = ":/movies/spinner-%1";
+
     Theme::init();
 }
