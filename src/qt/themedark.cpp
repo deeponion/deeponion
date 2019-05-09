@@ -25,7 +25,6 @@ void ThemeDark::init()
     push_button_background = "#22222b";
     selected_menu_item_background = "#1C1B15";
     tree_item_alternate_background = "#538cc6";
-    progressbar_text_color = "#000000";
     progress_bar_background = "#3dc28b";
     tableview_text_color = "#D5D5D9";
     scrollbar_handle_color = "#C1C1C1";

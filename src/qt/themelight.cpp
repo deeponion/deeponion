@@ -24,7 +24,6 @@ void ThemeLight::init()
     push_button_background = "#e8e5e5"; 
     selected_menu_item_background = "#6b6b6b";
     tree_item_alternate_background = "#538cc6";
-    progressbar_text_color = "#000000";
     progress_bar_background = "#3dc28b";
     tableview_text_color = "#565656";
     scrollbar_handle_color = "#ffffff";
