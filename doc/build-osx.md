@@ -47,10 +47,10 @@ from the root of the repository.
 Build DeepOnion Core
 ------------------------
 
-1. Clone the DeepOnion source code and cd into `deeponion2`
+1. Clone the DeepOnion source code and cd into `deeponion`
 
-        git clone --recursive https://github.com/deeponion/deeponion2
-        cd deeponion2
+        git clone --recursive https://github.com/deeponion/deeponion.git
+        cd deeponion
 
 2.  Build DeepOnion-core:
 
@@ -76,7 +76,7 @@ Build DeepOnion Core
 
     or
 
-        cd ~/deeponion2/src
+        cd ~/deeponion/src
         cp DeepOnoind /usr/local/bin/
         cp DeepOnion-cli /usr/local/bin/
 
