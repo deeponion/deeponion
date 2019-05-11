@@ -119,6 +119,12 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
         isminetype fAllToMe = ISMINE_SPENDABLE;
         for (const CTxOut& txout : wtx.tx->vout)
         {
+            // Dont't check if is mine second part of stealth tx with amount zero and no address
+            opcodetype firstOpCode;
+            CScript::const_iterator pc = txout.scriptPubKey.begin();
+            if (txout.scriptPubKey.GetOp(pc, firstOpCode) && firstOpCode == OP_RETURN)
+                continue;
+
             isminetype mine = wallet->IsMine(txout);
             if(mine & ISMINE_WATCH_ONLY) involvesWatchAddress = true;
             if(fAllToMe > mine) fAllToMe = mine;
