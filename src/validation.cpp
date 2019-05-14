@@ -709,6 +709,11 @@ static bool AcceptToMemoryPoolWorker(const CChainParams& chainparams, CTxMemPool
                     return state.Invalid(false, REJECT_DUPLICATE, "txn-mempool-conflict");
                 }
 
+                // DeepOnion: Ensure the time is not before input.
+                if(ptxConflicting->nTime < tx.nTime) {
+                    return state.Invalid(false, REJECT_INVALID, "txn-mempool-invalid-time");
+                }
+
                 setConflicts.insert(ptxConflicting->GetHash());
             }
         }
@@ -740,6 +745,18 @@ static bool AcceptToMemoryPoolWorker(const CChainParams& chainparams, CTxMemPool
                     *pfMissingInputs = true;
                 }
                 return false; // fMissingInputs and !state.IsInvalid() is used to detect this condition, don't set state.Invalid()
+            }
+
+            // DeepOnion: Find previous input and check the time.
+            uint256 hash_block;
+            CTransactionRef txPrev;
+
+            // DeepOnion: Attempt to find the previous out, don't fail if we don't find it as we are
+            // are not allowing it to be done slowly, we shouldn't get here if it doesn't exists anyway
+            if (GetTransaction(txin.prevout.hash, txPrev, Params().GetConsensus(), hash_block, false)) {
+                if(txPrev->nTime > tx.nTime) {
+                    return state.DoS(100, false, REJECT_INVALID, "bad-txns-early-timestamp");
+                }
             }
         }
 
