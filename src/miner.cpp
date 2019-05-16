@@ -178,7 +178,7 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
     coinbaseTx.vin.resize(1);
     coinbaseTx.vin[0].prevout.SetNull();
     coinbaseTx.vout.resize(1);
-    coinbaseTx.nTime = GetAdjustedTime();
+    coinbaseTx.nTime = pblock->nTime;
 
 	if(!fProofOfStake) {
 		coinbaseTx.vout[0].scriptPubKey = scriptPubKeyIn;
@@ -395,6 +395,11 @@ void BlockAssembler::addPackageTxs(int &nPackagesSelected, int &nDescendantsUpda
                 // Increment mi for the next loop iteration.
                 ++mi;
             }
+        }
+
+        // DeepOnion: Don't add a TX that's time is in the future.
+        if(pblock->nTime < iter->GetSharedTx()->nTime) {
+            continue;
         }
 
         // We skip mapTx entries that are inBlock, and mapModifiedTx shouldn't
