@@ -3782,20 +3782,15 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CVali
 
             uint256 hashProofOfStake = uint256();
             uint256 targetProofOfStake = uint256();
-            CBlock* pBlock0 = (CBlock*)&block;
-            if (pBlock0->IsProofOfStake())
+            if(!CheckProofOfStake(*pblocktree, pindex->pprev, state, block, hashProofOfStake, targetProofOfStake, mapBlockIndex, *pcoinsTip))
             {
-                LogPrint(BCLog::STAKE, ">> AcceptBlock To CheckProofOfStake, Block = %s\n", pBlock0->ToString().c_str());
-                if(!CheckProofOfStake(*pblocktree, pindex->pprev, state, block, hashProofOfStake, targetProofOfStake, mapBlockIndex, *pcoinsTip))
-                {
-                    return error("AcceptBlock(): check proof-of-stake failed for block %s\n", pBlock0->GetHash().ToString().c_str());
-
-                } else {
-                    pindex->hashProofOfStake = hashProofOfStake;
-                    setDirtyBlockIndex.insert(pindex);
-                }
+               return error("AcceptBlock(): check proof-of-stake failed for block %s\n", block.GetHash().ToString().c_str());
+            } 
+            else 
+            {
+               pindex->hashProofOfStake = hashProofOfStake;
+               setDirtyBlockIndex.insert(pindex);
             }
-
     	}
     }
 
