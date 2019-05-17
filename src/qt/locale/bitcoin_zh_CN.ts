@@ -63,11 +63,11 @@
     </message>
     <message>
         <source>These are your DeepOnion addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
-        <translation>这些是你要付款过去的莱特币地址。在付钱之前，务必要检查金额和收款地址是否正确。</translation>
+        <translation>这些是你要付款过去的深洋葱币地址。在付钱之前，务必要检查金额和收款地址是否正确。</translation>
     </message>
     <message>
         <source>These are your DeepOnion addresses for receiving payments. It is recommended to use a new receiving address for each transaction.</source>
-        <translation>这些是你用来收款的莱特币地址。建议在每次交易时，都使用一个新的收款地址。</translation>
+        <translation>这些是你用来收款的深洋葱币地址。建议在每次交易时，都使用一个新的收款地址。</translation>
     </message>
     <message>
         <source>&amp;Copy Address</source>
@@ -169,7 +169,7 @@
     </message>
     <message>
         <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR ONIONS&lt;/b&gt;!</source>
-        <translation>警告: 如果把钱包加密后又忘记密码，你就会从此&lt;b&gt;失去其中所有的莱特币了&lt;/b&gt;！</translation>
+        <translation>警告: 如果把钱包加密后又忘记密码，你就会从此&lt;b&gt;失去其中所有的深洋葱币&lt;/b&gt;！</translation>
     </message>
     <message>
         <source>Are you sure you wish to encrypt your wallet?</source>
@@ -181,7 +181,7 @@
     </message>
     <message>
         <source>%1 will close now to finish the encryption process. Remember that encrypting your wallet cannot fully protect your DeepOnions from being stolen by malware infecting your computer.</source>
-        <translation>%1 现在要关闭，以完成加密过程。请注意，加密钱包不能完全防止入侵你的电脑的恶意程序偷取钱币。</translation>
+        <translation>%1 现在要关闭钱包以完成加密过程。请注意，加密钱包不能完全防止入侵你的电脑的恶意程序偷取钱币。</translation>
     </message>
     <message>
         <source>IMPORTANT: Any previous backups you have made of your wallet file should be replaced with the newly generated, encrypted wallet file. For security reasons, previous backups of the unencrypted wallet file will become useless as soon as you start using the new, encrypted wallet.</source>
@@ -193,7 +193,7 @@
     </message>
     <message>
         <source>Wallet encryption failed due to an internal error. Your wallet was not encrypted.</source>
-        <translation>因为内部错误导致钱包加密失败。你的钱包还是没加密。</translation>
+        <translation>因为内部错误导致钱包加密失败。你的钱包还未加密。</translation>
     </message>
     <message>
         <source>The supplied passphrases do not match.</source>
@@ -205,7 +205,7 @@
     </message>
     <message>
         <source>The passphrase entered for the wallet decryption was incorrect.</source>
-        <translation>输入用来解密钱包的密码不正确。</translation>
+        <translation>输入的用来解密钱包的密码不正确。</translation>
     </message>
     <message>
         <source>Wallet decryption failed</source>
@@ -339,7 +339,7 @@
     </message>
     <message>
         <source>Send coins to a DeepOnion address</source>
-        <translation>向一个莱特币地址发送莱特币</translation>
+        <translation>向一个深洋葱币地址发送深洋葱币</translation>
     </message>
     <message>
         <source>Backup wallet to another location</source>
@@ -363,7 +363,7 @@
     </message>
     <message>
         <source>DeepOnion</source>
-        <translation>莱特币</translation>
+        <translation>洋葱币</translation>
     </message>
     <message>
         <source>Wallet</source>
@@ -391,456 +391,10 @@
     </message>
     <message>
         <source>Sign messages with your DeepOnion addresses to prove you own them</source>
-        <translation>用莱特币地址关联的私钥为消息签名，以证明您拥有这个莱特币地址</translation>
+        <translation>用深洋葱币地址关联的私钥为消息签名，以证明您拥有这个洋葱币地址</translation>
     </message>
     <message>
         <source>Verify messages to ensure they were signed with specified DeepOnion addresses</source>
-        <translation>校验消息，确保该消息是由指定的莱特币地址所有者签名的</translation>
-    </message>
-    <message>
-        <source>&amp;File</source>
-        <translation>文件(&amp;F)</translation>
-    </message>
-    <message>
-        <source>&amp;Settings</source>
-        <translation>设置(&amp;S)</translation>
-    </message>
-    <message>
-        <source>&amp;Help</source>
-        <translation>帮助(&amp;H)</translation>
-    </message>
-    <message>
-        <source>Tabs toolbar</source>
-        <translation>分页工具栏</translation>
-    </message>
-    <message>
-        <source>Request payments (generates QR codes and DeepOnion: URIs)</source>
-        <translation>请求支付 (生成二维码和 DeepOnion: URI)</translation>
-    </message>
-    <message>
-        <source>Show the list of used sending addresses and labels</source>
-        <translation>显示用过的发送地址和标签的列表</translation>
-    </message>
-    <message>
-        <source>Show the list of used receiving addresses and labels</source>
-        <translation>显示用过的接收地址和标签的列表</translation>
-    </message>
-    <message>
-        <source>Open a DeepOnion: URI or payment request</source>
-        <translation>打开一个 DeepOnion: URI 或支付请求</translation>
-    </message>
-    <message>
-        <source>&amp;Command-line options</source>
-        <translation>命令行选项(&amp;C)</translation>
-    </message>
-    <message>
-        <source>Indexing blocks on disk...</source>
-        <translation>正在为数据块建立索引...</translation>
-    </message>
-    <message>
-        <source>Processing blocks on disk...</source>
-        <translation>正在处理数据块...</translation>
-    </message>
-    <message>
-        <source>%1 behind</source>
-        <translation>落后 %1 </translation>
-    </message>
-    <message>
-        <source>Last received block was generated %1 ago.</source>
-        <translation>最新收到的区块产生于 %1。</translation>
-    </message>
-    <message>
-        <source>Transactions after this will not yet be visible.</source>
-        <translation>在此之后的交易尚未可见</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation>错误</translation>
-    </message>
-    <message>
-        <source>Warning</source>
-        <translation>警告</translation>
-    </message>
-    <message>
-        <source>Information</source>
-        <translation>信息</translation>
-    </message>
-    <message>
-        <source>Up to date</source>
-        <translation>已是最新</translation>
-    </message>
-    <message>
-        <source>Show the %1 help message to get a list with possible DeepOnion command-line options</source>
-        <translation>显示 %1 帮助信息，获取可用命令行选项列表</translation>
-    </message>
-    <message>
-        <source>%1 client</source>
-        <translation>%1 客戶</translation>
-    </message>
-    <message>
-        <source>Connecting to peers...</source>
-        <translation>正在连接到节点……</translation>
-    </message>
-    <message>
-        <source>Catching up...</source>
-        <translation>更新中...</translation>
-    </message>
-    <message>
-        <source>Date: %1
-</source>
-        <translation>日期: %1
-</translation>
-    </message>
-    <message>
-        <source>Amount: %1
-</source>
-        <translation>金额: %1
-</translation>
-    </message>
-    <message>
-        <source>Type: %1
-</source>
-        <translation>类型: %1
-</translation>
-    </message>
-    <message>
-        <source>Label: %1
-</source>
-        <translation>标签: %1
-</translation>
-    </message>
-    <message>
-        <source>Address: %1
-</source>
-        <translation>地址: %1
-</translation>
-    </message>
-    <message>
-        <source>Sent transaction</source>
-        <translation>发送交易</translation>
-    </message>
-    <message>
-        <source>Incoming transaction</source>
-        <translation>流入交易</translation>
-    </message>
-    <message>
-        <source>HD key generation is &lt;b&gt;enabled&lt;/b&gt;</source>
-        <translation>HD密钥生成&lt;b&gt;启用&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>HD key generation is &lt;b&gt;disabled&lt;/b&gt;</source>
-        <translation>HD密钥生成&lt;b&gt;禁用&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>Wallet is &lt;b&gt;encrypted&lt;/b&gt; and currently &lt;b&gt;unlocked&lt;/b&gt;</source>
-        <translation>钱包已被&lt;b&gt;加密&lt;/b&gt;，当前为&lt;b&gt;解锁&lt;/b&gt;状态</translation>
-    </message>
-    <message>
-        <source>Wallet is &lt;b&gt;encrypted&lt;/b&gt; and currently &lt;b&gt;locked&lt;/b&gt;</source>
-        <translation>钱包已被&lt;b&gt;加密&lt;/b&gt;，当前为&lt;b&gt;锁定&lt;/b&gt;状态</translation>
-    </message>
-    <message>
-        <source>A fatal error occurred. DeepOnion can no longer continue safely and will quit.</source>
-        <translation>发生严重错误。客户端无法安全地继续运行，即将退出。</translation>
-    </message>
-</context>
-<context>
-    <name>CoinControlDialog</name>
-    <message>
-        <source>Coin Selection</source>
-        <translation>选择钱币</translation>
-    </message>
-    <message>
-        <source>Quantity:</source>
-        <translation>总量：</translation>
-    </message>
-    <message>
-        <source>Bytes:</source>
-        <translation>字节：</translation>
-    </message>
-    <message>
-        <source>Amount:</source>
-        <translation>金额：</translation>
-    </message>
-    <message>
-        <source>Fee:</source>
-        <translation>费用：</translation>
-    </message>
-    <message>
-        <source>Dust:</source>
-        <translation>小额：</translation>
-    </message>
-    <message>
-        <source>After Fee:</source>
-        <translation>加上交易费用后:</translation>
-    </message>
-    <message>
-        <source>Change:</source>
-        <translation>变更 : </translation>
-    </message>
-    <message>
-        <source>(un)select all</source>
-        <translation>(不)全选</translation>
-    </message>
-    <message>
-        <source>Tree mode</source>
-        <translation>树状模式</translation>
-    </message>
-    <message>
-        <source>List mode</source>
-        <translation>列表模式</translation>
-    </message>
-    <message>
-        <source>Amount</source>
-        <translation>金额</translation>
-    </message>
-    <message>
-        <source>Received with label</source>
-        <translation>按标签收款</translation>
-    </message>
-    <message>
-        <source>Received with address</source>
-        <translation>按地址收款</translation>
-    </message>
-    <message>
-        <source>Date</source>
-        <translation>日期</translation>
-    </message>
-    <message>
-        <source>Confirmations</source>
-        <translation>确认</translation>
-    </message>
-    <message>
-        <source>Confirmed</source>
-        <translation>已确认</translation>
-    </message>
-    <message>
-        <source>Copy address</source>
-        <translation>复制地址</translation>
-    </message>
-    <message>
-        <source>Copy label</source>
-        <translation>复制标签</translation>
-    </message>
-    <message>
-        <source>Copy amount</source>
-        <translation>复制金额</translation>
-    </message>
-    <message>
-        <source>Copy transaction ID</source>
-        <translation>复制交易识别码</translation>
-    </message>
-    <message>
-        <source>Lock unspent</source>
-        <translation>锁定未花费</translation>
-    </message>
-    <message>
-        <source>Unlock unspent</source>
-        <translation>解锁未花费</translation>
-    </message>
-    <message>
-        <source>Copy quantity</source>
-        <translation>复制数目</translation>
-    </message>
-    <message>
-        <source>Copy fee</source>
-        <translation>复制手续费</translation>
-    </message>
-    <message>
-        <source>Copy after fee</source>
-        <translation>复制计费后金额</translation>
-    </message>
-    <message>
-        <source>Copy bytes</source>
-        <translation>复制字节数</translation>
-    </message>
-    <message>
-        <source>Copy dust</source>
-        <translation>复制零散金额</translation>
-    </message>
-    <message>
-        <source>Copy change</source>
-        <translation>复制找零金额</translation>
-    </message>
-    <message>
-        <source>(%1 locked)</source>
-        <translation>(锁定 %1 枚)</translation>
-    </message>
-    <message>
-        <source>yes</source>
-        <translation>是</translation>
-    </message>
-    <message>
-        <source>no</source>
-        <translation>否</translation>
-    </message>
-    <message>
-        <source>This label turns red if any recipient receives an amount smaller than the current dust threshold.</source>
-        <translation>当任何一个收款金额小于目前的零散金额上限时，文字会变红色。</translation>
-    </message>
-    <message>
-        <source>Can vary +/- %1 satoshi(s) per input.</source>
-        <translation>每组输入可能有 +/- %1 个 satoshi 的误差。</translation>
-    </message>
-    <message>
-        <source>(no label)</source>
-        <translation>(无标签)</translation>
-    </message>
-    <message>
-        <source>change from %1 (%2)</source>
-        <translation>找零前是 %1 (%2)</translation>
-    </message>
-    <message>
-        <source>(change)</source>
-        <translation>(找零)</translation>
-    </message>
-</context>
-<context>
-    <name>EditAddressDialog</name>
-    <message>
-        <source>Edit Address</source>
-        <translation>编辑地址</translation>
-    </message>
-    <message>
-        <source>&amp;Label</source>
-        <translation>标签(&amp;L)</translation>
-    </message>
-    <message>
-        <source>The label associated with this address list entry</source>
-        <translation>与此地址相关的标签项</translation>
-    </message>
-    <message>
-        <source>The address associated with this address list entry. This can only be modified for sending addresses.</source>
-        <translation>该地址已与地址列表中的条目关联，只能被发送地址修改。</translation>
-    </message>
-    <message>
-        <source>&amp;Address</source>
-        <translation>地址(&amp;A)</translation>
-    </message>
-    <message>
-        <source>New receiving address</source>
-        <translation>新建收款地址</translation>
-    </message>
-    <message>
-        <source>New sending address</source>
-        <translation>新建付款地址</translation>
-    </message>
-    <message>
-        <source>Edit receiving address</source>
-        <translation>编辑收款地址</translation>
-    </message>
-    <message>
-        <source>Edit sending address</source>
-        <translation>编辑付款地址</translation>
-    </message>
-    <message>
-        <source>The entered address "%1" is not a valid DeepOnion address.</source>
-        <translation>输入的地址 %1 并不是有效的莱特币地址。</translation>
-    </message>
-    <message>
-        <source>The entered address "%1" is already in the address book.</source>
-        <translation>输入的地址 %1 已经存在地址簿。</translation>
-    </message>
-    <message>
-        <source>Could not unlock wallet.</source>
-        <translation>无法将钱包解锁。</translation>
-    </message>
-    <message>
-        <source>New key generation failed.</source>
-        <translation>产生新的密钥失败了。</translation>
-    </message>
-</context>
-<context>
-    <name>FreespaceChecker</name>
-    <message>
-        <source>A new data directory will be created.</source>
-        <translation>一个新的数据目录将被创建。</translation>
-    </message>
-    <message>
-        <source>name</source>
-        <translation>名称</translation>
-    </message>
-    <message>
-        <source>Directory already exists. Add %1 if you intend to create a new directory here.</source>
-        <translation>目录已存在。如果您打算在这里创建一个新目录，添加 %1。</translation>
-    </message>
-    <message>
-        <source>Path already exists, and is not a directory.</source>
-        <translation>路径已存在，并且不是一个目录。</translation>
-    </message>
-    <message>
-        <source>Cannot create data directory here.</source>
-        <translation>无法在此创建数据目录。</translation>
-    </message>
-</context>
-<context>
-    <name>HelpMessageDialog</name>
-    <message>
-        <source>version</source>
-        <translation>版本</translation>
-    </message>
-    <message>
-        <source>(%1-bit)</source>
-        <translation>(%1 位)</translation>
-    </message>
-    <message>
-        <source>About %1</source>
-        <translation>關於 %1</translation>
-    </message>
-    <message>
-        <source>Command-line options</source>
-        <translation>命令行选项</translation>
-    </message>
-    <message>
-        <source>Usage:</source>
-        <translation>使用：</translation>
-    </message>
-    <message>
-        <source>command-line options</source>
-        <translation>命令行选项</translation>
-    </message>
-    <message>
-        <source>UI Options:</source>
-        <translation>界面选项：</translation>
-    </message>
-    <message>
-        <source>Choose data directory on startup (default: %u)</source>
-        <translation>在启动时选择目录（默认%u）</translation>
-    </message>
-    <message>
-        <source>Set language, for example "de_DE" (default: system locale)</source>
-        <translation>设置语言, 例如“zh-CN”（默认：系统语言）</translation>
-    </message>
-    <message>
-        <source>Start minimized</source>
-        <translation>启动时最小化</translation>
-    </message>
-    <message>
-        <source>Set SSL root certificates for payment request (default: -system-)</source>
-        <translation>设置付款请求的SSL根证书（默认：-系统-）</translation>
-    </message>
-    <message>
-        <source>Show splash screen on startup (default: %u)</source>
-        <translation>显示启动画面（默认：%u）</translation>
-    </message>
-    <message>
-        <source>Reset all settings changed in the GUI</source>
-        <translation>重置图形界面所有的变更设置</translation>
-    </message>
-</context>
-<context>
-    <name>Intro</name>
-    <message>
-        <source>Welcome</source>
-        <translation>欢迎</translation>
-    </message>
-    <message>
-        <source>Welcome to %1.</source>
-        <translation>欢迎使用 %1</translation>
-    </message>
-    <message>
-        <source>As this is the first time the program is launched, you can choose where %1 will store its data.</source>
-        <translation>由于这是第一次启动此程序，您可以选择%1的数据所存储的位置</translation>
     </message>
     <message>
         <source>When you click OK, %1 will begin to download and process the full %4 block chain (%2GB) starting with the earliest transactions in %3 when %4 initially launched.</source>
@@ -860,7 +414,7 @@
     </message>
     <message>
         <source>DeepOnion</source>
-        <translation>莱特币</translation>
+        <translation>深洋葱币</translation>
     </message>
     <message>
         <source>At least %1 GB of data will be stored in this directory, and it will grow over time.</source>
@@ -872,7 +426,7 @@
     </message>
     <message>
         <source>%1 will download and store a copy of the DeepOnion block chain.</source>
-        <translation>%1 将会下载并存储莱特币区块链。</translation>
+        <translation>%1 将会下载并存储深洋葱币区块链。</translation>
     </message>
     <message>
         <source>The wallet will also be stored in this directory.</source>
@@ -895,7 +449,7 @@
     </message>
     <message>
         <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the DeepOnion network, as detailed below.</source>
-        <translation>近期交易可能尚未显示，因此当前余额可能不准确。以上信息将在与莱特币网络完全同步后更正。详情如下</translation>
+        <translation>近期交易可能尚未显示，因此当前余额可能不准确。以上信息将在与深洋葱币网络完全同步后更正。详情如下</translation>
     </message>
     <message>
         <source>Attempting to spend DeepOnions that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
@@ -1057,7 +611,7 @@
     </message>
     <message>
         <source>Automatically open the DeepOnion client port on the router. This only works when your router supports UPnP and it is enabled.</source>
-        <translation>自动在路由器中打开莱特币端口。只有当您的路由器开启了 UPnP 选项时此功能才有效。</translation>
+        <translation>自动在路由器中打开深洋葱币端口。只有当您的路由器开启了 UPnP 选项时此功能才有效。</translation>
     </message>
     <message>
         <source>Map port using &amp;UPnP</source>
@@ -1065,7 +619,7 @@
     </message>
     <message>
         <source>Connect to the DeepOnion network through a SOCKS5 proxy.</source>
-        <translation>通过 SOCKS5 代理连接莱特币网络。</translation>
+        <translation>通过 SOCKS5 代理连接深洋葱币网络。</translation>
     </message>
     <message>
         <source>&amp;Connect through SOCKS5 proxy (default proxy):</source>
@@ -1101,7 +655,7 @@
     </message>
     <message>
         <source>Connect to the DeepOnion network through a separate SOCKS5 proxy for Tor hidden services.</source>
-        <translation>在 Tor 匿名网络下通过不同的 SOCKS5 代理连接莱特币网络</translation>
+        <translation>在 Tor 匿名网络下通过不同的 SOCKS5 代理连接深洋葱币网络</translation>
     </message>
     <message>
         <source>&amp;Window</source>
@@ -1133,11 +687,11 @@
     </message>
     <message>
         <source>&amp;Unit to show amounts in:</source>
-        <translation>莱特币金额单位(&amp;U)：</translation>
+        <translation>深洋葱币金额单位(&amp;U)：</translation>
     </message>
     <message>
         <source>Choose the default subdivision unit to show in the interface and when sending coins.</source>
-        <translation>选择莱特币单位。</translation>
+        <translation>选择深洋葱币单位。</translation>
     </message>
     <message>
         <source>Whether to show coin control features or not.</source>
@@ -1204,7 +758,7 @@
     </message>
     <message>
         <source>The displayed information may be out of date. Your wallet automatically synchronizes with the DeepOnion network after a connection is established, but this process has not completed yet.</source>
-        <translation>现在显示的消息可能是过期的。在连接上莱特币网络节点后，您的钱包将自动与网络同步，但是这个过程还没有完成。</translation>
+        <translation>现在显示的消息可能是过期的。在连接上深洋葱币网络节点后，您的钱包将自动与网络同步，但是这个过程还没有完成。</translation>
     </message>
     <message>
         <source>Watch-only:</source>
@@ -1296,7 +850,7 @@
     </message>
     <message>
         <source>URI cannot be parsed! This can be caused by an invalid DeepOnion address or malformed URI parameters.</source>
-        <translation>无法解析 URI 地址！可能是因为莱特币地址无效，或是 URI 参数格式错误。</translation>
+        <translation>无法解析 URI 地址！可能是因为深洋葱币地址无效，或是 URI 参数格式错误。</translation>
     </message>
     <message>
         <source>Payment request file handling</source>
@@ -1394,7 +948,7 @@
     </message>
     <message>
         <source>Enter a DeepOnion address (e.g. %1)</source>
-        <translation>请输入一个莱特币地址 (例如 %1)</translation>
+        <translation>请输入一个深洋葱币地址 (例如 %1)</translation>
     </message>
     <message>
         <source>%1 d</source>
@@ -1782,7 +1336,7 @@
     </message>
     <message>
         <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the DeepOnion network.</source>
-        <translation>可在付款请求上备注一条信息，在打开付款请求时可以看到。注意：该消息不是通过莱特币网络传送。</translation>
+        <translation>可在付款请求上备注一条信息，在打开付款请求时可以看到。注意：该消息不是通过深洋葱币网络传送。</translation>
     </message>
     <message>
         <source>An optional label to associate with the new receiving address.</source>
@@ -2171,7 +1725,7 @@
     </message>
     <message>
         <source>Warning: Invalid DeepOnion address</source>
-        <translation>警告: 莱特币地址无效</translation>
+        <translation>警告: 深洋葱币地址无效</translation>
     </message>
     <message>
         <source>Warning: Unknown change address</source>
@@ -2234,7 +1788,7 @@
     </message>
     <message>
         <source>The fee will be deducted from the amount being sent. The recipient will receive less DeepOnions than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</source>
-        <translation>交易费将从发送总额中扣除。接收人将收到比您在金额框中输入的更少的莱特币。如果选中了多个收件人，交易费平分。</translation>
+        <translation>交易费将从发送总额中扣除。接收人将收到比您在金额框中输入的更少的深洋葱币。如果选中了多个收件人，交易费平分。</translation>
     </message>
     <message>
         <source>S&amp;ubtract fee from amount</source>
@@ -2258,7 +1812,7 @@
     </message>
     <message>
         <source>A message that was attached to the DeepOnion: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the DeepOnion network.</source>
-        <translation>DeepOnion:URI 附带的备注信息，将会和交易一起存储，备查。 注意：该消息不会通过莱特币网络传输。</translation>
+        <translation>DeepOnion:URI 附带的备注信息，将会和交易一起存储，备查。 注意：该消息不会通过深洋葱币网络传输。</translation>
     </message>
     <message>
         <source>Pay To:</source>
@@ -2303,7 +1857,7 @@
     </message>
     <message>
         <source>You can sign messages/agreements with your addresses to prove you can receive DeepOnions sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
-        <translation>您可以用你的地址对消息/协议进行签名，以证明您可以接收发送到该地址的莱特币。注意不要对任何模棱两可或者随机的消息进行签名，以免遭受钓鱼式攻击。请确保消息内容准确的表达了您的真实意愿。</translation>
+        <translation>您可以用你的地址对消息/协议进行签名，以证明您可以接收发送到该地址的深洋葱币。注意不要对任何模棱两可或者随机的消息进行签名，以免遭受钓鱼式攻击。请确保消息内容准确的表达了您的真实意愿。</translation>
     </message>
     <message>
         <source>The DeepOnion address to sign the message with</source>
@@ -2367,7 +1921,7 @@
     </message>
     <message>
         <source>Verify the message to ensure it was signed with the specified DeepOnion address</source>
-        <translation>验证消息，确保消息是由指定的莱特币地址签名过的。</translation>
+        <translation>验证消息，确保消息是由指定的深洋葱币地址签名过的。</translation>
     </message>
     <message>
         <source>Verify &amp;Message</source>
@@ -2580,7 +2134,7 @@
     </message>
     <message>
         <source>Generated coins must mature %1 blocks before they can be spent. When you generated this block, it was broadcast to the network to be added to the block chain. If it fails to get into the chain, its state will change to "not accepted" and it won't be spendable. This may occasionally happen if another node generates a block within a few seconds of yours.</source>
-        <translation>生成的莱特币在可以使用前必须有 %1 个成熟的区块。当您生成了此区块后，它将被广播到网络中以加入区块链。如果它未成功进入区块链，其状态将变更为“不接受”并且不可使用。这可能偶尔会发生，如果另一个节点比你早几秒钟成功生成一个区块。</translation>
+        <translation>生成的深洋葱币在可以使用前必须有 %1 个成熟的区块。当您生成了此区块后，它将被广播到网络中以加入区块链。如果它未成功进入区块链，其状态将变更为“不接受”并且不可使用。这可能偶尔会发生，如果另一个节点比你早几秒钟成功生成一个区块。</translation>
     </message>
     <message>
         <source>Debug information</source>

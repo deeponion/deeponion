@@ -200,8 +200,8 @@ UniValue validateaddress(const JSONRPCRequest& request)
             "  \"hdmasterkeyid\" : \"<hash160>\" (string, optional) The Hash160 of the HD master pubkey\n"
             "}\n"
             "\nExamples:\n"
-            + HelpExampleCli("validateaddress", "\"LER4HnAEFwYHbmGxCfP2po1nPrUeiK8KM2\"")
-            + HelpExampleRpc("validateaddress", "\"LER4HnAEFwYHbmGxCfP2po1nPrUeiK8KM2\"")
+            + HelpExampleCli("validateaddress", "\"Dc7BLTLqSyWSp6uEpQPbbcb7figA7xHjKQ\"")
+            + HelpExampleRpc("validateaddress", "\"Dc7BLTLqSyWSp6uEpQPbbcb7figA7xHjKQ\"")
         );
 
 #ifdef ENABLE_WALLET
@@ -346,11 +346,11 @@ UniValue verifymessage(const JSONRPCRequest& request)
             "\nUnlock the wallet for 30 seconds\n"
             + HelpExampleCli("walletpassphrase", "\"mypassphrase\" 30") +
             "\nCreate the signature\n"
-            + HelpExampleCli("signmessage", "\"LEr4hNAefWYhBMgxCFP2Po1NPrUeiK8kM2\" \"my message\"") +
+            + HelpExampleCli("signmessage", "\"Dc7BLTLqSyWSp6uEpQPbbcb7figA7xHjKQ\" \"my message\"") +
             "\nVerify the signature\n"
-            + HelpExampleCli("verifymessage", "\"LEr4hNAefWYhBMgxCFP2Po1NPrUeiK8kM2\" \"signature\" \"my message\"") +
+            + HelpExampleCli("verifymessage", "\"Dc7BLTLqSyWSp6uEpQPbbcb7figA7xHjKQ\" \"signature\" \"my message\"") +
             "\nAs json rpc\n"
-            + HelpExampleRpc("verifymessage", "\"LEr4hNAefWYhBMgxCFP2Po1NPrUeiK8kM2\", \"signature\", \"my message\"")
+            + HelpExampleRpc("verifymessage", "\"Dc7BLTLqSyWSp6uEpQPbbcb7figA7xHjKQ\", \"signature\", \"my message\"")
         );
 
     LOCK(cs_main);
