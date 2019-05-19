@@ -22,8 +22,8 @@
         <translation>&amp;Copie</translation>
     </message>
     <message>
-        <source>C&amp;lose</source>
-        <translation>F&amp;ermer</translation>
+        <source>Close</source>
+        <translation>Fermer</translation>
     </message>
     <message>
         <source>Delete the currently selected address from the list</source>
@@ -50,8 +50,8 @@
         <translation>Choisissez une adresse où recevoir les DeepOnions</translation>
     </message>
     <message>
-        <source>C&amp;hoose</source>
-        <translation>C&amp;hoisir</translation>
+        <source>Choose</source>
+        <translation>Choisir</translation>
     </message>
     <message>
         <source>Sending addresses</source>
@@ -95,7 +95,7 @@
     </message>
     <message>
         <source>There was an error trying to save the address list to %1. Please try again.</source>
-        <translation>Une erreur s'est produite en enregistrant la list d'adresses à %1. Merci de reéssayer.</translation>
+        <translation>Une erreur s'est produite en enregistrant la list d'adresses à %1. Merci de réessayer.</translation>
     </message>
 </context>
 <context>
@@ -121,15 +121,15 @@
     </message>
     <message>
         <source>Enter passphrase</source>
-        <translation>Entrez la phrase de passe</translation>
+        <translation>Entrez le mot de passe</translation>
     </message>
     <message>
         <source>New passphrase</source>
-        <translation>Nouvelle phrase de passe</translation>
+        <translation>Nouveau mot de passe</translation>
     </message>
     <message>
         <source>Repeat new passphrase</source>
-        <translation>Répétez la phrase de passe</translation>
+        <translation>Répétez le nouveau mot de passe</translation>
     </message>
     <message>
         <source>Show password</source>
@@ -137,7 +137,7 @@
     </message>
     <message>
         <source>Enter the new passphrase to the wallet.&lt;br/&gt;Please use a passphrase of &lt;b&gt;ten or more random characters&lt;/b&gt;, or &lt;b&gt;eight or more words&lt;/b&gt;.</source>
-        <translation>Entrez une nouvelle phrase de passe pour le porte-monnaie.&lt;br/&gt;Veuillez utiliser une phrase de &lt;b&gt;10 caractères aléatoire ou plus&lt;/b&gt; ou bien de &lt;b&gt;huit mots ou plus&lt;/b&gt;.</translation>
+        <translation>Entrez un nouveau mot de passe pour le porte-monnaie.&lt;br/&gt;Veuillez utiliser un mot de passe de &lt;b&gt;10 caractères aléatoire ou plus&lt;/b&gt; ou bien de &lt;b&gt;huit mots ou plus&lt;/b&gt;.</translation>
     </message>
     <message>
         <source>Encrypt wallet</source>
@@ -145,7 +145,7 @@
     </message>
     <message>
         <source>This operation needs your wallet passphrase to unlock the wallet.</source>
-        <translation>Cette operation nécessite la phrase clé de votre porte-monnaie pour le déverouiller</translation>
+        <translation>Cette operation nécessite le mot de passe de votre porte-monnaie pour le déverouiller</translation>
     </message>
     <message>
         <source>Unlock wallet</source>
@@ -153,7 +153,7 @@
     </message>
     <message>
         <source>This operation needs your wallet passphrase to decrypt the wallet.</source>
-        <translation>Cette opération nécessite la phrase clé de votre porte-monnaie pour le décrypter.</translation>
+        <translation>Cette opération nécessite le mot de passe de votre porte-monnaie pour le décrypter.</translation>
     </message>
     <message>
         <source>Decrypt wallet</source>
@@ -161,11 +161,11 @@
     </message>
     <message>
         <source>Change passphrase</source>
-        <translation>Changer la phrase de passe</translation>
+        <translation>Changer le mot de passe</translation>
     </message>
     <message>
         <source>Enter the old passphrase and new passphrase to the wallet.</source>
-        <translation>Entrez l'ancien mot de passe et le nouveau mot de passe pour le portefeuille</translation>
+        <translation>Entrez l'ancien mot de passe et le nouveau mot de passe pour le porte-monnaie</translation>
     </message>
     <message>
         <source>Confirm wallet encryption</source>
@@ -173,15 +173,15 @@
     </message>
     <message>
         <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR ONIONS&lt;/b&gt;!</source>
-        <translation>Attention : Si vous chiffrez votre portefeuille et que vous perdez votre mot de passe vous &lt;b&gt; PERDREZ TOUS VOS ONIONS&lt;/b&gt; !</translation>
+        <translation>Attention : Si vous chiffrez votre porte-monnaie et que vous perdez votre mot de passe vous &lt;b&gt; PERDREZ TOUS VOS ONIONS&lt;/b&gt; !</translation>
     </message>
     <message>
         <source>Are you sure you wish to encrypt your wallet?</source>
-        <translation>Êtes-vous sûr de de vouloir crypter votre portefeuille ? </translation>
+        <translation>Êtes-vous sûr de de vouloir crypter votre porte-monnaie ? </translation>
     </message>
     <message>
         <source>Wallet encrypted</source>
-        <translation>Portefeuille chiffré</translation>
+        <translation>Porte-Monnaie chiffré</translation>
     </message>
     <message>
         <source>%1 will close now to finish the encryption process. Remember that encrypting your wallet cannot fully protect your DeepOnions from being stolen by malware infecting your computer.</source>
@@ -189,7 +189,7 @@
     </message>
     <message>
         <source>IMPORTANT: Any previous backups you have made of your wallet file should be replaced with the newly generated, encrypted wallet file. For security reasons, previous backups of the unencrypted wallet file will become useless as soon as you start using the new, encrypted wallet.</source>
-        <translation>IMPORTANT: Toute sauvegarde préalable de votre porte-monnais devrait être emplacée par le fichier nouvellement généré et encrypté.</translation>
+        <translation>IMPORTANT: Toute sauvegarde préalable de votre porte-monnais devrait être remplacée par le fichier nouvellement généré et crypté. Les anciennes sauvegardes du porte-monnaie non crypté vont devenir inutiles dés que vous commencez a utiliser le nouveau porte-monnaie crypté.</translation>
     </message>
     <message>
         <source>Wallet encryption failed</source>
@@ -197,11 +197,11 @@
     </message>
     <message>
         <source>Wallet encryption failed due to an internal error. Your wallet was not encrypted.</source>
-        <translation>Le chiffrement du porte-monnaie a échoué en raison d'une erreur interne. Votre porte-monnaie n'a pas été chiffré.</translation>
+        <translation>Le cryptage du porte-monnaie a échoué en raison d'une erreur interne. Votre porte-monnaie n'a pas été crypté.</translation>
     </message>
     <message>
         <source>The supplied passphrases do not match.</source>
-        <translation>Les phrases de passe entrées ne correspondent pas.</translation>
+        <translation>Les mots de passe entrés ne correspondent pas.</translation>
     </message>
     <message>
         <source>Wallet unlock failed</source>
@@ -209,7 +209,7 @@
     </message>
     <message>
         <source>The passphrase entered for the wallet decryption was incorrect.</source>
-        <translation>La phrase de passe entrée pour décrypter le porte-monnaie était incorrecte.</translation>
+        <translation>Le mot de passe entré pour décrypter le porte-monnaie était incorrecte.</translation>
     </message>
     <message>
         <source>Wallet decryption failed</source>
@@ -217,11 +217,11 @@
     </message>
     <message>
         <source>Wallet passphrase was successfully changed.</source>
-        <translation>Le changement du mot de passe du portefeuille à été effectué avec succès.</translation>
+        <translation>Le changement du mot de passe du porte-monnaie à été effectué avec succès.</translation>
     </message>
     <message>
         <source>Warning: The Caps Lock key is on!</source>
-        <translation>Attention : La touche majuscule est enfoncé.</translation>
+        <translation>Attention : La touche majuscule est enfoncé!</translation>
     </message>
 </context>
 <context>
@@ -232,7 +232,7 @@
     </message>
     <message>
         <source>Banned Until</source>
-        <translation>Banni jusque </translation>
+        <translation>Banni jusqu'a </translation>
     </message>
 </context>
 <context>
@@ -263,11 +263,11 @@
     </message>
     <message>
         <source>Browse transaction history</source>
-        <translation>Permet de parcourir l'historique des transactions</translation>
+        <translation>Parcourir l'historique des transactions</translation>
     </message>
     <message>
-        <source>E&amp;xit</source>
-        <translation>Qui&amp;tter</translation>
+        <source>Exit</source>
+        <translation>Quitter</translation>
     </message>
     <message>
         <source>Quit application</source>
@@ -299,15 +299,15 @@
     </message>
     <message>
         <source>&amp;Encrypt Wallet...</source>
-        <translation>&amp;Chiffrer le portefeuille </translation>
+        <translation>&amp;Crypter le porte-monnaie </translation>
     </message>
     <message>
         <source>&amp;Backup Wallet...</source>
-        <translation>&amp;Sauvegarder le portefeuille</translation>
+        <translation>&amp;Sauvegarder le porte-monnaie</translation>
     </message>
     <message>
         <source>&amp;Change Passphrase...</source>
-        <translation>&amp;Modifier le mot de passe</translation>
+        <translation>&amp;Modifier le Mot de passe</translation>
     </message>
     <message>
         <source>&amp;Sending addresses...</source>
@@ -351,7 +351,7 @@
     </message>
     <message>
         <source>Change the passphrase used for wallet encryption</source>
-        <translation>Modifier la phrase de passe utilisée pour le cryptage du porte-monnaie</translation>
+        <translation>Modifier le Mot de passe utilisé pour le cryptage du porte-monnaie</translation>
     </message>
     <message>
         <source>&amp;Debug window</source>
@@ -359,7 +359,7 @@
     </message>
     <message>
         <source>Open debugging and diagnostic console</source>
-        <translation>Ouvrir la console de débogage et de diagnostic</translation>
+        <translation>Ouvrir la console de débogage et de diagnostique</translation>
     </message>
     <message>
         <source>&amp;Verify message...</source>
@@ -371,7 +371,7 @@
     </message>
     <message>
         <source>Wallet</source>
-        <translation>Portefeuille</translation>
+        <translation>Porte-monnaie</translation>
     </message>
     <message>
         <source>&amp;Send</source>
@@ -379,7 +379,7 @@
     </message>
     <message>
         <source>&amp;Receive</source>
-        <translation>&amp;Réception</translation>
+        <translation>&amp;Recevoir</translation>
     </message>
     <message>
         <source>&amp;Show / Hide</source>
@@ -391,7 +391,7 @@
     </message>
     <message>
         <source>Encrypt the private keys that belong to your wallet</source>
-        <translation>Crypter les clé privées qui appartiennent votre portefeuille</translation>
+        <translation>Crypter les clés privées qui appartiennent à votre porte</translation>
     </message>
     <message>
         <source>Sign messages with your DeepOnion addresses to prove you own them</source>
@@ -423,7 +423,7 @@
     </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>
-        <translation>Montrer la liste des adresses d'envois utilisées et les étiquettes</translation>
+        <translation>Afficher la liste des adresses d'envoi utilisées et les étiquettes</translation>
     </message>
     <message>
         <source>Show the list of used receiving addresses and labels</source>
@@ -604,7 +604,7 @@
     </message>
     <message>
         <source>Received with label</source>
-        <translation>Reçu avec : </translation>
+        <translation>Reçu avec étiquette </translation>
     </message>
     <message>
         <source>Received with address</source>
@@ -840,7 +840,7 @@
     </message>
     <message>
         <source>Use a custom data directory:</source>
-        <translation>Utiliser votre propre répertoire</translation>
+        <translation>Utiliser un répertoire de données personnalisé:</translation>
     </message>
     <message>
         <source>DeepOnion</source>
@@ -932,8 +932,8 @@
         <translation>Ouvrir le port du client DeepOnion automatiquement sur le routeur. Cela ne fonctionne que si votre routeur supporte l'UPnP et si la fonctionnalité est activée.</translation>
     </message>
     <message>
-        <source>Map port using &amp;UPnP</source>
-        <translation>Ouvrir le port avec l'&amp;UPnP</translation>
+        <source>Map port using UPnP</source>
+        <translation>Ouvrir le port avec l'UPnP</translation>
     </message>
     <message>
         <source>Proxy &amp;IP:</source>
@@ -972,8 +972,8 @@
         <translation>&amp;Minimiser dans la barre système au lieu de la barre des tâches</translation>
     </message>
     <message>
-        <source>M&amp;inimize on close</source>
-        <translation>Mi&amp;nimiser lors de la fermeture</translation>
+        <source>Minimize on close</source>
+        <translation>Minimiser lors de la fermeture</translation>
     </message>
     <message>
         <source>&amp;Display</source>
@@ -1005,7 +1005,7 @@
     </message>
     <message>
         <source>Client restart required to activate changes.</source>
-        <translation>Redémarrage du client nécessaire pour activer les changements.</translation>
+        <translation>Redémarrage du client nécessaire pour appliquer les changements.</translation>
     </message>
     <message>
         <source>Error</source>
@@ -1052,7 +1052,7 @@
     </message>
     <message>
         <source>Your current total balance</source>
-        <translation>Votre balance totale courante</translation>
+        <translation>Votre solde total actuel</translation>
     </message>
     <message>
         <source>Spendable:</source>
@@ -1191,15 +1191,15 @@
     <name>QRImageWidget</name>
     <message>
         <source>&amp;Save Image...</source>
-        <translation>&amp;Sauvegarder image</translation>
+        <translation>&amp;Sauvegarder l'image</translation>
     </message>
     <message>
         <source>&amp;Copy Image</source>
-        <translation>&amp;Copier image</translation>
+        <translation>&amp;Copier l'image</translation>
     </message>
     <message>
         <source>Save QR Code</source>
-        <translation>Sauvegarder QR code</translation>
+        <translation>Sauvegarder l'QR code</translation>
     </message>
     <message>
         <source>PNG Image (*.png)</source>
@@ -1230,7 +1230,7 @@
     </message>
     <message>
         <source>Using BerkeleyDB version</source>
-        <translation>Version BerkeleyDButilisée </translation>
+        <translation>Version BerkeleyDB utilisée </translation>
     </message>
     <message>
         <source>Startup time</source>
@@ -1254,7 +1254,7 @@
     </message>
     <message>
         <source>Current number of blocks</source>
-        <translation>Nombre courant de blocs</translation>
+        <translation>Nombre actuel de blocs</translation>
     </message>
     <message>
         <source>Memory Pool</source>
@@ -1262,7 +1262,7 @@
     </message>
     <message>
         <source>Current number of transactions</source>
-        <translation>Nombre courant de transactions</translation>
+        <translation>Nombre actuel de transactions</translation>
     </message>
     <message>
         <source>Memory usage</source>
@@ -1449,7 +1449,7 @@
     </message>
     <message>
         <source>Copy message</source>
-        <translation>Copier message</translation>
+        <translation>Copier le message</translation>
     </message>
     <message>
         <source>Copy amount</source>
@@ -1463,16 +1463,16 @@
         <translation>QR Code</translation>
     </message>
     <message>
-        <source>Copy &amp;URI</source>
-        <translation>Copier &amp;URI</translation>
+        <source>Copy URI</source>
+        <translation>Copier l'URI</translation>
     </message>
     <message>
-        <source>Copy &amp;Address</source>
-        <translation>Copier &amp;Adresse</translation>
+        <source>Copy Address</source>
+        <translation>Copier l'Adresse</translation>
     </message>
     <message>
         <source>&amp;Save Image...</source>
-        <translation>&amp;Sauvegarder image</translation>
+        <translation>&amp;Sauvegarder l'Image</translation>
     </message>
     <message>
         <source>Request payment to %1</source>
@@ -1617,8 +1617,8 @@
         <translation>Confirmer l'action d'envoi</translation>
     </message>
     <message>
-        <source>S&amp;end</source>
-        <translation>E&amp;voyer</translation>
+        <source>Send</source>
+        <translation>Envoyer</translation>
     </message>
     <message>
         <source>Copy quantity</source>
@@ -1646,7 +1646,7 @@
     </message>
     <message>
         <source>Copy change</source>
-        <translation>Copier changement </translation>
+        <translation>Copier le changement </translation>
     </message>
     <message>
         <source>%1 to %2</source>
@@ -1658,7 +1658,7 @@
     </message>
     <message>
         <source>added as transaction fee</source>
-        <translation>Ajoute en tant que frais de transaction</translation>
+        <translation>Ajouté en tant que frais de transaction</translation>
     </message>
     <message>
         <source>Total Amount %1</source>
@@ -1682,7 +1682,7 @@
     </message>
     <message>
         <source>Transaction creation failed!</source>
-        <translation>Échec de la création de la transaction  </translation>
+        <translation>La création de la transaction a échoué!  </translation>
     </message>
     <message>
         <source>Payment request expired.</source>
@@ -1704,8 +1704,8 @@
 <context>
     <name>SendCoinsEntry</name>
     <message>
-        <source>A&amp;mount:</source>
-        <translation>&amp;Montant :</translation>
+        <source>Amount:</source>
+        <translation>Montant :</translation>
     </message>
     <message>
         <source>Pay &amp;To:</source>
@@ -1721,7 +1721,7 @@
     </message>
     <message>
         <source>This is a normal payment.</source>
-        <translation>C'est un paiement normal.</translation>
+        <translation>Ceci est un paiement normal.</translation>
     </message>
     <message>
         <source>Alt+A</source>
@@ -1798,7 +1798,7 @@
     </message>
     <message>
         <source>Copy the current signature to the system clipboard</source>
-        <translation>Copier l'adresse courante dans le presse papier</translation>
+        <translation>Copier l'adresse actuel dans le presse papier</translation>
     </message>
     <message>
         <source>Sign &amp;Message</source>
@@ -2053,7 +2053,7 @@
     </message>
     <message>
         <source>Mined</source>
-        <translation>Extraction</translation>
+        <translation>minée</translation>
     </message>
     <message>
         <source>watch-only</source>
@@ -2128,7 +2128,7 @@
     </message>
     <message>
         <source>Mined</source>
-        <translation>Extraction</translation>
+        <translation>Minée</translation>
     </message>
     <message>
         <source>Other</source>
@@ -2200,7 +2200,7 @@
     </message>
     <message>
         <source>Exporting Successful</source>
-        <translation>Export réalisé avec sucés </translation>
+        <translation>Exportation réussie </translation>
     </message>
     <message>
         <source>Range:</source>
@@ -2218,7 +2218,7 @@
     <name>WalletFrame</name>
     <message>
         <source>No wallet has been loaded.</source>
-        <translation>Aucun portefeuille a été chargé.</translation>
+        <translation>Aucun porte-monnaie n'a été chargé.</translation>
     </message>
 </context>
 <context>
@@ -2275,7 +2275,7 @@
     </message>
     <message>
         <source>Run in the background as a daemon and accept commands</source>
-        <translation>Fonctionner en arrière-plan en tant que démon et accepter les commandes</translation>
+        <translation>Executer en arrière-plan en tant que daemon et accepter les commandes</translation>
     </message>
     <message>
         <source>Unable to start HTTP server. See debug log for details.</source>
@@ -2283,11 +2283,11 @@
     </message>
     <message>
         <source>DeepOnion Core</source>
-        <translation>DeepOnion Core</translation>
+        <translation>Le Noyau de DeepOnion</translation>
     </message>
     <message>
         <source>&lt;category&gt; can be:</source>
-        <translation>&lt;category&gt; peut être:</translation>
+        <translation>&lt;catégorie&gt; peut être:</translation>
     </message>
     <message>
         <source>Block creation options:</source>
@@ -2303,8 +2303,7 @@
     </message>
     <message>
         <source>Importing...</source>
-        <translation>
-Importation ...</translation>
+        <translation>Importation ...</translation>
     </message>
     <message>
         <source>Verifying blocks...</source>
@@ -2312,7 +2311,7 @@ Importation ...</translation>
     </message>
     <message>
         <source>Wallet options:</source>
-        <translation>Options du portefeuille:</translation>
+        <translation>Options du porte-monnaie:</translation>
     </message>
     <message>
         <source>(default: %u)</source>
@@ -2320,7 +2319,7 @@ Importation ...</translation>
     </message>
     <message>
         <source>Connect through SOCKS5 proxy</source>
-        <translation>Connecté au travers du proxy SOCKS5</translation>
+        <translation>Se connecter via un proxy SOCKS5</translation>
     </message>
     <message>
         <source>Information</source>
@@ -2400,7 +2399,7 @@ Importation ...</translation>
     </message>
     <message>
         <source>Cannot downgrade wallet</source>
-        <translation>Vous ne pouvez pas rétrograder votre portefeuille</translation>
+        <translation>Vous ne pouvez pas rétrograder votre porte-monnaie</translation>
     </message>
     <message>
         <source>Rescanning...</source>
