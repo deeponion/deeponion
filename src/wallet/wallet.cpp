@@ -3319,6 +3319,10 @@ bool CWallet::CommitTransaction(CWalletTx& wtxNew, CReserveKey& reservekey, CCon
         LOCK2(cs_main, cs_wallet);
         LogPrint(BCLog::WALLET, "CommitTransaction:\n%s", wtxNew.tx->ToString());
         {
+
+            mapValue_t mapNarr;
+            FindStealthTransactions(*wtxNew.tx, mapNarr);
+
             // Take key pair from key pool so it won't be used again
             reservekey.KeepKey();
 
