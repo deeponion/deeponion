@@ -55,11 +55,11 @@
     </message>
     <message>
         <source>Sending addresses</source>
-        <translation>Enviando direcciones</translation>
+        <translation>Direcciones de envío</translation>
     </message>
     <message>
         <source>Receiving addresses</source>
-        <translation>Recibiendo direcciones</translation>
+        <translation>Direcciones de recepción</translation>
     </message>
     <message>
         <source>These are your DeepOnion addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
