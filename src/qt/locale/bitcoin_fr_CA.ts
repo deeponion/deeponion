@@ -7,7 +7,7 @@
     </message>
     <message>
         <source>Copy the currently selected address to the system clipboard</source>
-        <translation>Copier l'adresse surligné a votre presse-papier</translation>
+        <translation>Copier l'adresse surligné au presse-papier</translation>
     </message>
     <message>
         <source>&amp;Delete</source>
@@ -21,7 +21,7 @@
     <name>AskPassphraseDialog</name>
     <message>
         <source>Enter passphrase</source>
-        <translation>Entrer Mot de Passe</translation>
+        <translation>Entrer le Mot de Passe</translation>
     </message>
     <message>
         <source>New passphrase</source>
@@ -29,7 +29,7 @@
     </message>
     <message>
         <source>Repeat new passphrase</source>
-        <translation>Répéter Mot de Passe</translation>
+        <translation>Répéter le nouveau Mot de Passe</translation>
     </message>
     </context>
 <context>
@@ -42,14 +42,14 @@
     <name>CoinControlDialog</name>
     <message>
         <source>(un)select all</source>
-        <translation>Toute sélectionner </translation>
+        <translation> Tous sélectionner </translation>
     </message>
     </context>
 <context>
     <name>EditAddressDialog</name>
     <message>
         <source>&amp;Label</source>
-        <translation>Record</translation>
+        <translation>Étiquette</translation>
     </message>
     <message>
         <source>&amp;Address</source>
@@ -139,18 +139,18 @@
     <name>TransactionTableModel</name>
     <message>
         <source>Label</source>
-        <translation>Record</translation>
+        <translation>Étiquette</translation>
     </message>
     <message>
         <source>(no label)</source>
-        <translation>(pas de record)</translation>
+        <translation>(pas d'étiquette)</translation>
     </message>
     </context>
 <context>
     <name>TransactionView</name>
     <message>
         <source>Copy address</source>
-        <translation>copier l'adresse </translation>
+        <translation>Copier l'adresse </translation>
     </message>
     <message>
         <source>Comma separated file (*.csv)</source>
@@ -158,7 +158,7 @@
     </message>
     <message>
         <source>Label</source>
-        <translation>Record</translation>
+        <translation>Étiquette</translation>
     </message>
     <message>
         <source>Address</source>
