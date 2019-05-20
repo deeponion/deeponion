@@ -1,4 +1,4 @@
-<TS language="es_AR" version="2.1">
+<TS language="es_ES" version="2.1">
 <context>
     <name>AddressBookPage</name>
     <message>
@@ -55,11 +55,11 @@
     </message>
     <message>
         <source>Sending addresses</source>
-        <translation>Enviando direcciones</translation>
+        <translation>Direcciones de Envío</translation>
     </message>
     <message>
         <source>Receiving addresses</source>
-        <translation>Recibiendo direcciones</translation>
+        <translation>Direcciones de Recepción</translation>
     </message>
     <message>
         <source>These are your DeepOnion addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
@@ -133,7 +133,7 @@
     </message>
     <message>
         <source>Enter the new passphrase to the wallet.&lt;br/&gt;Please use a passphrase of &lt;b&gt;ten or more random characters&lt;/b&gt;, or &lt;b&gt;eight or more words&lt;/b&gt;.</source>
-        <translation>Introduzca la nueva frase de contraseña del wallet. &lt;br/&gt;Por favor utilice una frase de contraseña de &lt;b&gt;diez o más carácteres aleatorios&lt;/b&gt;, o &lt;b&gt;ocho o más palabras&lt;/b&gt;.</translation>
+        <translation>Introduzca la nueva frase de contraseña de la wallet. &lt;br/&gt;Por favor utilice una frase de contraseña de &lt;b&gt;diez o más carácteres aleatorios&lt;/b&gt;, o &lt;b&gt;ocho o más palabras&lt;/b&gt;.</translation>
     </message>
     <message>
         <source>Encrypt wallet</source>
