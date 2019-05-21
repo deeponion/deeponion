@@ -449,7 +449,7 @@ bool TipMayBeStale(const Consensus::Params &consensusParams)
 // Requires cs_main
 bool CanDirectFetch(const Consensus::Params &consensusParams)
 {
-    return chainActive.Tip()->GetBlockTime() > GetAdjustedTime() - consensusParams.nPowTargetSpacing * 20;
+    return chainActive.Tip()->GetBlockTime() > GetAdjustedTime() - consensusParams.nPosTargetSpacing * 20;
 }
 
 // Requires cs_main
