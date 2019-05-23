@@ -1,0 +1,6 @@
+usr/local/bin/DeepOnion-qt usr/bin
+share/pixmaps/deeponion32.xpm usr/share/pixmaps
+share/pixmaps/deeponion16.xpm usr/share/pixmaps
+share/pixmaps/deeponion128.png usr/share/pixmaps
+debian/deeponion-qt.desktop usr/share/applications
+debian/deeponion-qt.protocol usr/share/kde4/services/

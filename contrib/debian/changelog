@@ -1,3 +1,9 @@
+DeepOnion (2.0.2-0) bionic; urgency=medium
+
+  * First Release of DeepOnion.
+
+ -- Liam Alford (nezero) <nezero@nezero.com>  Wed, 22 May 2019 12:00:00 -0000
+
 bitcoin (0.14.1-trusty4) trusty; urgency=medium
 
   * Re-enable UPnP support.

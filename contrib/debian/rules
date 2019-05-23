@@ -1,9 +1,9 @@
 #!/usr/bin/make -f
 # -*- mode: makefile; coding: utf-8 -*-
 
-#DEB_MAKE_CHECK_TARGET = test_bitcoin
-#build/bitcoind::
-#	$(if $(filter nocheck,$(DEB_BUILD_OPTIONS)),,src/test_bitcoin)
+#DEB_MAKE_CHECK_TARGET = test_deeponion
+#build/deeponiond::
+#	$(if $(filter nocheck,$(DEB_BUILD_OPTIONS)),,src/test_deeponion)
 
 %:
 	dh --with bash-completion $@
@@ -20,4 +20,6 @@ override_dh_auto_configure:
 	./configure --with-gui=$(QT)
 
 override_dh_auto_test:
-	make check
+        echo "Not runing auto tests."
+
+#TODO	make check

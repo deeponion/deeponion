@@ -1,0 +1,14 @@
+[Desktop Entry]
+Version=1.0
+Name=DeepOnion Core
+Comment=Connect to the DeepOnion Tor P2P Network
+Comment[de]=Verbinde mit dem DeepOnion Tor peer-to-peer Netzwerk
+Comment[fr]=DeepOnion, monnaie virtuelle cryptographique pair à pair
+Comment[tr]=DeepOnion, eşten eşe kriptografik sanal para birimi
+Exec=DeepOnion-qt %u
+Terminal=false
+Type=Application
+Icon=deeponion128
+MimeType=x-scheme-handler/DeepOnion;
+Categories=Office;Finance;
+StartupWMClass=DeepOnion-qt

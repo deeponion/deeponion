@@ -1,18 +1,18 @@
 Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
-Upstream-Name: Bitcoin
-Upstream-Contact: Satoshi Nakamoto <satoshin@gmx.com>
- irc://#bitcoin@freenode.net
-Source: https://github.com/bitcoin/bitcoin
+Upstream-Name: DeepOnion
+Upstream-Contact: DeepOnion <info@deeponion.org>
+Source: https://github.com/deeponion/deeponion
 
 Files: *
-Copyright: 2009-2018, Bitcoin Core Developers
+Copyright: 2009-2019, DeepOnion Core Developers
 License: Expat
-Comment: The Bitcoin Core Developers encompasses the current developers listed on bitcoin.org,
+Comment: The DeepOnion Core Developers encompasses the current developers listed on deeponion.org,
          as well as the numerous contributors to the project.
 
 Files: debian/*
 Copyright: 2010-2011, Jonas Smedegaard <dr@jones.dk>
            2011, Matt Corallo <matt@bluematt.me>
+           2019, Liam Alford <nezero@nezero.co.uk>
 License: GPL-2+
 
 Files: src/secp256k1/build-aux/m4/ax_jni_include_dir.m4

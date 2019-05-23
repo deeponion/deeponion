@@ -1,6 +1,6 @@
 [Protocol]
-exec=bitcoin-qt '%u'
-protocol=bitcoin
+exec=DeepOnion-qt '%u'
+protocol=deeponion
 input=none
 output=none
 helper=true
