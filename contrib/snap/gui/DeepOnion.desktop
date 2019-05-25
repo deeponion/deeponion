@@ -1,0 +1,15 @@
+# http://standards.freedesktop.org/desktop-entry-spec/desktop-entry-spec-1.0.html
+[Desktop Entry]
+Type=Application
+Version=1.0.1
+Encoding=UTF-8
+Name=DeepOnion
+Icon=${SNAP}/DeepOnion.png
+MimeType=x-scheme-handler/bitcoin;
+Exec=deeponion %u
+Terminal=false
+Categories=Office;Finance;
+Comment=DeepOnion P2P Cryptocurrency
+Keywords=internet;bitcoin;
+Comment[fr]=DeepOnion, monnaie virtuelle cryptographique pair à pair
+Comment[tr]=DeepOnion, eşten eşe kriptografik sanal para birimi

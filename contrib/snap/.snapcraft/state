@@ -1,0 +1,5 @@
+!GlobalState
+assets:
+  build-packages:
+  - libzmq3-dev=4.2.5-1ubuntu0.1
+  build-snaps: []

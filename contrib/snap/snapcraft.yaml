@@ -1,0 +1,92 @@
+name: deeponion
+version: master
+summary:   peer-to-peer network based digital currency
+description: |
+  DeepOnion (ONION) is an anonymous and untraceable cryptocurrency. 
+  All transactions are private and sent through the TOR network. 
+  The 2.0 and onwards are based on the latest codebase from Litecoin/Bitcoin.
+
+grade: stable
+confinement: strict
+
+apps:
+  daemon:
+    command: DeepOniond
+    plugs: [network, network-bind]
+    environment:
+      XDG_DATA_DIRS: $SNAP_USER_DATA:$SNAP/usr/share:$XDG_DATA_DIRS
+  qt:
+    command: desktop-launch DeepOnion-qt
+    plugs: [network, network-bind, unity7]
+    desktop: DeepOnion.desktop
+  cli:
+    command: DeepOnion-cli
+
+parts:
+  deeponion:
+    source: https://github.com/deeponion/deeponion
+    source-type: git
+    source-tag: master
+    plugin: autotools
+    # XXX We don't want to copy the full blockchain every time that the snap is
+    # updated, but there's no way to define a default data dir in bitcoin-qt.
+    # Also, it would be better if we could split the wallet from the blockchain
+    # https://github.com/bitcoin/bitcoin/issues/3214
+    # -- elopio-20170308
+    override-build: | 
+      git apply $SNAPCRAFT_STAGE/default_data_dir.patch
+      snapcraftctl build
+    build-packages:
+    # build-essential libtool autotools-dev autoconf pkg-config libssl-dev libboost-all-dev
+    # libqrencode-dev libminiupnpc-dev libevent-dev libcap-dev libseccomp-dev git bsdmainutils
+    # software-properties-common libqt5gui5 libqt5core5a libqt5dbus5 qttools5-dev qttools5-dev-tools libprotobuf-dev protobuf-compiler
+      - g++
+      - pkg-config
+      - libssl-dev
+      - libevent-dev
+      - bsdmainutils
+      - libcap-dev
+      - libseccomp-dev
+      # Boost.
+      - libboost-system-dev
+      - libboost-filesystem-dev
+      - libboost-chrono-dev
+      - libboost-program-options-dev
+      - libboost-test-dev
+      - libboost-thread-dev
+      # Optional.
+      - libminiupnpc-dev
+      - libzmq3-dev
+      # GUI.
+      - libqt5gui5
+      - libqt5core5a
+      - libqt5dbus5
+      - qttools5-dev
+      - qttools5-dev-tools
+      - libprotobuf-dev
+      - protobuf-compiler
+      # Optional.
+      - libqrencode-dev
+    stage-packages: [ca-certificates]
+    after:
+      - berkeleydb
+      - desktop-qt5
+      - patches
+  berkeleydb:
+    source: http://download.oracle.com/berkeley-db/db-4.8.30.tar.gz
+    plugin: nil
+    override-build: |
+      cd build_unix
+      ../dist/configure --enable-cxx --disable-shared --with-pic --prefix=$SNAPCRAFT_PART_INSTALL
+      snapcraftctl build
+      make install
+    prime:
+      - -*
+  patches:
+    source: snap/patches
+    plugin: dump
+    prime:
+      - -*
+  desktop:
+    source: snap/gui
+    plugin: dump
