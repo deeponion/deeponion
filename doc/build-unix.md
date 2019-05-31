@@ -18,6 +18,8 @@ To Build
 ---------------------
 
 ```bash
+git clone --recursive https://github.com/deeponion/deeponion.git
+cd deeponion
 ./autogen.sh
 ./configure
 make
