@@ -508,4 +508,8 @@ extern int blockchainStatus;
 extern bool fAbortScanForHash;
 void ScanBlockchainForHash(bool bSplashDisplay = false);
 
+/** DeepSend related function */
+bool AreServiceNodesAvailable();
+bool IsAnotherDeepSendInProcess();
+
 #endif // BITCOIN_VALIDATION_H

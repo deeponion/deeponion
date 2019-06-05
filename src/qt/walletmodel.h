@@ -37,6 +37,7 @@ class QTimer;
 QT_END_NAMESPACE
 
 static const int STEALTH_LENGTH_TRESHOLD = 75;
+static CAmount MAX_ALLOWED_DEEP_SEND = 10 * COIN;
 
 class SendCoinsRecipient
 {
@@ -120,7 +121,12 @@ public:
         TransactionCommitFailed,
         AbsurdFee,
         NarrationTooLong,
-        PaymentRequestExpired
+        PaymentRequestExpired,
+		DeepSendAmountExceeded,
+		ServiceNodesNotAvailable,
+		AnotherDeepSendInProgress,
+		NotEnoughReserveForDeepSend,
+		NotSupportedDeepSendToStealthTx
     };
 
     enum EncryptionStatus
@@ -166,6 +172,8 @@ public:
 
     // Send coins to a list of recipients
     SendCoinsReturn sendCoins(WalletModelTransaction &transaction);
+    // Send coins using mixer (DeepSend)
+    SendCoinsReturn sendCoinsUsingMixer(WalletModelTransaction &transaction);
 
     // Wallet encryption
     bool setWalletEncrypted(bool encrypted, const SecureString &passphrase);

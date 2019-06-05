@@ -5259,6 +5259,18 @@ void ScanBlockchainForHash(bool bSplashDisplay)
 }
 
 
+bool AreServiceNodesAvailable()
+{
+	return true;
+}
+
+
+bool IsAnotherDeepSendInProcess()
+{
+	return true;
+}
+
+
 class CMainCleanup
 {
 public:

@@ -29,6 +29,7 @@
 #include <QTextDocument>
 
 static const std::array<int, 9> confTargets = { {2, 4, 6, 12, 24, 48, 144, 504, 1008} };
+
 int getConfTargetForIndex(int index) {
     if (index+1 > static_cast<int>(confTargets.size())) {
         return confTargets.back();
@@ -74,6 +75,7 @@ SendCoinsDialog::SendCoinsDialog(const PlatformStyle *_platformStyle, QWidget *p
 
     connect(ui->addButton, SIGNAL(clicked()), this, SLOT(addEntry()));
     connect(ui->clearButton, SIGNAL(clicked()), this, SLOT(clear()));
+    connect(ui->checkBoxDeepSend, SIGNAL(stateChanged(int)), this, SLOT(deepSendChecked(int)));
 
     // Coin Control
     connect(ui->pushButtonCoinControl, SIGNAL(clicked()), this, SLOT(coinControlButtonClicked()));
@@ -285,7 +287,7 @@ void SendCoinsDialog::on_sendButton_clicked()
         fNewRecipientAllowed = true;
         return;
     }
-
+    
     CAmount txFee = currentTransaction.getTransactionFee();
 
     // Format confirmation message
@@ -326,6 +328,11 @@ void SendCoinsDialog::on_sendButton_clicked()
     }
 
     QString questionString = tr("Are you sure you want to send?");
+	if(CoinControlDialog::coinControl()->GetDeepSend())
+	{
+		questionString = questionString + " Remember with DeepSend 1% fee (minimum 0.01 ONION) will be added to your transaction. Also your minimum balance should be more than the twice of the amount (plus fee) you send. Otherwise please use regular send.";
+	}
+	
     questionString.append("<br /><br />%1");
 
     if(txFee > 0)
@@ -375,9 +382,15 @@ void SendCoinsDialog::on_sendButton_clicked()
         fNewRecipientAllowed = true;
         return;
     }
-
+    
     // now send the prepared transaction
-    WalletModel::SendCoinsReturn sendStatus = model->sendCoins(currentTransaction);
+    WalletModel::SendCoinsReturn sendStatus;
+    
+    if(CoinControlDialog::coinControl()->GetDeepSend())
+    	sendStatus = model->sendCoinsUsingMixer(currentTransaction);
+    else
+    	sendStatus = model->sendCoins(currentTransaction);
+    
     // process sendStatus and on error generate message shown to user
     processSendCoinsReturn(sendStatus);
 
@@ -588,12 +601,28 @@ void SendCoinsDialog::processSendCoinsReturn(const WalletModel::SendCoinsReturn 
         msgParams.first = tr("Payment request expired.");
         msgParams.second = CClientUIInterface::MSG_ERROR;
         break;
+    case WalletModel::DeepSendAmountExceeded:
+        msgParams.first = tr("DeepSend only allows maximum of %1 now. Please reduce send amount or use regular send.").arg(BitcoinUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(), MAX_ALLOWED_DEEP_SEND));
+        break;
+    case WalletModel::ServiceNodesNotAvailable:
+        msgParams.first = tr("DeepSend requires at least 2 anonymous service nodes available. You don't have enough service nodes connected. Please use regular-send or try later.");
+        break;
+    case WalletModel::AnotherDeepSendInProgress:
+        msgParams.first = tr("Another DeepSend transaction still in progress. Please wait it finishes before starting a new DeepSend.");
+        break;
+    case WalletModel::NotEnoughReserveForDeepSend:
+        msgParams.first = tr("Not enough reserve for DeepSend. You must maintain at least 2X send amount + fee. Please use regular send.");
+        break;
+    case WalletModel::NotSupportedDeepSendToStealthTx:
+        msgParams.first = tr("You can use DeepSend or StealthAddress, but not both.");
+        break;
+      
     // included to prevent a compiler warning.
     case WalletModel::OK:
     default:
         return;
     }
-
+    
     Q_EMIT message(tr("Send Coins"), msgParams.first, msgParams.second);
 }
 
@@ -964,4 +993,12 @@ void SendConfirmationDialog::updateYesButton()
         yesButton->setEnabled(true);
         yesButton->setText(tr("Yes"));
     }
+}
+
+void SendCoinsDialog::deepSendChecked(int state)
+{
+    if (state == Qt::Checked)
+    	CoinControlDialog::coinControl()->SetDeepSend(true);
+    else
+    	CoinControlDialog::coinControl()->SetDeepSend(false);
 }

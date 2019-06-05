@@ -69,6 +69,10 @@ static const unsigned int DEFAULT_TX_CONFIRM_TARGET = 6;
 static const bool DEFAULT_WALLET_RBF = false;
 static const bool DEFAULT_WALLETBROADCAST = true;
 static const bool DEFAULT_DISABLE_WALLET = false;
+// deepsend related
+static const CAmount MIN_ANON_SERVICE_COIN = 30 * COIN;	
+static const double DEEPSEND_FEE_RATE = 0.01;
+static const CAmount DEEPSEND_MIN_FEE = 0.01 * COIN;
 
 extern const char * DEFAULT_WALLET_DAT;
 

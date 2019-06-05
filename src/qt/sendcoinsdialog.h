@@ -96,6 +96,7 @@ private Q_SLOTS:
     void updateFeeSectionControls();
     void updateMinFeeLabel();
     void updateSmartFeeLabel();
+    void deepSendChecked(int);
 
 Q_SIGNALS:
     // Fired when a message should be reported to the user
