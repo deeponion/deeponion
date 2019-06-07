@@ -1892,7 +1892,7 @@
         <translation>Wissen</translation>
     </message>
     <message>
-        <source>Requested payments history</source>
+        <source>Requested Payments History</source>
         <translation>Geschiedenis van de betalingsverzoeken</translation>
     </message>
     <message>

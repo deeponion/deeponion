@@ -1150,7 +1150,7 @@
         <translation>Wyczyść</translation>
     </message>
     <message>
-        <source>Requested payments history</source>
+        <source>Requested Payments History</source>
         <translation>Historia żądań płatności.</translation>
     </message>
     <message>

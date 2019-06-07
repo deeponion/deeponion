@@ -1892,7 +1892,7 @@
         <translation>Effacer</translation>
     </message>
     <message>
-        <source>Requested payments history</source>
+        <source>Requested Payments History</source>
         <translation>Historique des paiements demandés</translation>
     </message>
     <message>

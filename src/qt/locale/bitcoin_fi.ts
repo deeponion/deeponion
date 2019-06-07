@@ -1816,7 +1816,7 @@
         <translation>Tyhjennä</translation>
     </message>
     <message>
-        <source>Requested payments history</source>
+        <source>Requested Payments History</source>
         <translation>Pyydettyjen maksujen historia</translation>
     </message>
     <message>

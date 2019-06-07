@@ -1816,7 +1816,7 @@
         <translation>ניקוי</translation>
     </message>
     <message>
-        <source>Requested payments history</source>
+        <source>Requested Payments History</source>
         <translation>היסטוריית בקשות תשלום</translation>
     </message>
     <message>
