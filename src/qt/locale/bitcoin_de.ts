@@ -923,7 +923,7 @@
     </message>
     <message>
         <source>Attempting to spend ONION that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
-        <translation>Versuche, DeepOnions aus noch nicht angezeigten Transaktionen auszugeben, werden vom Netzwerk nicht akzeptiert.</translation>
+        <translation>Versuche, ONIONS aus noch nicht angezeigten Transaktionen auszugeben, werden vom Netzwerk nicht akzeptiert.</translation>
     </message>
     <message>
         <source>Number of blocks left</source>
