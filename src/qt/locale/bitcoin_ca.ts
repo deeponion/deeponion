@@ -902,7 +902,7 @@
         <translation>És possible que les transaccions recents encara no siguin visibles i, per tant, el saldo del vostre moneder podria ser incorrecte. Aquesta informació serà correcta una vegada que el vostre moneder hagi finalitzat la sincronització amb la xarxa DeepOnion, tal com es detalla més avall.</translation>
     </message>
     <message>
-        <source>Attempting to spend DeepOnions that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
+        <source>Attempting to spend ONION that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
         <translation>Els intents de gastar DeepOnions que es veuen afectats per les transaccions que encara no s'hagin mostrat no seran acceptats per la xarxa.</translation>
     </message>
     <message>

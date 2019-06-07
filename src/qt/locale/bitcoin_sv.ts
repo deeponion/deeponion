@@ -915,7 +915,7 @@ Var vänlig och försök igen.</translation>
         <translation>Nyligen gjorda transaktioner visas inte korrekt och därför kan din plånboks saldo visas felaktigt. Denna information kommer att visas korrekt så snart din plånbok har synkroniserat klart med DeepOnion nätverket enligt detaljer nedan.</translation>
     </message>
     <message>
-        <source>Attempting to spend DeepOnions that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
+        <source>Attempting to spend ONION that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
         <translation>Försöka sig på att spendera DeepOnions som påverkas av transaktioner som ännu inte visas kommer inte bli accepterade av nätverket. </translation>
     </message>
     <message>

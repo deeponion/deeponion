@@ -459,7 +459,7 @@
     </message>
     <message>
         <source>Transactions after this will not yet be visible.</source>
-        <translation>Пізніші транзакції не буде видно.</translation>
+        <translation>Пізніші транзакції не буде видно.</translation>
     </message>
     <message>
         <source>Error</source>
@@ -910,7 +910,7 @@
         <translation>Нещодавні транзакції ще не відображаються, тому баланс вашого гаманця може бути неточним. Ця інформація буде вірною після того, як ваш гаманець завершить синхронізацію з мережею DeepOnion, врахровуйте показники нижче.</translation>
     </message>
     <message>
-        <source>Attempting to spend DeepOnions that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
+        <source>Attempting to spend ONION that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
         <translation>Спроба видправити DeepOnionи, які ще не відображаються, не буде прийнята мережею.</translation>
     </message>
     <message>

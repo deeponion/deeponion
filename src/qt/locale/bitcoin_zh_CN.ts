@@ -452,7 +452,7 @@
         <translation>近期交易可能尚未显示，因此当前余额可能不准确。以上信息将在与深洋葱币网络完全同步后更正。详情如下</translation>
     </message>
     <message>
-        <source>Attempting to spend DeepOnions that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
+        <source>Attempting to spend ONION that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
         <translation>尝试使用受未可见交易影响的余额将不被网络接受。</translation>
     </message>
     <message>

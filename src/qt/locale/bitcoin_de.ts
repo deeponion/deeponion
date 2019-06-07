@@ -922,7 +922,7 @@
         <translation>Neueste Transaktionen werden eventuell noch nicht angezeigt, daher könnte Ihr Kontostand veraltet sein. Er wird korrigiert, sobald Ihr Wallet die Synchronisation mit dem DeepOnion-Netzwerk erfolgreich abgeschlossen hat. Details dazu finden sich weiter unten.</translation>
     </message>
     <message>
-        <source>Attempting to spend DeepOnions that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
+        <source>Attempting to spend ONION that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
         <translation>Versuche, DeepOnions aus noch nicht angezeigten Transaktionen auszugeben, werden vom Netzwerk nicht akzeptiert.</translation>
     </message>
     <message>
@@ -3911,7 +3911,7 @@
     </message>
     <message>
         <source>The fee rate (in %s/kB) that indicates your tolerance for discarding change by adding it to the fee (default: %s). Note: An output is discarded if it is dust at this rate, but we will always discard up to the dust relay fee and a discard fee above that is limited by the fee estimate for the longest target</source>
-        <translation>Die Transaktionsgebührrate (in %s/kB), die die Toleranz anzeigt für das Abschreiben von Wechselgeld, durch deren Zufügung zur Transaktionsgebühr (Standard: %s). Hinweis: Eine Ausgabe wird abgeschrieben, wenn sie bei Höhe dieser Rate "Staub" ist, aber es wird immer abgeschrieben bis zur Staub-Weiterleitungsgebühr, und eine Abschreibungsgebühr darüber ist begrenzt durch die Gebührenschätzung für das längste Ziel</translation>
+        <translation>Die Transaktionsgebührrate (in %s/kB), die die Toleranz anzeigt für das Abschreiben von Wechselgeld, durch deren Zufügung zur Transaktionsgebühr (Standard: %s). Hinweis: Eine Ausgabe wird abgeschrieben, wenn sie bei Höhe dieser Rate "Staub" ist, aber es wird immer abgeschrieben bis zur Staub-Weiterleitungsgebühr, und eine Abschreibungsgebühr darüber ist begrenzt durch die Gebührenschätzung für das längste Ziel</translation>
     </message>
     <message>
         <source>This is the transaction fee you may pay when fee estimates are not available.</source>

@@ -21,6 +21,8 @@
 #include <QMessageBox>
 #include <QSortFilterProxyModel>
 
+
+
 AddressBookPage::AddressBookPage(const PlatformStyle *_platformStyle, Mode _mode, Tabs _tab, QWidget *parent, QString title) :
     QDialog(parent),
     ui(new Ui::AddressBookPage),

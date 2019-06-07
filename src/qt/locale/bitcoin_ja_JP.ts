@@ -870,7 +870,7 @@
         <translation>最近のトランザクションが表示できない可能性があります。従って、ウォレットの残高が正しくない可能性があります。この情報はビットコインネットワークに接続し、同期処理を完了させると正しくなります。詳細は以下になります。</translation>
     </message>
     <message>
-        <source>Attempting to spend DeepOnions that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
+        <source>Attempting to spend ONION that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
         <translation>使用したビットコインで、未処理となっているものは、ネットワークによって受領されません。</translation>
     </message>
     <message>
@@ -1077,7 +1077,7 @@
     </message>
     <message>
         <source>Use separate SOCKS5 proxy to reach peers via Tor hidden services:</source>
-        <translation>Tor匿名サービスを経由して到達ピアへ、区切られたSOCKS5 プロキシを使用:</translation>
+        <translation>Tor匿名サービスを経由して到達ピアへ、区切られたSOCKS5 プロキシを使用:</translation>
     </message>
     <message>
         <source>&amp;Window</source>
