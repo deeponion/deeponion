@@ -234,6 +234,22 @@
         <translation>&amp;Übersicht</translation>
     </message>
     <message>
+        <source>&amp;Send Coins</source>
+        <translation>&amp;ONIONS senden</translation>
+    </message>
+    <message>
+        <source>&amp;Request Payment</source>
+        <translation>&amp;Zahlung anfordern</translation>
+    </message>
+    <message>
+        <source>&amp;Receive Addresses</source>
+        <translation>&amp;Addresse anfordern</translation>
+    </message>
+    <message>
+        <source>&amp;Address Book</source>
+        <translation>&amp;Addressbuch</translation>
+    </message>
+    <message>
         <source>Node</source>
         <translation>Knoten</translation>
     </message>
