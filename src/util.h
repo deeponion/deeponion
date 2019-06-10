@@ -19,6 +19,7 @@
 #include <sync.h>
 #include <tinyformat.h>
 #include <utiltime.h>
+#include <amount.h>
 
 #ifndef WIN32
 #include <sys/resource.h>
@@ -112,6 +113,7 @@ namespace BCLog {
         STEALTH     = (1 << 23),
         WALLET      = (1 << 24),
         DEEPVAULT   = (1 << 25),
+        DEEPSEND    = (1 << 26),
         ALL         = ~(uint32_t)0,
     };
 }
@@ -385,5 +387,13 @@ inline uint32_t ByteReverse(uint32_t value)
     value = ((value & 0xFF00FF00) >> 8) | ((value & 0x00FF00FF) << 8);
     return (value<<16) | (value>>16);
 }
+
+// deepsend related
+static const CAmount MIN_ANON_SERVICE_COIN = 30 * COIN;	
+static const double DEEPSEND_FEE_RATE = 0.01;
+static const CAmount DEEPSEND_MIN_FEE = 0.01 * COIN;
+
+const std::string currentDateTime();
+
 
 #endif // BITCOIN_UTIL_H

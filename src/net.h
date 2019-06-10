@@ -314,6 +314,9 @@ public:
     unsigned int GetReceiveFloodSize() const;
 
     void WakeMessageHandler();
+    
+    CNode* GetConnectedNode(std::string ipAddress);
+    
 private:
     struct ListenSocket {
         SOCKET socket;
@@ -719,7 +722,8 @@ public:
     CCriticalSection cs_feeFilter;
     CAmount lastSentFeeFilter;
     int64_t nextSendTimeFeeFilter;
-
+    std::string addrName;
+    
     CNode(NodeId id, ServiceFlags nLocalServicesIn, int nMyStartingHeightIn, SOCKET hSocketIn, const CAddress &addrIn, uint64_t nKeyedNetGroupIn, uint64_t nLocalHostNonceIn, const CAddress &addrBindIn, const std::string &addrNameIn = "", bool fInboundIn = false);
     ~CNode();
     CNode(const CNode&) = delete;
@@ -735,7 +739,7 @@ private:
     std::list<CNetMessage> vRecvMsg;  // Used only by SocketHandler thread
 
     mutable CCriticalSection cs_addrName;
-    std::string addrName;
+
 
     // Our address, as reported by the peer
     CService addrLocal;

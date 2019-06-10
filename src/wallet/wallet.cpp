@@ -5492,3 +5492,71 @@ CTxDestination CWallet::AddAndGetDestinationForScript(const CScript& script, Out
     default: assert(false);
     }
 }
+
+std::string CWallet::GetSelfAddress()
+{
+	if(selfAddress != "")
+		return selfAddress;
+
+	// we want to get a self address. it doesn't matter which address we get, 
+	// whether it is an address in the sending selected coins or not.
+	std::vector<COutput> vCoins;
+	AvailableCoins(vCoins);
+
+	BOOST_FOREACH(const COutput& out, vCoins)
+	{
+		COutput cout = out;
+
+		while (IsChange(cout.tx->vout[cout.i]) && cout.tx->vin.size() > 0 && IsMine(cout.tx->vin[0]))
+		{
+			if (!mapWallet.count(cout.tx->vin[0].prevout.hash)) 
+				break;
+			cout = COutput(&mapWallet[cout.tx->vin[0].prevout.hash], cout.tx->vin[0].prevout.n, 0);
+		}
+
+		CTxDestination address;
+		if(!ExtractDestination(cout.tx->vout[cout.i].scriptPubKey, address))
+			continue;
+
+		if(cout.tx == NULL)
+			continue;
+
+		selfAddress = CBitcoinAddress(address).ToString();
+		if(fDebugAnon)
+			printf(">> selfAddress = %s\n", selfAddress.c_str());
+
+		break;
+	}
+
+	return selfAddress;
+}
+
+
+std::string CWallet::GetAddressPubKey(std::string strAddress)
+{
+	CBitcoinAddress address(strAddress);
+    bool isValid = address.IsValid();
+
+	if(!isValid)
+	{
+		if(fDebugAnon)
+			printf(">> ERROR. CWallet::GetAddressPubKey: invalid address.\n");
+		return "";
+	}
+
+	CTxDestination dest = address.Get();
+    bool fMine = ::IsMine(*this, dest);
+	if(!fMine)
+	{
+		if(fDebugAnon)
+			printf(">> ERROR. CWallet::GetAddressPubKey: address is not mine.\n");
+		return "";
+	}
+
+	CKeyID keyID = boost::get<CKeyID>(dest);
+    CPubKey vchPubKey;
+    GetPubKey(keyID, vchPubKey);
+    std::string pubKey = HexStr(vchPubKey.Raw());
+	return pubKey;
+}
+

@@ -1457,6 +1457,26 @@ void CConnman::WakeMessageHandler()
 }
 
 
+CNode* CConnman::GetConnectedNode(std::string ipAddress)
+{
+	CNode* pNodeFound = NULL;
+	{
+		LOCK(cs_vNodes);
+		for(CNode* pnode: vNodes)
+		{
+			std::string nodeAddr = pnode->GetAddrName();
+			nodeAddr = nodeAddr.substr(0, nodeAddr.find(":"));
+			if(ipAddress == nodeAddr)
+			{
+				pNodeFound = pnode;
+				break;
+			}
+		}
+	}
+
+	return pNodeFound;
+}
+
 
 
 

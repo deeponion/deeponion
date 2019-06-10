@@ -39,6 +39,25 @@ const char *SENDCMPCT="sendcmpct";
 const char *CMPCTBLOCK="cmpctblock";
 const char *GETBLOCKTXN="getblocktxn";
 const char *BLOCKTXN="blocktxn";
+// deepsend message types
+const char *DS_SVCAVAIL="asvcavail";
+const char *DS_SVCREPLY="asvcreply";
+const char *DS_MIXREQ="mixrequest";
+const char *DS_MIXREPLY="mixreply";
+const char *DS_GRNTREQ="guarantreq";
+const char *DS_GRNTREPLY="grntreply";
+const char *DS_CHKGRNT="checkguarant";
+const char *DS_CHKGRNTRPLY="chkgreply";
+const char *DS_MSIGADDR="msigaddr";
+const char *DS_MSIGADDRRPLY="msigreply";
+const char *DS_CHKMSTX="checkmstx";
+const char *DS_MSDISTTX="msdisttx";
+const char *DS_MSTXRELAY="mstxrelay";
+const char *DS_DSTTXCMPLT="sddstdone";
+const char *DS_CHKDSTTXRELAY="chksdrelay";
+const char *DS_CHKDSTTXREQ="checksdtx";
+const char *DS_SENDCMPLT="sendcmplt";
+const char *DS_SERVICEANN="mixservice";
 } // namespace NetMsgType
 
 /** All known message types. Keep this in the same order as the list of

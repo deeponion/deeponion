@@ -237,6 +237,25 @@ extern const char *GETBLOCKTXN;
  * @since protocol version 70014 as described by BIP 152
  */
 extern const char *BLOCKTXN;
+
+extern const char *DS_SVCAVAIL;
+extern const char *DS_SVCREPLY;
+extern const char *DS_MIXREQ;
+extern const char *DS_MIXREPLY;
+extern const char *DS_GRNTREQ;
+extern const char *DS_GRNTREPLY;
+extern const char *DS_CHKGRNT;
+extern const char *DS_CHKGRNTRPLY;
+extern const char *DS_MSIGADDR;
+extern const char *DS_MSIGADDRRPLY;
+extern const char *DS_CHKMSTX;
+extern const char *DS_MSDISTTX;
+extern const char *DS_MSTXRELAY;
+extern const char *DS_DSTTXCMPLT;
+extern const char *DS_CHKDSTTXRELAY;
+extern const char *DS_CHKDSTTXREQ;
+extern const char *DS_SENDCMPLT;
+extern const char *DS_SERVICEANN;
 };
 
 /* Get a vector of all valid message types (see above) */
