@@ -1359,7 +1359,7 @@
         <translation>清除</translation>
     </message>
     <message>
-        <source>Requested Payments History</source>
+        <source>Requested payments history</source>
         <translation>请求付款的历史</translation>
     </message>
     <message>

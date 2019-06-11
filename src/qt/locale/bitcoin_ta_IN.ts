@@ -17,7 +17,7 @@
     <name>AskPassphraseDialog</name>
     <message>
         <source>Passphrase Dialog</source>
-        <translation>கடவுச்சொல் உரையாடல் </translation>
+        <translation>கடவுச்சொல் உரையாடல் </translation>
     </message>
     <message>
         <source>New passphrase</source>
@@ -114,7 +114,7 @@
 <context>
     <name>ReceiveCoinsDialog</name>
     <message>
-        <source>Requested Payments History</source>
+        <source>Requested payments history</source>
         <translation>பணம் செலுத்திய வரலாறு கோரப்பட்டது</translation>
     </message>
     </context>

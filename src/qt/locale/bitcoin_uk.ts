@@ -1744,7 +1744,7 @@
         <translation>Очистити</translation>
     </message>
     <message>
-        <source>Requested Payments History</source>
+        <source>Requested payments history</source>
         <translation>Історія запитів платежу</translation>
     </message>
     <message>

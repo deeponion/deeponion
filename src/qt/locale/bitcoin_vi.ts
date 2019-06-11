@@ -1852,7 +1852,7 @@
         <translation>Xóa</translation>
     </message>
     <message>
-        <source>Requested Payments History</source>
+        <source>Requested payments history</source>
         <translation>Yêu cầu lịch sử giao dịch</translation>
     </message>
     <message>

@@ -1892,7 +1892,7 @@
         <translation>지우기</translation>
     </message>
     <message>
-        <source>Requested Payments History</source>
+        <source>Requested payments history</source>
         <translation>지출기록 확인</translation>
     </message>
     <message>

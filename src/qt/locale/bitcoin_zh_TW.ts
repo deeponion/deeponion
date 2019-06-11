@@ -1892,7 +1892,7 @@
         <translation>清空</translation>
     </message>
     <message>
-        <source>Requested Payments History</source>
+        <source>Requested payments history</source>
         <translation>先前要求付款的記錄</translation>
     </message>
     <message>

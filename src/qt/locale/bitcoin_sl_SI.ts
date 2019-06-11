@@ -1244,7 +1244,7 @@
         <translation>Počisti</translation>
     </message>
     <message>
-        <source>Requested Payments History</source>
+        <source>Requested payments history</source>
         <translation>Zgodovina zahtevkov za plačilo</translation>
     </message>
     <message>

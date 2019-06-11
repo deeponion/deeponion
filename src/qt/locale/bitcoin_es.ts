@@ -1768,7 +1768,7 @@
         <translation>Vaciar</translation>
     </message>
     <message>
-        <source>Requested Payments History</source>
+        <source>Requested payments history</source>
         <translation>Historial de pagos solicitados</translation>
     </message>
     <message>

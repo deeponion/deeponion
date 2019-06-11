@@ -1873,7 +1873,7 @@ Esta sincronização inicial é muito exigente e pode expor problemas de hardwar
         <translation>Limpar</translation>
     </message>
     <message>
-        <source>Requested Payments History</source>
+        <source>Requested payments history</source>
         <translation>Histórico de cobranças</translation>
     </message>
     <message>

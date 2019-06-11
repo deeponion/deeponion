@@ -1448,7 +1448,7 @@
         <translation>Изчистване</translation>
     </message>
     <message>
-        <source>Requested Payments History</source>
+        <source>Requested payments history</source>
         <translation>Изискана история на плащанията</translation>
     </message>
     <message>

@@ -1888,7 +1888,7 @@
         <translation>Curăţă</translation>
     </message>
     <message>
-        <source>Requested Payments History</source>
+        <source>Requested payments history</source>
         <translation>Istoricul plăţilor cerute</translation>
     </message>
     <message>

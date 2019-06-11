@@ -1876,7 +1876,7 @@
         <translation>Temizle</translation>
     </message>
     <message>
-        <source>Requested Payments History</source>
+        <source>Requested payments history</source>
         <translation>Talep edilen ödemelerin tarihçesi</translation>
     </message>
     <message>

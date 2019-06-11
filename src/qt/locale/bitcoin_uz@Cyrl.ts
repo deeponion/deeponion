@@ -914,7 +914,7 @@
         <translation>Тозалаш</translation>
     </message>
     <message>
-        <source>Requested Payments History</source>
+        <source>Requested payments history</source>
         <translation>Сўралган тўлов тарихи</translation>
     </message>
     <message>

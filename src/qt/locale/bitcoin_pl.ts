@@ -1856,7 +1856,7 @@
         <translation>Wyczyść</translation>
     </message>
     <message>
-        <source>Requested Payments History</source>
+        <source>Requested payments history</source>
         <translation>Żądanie historii płatności</translation>
     </message>
     <message>

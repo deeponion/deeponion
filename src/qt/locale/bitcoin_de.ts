@@ -1888,7 +1888,7 @@
         <translation>Zurücksetzen</translation>
     </message>
     <message>
-        <source>Requested Payments History</source>
+        <source>Requested payments history</source>
         <translation>Verlauf der angeforderten Zahlungen</translation>
     </message>
     <message>

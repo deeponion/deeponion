@@ -1849,7 +1849,7 @@ Var vänlig och försök igen.</translation>
         <translation>Rensa</translation>
     </message>
     <message>
-        <source>Requested Payments History</source>
+        <source>Requested payments history</source>
         <translation>Historik för begärda betalningar</translation>
     </message>
     <message>

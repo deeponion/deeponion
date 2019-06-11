@@ -893,7 +893,7 @@ Ví của bạn chưa được mã hóa.</translation>
         <translation>Xóa</translation>
     </message>
     <message>
-        <source>Requested Payments History</source>
+        <source>Requested payments history</source>
         <translation>Lịch sử yêu cầu thanh toán</translation>
     </message>
     <message>

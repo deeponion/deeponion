@@ -1888,7 +1888,7 @@
         <translation>Очистить</translation>
     </message>
     <message>
-        <source>Requested Payments History</source>
+        <source>Requested payments history</source>
         <translation>История запрошенных платежей</translation>
     </message>
     <message>

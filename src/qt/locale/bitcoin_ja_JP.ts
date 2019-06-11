@@ -1768,7 +1768,7 @@
         <translation>クリア</translation>
     </message>
     <message>
-        <source>Requested Payments History</source>
+        <source>Requested payments history</source>
         <translation>支払要求履歴</translation>
     </message>
     <message>

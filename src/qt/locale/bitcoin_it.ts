@@ -1893,7 +1893,7 @@ Per specificare più URL separarli con una barra verticale "|".</translation>
         <translation>Cancella</translation>
     </message>
     <message>
-        <source>Requested Payments History</source>
+        <source>Requested payments history</source>
         <translation>Cronologia pagamenti richiesti</translation>
     </message>
     <message>
