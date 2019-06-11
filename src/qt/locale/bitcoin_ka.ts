@@ -1088,7 +1088,7 @@
         <translation>წაშლა</translation>
     </message>
     <message>
-        <source>Requested payments history</source>
+        <source>Requested Payments History</source>
         <translation>მოთხოვნილი გადახდების ისტორია</translation>
     </message>
     <message>

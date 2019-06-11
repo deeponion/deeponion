@@ -1892,8 +1892,8 @@
         <translation>Clear</translation>
     </message>
     <message>
-        <source>Requested payments history</source>
-        <translation>Requested payments history</translation>
+        <source>Requested Payments History</source>
+        <translation>Requested Payments History</translation>
     </message>
     <message>
         <source>&amp;Request payment</source>

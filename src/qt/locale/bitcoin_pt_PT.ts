@@ -1833,7 +1833,7 @@
         <translation>Limpar</translation>
     </message>
     <message>
-        <source>Requested payments history</source>
+        <source>Requested Payments History</source>
         <translation>Histórico de pagamentos solicitados</translation>
     </message>
     <message>

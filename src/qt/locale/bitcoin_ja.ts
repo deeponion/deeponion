@@ -1892,7 +1892,7 @@
         <translation>クリア</translation>
     </message>
     <message>
-        <source>Requested payments history</source>
+        <source>Requested Payments History</source>
         <translation>支払リクエスト履歴</translation>
     </message>
     <message>

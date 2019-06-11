@@ -1893,7 +1893,7 @@
         <translation>Vyčistiť</translation>
     </message>
     <message>
-        <source>Requested payments history</source>
+        <source>Requested Payments History</source>
         <translation>História vyžiadaných platieb</translation>
     </message>
     <message>

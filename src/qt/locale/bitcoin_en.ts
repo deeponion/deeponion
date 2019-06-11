@@ -2454,7 +2454,7 @@
     </message>
     <message>
         <location line="+142"/>
-        <source>Requested payments history</source>
+        <source>Requested Payments History</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

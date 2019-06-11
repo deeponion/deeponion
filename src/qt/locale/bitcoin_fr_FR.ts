@@ -1428,7 +1428,7 @@
         <translation>Nettoyer</translation>
     </message>
     <message>
-        <source>Requested payments history</source>
+        <source>Requested Payments History</source>
         <translation>Historique des demandes de paiements.</translation>
     </message>
     <message>
