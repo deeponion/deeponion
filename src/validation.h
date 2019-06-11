@@ -166,6 +166,7 @@ struct BlockHasher
 extern CScript COINBASE_FLAGS;
 extern CCriticalSection cs_main;
 extern CCriticalSection cs_deepsend;
+extern CCriticalSection cs_servicelist;
 extern CBlockPolicyEstimator feeEstimator;
 extern CTxMemPool mempool;
 typedef std::unordered_map<uint256, CBlockIndex*, BlockHasher> BlockMap;
@@ -1088,7 +1089,7 @@ private:
 
 
 extern CAnonymousTxInfo* pCurrentAnonymousTxInfo;
-std::map<std::string, std::string> mapAnonymousServices;
+extern std::map<std::string, std::string> mapAnonymousServices;
 
 /** DeepSend related function */
 bool AreServiceNodesAvailable();
@@ -1099,8 +1100,7 @@ bool VerifyMessageSignature(std::string message, std::string address, std::vecto
 bool FindGuarantorKey(std::map<std::string, std::string> mapSnList, std::string& guarantorKey);
 CAmount GetAvailableBalance();
 std::string GetConnectedIP(std::string key);
-int GetUpdatedServiceListCount();
-bool SelectAnonymousServiceMixNode(CNode*& pMixerNode, std::string& keyMixer, int cnt);
+bool SelectAnonymousServiceMixNode(CNode*& pMixerNode, std::string& keyMixer, int cnt, CConnman *connman);
 bool CreateMultiSigAddress();
 bool DepositToMultisig(std::string& txid);
 std::string CreateMultiSigDistributionTx();

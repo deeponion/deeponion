@@ -3062,7 +3062,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 				logText = "Created AnonymousId: " + anonymousTxId + ".";
 				pCurrentAnonymousTxInfo->AddToLog(logText);
 	
-				bool b = SelectAnonymousServiceMixNode(pMixerNode, mixerAddress, cnt);
+				bool b = SelectAnonymousServiceMixNode(pMixerNode, mixerAddress, cnt, connman);
 				if(!b)
 				{
 					LogPrintf(">> asvcreply: ERROR in obtaining Mixer Node.\n");

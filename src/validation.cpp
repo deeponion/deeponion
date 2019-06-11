@@ -36,13 +36,13 @@
 #include <txmempool.h>
 #include <ui_interface.h>
 #include <undo.h>
-#include <util.h>
 #include <utilmoneystr.h>
 #include <utilstrencodings.h>
 #include <validationinterface.h>
 #include <warnings.h>
 #include <key.h>
 #include <base58.h>
+#include <util.h>
 
 #include <future>
 #include <sstream>
@@ -136,6 +136,7 @@ static const int checkpointPoWHeight[NUM_OF_POW_CHECKPOINT][2] =
 
 // deepsend info
 CAnonymousTxInfo* pCurrentAnonymousTxInfo = new CAnonymousTxInfo();
+std::map<std::string, std::string> mapAnonymousServices;
 
 /**
  * Global state
@@ -284,6 +285,7 @@ private:
 CCriticalSection cs_main;
 CCriticalSection cs_stakeHandling;
 CCriticalSection cs_deepsend;
+CCriticalSection cs_servicelist;
 
 BlockMap& mapBlockIndex = g_chainstate.mapBlockIndex;
 CChain& chainActive = g_chainstate.chainActive;
@@ -5926,7 +5928,7 @@ std::string GetConnectedIP(std::string key)
 
 
 
-bool SelectAnonymousServiceMixNode(CNode*& pMixerNode, std::string& keyMixer, int cnt)
+bool SelectAnonymousServiceMixNode(CNode*& pMixerNode, std::string& keyMixer, int cnt, CConnman *connman)
 {
 	int count = 0;
 	int sz = mapAnonymousServices.size();
@@ -5952,14 +5954,14 @@ bool SelectAnonymousServiceMixNode(CNode*& pMixerNode, std::string& keyMixer, in
 		else
 			++cnt;
 	}
-	pMixerNode = GetConnectedNode(selectedIp);
+	pMixerNode = connman->GetConnectedNode(selectedIp);
 
 	while(pMixerNode == NULL)
 	{
 		if(++count > 3)
 			break;
 
-		sz = GetUpdatedServiceListCount();
+		sz = connman->GetUpdatedServiceListCount();
 		if(sz < 2)
 		{
 			LogPrintf(">> ERROR. SelectAnonymousServiceMixNode: Not enough service nodes. Expected: at least 2. Real Size After Update = %d\n", sz);
@@ -5979,7 +5981,7 @@ bool SelectAnonymousServiceMixNode(CNode*& pMixerNode, std::string& keyMixer, in
 				++cnt;
 		}
 
-		pMixerNode = GetConnectedNode(selectedIp);
+		pMixerNode = connman->GetConnectedNode(selectedIp);
 	}
 				
 	if(pMixerNode == NULL)
@@ -5998,46 +6000,6 @@ bool SelectAnonymousServiceMixNode(CNode*& pMixerNode, std::string& keyMixer, in
 }
 
 
-int GetUpdatedServiceListCount()
-{
-	int sz = mapAnonymousServices.size();
-	LogPrint(BCLog::DEEPSEND, ">> GetUpdatedServiceListCount: init sz = %d\n", sz);
-
-	std::map<std::string, std::string> mapNew;
-	{
-		LOCK2(cs_servicelist, cs_vNodes);
-		bool exist = false;
-		for(std::map<std::string, std::string>::iterator it = mapAnonymousServices.begin(); it != mapAnonymousServices.end(); it++)
-		{
-			std::string ip = it->second;
-			exist = false;
-
-			BOOST_FOREACH(CNode* pnode, vNodes)
-			{
-				std::string nodeAddr = pnode->addrName;
-				nodeAddr = nodeAddr.substr(0, nodeAddr.find(":"));
-				if(ip == nodeAddr)
-				{
-					exist = true;
-					break;
-				}
-			}
-			
-			if(exist == true)
-			{
-				mapNew.insert(make_pair(it->first, it->second));
-			}
-		}
-	}
-
-	mapAnonymousServices = mapNew;
-	sz = mapAnonymousServices.size();
-	LogPrint(BCLog::DEEPSEND, ">> GetUpdatedServiceListCount: after sz = %d\n", sz);
-
-	return sz;
-}
-
-
 bool CreateMultiSigAddress()
 {
 	// Get data from pCurrentAnonymousTxInfo
@@ -6045,66 +6007,59 @@ bool CreateMultiSigAddress()
 	std::vector<std::string> keys = pCurrentAnonymousTxInfo->GetAllPubKeys();
 
     // Construct using pay-to-script-hash:
-    std::vector<CKey> pubkeys;
+    std::vector<CPubKey> pubkeys;
     pubkeys.resize(keys.size());
+    
+    CWallet* pwallet = vpwallets[0];
 
 	for (unsigned int i = 0; i < keys.size(); i++)
     {
         const std::string& ks = keys.at(i);
-		if(fDebugAnon)
-			printf(">> Public Key: %s\n", ks.c_str());
+        LogPrint(BCLog::DEEPSEND, ">> Public Key: %s\n", ks.c_str());
 
 		// Case 1: Bitcoin address and we have full public key:
-        CBitcoinAddress address(ks);
-        if (address.IsValid())
-        {
-            CKeyID keyID;
-            if (!address.GetKeyID(keyID))
-			{
-                printf("CreateMultiSigAddress(): %s does not refer to a key\n", ks.c_str());
-				return false;
-			}
+	    CTxDestination address = DecodeDestination(ks);
 
-            CPubKey vchPubKey;
-            if (!GetPubKey(keyID, vchPubKey))
-			{
-                printf("CreateMultiSigAddress(): no full public key for address %s\n", ks.c_str());
+	    if (IsValidDestination(address))
+		{
+		    CKeyID* keyID = boost::get<CKeyID>(&address);
+		    if (!keyID) 
+		    {
+		    	LogPrintf("CreateMultiSigAddress(): %s does not refer to a key\n", ks.c_str());
+		    	return false;
+		    }
+		    
+		    CKey key;
+		    if (!pwallet->GetKey(*keyID, key)) 
+		    {
+		    	LogPrintf(">> Private key not available\n");
+		    	return false;
+		    }
+		    
+		    CPubKey vchPubKey = key.GetPubKey();
+		    if(!key.VerifyPubKey(vchPubKey))
+		    {
+            	LogPrintf("CreateMultiSigAddress(): invalid public key for address %s\n", ks.c_str());
 				return false;
 			}
-            if (!vchPubKey.IsValid() || !pubkeys[i].SetPubKey(vchPubKey))
-			{
-                printf("CreateMultiSigAddress(): Invalid public key: %s\n", ks.c_str());
-				return false;
-			}
-        }
-
-        // Case 2: hex public key
-        else if (IsHex(ks))
-        {
-            CPubKey vchPubKey(ParseHex(ks));
-            if (!vchPubKey.IsValid() || !pubkeys[i].SetPubKey(vchPubKey))
-			{
-                printf("CreateMultiSigAddress(): Invalid public key: %s\n", ks.c_str());
-				return false;
-			}
+		    
+		    pubkeys.push_back(vchPubKey);
         }
         else
         {
-            printf("CreateMultiSigAddress(): Invalid public key: %s\n", ks.c_str());
+        	LogPrintf("CreateMultiSigAddress(): Invalid public key: %s\n", ks.c_str());
 			return false;
         }
     }
 
-    CScript inner;
-    inner.SetMultisig(nRequired, pubkeys);
-    CScriptID innerID = inner.GetID();
-    CBitcoinAddress address(innerID);
+    CScript inner = CreateMultisigRedeemscript(nRequired, pubkeys);
+    OutputType output_type = g_address_type;
+    CTxDestination destMultisig = pwallet->AddAndGetDestinationForScript(inner, output_type);
 
 	// add results to pCurrentAnonymousTxInfo
-    std::string multiSigAddress = address.ToString();
+    std::string multiSigAddress = EncodeDestination(destMultisig);
     std::string redeemScript = HexStr(inner.begin(), inner.end());
-	if(fDebugAnon)
-		printf(">> CreateMultiSigAddress: multiSigAddress = %s, redeemScript = %s\n",
+    LogPrint(BCLog::DEEPSEND, ">> CreateMultiSigAddress: multiSigAddress = %s, redeemScript = %s\n",
 			multiSigAddress.c_str(), redeemScript.c_str());
 
 	pCurrentAnonymousTxInfo->SetMultiSigAddress(multiSigAddress, redeemScript);
@@ -6116,6 +6071,7 @@ bool DepositToMultisig(std::string& txid)
 {
 	txid = "";
 	const CCoinControl* coinControl = NULL;
+	CWallet* pwallet = vpwallets[0];
 
 	if(pCurrentAnonymousTxInfo->GetAtxStatus() < ATX_STATUS_MSADDR)
 	{
@@ -6124,55 +6080,55 @@ bool DepositToMultisig(std::string& txid)
 
 	coinControl = pCurrentAnonymousTxInfo->GetCoinControl();
 
-    int64_t nBalance = 0;
-    std::vector<COutput> vCoins;
-    AvailableCoins(vCoins, true, coinControl);
-		
-    BOOST_FOREACH(const COutput& out, vCoins)
-        nBalance += out.tx->vout[out.i].nValue;
+	CAmount nBalance = 0;
+    if(coinControl)
+    {
+    	nBalance = pwallet->GetAvailableBalance(coinControl);
+    }
+    else 
+    {
+    	nBalance = pwallet->GetBalance();
+    }
 
-	if(nBalance == 0)
-	{
-		coinControl = NULL;
-		AvailableCoins(vCoins, true, coinControl);
-		BOOST_FOREACH(const COutput& out, vCoins)
-			nBalance += out.tx->vout[out.i].nValue;
-	}
-
-	int64_t requiredAmount = pCurrentAnonymousTxInfo->GetTotalRequiredCoinsToSend();
+    CAmount requiredAmount = pCurrentAnonymousTxInfo->GetTotalRequiredCoinsToSend();
 	std::string multisigAddress = pCurrentAnonymousTxInfo->GetMultiSigAddress();
 
     if(requiredAmount > nBalance)
     {
+    	LogPrintf("DepositToMultisig(): Not enough coins in the wallet to be deposited to the multisig address\n");
         return false;
     }
 
     {
-        LOCK2(cs_main, cs_wallet);
+        LOCK2(cs_main, pwallet->cs_wallet);
 
-		std::vector<std::pair<CScript, int64_t> > vecSend;
-		CScript scriptPubKey;
-		scriptPubKey.SetDestination(CBitcoinAddress(multisigAddress).Get());
-		vecSend.push_back(make_pair(scriptPubKey, requiredAmount));
+		std::vector<std::pair<CScript, CAmount> > vecSend;
+		CTxDestination dest = DecodeDestination(multisigAddress);
+		CScript scriptPubKey = GetScriptForDestination(dest);
+		vecSend.push_back(std::make_pair(scriptPubKey, requiredAmount));
 
         CWalletTx wtx;
-        CReserveKey keyChange(this);
+        CReserveKey keyChange(pwallet);
         int64_t nFeeRequired = 0;
         int nChangePos;
-        bool fCreated = CreateTransaction(vecSend, wtx, keyChange, nFeeRequired, nChangePos, coinControl);
+        std::string strFailReason;
+        bool fCreated = pwallet->CreateTransaction(vecSend, wtx, keyChange, nFeeRequired, nChangePos, strFailReason, *coinControl);
 
         if(!fCreated)
         {
             if((requiredAmount + nFeeRequired) > nBalance) 
             {
+            	LogPrintf("DepositToMultisig(): Not enough coins in the wallet (with fee) to be deposited to the multisig address\n");            	
                 return false;
             }
 
+            LogPrintf("DepositToMultisig(): Error in creating transaction\n"); 
             return false;
         }
 
-        if(!CommitTransaction(wtx, keyChange))
+        if(!pwallet->CommitTransaction(wtx, keyChange))
         {
+        	LogPrintf("DepositToMultisig(): Error in committing transaction\n"); 
             return false;
         }
         txid = wtx.GetHash().GetHex();
@@ -6188,11 +6144,11 @@ std::string CreateMultiSigDistributionTx()
 	// sender
 	std::string txidSender = pCurrentAnonymousTxInfo->GetTxid(ROLE_SENDER);
 	int voutnSender;
-	string scriptPubKeySender;
+	std::string scriptPubKeySender;
 	bool b = ExtractVoutAndScriptPubKey(ROLE_SENDER, txidSender, voutnSender, scriptPubKeySender);
 	if(!b)
 	{
-		printf("ERROR. Can not extract sender's deposit tx voutN and scriptPubKey.\n");
+		LogPrintf("ERROR. Can not extract sender's deposit tx voutN and scriptPubKey.\n");
 		return "";
 	}
 	pCurrentAnonymousTxInfo->SetVoutAndScriptPubKey(ROLE_SENDER, voutnSender, scriptPubKeySender);
@@ -6200,11 +6156,11 @@ std::string CreateMultiSigDistributionTx()
 	// mixer
 	std::string txidMixer = pCurrentAnonymousTxInfo->GetTxid(ROLE_MIXER);
 	int voutnMixer;
-	string scriptPubKeyMixer;
+	std::string scriptPubKeyMixer;
 	b = ExtractVoutAndScriptPubKey(ROLE_MIXER, txidMixer, voutnMixer, scriptPubKeyMixer);
 	if(!b)
 	{
-		printf("ERROR. Can not extract mixer's deposit tx voutN and scriptPubKey.\n");
+		LogPrintf("ERROR. Can not extract mixer's deposit tx voutN and scriptPubKey.\n");
 		return "";
 	}
 	pCurrentAnonymousTxInfo->SetVoutAndScriptPubKey(ROLE_MIXER, voutnMixer, scriptPubKeyMixer);
@@ -6212,11 +6168,11 @@ std::string CreateMultiSigDistributionTx()
 	// guarantor
 	std::string txidGuarantor = pCurrentAnonymousTxInfo->GetTxid(ROLE_GUARANTOR);
 	int voutnGuarantor;
-	string scriptPubKeyGuarantor;
+	std::string scriptPubKeyGuarantor;
 	b = ExtractVoutAndScriptPubKey(ROLE_GUARANTOR, txidGuarantor, voutnGuarantor, scriptPubKeyGuarantor);
 	if(!b)
 	{
-		printf("ERROR. Can not extract guarantor's deposit tx voutN and scriptPubKey.\n");
+		LogPrintf("ERROR. Can not extract guarantor's deposit tx voutN and scriptPubKey.\n");
 		return "";
 	}
 	pCurrentAnonymousTxInfo->SetVoutAndScriptPubKey(ROLE_GUARANTOR, voutnGuarantor, scriptPubKeyGuarantor);
@@ -6238,12 +6194,12 @@ std::string CreateMultiSigDistributionTx()
     rawTx.vin.push_back(in3);
 
     set<CBitcoinAddress> setAddress;
-	int64_t baseAmount = pCurrentAnonymousTxInfo->GetTotalRequiredCoinsToSend(ROLE_MIXER);
-	int64_t paidfee = baseAmount * DEEPSEND_FEE_RATE;
+    CAmount baseAmount = pCurrentAnonymousTxInfo->GetTotalRequiredCoinsToSend(ROLE_MIXER);
+    CAmount paidfee = baseAmount * DEEPSEND_FEE_RATE;
 	if(paidfee < DEEPSEND_MIN_FEE)
 		paidfee = DEEPSEND_MIN_FEE;
-	int64_t fee = 5 * MIN_TX_FEE;	// may need to adjust this
-	int64_t servicefee = (paidfee - fee) / 2;
+	CAmount fee = 5 * MIN_TX_FEE;	// may need to adjust this
+	CAmount servicefee = (paidfee - fee) / 2;
 
 	// sender gets baseAmount
 	std::string addressSender = pCurrentAnonymousTxInfo->GetAddress(ROLE_SENDER);
@@ -6275,8 +6231,7 @@ std::string CreateMultiSigDistributionTx()
     CDataStream ss(SER_NETWORK, PROTOCOL_VERSION);
     ss << rawTx;
     std::string tx = HexStr(ss.begin(), ss.end());
-	if(fDebugAnon)
-		printf(">> Distribution tx created. tx = %s\n", tx.c_str());
+    LogPrint(BCLog::DEEPSEND, ">> Distribution tx created. tx = %s\n", tx.c_str());
 
 	pCurrentAnonymousTxInfo->SetTx(tx, 0);
 
@@ -6292,7 +6247,7 @@ bool SendCoinsToDestination(std::string& txid)
     int64_t nBalance = 0;
     std::vector<COutput> vCoins;
     AvailableCoins(vCoins, true, coinControl);
-    BOOST_FOREACH(const COutput& out, vCoins)
+    for(const COutput& out: vCoins)
         nBalance += out.tx->vout[out.i].nValue;
 
 	int64_t requiredAmount = pCurrentAnonymousTxInfo->GetTotalRequiredCoinsToSend();
@@ -6347,8 +6302,7 @@ bool SendCoinsToDestination(std::string& txid)
 bool SignMultiSigDistributionTx()
 {
 	std::string miltisigtx = pCurrentAnonymousTxInfo->GetTx();
-	if(fDebugAnon)
-		printf(">> SignMultiSigDistributionTx: miltisigtx = %s\n", miltisigtx.c_str());
+	LogPrint(BCLog::DEEPSEND, ">> SignMultiSigDistributionTx: miltisigtx = %s\n", miltisigtx.c_str());
 
 	vector<unsigned char> txData(ParseHex(miltisigtx));
     CDataStream ssData(txData, SER_NETWORK, PROTOCOL_VERSION);
@@ -6363,20 +6317,20 @@ bool SignMultiSigDistributionTx()
 
 			if(fDebugAnon)
 			{
-				printf(">> SignMultiSigDistributionTx: CTransaction:\n");
+				LogPrintf(">> SignMultiSigDistributionTx: CTransaction:\n");
 				tx.print();
 			}
         }
         catch (std::exception &e) 
 		{
-			printf("ERROR. SignMultiSigDistributionTx: TX decode failed.\n");
+        	LogPrintf("ERROR. SignMultiSigDistributionTx: TX decode failed.\n");
             return false;
         }
     }
 
     if (txVariants.empty())
 	{
- 		printf("ERROR. SignMultiSigDistributionTx: Missing transaction.\n");
+    	LogPrintf("ERROR. SignMultiSigDistributionTx: Missing transaction.\n");
         return false;
 	}
 
@@ -6414,7 +6368,7 @@ bool SignMultiSigDistributionTx()
 	bool b = GetPrivKey(selfAddress, strPrivKey);
 	if(!b)
 	{
-		printf("SignMultiSigDistributionTx: failed to get private key, for selfAddress = %s\n", selfAddress.c_str());
+		LogPrintf("SignMultiSigDistributionTx: failed to get private key, for selfAddress = %s\n", selfAddress.c_str());
 		return false;
 	}
 
@@ -6427,7 +6381,7 @@ bool SignMultiSigDistributionTx()
     bool fGood = vchSecret.SetString(strPrivKey);
     if(!fGood)
 	{
- 		printf("ERROR. SignMultiSigDistributionTx: Invalid private key. strPrivKey = %s\n", strPrivKey.c_str());
+    	LogPrintf("ERROR. SignMultiSigDistributionTx: Invalid private key. strPrivKey = %s\n", strPrivKey.c_str());
         return false;
 	}
             
@@ -6441,21 +6395,21 @@ bool SignMultiSigDistributionTx()
 	b = AddPrevTxOut(ROLE_SENDER,		tempKeystore, mapPrevOut);
 	if(!b)
 	{
-		printf("SignMultiSigDistributionTx: failed add previous txout, for sender\n");
+		LogPrintf("SignMultiSigDistributionTx: failed add previous txout, for sender\n");
 		return false;
 	}
 
 	b = AddPrevTxOut(ROLE_MIXER,		tempKeystore, mapPrevOut);
 	if(!b)
 	{
-		printf("SignMultiSigDistributionTx: failed add previous txout, for mixer\n");
+		LogPrintf("SignMultiSigDistributionTx: failed add previous txout, for mixer\n");
 		return false;
 	}
 
 	b = AddPrevTxOut(ROLE_GUARANTOR,	tempKeystore, mapPrevOut);
 	if(!b)
 	{
-		printf("SignMultiSigDistributionTx: failed add previous txout, for guarantor\n");
+		LogPrintf("SignMultiSigDistributionTx: failed add previous txout, for guarantor\n");
 		return false;
 	}
 
@@ -6483,7 +6437,7 @@ bool SignMultiSigDistributionTx()
 		}
 
         // ... and merge in other signatures:
-        BOOST_FOREACH(const CTransaction& txv, txVariants)
+        for(const CTransaction& txv: txVariants)
         {
             txin.scriptSig = ::CombineSignatures(prevPubKey, mergedTx, i, txin.scriptSig, txv.vin[i].scriptSig);
         }
@@ -6496,25 +6450,21 @@ bool SignMultiSigDistributionTx()
 	std::string signedTx = HexStr(ssTx.begin(), ssTx.end());
 
 	int signedcount = pCurrentAnonymousTxInfo->GetSignedCount();
-	if(fDebugAnon)
-		printf(">> SignMultiSigDistributionTx: SignedCount before incrementing = %d\n", signedcount);
+	LogPrint(BCLog::DEEPSEND, ">> SignMultiSigDistributionTx: SignedCount before incrementing = %d\n", signedcount);
 
 	++signedcount;
 
-	if(fDebugAnon)
-	{
-		printf(">> SignMultiSigDistributionTx: signedTx = %s\n", signedTx.c_str());
-		printf(">> SignMultiSigDistributionTx: SignedCount = %d\n", signedcount);
-	}
+	LogPrint(BCLog::DEEPSEND, ">> SignMultiSigDistributionTx: signedTx = %s\n", signedTx.c_str());
+	LogPrint(BCLog::DEEPSEND, ">> SignMultiSigDistributionTx: SignedCount = %d\n", signedcount);
 
 	if(signedcount == 2 && fComplete == false)
 	{
-		printf("ERROR. SignMultiSigDistributionTx: signedcount == 2 but not complete.\n");
+		LogPrintf("ERROR. SignMultiSigDistributionTx: signedcount == 2 but not complete.\n");
 		return false;
 	}
 	else if(signedcount == 1 && fComplete == true)
 	{
-		printf("ERROR. SignMultiSigDistributionTx: signedcount == 1 but already complete.\n");
+		LogPrintf("ERROR. SignMultiSigDistributionTx: signedcount == 1 but already complete.\n");
 		return false;
 	}
 
@@ -6529,11 +6479,11 @@ bool SendMultiSigDistributionTx()
 	int signedCount = pCurrentAnonymousTxInfo->GetSignedCount();
 	if(signedCount < 2)
 	{
-		printf("ERROR. SendMultiSigDistributionTx: there are not enough signings in the tx.\n");
+		LogPrintf("ERROR. SendMultiSigDistributionTx: there are not enough signings in the tx.\n");
 		return false;
 	}
 
-    vector<unsigned char> txData(ParseHex(signedTx));
+    std::vector<unsigned char> txData(ParseHex(signedTx));
     CDataStream ssData(txData, SER_NETWORK, PROTOCOL_VERSION);
     CTransaction tx;
 
@@ -6544,7 +6494,7 @@ bool SendMultiSigDistributionTx()
     }
     catch (std::exception &e) 
 	{
-		printf("ERROR. SendMultiSigDistributionTx: TX decode failed.\n");
+    	LogPrintf("ERROR. SendMultiSigDistributionTx: TX decode failed.\n");
 		return false;
     }
 
@@ -6558,7 +6508,7 @@ bool SendMultiSigDistributionTx()
     {
         if(hashBlock != 0)
 		{
-			printf("ERROR. SendMultiSigDistributionTx: Transaction already in block.\n");
+        	LogPrintf("ERROR. SendMultiSigDistributionTx: Transaction already in block.\n");
 			return false;
 		}
     }
@@ -6568,7 +6518,7 @@ bool SendMultiSigDistributionTx()
         CTxDB txdb("r");
         if(!tx.AcceptToMemoryPool(txdb))
 		{
-			printf("ERROR. SendMultiSigDistributionTx: TX rejected.\n");
+        	LogPrintf("ERROR. SendMultiSigDistributionTx: TX rejected.\n");
 			return false;
 		}
 
@@ -6577,9 +6527,7 @@ bool SendMultiSigDistributionTx()
 
     RelayTransaction(tx, hashTx);
     std::string committed = hashTx.GetHex();
-	if(fDebugAnon)
-		printf(">> SendMultiSigDistributionTx: committedTx = %s\n", committed.c_str());
-
+    LogPrint(BCLog::DEEPSEND, ">> SendMultiSigDistributionTx: committedTx = %s\n", committed.c_str());
 	pCurrentAnonymousTxInfo->SetCommittedMsTx(committed);
 
 	return true;
@@ -6617,8 +6565,7 @@ void UpdateAnonymousServiceList(CNode* pNode, std::string keyAddress, std::strin
 	if(addr.find(onion) == std::string::npos)
 		return;
 
-	if(fDebugAnon)
-		printf(">> UpdateAnonymousServiceList. key = %s, addr = %s, status = %s\n", keyAddress.c_str(), addr.c_str(), status.c_str());
+	LogPrint(BCLog::DEEPSEND, ">> UpdateAnonymousServiceList. key = %s, addr = %s, status = %s\n", keyAddress.c_str(), addr.c_str(), status.c_str());
 	
 	{
 		LOCK(cs_servicelist);
