@@ -3380,7 +3380,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 
 			// may need to do it in sequence
 			// deposit amount to multisig address
-			bool b = DepositToMultisig(txid);
+			bool b = DepositToMultisig(txid, connman);
 			if(!b)
 			{
 				LogPrintf("ERROR. Error to deposit money to escrow.\n");
@@ -3452,7 +3452,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 			if((pCurrentAnonymousTxInfo->GetRole() == ROLE_GUARANTOR) && (sourceRole == ROLE_SENDER))
 			{
 				std::string txid0;
-				bool b = DepositToMultisig(txid0);
+				bool b = DepositToMultisig(txid0, connman);
 				if(!b)
 				{
 					LogPrintf("ERROR. Error to deposit money to escrow from guarantor.\n");
@@ -3625,7 +3625,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 			if(pCurrentAnonymousTxInfo->GetRole() == ROLE_MIXER)
 			{
 				std::string sendtxid;
-				bool b = SendCoinsToDestination(sendtxid);
+				bool b = SendCoinsToDestination(sendtxid, connman);
 				if(!b)
 				{
 					LogPrintf("ERROR. Can't send coins to destination.\n");
@@ -3801,7 +3801,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 				pCurrentAnonymousTxInfo->AddToLog(logText);
 
 				// now send the signed tx
-				b = SendMultiSigDistributionTx();
+				b = SendMultiSigDistributionTx(connman);
 				if(!b)
 				{
 					LogPrintf("ERROR. Sender can't send multisig distribution tx.\n");
@@ -3893,7 +3893,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 		std::string status;
 		std::string keyAddress;
         vRecv >> keyAddress >> status;
-		UpdateAnonymousServiceList(pfrom, keyAddress, status);
+		UpdateAnonymousServiceList(pfrom, keyAddress, status, connman);
 	}
 
     else if (strCommand == NetMsgType::NOTFOUND) {
@@ -3905,8 +3905,6 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
         // Ignore unknown commands for extensibility
         LogPrint(BCLog::NET, "Unknown command \"%s\" from peer=%d\n", SanitizeString(strCommand), pfrom->GetId());
     }
-
-
 
     return true;
 }

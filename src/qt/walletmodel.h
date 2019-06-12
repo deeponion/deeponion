@@ -233,6 +233,10 @@ public:
     OutputType getDefaultAddressType() const;
 
     int getDefaultConfirmTarget() const;
+    
+    //deepsend
+    bool AreServiceNodesAvailable();
+    bool IsAnotherDeepSendInProcess();
 
     QString getBlockchainStatusText();
     QString getBlockchainStatusDetailsText();

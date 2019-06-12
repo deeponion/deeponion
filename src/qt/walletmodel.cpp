@@ -947,3 +947,22 @@ QString WalletModel::getBlockchainTextStylesheet()
 
 	return stylesheet;
 }
+
+
+bool WalletModel::AreServiceNodesAvailable()
+{
+	bool b = false;
+	if(g_connman->GetUpdatedServiceListCount() > 1)
+		b = true;
+
+	return b; 
+}
+
+
+bool WalletModel::IsAnotherDeepSendInProcess()
+{
+	return IsCurrentAnonymousTxInProcess();
+}
+
+
+

@@ -30,19 +30,21 @@
 
 #include <atomic>
 
+class CBasicKeyStore;
 class CBlockIndex;
+class CBlockPolicyEstimator;
 class CBlockTreeDB;
 class CChainParams;
+class CCoinControl;
 class CCoinsViewDB;
-class CInv;
 class CConnman;
+class CInv;
+class CNode;
 class CScriptCheck;
-class CBlockPolicyEstimator;
 class CTxMemPool;
 class CValidationState;
-class CNode;
-class CCoinControl;
 class CWallet;
+
 struct ChainTxData;
 
 struct PrecomputedTransactionData;
@@ -742,27 +744,7 @@ public:
 
 	std::string GetSelfAddress() const
 	{
-		std::string address = "";
-
-		switch (role)
-		{
-			case ROLE_SENDER:
-				address = addressSender;
-				break;
-
-			case ROLE_MIXER:
-				address = addressMixer;
-				break;
-
-			case ROLE_GUARANTOR:
-				address = addressGuarantor;
-				break;
-				
-			case ROLE_UNKNOWN:
-				break;
-		}
-
-		return address;
+		return GetAddress(role);
 	}
 
 	std::string GetAddress(AnonymousTxRole role0) const
@@ -1088,26 +1070,27 @@ private:
 };
 
 
+static const int MAX_ALLOWED_ASLIST_SIZE = 32;
 extern CAnonymousTxInfo* pCurrentAnonymousTxInfo;
 extern std::map<std::string, std::string> mapAnonymousServices;
 
 /** DeepSend related function */
-bool AreServiceNodesAvailable();
-bool IsAnotherDeepSendInProcess();
-bool IsCurrentAnonymousTxInProcess();
-bool SignMessageUsingAddress(std::string message, std::string address, std::vector<unsigned char>& vchSig);
-bool VerifyMessageSignature(std::string message, std::string address, std::vector<unsigned char> vchSig);
+bool AddPrevTxOut(AnonymousTxRole role, CBasicKeyStore& tempKeystore, std::map<COutPoint, CScript>& mapPrevOut);
+bool CheckAnonymousServiceConditions();
+bool CreateMultiSigAddress();
+std::string CreateMultiSigDistributionTx();
+bool DepositToMultisig(std::string& txid, CConnman *connman);
+bool ExtractVoutAndScriptPubKey(AnonymousTxRole role, std::string txid, int& voutn, std::string& hexScriptPubKey);
 bool FindGuarantorKey(std::map<std::string, std::string> mapSnList, std::string& guarantorKey);
 CAmount GetAvailableBalance();
 std::string GetConnectedIP(std::string key);
+bool IsCurrentAnonymousTxInProcess();
 bool SelectAnonymousServiceMixNode(CNode*& pMixerNode, std::string& keyMixer, int cnt, CConnman *connman);
-bool CreateMultiSigAddress();
-bool DepositToMultisig(std::string& txid);
-std::string CreateMultiSigDistributionTx();
-bool SendCoinsToDestination(std::string& txid);
+bool SendCoinsToDestination(std::string& txid, CConnman *connman);
+bool SendMultiSigDistributionTx(CConnman *connman);
+bool SignMessageUsingAddress(std::string message, std::string address, std::vector<unsigned char>& vchSig);
 bool SignMultiSigDistributionTx();
-bool SendMultiSigDistributionTx();
-void UpdateAnonymousServiceList(CNode* pNode, std::string keyAddress, std::string status);
-
+void UpdateAnonymousServiceList(CNode* pNode, std::string keyAddress, std::string status, CConnman *connman);
+bool VerifyMessageSignature(std::string message, std::string address, std::vector<unsigned char> vchSig);
 
 #endif // BITCOIN_VALIDATION_H

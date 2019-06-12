@@ -1203,7 +1203,8 @@ public:
      */
     CTxDestination AddAndGetDestinationForScript(const CScript& script, OutputType);
     
-    std::string GetSelfAddress();
+    int GetSelfAddressCount();
+    std::string GetOneSelfAddress();
     std::string GetAddressPubKey(std::string strAddress);
 };
 

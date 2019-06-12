@@ -2925,3 +2925,12 @@ int CConnman::GetUpdatedServiceListCount()
 
 	return sz;
 }
+
+
+void CConnman::AddToVNodes(CNode* pNode)
+{
+	LOCK(cs_vNodes);
+	vNodes.push_back(pNode);
+}
+
+
