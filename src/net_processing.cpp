@@ -30,6 +30,7 @@
 #include <util.h>
 #include <utilmoneystr.h>
 #include <utilstrencodings.h>
+#include <wallet/wallet.h>
 
 #if defined(NDEBUG)
 # error "DeepOnion cannot be compiled without assertions."
@@ -4289,6 +4290,21 @@ bool PeerLogicValidation::SendMessages(CNode* pto, std::atomic<bool>& interruptM
             if (pto->vAddrToSend.capacity() > 40)
                 pto->vAddrToSend.shrink_to_fit();
         }
+        
+        //
+        // Message: deepsend announcement
+        //
+    	CWallet* pwallet = vpwallets[0];
+        bool b = CheckAnonymousServiceConditions();
+		std::string selfAddress = pwallet->GetOneSelfAddress();
+
+		LogPrint(BCLog::DEEPSEND, ">> broadcasting mixservice messages... b = %d\n", b);
+        std::string status = "false";
+        if(b && selfAddress != "")
+        	 status = "true";
+
+        connman->PushMessage(pto, msgMaker.Make(NetMsgType::DS_SERVICEANN, selfAddress, status));
+
 
         // Start block sync
         if (pindexBestHeader == nullptr)

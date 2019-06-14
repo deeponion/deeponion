@@ -90,7 +90,26 @@ const static std::string allNetMessageTypes[] = {
     NetMsgType::CMPCTBLOCK,
     NetMsgType::GETBLOCKTXN,
     NetMsgType::BLOCKTXN,
+    NetMsgType::DS_SVCAVAIL,
+    NetMsgType::DS_SVCREPLY,
+    NetMsgType::DS_MIXREQ,
+    NetMsgType::DS_MIXREPLY,
+    NetMsgType::DS_GRNTREQ,
+    NetMsgType::DS_GRNTREPLY,
+    NetMsgType::DS_CHKGRNT,
+    NetMsgType::DS_CHKGRNTRPLY,
+    NetMsgType::DS_MSIGADDR,
+    NetMsgType::DS_MSIGADDRRPLY,
+    NetMsgType::DS_CHKMSTX,
+    NetMsgType::DS_MSDISTTX,
+    NetMsgType::DS_MSTXRELAY,
+    NetMsgType::DS_DSTTXCMPLT,
+    NetMsgType::DS_CHKDSTTXRELAY,
+    NetMsgType::DS_CHKDSTTXREQ,
+    NetMsgType::DS_SENDCMPLT,
+    NetMsgType::DS_SERVICEANN,
 };
+
 const static std::vector<std::string> allNetMessageTypesVec(allNetMessageTypes, allNetMessageTypes+ARRAYLEN(allNetMessageTypes));
 
 CMessageHeader::CMessageHeader(const MessageStartChars& pchMessageStartIn)

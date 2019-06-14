@@ -5496,7 +5496,9 @@ std::string CWallet::GetOneSelfAddress()
 	// we want to get a self address. it doesn't matter which address we get, 
 	// whether it is an address in the sending selected coins or not.
 
-	std::string selfAddress = "";
+	if(oneSelfAddress != "")
+		return oneSelfAddress;
+	
     std::map<CTxDestination, CAmount> balances = GetAddressBalances();
     bool done = false;
     
@@ -5504,7 +5506,7 @@ std::string CWallet::GetOneSelfAddress()
         for (const CTxDestination& address: grouping)
         {
         	if(balances[address] > COIN) {
-        		selfAddress = EncodeDestination(address);
+        		oneSelfAddress = EncodeDestination(address);
         		done = true;
         		break;
         	}
@@ -5514,7 +5516,7 @@ std::string CWallet::GetOneSelfAddress()
         	break;
     }	
 
-	return selfAddress;
+	return oneSelfAddress;
 }
 
 

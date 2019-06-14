@@ -711,6 +711,8 @@ private:
     int64_t nNextResend;
     int64_t nLastResend;
     bool fBroadcastTransactions;
+    
+    std::string oneSelfAddress;
 
     /**
      * Used to keep track of spent outpoints, and
@@ -848,6 +850,7 @@ public:
         nRelockTime = 0;
         fAbortRescan = false;
         fScanningWallet = false;
+        oneSelfAddress = "";
     }
 
     std::map<uint256, CWalletTx> mapWallet;
