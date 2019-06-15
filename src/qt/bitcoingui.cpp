@@ -999,7 +999,10 @@ void BitcoinGUI::updateStakingIcon()
 void BitcoinGUI::updateMixerIcon()
 {
 	bool b = false;
-    int cnt = g_connman->GetUpdatedServiceListCount();
+    int cnt = 1;
+    if(g_connman)
+    	cnt = g_connman->GetUpdatedServiceListCount();
+    
     if(cnt > 1)
 		b = true;
 
