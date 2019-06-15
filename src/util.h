@@ -389,7 +389,7 @@ inline uint32_t ByteReverse(uint32_t value)
 }
 
 // deepsend related
-static const CAmount MIN_ANON_SERVICE_COIN = 30 * COIN;	
+static const CAmount MIN_ANON_SERVICE_COIN = 5 * COIN;	
 static const double DEEPSEND_FEE_RATE = 0.01;
 static const CAmount DEEPSEND_MIN_FEE = 0.01 * COIN;
 
