@@ -245,6 +245,11 @@ BitcoinGUI::BitcoinGUI(const PlatformStyle *_platformStyle, const NetworkStyle *
     labelStakingIcon->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getStatusBarBackgroundColor());
     labelStakingIcon->setMinimumWidth(statusIconLabelHeight);
     labelStakingIcon->setMinimumHeight(statusIconLabelHeight);
+    
+    labelMixerIcon = new QLabel();
+    labelMixerIcon->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getStatusBarBackgroundColor());
+    labelMixerIcon->setMinimumWidth(statusIconLabelHeight);
+    labelMixerIcon->setMinimumHeight(statusIconLabelHeight);
 
     labelOnionIcon = new QLabel();
     labelOnionIcon->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getStatusBarBackgroundColor());
@@ -268,16 +273,20 @@ BitcoinGUI::BitcoinGUI(const PlatformStyle *_platformStyle, const NetworkStyle *
     frameBlocksLayout->addStretch();
     frameBlocksLayout->addWidget(labelBlocksIcon);
     frameBlocksLayout->addStretch();
+    frameBlocksLayout->addWidget(labelMixerIcon);
+    frameBlocksLayout->addStretch();
 
     // Staking icon 
-    
-    //if (GetBoolArg("-staking", true))
-    //{
-        QTimer *timerStakingIcon = new QTimer(labelStakingIcon);
-        connect(timerStakingIcon, SIGNAL(timeout()), this, SLOT(updateStakingIcon()));
-        timerStakingIcon->start(1000);
-        updateStakingIcon();
-    //}
+	QTimer *timerStakingIcon = new QTimer(labelStakingIcon);
+  	connect(timerStakingIcon, SIGNAL(timeout()), this, SLOT(updateStakingIcon()));
+	timerStakingIcon->start(1000);
+	updateStakingIcon();
+        
+	// Mixer icon
+	QTimer *timerMixerIcon = new QTimer(labelMixerIcon);
+	connect(timerMixerIcon, SIGNAL(timeout()), this, SLOT(updateMixerIcon()));
+	timerMixerIcon->start(30 * 1000);
+	updateMixerIcon();
    
     // TOR icon
     QTimer *timerOnionIcon = new QTimer(labelOnionIcon);
@@ -984,6 +993,37 @@ void BitcoinGUI::updateStakingIcon()
             labelStakingIcon->setToolTip(tr("Not staking because you don't have mature coins"));
         else
             labelStakingIcon->setToolTip(tr("Not staking"));
+    }
+}
+
+void BitcoinGUI::updateMixerIcon()
+{
+	bool b = false;
+	int cnt = 0;
+    if(pwalletMain)
+	{
+		cnt = pwalletMain->GetUpdatedServiceListCount();
+        if(cnt > 1)
+			b = true;
+	}
+
+	if(b)
+	{
+		if(pwalletMain->IsCurrentAnonymousTxInProcess())
+		{
+			labelMixerIcon->setPixmap(QIcon(":/icons/mixer_process").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
+			labelMixerIcon->setToolTip(tr("Anonymous DeepSend Currently Processing"));
+		}
+		else
+		{
+			labelMixerIcon->setPixmap(QIcon(":/icons/mixer_on").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
+			labelMixerIcon->setToolTip(tr("Anonymous DeepSend Available. %1 Anonymous Service Nodes Available").arg(cnt));
+		}
+    }
+    else
+    {
+        labelMixerIcon->setPixmap(QIcon(":/icons/mixer_off").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
+		labelMixerIcon->setToolTip(tr("DeepSend Not Available - You Do Not Have Enough Service Nodes Connected"));
     }
 }
 

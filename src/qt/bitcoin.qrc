@@ -89,6 +89,9 @@
     <file alias="arrow_down_white">res/icons/arrowdown-white.png</file>
     <file alias="deepVaultLogoWhite">res/icons/dv-white-logo.png</file>
     <file alias="deepVaultLogoColor">res/icons/dv-color-logo.png</file>
+    <file alias="mixer_off">res/icons/mixer_off.png</file>
+    <file alias="mixer_process">res/icons/mixer_process.png</file>
+    <file alias="mixer_on">res/icons/mixer_on.png</file>        
 	<file alias="deepsend">res/icons/deepsend.png</file>
   </qresource>
   <qresource prefix="/icons/purple">
