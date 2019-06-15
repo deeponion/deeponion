@@ -999,17 +999,13 @@ void BitcoinGUI::updateStakingIcon()
 void BitcoinGUI::updateMixerIcon()
 {
 	bool b = false;
-	int cnt = 0;
-    if(pwalletMain)
-	{
-		cnt = pwalletMain->GetUpdatedServiceListCount();
-        if(cnt > 1)
-			b = true;
-	}
+    int cnt = g_connman->GetUpdatedServiceListCount();
+    if(cnt > 1)
+		b = true;
 
 	if(b)
 	{
-		if(pwalletMain->IsCurrentAnonymousTxInProcess())
+		if(IsCurrentAnonymousTxInProcess())
 		{
 			labelMixerIcon->setPixmap(QIcon(":/icons/mixer_process").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
 			labelMixerIcon->setToolTip(tr("Anonymous DeepSend Currently Processing"));
