@@ -1799,7 +1799,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
         if(b && selfAddress != "")
         	 status = "true";
 
-        connman->PushMessage(pto, msgMaker.Make(NetMsgType::DS_SERVICEANN, selfAddress, status));
+        connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::DS_SERVICEANN, selfAddress, status));
     }
 
     else if (!pfrom->fSuccessfullyConnected)
