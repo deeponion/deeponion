@@ -23,6 +23,54 @@ BITCOIN_INCLUDES=-I$(builddir) $(BDB_CPPFLAGS) $(BOOST_CPPFLAGS) $(LEVELDB_CPPFL
 BITCOIN_INCLUDES += -I$(srcdir)/secp256k1/include
 BITCOIN_INCLUDES += $(UNIVALUE_CFLAGS)
 
+TOR_UTIL_LIBS = \
+  tor/src/lib/libtor-geoip.a \
+	$(abs_top_builddir)/tor/src/lib/libtor-process.a \
+	$(abs_top_builddir)/tor/src/lib/libtor-time.a \
+	$(abs_top_builddir)/tor/src/lib/libtor-fs.a \
+	$(abs_top_builddir)/tor/src/lib/libtor-encoding.a \
+	$(abs_top_builddir)/tor/src/lib/libtor-sandbox.a \
+	$(abs_top_builddir)/tor/src/lib/libtor-container.a \
+	$(abs_top_builddir)/tor/src/lib/libtor-net.a \
+	$(abs_top_builddir)/tor/src/lib/libtor-thread.a \
+	$(abs_top_builddir)/tor/src/lib/libtor-memarea.a \
+	$(abs_top_builddir)/tor/src/lib/libtor-math.a \
+	$(abs_top_builddir)/tor/src/lib/libtor-meminfo.a \
+	$(abs_top_builddir)/tor/src/lib/libtor-osinfo.a \
+	$(abs_top_builddir)/tor/src/lib/libtor-log.a \
+	$(abs_top_builddir)/tor/src/lib/libtor-lock.a \
+	$(abs_top_builddir)/tor/src/lib/libtor-fdio.a \
+	$(abs_top_builddir)/tor/src/lib/libtor-string.a \
+	$(abs_top_builddir)/tor/src/lib/libtor-term.a \
+	$(abs_top_builddir)/tor/src/lib/libtor-smartlist-.a \
+	$(abs_top_builddir)/tor/src/lib/libtor-malloc.a \
+	$(abs_top_builddir)/tor/src/lib/libtor-wallclock.a \
+	$(abs_top_builddir)/tor/src/lib/libtor-err.a \
+	$(abs_top_builddir)/tor/src/lib/libtor-intmath.a \
+	$(abs_top_builddir)/tor/src/lib/libtor-ctime.a
+
+LIBED25519_REF10 = $(abs_top_builddir)/tor/src/ext/ed25519/ref10/libed25519_ref10.a
+LIBED25519_DONNA = $(abs_top_builddir)/tor/src/ext/ed25519/donna/libed25519_donna.a
+LIBKECCAK_TINY = $(abs_top_builddir)/tor/src/ext/keccak-tiny/libkeccak-tiny.a
+LIBDONNA = $(abs_top_builddir)/tor/src/lib/libcurve25519_donna.a \
+  $(LIBED25519_REF10) \
+  $(LIBED25519_DONNA)
+
+TOR_CRYPTO_LIBS = \
+	tor/src/lib/libtor-tls.a \
+	$(abs_top_builddir)/tor/src/lib/libtor-crypt-ops.a \
+	$(LIBKECCAK_TINY) \
+	$(LIBDONNA)
+
+TOR_LIBS = \
+	tor/src/core/libtor-app.a \
+	$(abs_top_builddir)/tor/src/lib/libtor-compress.a \
+	$(abs_top_builddir)/tor/src/lib/libtor-evloop.a \
+	$(abs_top_builddir)/$(TOR_CRYPTO_LIBS) \
+	$(abs_top_builddir)/$(TOR_UTIL_LIBS) \
+	$(abs_top_builddir)/tor/src/trunnel/libor-trunnel.a \
+	$(abs_top_builddir)/tor/src/lib/libtor-trace.a
+
 LIBBITCOIN_SERVER=libbitcoin_server.a
 LIBBITCOIN_COMMON=libbitcoin_common.a
 LIBBITCOIN_CONSENSUS=libbitcoin_consensus.a
@@ -447,16 +495,7 @@ DeepOniond_LDADD = \
   $(LIBSECP256K1)
 
 # Linking with Tor TODO: cap seccomp and z should be added using Autoconf really
-DeepOniond_LDADD += $(abs_top_builddir)/tor/src/or/libtor.a \
-        $(abs_top_builddir)/tor/src/common/libor.a \
-        $(abs_top_builddir)/tor/src/common/libor-ctime.a \
-        $(abs_top_builddir)/tor/src/common/libor-crypto.a \
-        $(abs_top_builddir)/tor/src/common/libor-event.a \
-        $(abs_top_builddir)/tor/src/trunnel/libor-trunnel.a \
-        $(abs_top_builddir)/tor/src/common/libcurve25519_donna.a \
-        $(abs_top_builddir)/tor/src/ext/ed25519/donna/libed25519_donna.a \
-        $(abs_top_builddir)/tor/src/ext/ed25519/ref10/libed25519_ref10.a \
-        $(abs_top_builddir)/tor/src/ext/keccak-tiny/libkeccak-tiny.a \
+DeepOniond_LDADD += $(abs_top_builddir)/$(TOR_LIBS) \
         $(LIBSECCOMP_LIBS) $(LIBCAP_LIBS) $(ZLIB_LIBS)
 
 DeepOniond_LDADD += $(BOOST_LIBS) $(BDB_LIBS) $(SSL_LIBS) $(CRYPTO_LIBS) $(MINIUPNPC_LIBS) $(EVENT_PTHREADS_LIBS) $(EVENT_LIBS) $(ZMQ_LIBS)
