@@ -6673,7 +6673,7 @@ void UpdateAnonymousServiceList(CNode* pNode, std::string keyAddress, std::strin
 		return;
 
 	LogPrint(BCLog::DEEPSEND, ">> UpdateAnonymousServiceList. key = %s, addr = %s, status = %s\n", keyAddress.c_str(), addr.c_str(), status.c_str());
-	
+	LogPrint(BCLog::DEEPSEND, ">> DeepSend List current size: %d\n", mapAnonymousServices.size());
 	{
 		LOCK(cs_servicelist);
 		std::map<std::string, std::string>::iterator it = mapAnonymousServices.find(keyAddress);
@@ -6696,6 +6696,7 @@ void UpdateAnonymousServiceList(CNode* pNode, std::string keyAddress, std::strin
 				}
 				
 				mapAnonymousServices.insert(make_pair(keyAddress, addr));
+				LogPrint(BCLog::DEEPSEND, ">> insert new address to mapAnonymousServices\n");
 			}
 			else	// already exist
 			{
@@ -6709,15 +6710,21 @@ void UpdateAnonymousServiceList(CNode* pNode, std::string keyAddress, std::strin
 					}
 
 					mapAnonymousServices.insert(std::make_pair(keyAddress, addr));
+					LogPrint(BCLog::DEEPSEND, ">> erase and reinsert address to mapAnonymousServices, due to address change\n");
 				}
 			}
 		}
 		else
 		{
-			if(it != mapAnonymousServices.end())
+			if(it != mapAnonymousServices.end()) 
+			{
 				mapAnonymousServices.erase(it);
+				LogPrint(BCLog::DEEPSEND, ">> erase address from mapAnonymousServices, as service no longer available\n");
+			}
 		}
 	}
+	
+	LogPrint(BCLog::DEEPSEND, ">> DeepSend List size after update: %d\n", mapAnonymousServices.size());
 }
 
 
