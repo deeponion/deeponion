@@ -42,7 +42,7 @@ TOR_UTIL_LIBS = \
 	$(abs_top_builddir)/tor/src/lib/libtor-fdio.a \
 	$(abs_top_builddir)/tor/src/lib/libtor-string.a \
 	$(abs_top_builddir)/tor/src/lib/libtor-term.a \
-	$(abs_top_builddir)/tor/src/lib/libtor-smartlist-.a \
+	$(abs_top_builddir)/tor/src/lib/libtor-smartlist-core.a \
 	$(abs_top_builddir)/tor/src/lib/libtor-malloc.a \
 	$(abs_top_builddir)/tor/src/lib/libtor-wallclock.a \
 	$(abs_top_builddir)/tor/src/lib/libtor-err.a \
