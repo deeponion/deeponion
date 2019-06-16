@@ -3395,7 +3395,11 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 
 			// may need to do it in sequence
 			// deposit amount to multisig address
-			bool b = DepositToMultisig(txid, connman);
+			
+			// bool b = DepositToMultisig(txid, connman);
+			// for test only now, remove next line when previous messages are good and uncomment above deposit call.
+			b = false;
+			
 			if(!b)
 			{
 				LogPrintf("ERROR. Error to deposit money to escrow.\n");
