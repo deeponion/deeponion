@@ -5389,7 +5389,7 @@ void CAnonymousTxInfo::SetNewData(std::string anonymousId0, CNode* pMixerNode, C
 }
 
 
-bool CAnonymousTxInfo::SetInitialData(AnonymousTxRole role, std::vector< std::pair<std::string, int64_t> > vecSendInfo0, const CCoinControl* pCoinControl0,
+bool CAnonymousTxInfo::SetInitialData(AnonymousTxRole role, std::vector< std::pair<std::string, CAmount> > vecSendInfo0, const CCoinControl* pCoinControl0,
 		CNode* pSendNode, CNode* pMixerNode, CNode* pGuarantorNode)
 {
 	lastActivityTime = GetTime();
@@ -6755,6 +6755,61 @@ bool IsCurrentAnonymousTxInProcess()
 		}
 	}
 	return b;
+}
+
+
+bool StartP2pMixerSendProcess(std::vector< std::pair<std::string, CAmount> > vecSendInfo, const CCoinControl *coinControl)
+{
+	CNode* pMixerNode = NULL;
+	std::string keyMixer = "";
+	std::string ipMixer = "";
+	std::string anonymousTxId = "";
+	std::string selfAddress = "";
+	bool b = false;
+
+	{
+		LOCK(cs_deepsend);
+		if(IsCurrentAnonymousTxInProcess())
+		{
+			printf(">> ERROR another active anonymous tx is in progress.\n");
+			return false;
+		}
+		pCurrentAnonymousTxInfo->clean(true);
+
+		// first find a mixer
+		b = SelectAnonymousServiceMixNode(pMixerNode, keyMixer, 0, &(*g_connman));
+		if(!b)
+		{
+			printf(">> ERROR in obtaining Mixer Node.\n");
+			return false;
+		}
+
+		// now save send info
+		pCurrentAnonymousTxInfo->SetInitialData(ROLE_SENDER, vecSendInfo, coinControl, NULL, pMixerNode, NULL);
+
+		// send check-availability message 1st
+		anonymousTxId = pCurrentAnonymousTxInfo->GetAnonymousId();
+		selfAddress = pCurrentAnonymousTxInfo->GetSelfAddress();
+	}
+		
+	int64_t baseAmount = 0;
+	for(int i = 0; i < vecSendInfo.size(); i++)
+		baseAmount += vecSendInfo.at(i).second;
+
+	std::vector<unsigned char> vchSig;
+	b = SignMessageUsingAddress(selfAddress, selfAddress, vchSig);
+	if(!b) 
+	{
+		printf(">> StartP2pMixerSendProcess. ERROR can't sign the selfAddress message.\n");
+		return false;
+	}
+
+	int cnt = 1;
+	const CNetMsgMaker msgMaker(pMixerNode->GetSendVersion());
+	g_connman->PushMessage(pMixerNode, msgMaker.Make(NetMsgType::DS_SVCAVAIL, anonymousTxId, selfAddress, 
+			mapAnonymousServices, baseAmount, cnt, vchSig));
+
+	return true;
 }
 
 

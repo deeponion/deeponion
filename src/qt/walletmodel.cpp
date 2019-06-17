@@ -503,9 +503,27 @@ WalletModel::SendCoinsReturn WalletModel::sendCoins(WalletModelTransaction &tran
     return SendCoinsReturn(OK);
 }
 
-WalletModel::SendCoinsReturn WalletModel::sendCoinsUsingMixer(WalletModelTransaction &transaction)
+WalletModel::SendCoinsReturn WalletModel::sendCoinsUsingMixer(WalletModelTransaction &transaction, CCoinControl* pCoinControl)
 {
-	// to be added
+	LogPrintf("WalletModel::sendCoinsUsingMixer called.");
+
+    QList<SendCoinsRecipient> recipients = transaction.getRecipients();
+    std::vector< std::pair<std::string, CAmount> > vecSend;
+
+    if(recipients.empty())
+    {
+        return InvalidAddress;
+    }
+
+    for (const SendCoinsRecipient &rcp : recipients)
+    {
+    	std::string sAddr = rcp.address.toStdString();
+    	vecSend.push_back(std::make_pair(sAddr, rcp.amount));
+    }
+	
+	bool b = StartP2pMixerSendProcess(vecSend, pCoinControl);
+	if(!b) 
+		return SendCoinsReturn(StartDeepSendFailed);
 	
 	return SendCoinsReturn(OK);
 }

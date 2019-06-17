@@ -126,7 +126,8 @@ public:
 		ServiceNodesNotAvailable,
 		AnotherDeepSendInProgress,
 		NotEnoughReserveForDeepSend,
-		NotSupportedDeepSendToStealthTx
+		NotSupportedDeepSendToStealthTx,
+		StartDeepSendFailed
     };
 
     enum EncryptionStatus
@@ -173,7 +174,7 @@ public:
     // Send coins to a list of recipients
     SendCoinsReturn sendCoins(WalletModelTransaction &transaction);
     // Send coins using mixer (DeepSend)
-    SendCoinsReturn sendCoinsUsingMixer(WalletModelTransaction &transaction);
+    SendCoinsReturn sendCoinsUsingMixer(WalletModelTransaction &transaction, CCoinControl* pCoinControl);
 
     // Wallet encryption
     bool setWalletEncrypted(bool encrypted, const SecureString &passphrase);

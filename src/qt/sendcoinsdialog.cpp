@@ -387,7 +387,7 @@ void SendCoinsDialog::on_sendButton_clicked()
     WalletModel::SendCoinsReturn sendStatus;
     
     if(CoinControlDialog::coinControl()->GetDeepSend())
-    	sendStatus = model->sendCoinsUsingMixer(currentTransaction);
+    	sendStatus = model->sendCoinsUsingMixer(currentTransaction, &ctrl);
     else
     	sendStatus = model->sendCoins(currentTransaction);
     
@@ -615,6 +615,9 @@ void SendCoinsDialog::processSendCoinsReturn(const WalletModel::SendCoinsReturn 
         break;
     case WalletModel::NotSupportedDeepSendToStealthTx:
         msgParams.first = tr("You can use DeepSend or StealthAddress, but not both.");
+        break;
+    case WalletModel::StartDeepSendFailed:
+        msgParams.first = tr("StartP2pMixerSendProcess failed.");
         break;
       
     // included to prevent a compiler warning.
