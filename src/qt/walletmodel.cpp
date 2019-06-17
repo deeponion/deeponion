@@ -347,7 +347,7 @@ WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransact
 		}
 
 		// check if there are mixer/garantor available
-		if(AreServiceNodesAvailable())
+		if(!AreServiceNodesAvailable())
 		{
 			return ServiceNodesNotAvailable;
 		}
