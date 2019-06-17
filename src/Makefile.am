@@ -47,7 +47,13 @@ TOR_UTIL_LIBS = \
 	$(abs_top_builddir)/tor/src/lib/libtor-wallclock.a \
 	$(abs_top_builddir)/tor/src/lib/libtor-err.a \
 	$(abs_top_builddir)/tor/src/lib/libtor-intmath.a \
-	$(abs_top_builddir)/tor/src/lib/libtor-ctime.a
+        $(abs_top_builddir)/tor/src/lib/libtor-ctime.a \
+        $(abs_top_builddir)/tor/src/lib/libtor-version.a \
+        $(abs_top_builddir)/tor/src/lib/libtor-buf.a \
+        $(abs_top_builddir)/tor/src/lib/libtor-pubsub.a \
+        $(abs_top_builddir)/tor/src/lib/libtor-dispatch.a \
+        $(abs_top_builddir)/tor/src/lib/libtor-container.a
+
 
 LIBED25519_REF10 = $(abs_top_builddir)/tor/src/ext/ed25519/ref10/libed25519_ref10.a
 LIBED25519_DONNA = $(abs_top_builddir)/tor/src/ext/ed25519/donna/libed25519_donna.a
@@ -63,7 +69,7 @@ TOR_CRYPTO_LIBS = \
 	$(LIBDONNA)
 
 TOR_LIBS = \
-	tor/src/core/libtor-app.a \
+        $(abs_top_builddir)/tor/src/core/libtor-app.a \
 	$(abs_top_builddir)/tor/src/lib/libtor-compress.a \
 	$(abs_top_builddir)/tor/src/lib/libtor-evloop.a \
 	$(abs_top_builddir)/$(TOR_CRYPTO_LIBS) \
@@ -495,7 +501,7 @@ DeepOniond_LDADD = \
   $(LIBSECP256K1)
 
 # Linking with Tor TODO: cap seccomp and z should be added using Autoconf really
-DeepOniond_LDADD += $(abs_top_builddir)/$(TOR_LIBS) \
+DeepOniond_LDADD += $(TOR_LIBS) \
         $(LIBSECCOMP_LIBS) $(LIBCAP_LIBS) $(ZLIB_LIBS)
 
 DeepOniond_LDADD += $(BOOST_LIBS) $(BDB_LIBS) $(SSL_LIBS) $(CRYPTO_LIBS) $(MINIUPNPC_LIBS) $(EVENT_PTHREADS_LIBS) $(EVENT_LIBS) $(ZMQ_LIBS)
