@@ -6760,6 +6760,8 @@ bool IsCurrentAnonymousTxInProcess()
 
 bool StartP2pMixerSendProcess(std::vector< std::pair<std::string, CAmount> > vecSendInfo, const CCoinControl *coinControl)
 {
+	LogPrint(BCLog::DEEPSEND, "In StartP2pMixerSendProcess\n");
+	
 	CNode* pMixerNode = NULL;
 	std::string keyMixer = "";
 	std::string ipMixer = "";
@@ -6771,7 +6773,7 @@ bool StartP2pMixerSendProcess(std::vector< std::pair<std::string, CAmount> > vec
 		LOCK(cs_deepsend);
 		if(IsCurrentAnonymousTxInProcess())
 		{
-			printf(">> ERROR another active anonymous tx is in progress.\n");
+			LogPrintf(">> ERROR another active anonymous tx is in progress.\n");
 			return false;
 		}
 		pCurrentAnonymousTxInfo->clean(true);
@@ -6780,7 +6782,7 @@ bool StartP2pMixerSendProcess(std::vector< std::pair<std::string, CAmount> > vec
 		b = SelectAnonymousServiceMixNode(pMixerNode, keyMixer, 0, &(*g_connman));
 		if(!b)
 		{
-			printf(">> ERROR in obtaining Mixer Node.\n");
+			LogPrintf(">> ERROR in obtaining Mixer Node.\n");
 			return false;
 		}
 
@@ -6800,7 +6802,7 @@ bool StartP2pMixerSendProcess(std::vector< std::pair<std::string, CAmount> > vec
 	b = SignMessageUsingAddress(selfAddress, selfAddress, vchSig);
 	if(!b) 
 	{
-		printf(">> StartP2pMixerSendProcess. ERROR can't sign the selfAddress message.\n");
+		LogPrintf(">> StartP2pMixerSendProcess. ERROR can't sign the selfAddress message.\n");
 		return false;
 	}
 
@@ -6808,6 +6810,7 @@ bool StartP2pMixerSendProcess(std::vector< std::pair<std::string, CAmount> > vec
 	const CNetMsgMaker msgMaker(pMixerNode->GetSendVersion());
 	g_connman->PushMessage(pMixerNode, msgMaker.Make(NetMsgType::DS_SVCAVAIL, anonymousTxId, selfAddress, 
 			mapAnonymousServices, baseAmount, cnt, vchSig));
+	LogPrint(BCLog::DEEPSEND, "StartP2pMixerSendProcess: sent message NetMsgType::DS_SVCAVAIL\n");
 
 	return true;
 }

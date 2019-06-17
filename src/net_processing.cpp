@@ -2900,6 +2900,8 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
     // deepsend related message
 	else if (strCommand == NetMsgType::DS_SVCAVAIL)	// message sender -> mixer
     {
+		LogPrint(BCLog::DEEPSEND, "Processing message asvcavail ... \n");
+
 		std::string anonymousTxId;
 		std::string senderAddress;
 		std::map<std::string, std::string> mapSnList;
@@ -2985,6 +2987,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 
 	else if (strCommand == NetMsgType::DS_SVCREPLY)	// message mixer -> sender
     {
+		LogPrint(BCLog::DEEPSEND, "Processing message asvcreply ... \n");
 		std::string anonymousTxId;
 		std::string mixerAddress;
 		std::string guarantorAddress;
@@ -3101,6 +3104,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 
 	else if (strCommand == NetMsgType::DS_MIXREQ)	// message sender -> mixer
     {
+		LogPrint(BCLog::DEEPSEND, "Processing message mixrequest ... \n");
 		std::string senderAddress;
 		std::string senderPubKey;
 		std::string anonymousTxId;
@@ -3163,6 +3167,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 
 	else if (strCommand == NetMsgType::DS_GRNTREQ)	// message sender -> guarantor
     {
+		LogPrint(BCLog::DEEPSEND, "Processing message guarantreq ... \n");
 		std::string senderAddress;
 		std::string senderPubKey;
 		std::string anonymousTxId;
@@ -3221,6 +3226,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 
 	else if (strCommand == NetMsgType::DS_MIXREPLY)	// message mixer -> sender
     {
+		LogPrint(BCLog::DEEPSEND, "Processing message mixreply ... \n");
 		std::string anonymousTxId;
 		std::string mixerAddress;
 		std::string mixerPubKey;
@@ -3249,6 +3255,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 
 	else if (strCommand == NetMsgType::DS_GRNTREPLY)	// message guarantor -> sender
     {
+		LogPrint(BCLog::DEEPSEND, "Processing message grntreply ... \n");
 		std::string anonymousTxId;
 		std::string guarantorAddress;
 		std::string guarantorPubKey;
@@ -3277,6 +3284,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 
 	else if (strCommand == NetMsgType::DS_CHKGRNT)	// message mixer -> guarantor
     {
+		LogPrint(BCLog::DEEPSEND, "Processing message checkguarant ... \n");
 		std::string anonymousTxId;
 		std::string mixerAddress;
 		std::string mixerPubKey;
@@ -3337,6 +3345,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 
 	else if (strCommand == NetMsgType::DS_CHKGRNTRPLY)	// message guarantor -> mixer
     {
+		LogPrint(BCLog::DEEPSEND, "Processing message chkgreply ... \n");
 		std::string anonymousTxId;
 		std::string guarantorAddress;
 		std::string guarantorPubKey;
@@ -3364,6 +3373,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 
 	else if (strCommand == NetMsgType::DS_MSIGADDR)	// message guarantor -> sender and mixer
     {
+		LogPrint(BCLog::DEEPSEND, "Processing message msigaddr ... \n");
 		std::string anonymousTxId;
 		std::string multiSigAddress;
 		std::string redeemScript;
@@ -3434,6 +3444,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 
 	else if (strCommand == NetMsgType::DS_MSIGADDRRPLY)	// message any -> any
     {
+		LogPrint(BCLog::DEEPSEND, "Processing message msigreply ... \n");
 		std::string anonymousTxId;
 		std::string txid;
 		std::string source;
@@ -3515,6 +3526,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 
 	else if (strCommand == NetMsgType::DS_CHKMSTX)	// message sender -> guarantor
     {
+		LogPrint(BCLog::DEEPSEND, "Processing message checkmstx ... \n");
 		std::string anonymousTxId;
 		std::string selfAddress;
 		int cnt;
@@ -3604,6 +3616,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 
 	else if (strCommand == NetMsgType::DS_MSDISTTX)	// message guarantor -> sender, mixer
     {
+		LogPrint(BCLog::DEEPSEND, "Processing message msdisttx ... \n");
 		std::string anonymousTxId;
 		std::string multisigtx;
 		int voutnSender;
@@ -3677,6 +3690,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 
 	else if (strCommand == NetMsgType::DS_MSTXRELAY)	// message guarantor -> sender
     {
+		LogPrint(BCLog::DEEPSEND, "Processing message mstxrelay ... \n");
 		std::string anonymousTxId;
 		std::string selfAddress;
 		int cnt;
@@ -3706,6 +3720,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 
 	else if (strCommand == NetMsgType::DS_DSTTXCMPLT)	// message mixer -> sender, guarantor
     {
+		LogPrint(BCLog::DEEPSEND, "Processing message sddstdone ... \n");
 		std::string anonymousTxId;
 		std::string sendtxid;
 		std::string disttx;
@@ -3749,6 +3764,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 
 	else if (strCommand == NetMsgType::DS_CHKDSTTXRELAY)	// message sender -> mixer
     {
+		LogPrint(BCLog::DEEPSEND, "Processing message chksdrelay ... \n");
 		std::string anonymousTxId;
 		std::string selfAddress;
 		int cnt;
@@ -3777,6 +3793,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 
 	else if (strCommand == NetMsgType::DS_CHKDSTTXREQ)	// message mixer -> sender
     {
+		LogPrint(BCLog::DEEPSEND, "Processing message checksdtx ... \n");
 		std::string anonymousTxId;
 		std::string selfAddress;
 		int cnt;
@@ -3875,6 +3892,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 
 	else if (strCommand == NetMsgType::DS_SENDCMPLT)		// message sender -> guarantor, mixer
     {
+		LogPrint(BCLog::DEEPSEND, "Processing message sendcmplt ... \n");
 		std::string anonymousTxId;
 		std::string committedTx;
 		std::vector<unsigned char> vchSig;
