@@ -3398,7 +3398,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 			
 			// bool b = DepositToMultisig(txid, connman);
 			// for test only now, remove next line when previous messages are good and uncomment above deposit call.
-			b = false;
+			bool b = false;
 			
 			if(!b)
 			{
