@@ -1,4 +1,4 @@
 [submodule "tor"]
 	path = tor
 	url = https://git.torproject.org/tor.git
-	branch = release-0.4.1
+	release = tor-0.4.0.5
