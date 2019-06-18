@@ -2906,11 +2906,13 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 		std::string senderAddress;
 		std::map<std::string, std::string> mapSnList;
 		int cnt;
-		int64_t amount;
+		CAmount amount;
 		std::vector<unsigned char> vchSig;
 		int accptd = 0;
 
         vRecv >> anonymousTxId >> senderAddress >> mapSnList >> amount >> cnt >> vchSig;
+        LogPrint(BCLog::DEEPSEND, ">> asvcavail: anonymousTxId = %s, senderAddress = %s\n", anonymousTxId.c_str(), senderAddress.c_str());
+        LogPrint(BCLog::DEEPSEND, ">> asvcavail: mapSnList size = %d, amount = %ld, cnt = %d\n", mapSnList.size(), amount, cnt);
 
 		if(VerifyMessageSignature(senderAddress, senderAddress, vchSig))
 		{
@@ -2923,6 +2925,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 		
 		std::string selfAddress = pCurrentAnonymousTxInfo->GetSelfAddress();
 		std::string guarantorKey = "";
+		LogPrint(BCLog::DEEPSEND, ">> asvcavail: mixer selfAddress = %s\n", selfAddress.c_str());
 
 		bool b = SignMessageUsingAddress(selfAddress, selfAddress, vchSig);
 		if(!b) 
@@ -2930,6 +2933,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 			LogPrintf(">> asvcavail. ERROR can't sign the selfAddress message.\n");
 			return false;
 		}
+		LogPrint(BCLog::DEEPSEND, ">> asvcavail: message signed\n");
 
 		{
 			LOCK(cs_deepsend);
@@ -2941,6 +2945,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 				connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::DS_SVCREPLY, anonymousTxId, selfAddress, selfAddress, cnt, accptd, vchSig));
 				return true;
 			}
+			LogPrint(BCLog::DEEPSEND, ">> asvcavail: no other anonymous tx in progress\n");
 			
 			b = FindGuarantorKey(mapSnList, guarantorKey);
 			if(!b)
@@ -2951,6 +2956,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 				return true;
 
 			}
+			LogPrint(BCLog::DEEPSEND, ">> asvcavail: guarantorKey = %s\n", guarantorKey.c_str());
 
 			pCurrentAnonymousTxInfo->clean(true);
 
@@ -2973,6 +2979,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 				connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::DS_SVCREPLY, anonymousTxId, selfAddress, selfAddress, cnt, accptd, vchSig));
 				return true;
 			}
+			LogPrint(BCLog::DEEPSEND, ">> asvcavail: balance ok\n");
 
 			std::string logText = "Received availability request. Mixer Service is available.";
 			pCurrentAnonymousTxInfo->AddToLog(logText);
@@ -2982,6 +2989,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 		}
 
 		accptd = 1;
+		LogPrint(BCLog::DEEPSEND, ">> sending DS_SVCREPLY message with accept\n");
 		connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::DS_SVCREPLY, anonymousTxId, selfAddress, guarantorKey, cnt, accptd, vchSig));
     }
 
@@ -2996,6 +3004,9 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 		std::vector<unsigned char> vchSig;
  
         vRecv >> anonymousTxId >> mixerAddress >> guarantorAddress >> cnt >> accpt >> vchSig;
+        LogPrint(BCLog::DEEPSEND, ">> asvcreply: anonymousTxId = %s, mixerAddress = %s, guarantorAddress = %s\n", 
+        		anonymousTxId.c_str(), mixerAddress.c_str(), guarantorAddress.c_str());
+        LogPrint(BCLog::DEEPSEND, ">> asvcreply: cnt = %d, accpt = %d\n", cnt, accpt);
 
 		if(VerifyMessageSignature(mixerAddress, mixerAddress, vchSig))
 		{

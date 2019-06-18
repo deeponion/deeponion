@@ -5819,19 +5819,24 @@ bool VerifyMessageSignature(std::string message, std::string address, std::vecto
         return false;
     }
 
+	LogPrint(BCLog::DEEPSEND, ">> VerifyMessageSignature: completed\n");
+	
     return (pubkey.GetID() == *keyID);
 }
 
 
 bool SignMessageUsingAddress(std::string message, std::string address, std::vector<unsigned char>& vchSig)
 {
+	LogPrint(BCLog::DEEPSEND, ">> In SignMessageUsingAddress. message = %s, address = %s\n", message.c_str(), address.c_str());
+	
 	CWallet* pwallet = vpwallets[0];
 	
 	{
 	    LOCK2(cs_main, pwallet->cs_wallet);
 	    
 	    EnsureWalletIsUnlocked(pwallet);
-	    CTxDestination addr = DecodeDestination(address);
+		LogPrint(BCLog::DEEPSEND, ">> SignMessageUsingAddress: EnsureWalletIsUnlocked done\n");
+		CTxDestination addr = DecodeDestination(address);
 
 	    if (!IsValidDestination(addr))
 		{
@@ -5864,6 +5869,7 @@ bool SignMessageUsingAddress(std::string message, std::string address, std::vect
 		}
 	}
 
+	LogPrint(BCLog::DEEPSEND, ">> SignMessageUsingAddress: completed\n");
     return true;
 }
 
@@ -6791,12 +6797,16 @@ bool StartP2pMixerSendProcess(std::vector< std::pair<std::string, CAmount> > vec
 
 		// send check-availability message 1st
 		anonymousTxId = pCurrentAnonymousTxInfo->GetAnonymousId();
+		LogPrint(BCLog::DEEPSEND, ">> Got anonymousTxId = %s\n", anonymousTxId.c_str());
 		selfAddress = pCurrentAnonymousTxInfo->GetSelfAddress();
+		LogPrint(BCLog::DEEPSEND, ">> Got selfAddress = %s\n", selfAddress.c_str());
 	}
 		
-	int64_t baseAmount = 0;
+	CAmount baseAmount = 0;
 	for(int i = 0; i < vecSendInfo.size(); i++)
 		baseAmount += vecSendInfo.at(i).second;
+
+	LogPrint(BCLog::DEEPSEND, ">> BaseAmount = %ld\n", baseAmount);
 
 	std::vector<unsigned char> vchSig;
 	b = SignMessageUsingAddress(selfAddress, selfAddress, vchSig);
@@ -6805,9 +6815,11 @@ bool StartP2pMixerSendProcess(std::vector< std::pair<std::string, CAmount> > vec
 		LogPrintf(">> StartP2pMixerSendProcess. ERROR can't sign the selfAddress message.\n");
 		return false;
 	}
+	LogPrint(BCLog::DEEPSEND, ">> SignMessageUsingAddress completed.\n");
 
 	int cnt = 1;
 	const CNetMsgMaker msgMaker(pMixerNode->GetSendVersion());
+	
 	g_connman->PushMessage(pMixerNode, msgMaker.Make(NetMsgType::DS_SVCAVAIL, anonymousTxId, selfAddress, 
 			mapAnonymousServices, baseAmount, cnt, vchSig));
 	LogPrint(BCLog::DEEPSEND, "StartP2pMixerSendProcess: sent message NetMsgType::DS_SVCAVAIL\n");
