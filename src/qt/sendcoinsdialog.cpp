@@ -588,6 +588,12 @@ void SendCoinsDialog::processSendCoinsReturn(const WalletModel::SendCoinsReturn 
         msgParams.first = tr("Payment request expired.");
         msgParams.second = CClientUIInterface::MSG_ERROR;
         break;
+    case WalletModel::InvalidStealthAddress:
+        msgParams.first = tr("The recipient stealth address is not valid. Please recheck.");
+        break;
+    case WalletModel::StealthAddressAdded:
+        msgParams.first = tr("Only one stealth address per transaction can be included.");
+        break;
     // included to prevent a compiler warning.
     case WalletModel::OK:
     default:
