@@ -5828,11 +5828,11 @@ bool VerifyMessageSignature(std::string message, std::string address, std::vecto
 bool SignMessageUsingAddress(std::string message, std::string address, std::vector<unsigned char>& vchSig)
 {
 	LogPrint(BCLog::DEEPSEND, ">> In SignMessageUsingAddress. message = %s, address = %s\n", message.c_str(), address.c_str());
-	
 	CWallet* pwallet = vpwallets[0];
 	
 	{
 	    LOCK2(cs_main, pwallet->cs_wallet);
+		LogPrint(BCLog::DEEPSEND, ">> SignMessageUsingAddress After lock\n");
 	    
 	    EnsureWalletIsUnlocked(pwallet);
 		LogPrint(BCLog::DEEPSEND, ">> SignMessageUsingAddress: EnsureWalletIsUnlocked done\n");

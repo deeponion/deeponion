@@ -1794,7 +1794,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
         bool b = CheckAnonymousServiceConditions();
 		std::string selfAddress = pwallet->GetOneSelfAddress();
 
-		LogPrint(BCLog::DEEPSEND, ">> broadcasting mixservice messages... b = %d\n", b);
+		LogPrint(BCLog::DEEPSEND, ">> broadcasting mixservice messages with b = %d to %s\n", b, pfrom->addr.ToString());
         std::string status = "false";
         if(b && selfAddress != "")
         	 status = "true";
@@ -2923,7 +2923,8 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 			return error("processing message asvcavail - error in verifying signature. message ignored.");
 		}
 		
-		std::string selfAddress = pCurrentAnonymousTxInfo->GetSelfAddress();
+    	CWallet* pwallet = vpwallets[0];
+		std::string selfAddress = pwallet->GetOneSelfAddress();
 		std::string guarantorKey = "";
 		LogPrint(BCLog::DEEPSEND, ">> asvcavail: mixer selfAddress = %s\n", selfAddress.c_str());
 
@@ -3024,7 +3025,8 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 		std::string selfPubKey = "";
 		std::string ipGuarantor = "";
 
-		std::string selfAddress = pCurrentAnonymousTxInfo->GetSelfAddress();
+    	CWallet* pwallet = vpwallets[0];
+		std::string selfAddress = pwallet->GetOneSelfAddress();
 		bool b = SignMessageUsingAddress(selfAddress, selfAddress, vchSig);
 		if(!b) 
 		{
@@ -3038,6 +3040,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 			// first to check anonymousTxId, if not match then it is old one, ignore
 			if(anonymousTxId != pCurrentAnonymousTxInfo->GetAnonymousId())
 			{
+				LogPrintf(">> asvcreply. ERROR anonymousTxId not match, ignore.\n");
 				return true;
 			}
 
