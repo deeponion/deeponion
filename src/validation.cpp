@@ -6000,68 +6000,48 @@ bool SelectAnonymousServiceMixNode(CNode*& pMixerNode, std::string& keyMixer, in
 
 bool CreateMultiSigAddress()
 {
-	// Get data from pCurrentAnonymousTxInfo
 	int nRequired = 2;
+    CWallet* pwallet = vpwallets[0];
 	std::vector<std::string> keys = pCurrentAnonymousTxInfo->GetAllPubKeys();
+	if(keys.size() != 3)
+	{
+		LogPrintf("CreateMultiSigAddress(): keys count is not 3\n");
+		return false;
+	}
 
     // Construct using pay-to-script-hash:
     std::vector<CPubKey> pubkeys;
     pubkeys.resize(keys.size());
-    
-    CWallet* pwallet = vpwallets[0];
-
-	for (unsigned int i = 0; i < keys.size(); i++)
+    for (unsigned int i = 0; i < keys.size(); ++i) 
     {
-        const std::string& ks = keys.at(i);
-        LogPrint(BCLog::DEEPSEND, ">> Public Key: %s\n", ks.c_str());
-
-		// Case 1: Bitcoin address and we have full public key:
-	    CTxDestination address = DecodeDestination(ks);
-
-	    if (IsValidDestination(address))
-		{
-		    CKeyID* keyID = boost::get<CKeyID>(&address);
-		    if (!keyID) 
-		    {
-		    	LogPrintf("CreateMultiSigAddress(): %s does not refer to a key\n", ks.c_str());
-		    	return false;
-		    }
-		    
-		    CKey key;
-		    if (!pwallet->GetKey(*keyID, key)) 
-		    {
-		    	LogPrintf(">> Private key not available\n");
-		    	return false;
-		    }
-		    
-		    CPubKey vchPubKey = key.GetPubKey();
-		    if(!key.VerifyPubKey(vchPubKey))
-		    {
-            	LogPrintf("CreateMultiSigAddress(): invalid public key for address %s\n", ks.c_str());
-				return false;
-			}
-		    
-		    pubkeys.push_back(vchPubKey);
-        }
-        else
+        if (IsHex(keys[i]) && (keys[i].length() == 66 || keys[i].length() == 130)) 
         {
-        	LogPrintf("CreateMultiSigAddress(): Invalid public key: %s\n", ks.c_str());
-			return false;
+            pubkeys.push_back(HexToPubKey(keys[i]));
+        } 
+        else 
+        {
+            pubkeys.push_back(AddrToPubKey(pwallet, keys[i]));
         }
     }
+    
+    {
+    	LOCK2(cs_main, pwallet->cs_wallet);
+    	OutputType output_type = g_address_type;
 
-    CScript inner = CreateMultisigRedeemscript(nRequired, pubkeys);
-    OutputType output_type = g_address_type;
-    CTxDestination destMultisig = pwallet->AddAndGetDestinationForScript(inner, output_type);
+    	// Construct using pay-to-script-hash:
+    	CScript inner = CreateMultisigRedeemscript(nRequired, pubkeys);
+    	pwallet->AddCScript(inner);
+    	CTxDestination destMultisig = pwallet->AddAndGetDestinationForScript(inner, output_type);
+    	
+        std::string multiSigAddress = EncodeDestination(destMultisig);
+        std::string redeemScript = HexStr(inner.begin(), inner.end());
+        LogPrint(BCLog::DEEPSEND, ">> CreateMultiSigAddress: multiSigAddress = %s, redeemScript = %s\n",
+    			multiSigAddress.c_str(), redeemScript.c_str());
 
-	// add results to pCurrentAnonymousTxInfo
-    std::string multiSigAddress = EncodeDestination(destMultisig);
-    std::string redeemScript = HexStr(inner.begin(), inner.end());
-    LogPrint(BCLog::DEEPSEND, ">> CreateMultiSigAddress: multiSigAddress = %s, redeemScript = %s\n",
-			multiSigAddress.c_str(), redeemScript.c_str());
-
-	pCurrentAnonymousTxInfo->SetMultiSigAddress(multiSigAddress, redeemScript);
-	return true;
+    	pCurrentAnonymousTxInfo->SetMultiSigAddress(multiSigAddress, redeemScript);
+    }
+    	
+    return true;
 }
 
 

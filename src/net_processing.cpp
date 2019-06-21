@@ -3190,7 +3190,9 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 		std::vector< std::pair<std::string, CAmount> > vecSendInfo;
 
         vRecv >> anonymousTxId >> senderAddress >> senderPubKey >> vecSendInfo >> keyMixer >> vchSig;
-
+        LogPrint(BCLog::DEEPSEND, ">> guarantreq: anonymousTxId = %s, senderAddress = %s, senderPubKey = %s, keyMixer = %s\n",
+        		anonymousTxId.c_str(), senderAddress.c_str(), senderPubKey.c_str(), keyMixer.c_str());
+        
 		if(VerifyMessageSignature(senderAddress, senderAddress, vchSig))
 		{
 			LogPrint(BCLog::DEEPSEND, ">> guarantreq: signature verified.\n");
@@ -3202,6 +3204,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 		
 		std::string mixerIP = GetConnectedIP(keyMixer);
 		CNode* pMixerNode = connman->GetConnectedNode(mixerIP);
+        LogPrint(BCLog::DEEPSEND, ">> guarantreq: got mixer-node. Address = %s\n", mixerIP.c_str());
 
 		// TODO: need to try to connect to that node if it is not there, also need to send back message
 		if(pMixerNode == NULL)
@@ -3234,6 +3237,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 		if(!b)
 			return error("processing message guarantreq - error in signing message");
 
+		LogPrint(BCLog::DEEPSEND, ">> guarantreq: sending grntreply message back to sender\n");
 		std::string sta = "ok";
 		connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::DS_GRNTREPLY, anonymousTxId, selfAddress, selfPubKey, sta, vchSig));
     }
