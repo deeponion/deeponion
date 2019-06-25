@@ -5538,7 +5538,7 @@ std::string CWallet::GetAddressPubKey(std::string strAddress)
     }
     
     CPubKey vchPubKey = key.GetPubKey();
-    std::string pubKey = EncodeDestination(vchPubKey.GetID());
+    std::string pubKey = HexStr(vchPubKey.begin(), vchPubKey.end());
 	return pubKey;
 }
 
