@@ -14,6 +14,7 @@
 
 #include <util.h>
 
+
 #include <QFileDialog>
 #include <QSettings>
 #include <QMessageBox>
@@ -244,7 +245,7 @@ void Intro::setStatus(int status, const QString &message, quint64 bytesAvailable
     {
     case FreespaceChecker::ST_OK:
         ui->errorMessage->setText(message);
-        ui->errorMessage->setStyleSheet("");
+        ui->errorMessage->setStyleSheet("QLabel { font-style: italic; color: #DCDCDC}");
         break;
     case FreespaceChecker::ST_ERROR:
         ui->errorMessage->setText(tr("Error") + ": " + message);
@@ -262,7 +263,7 @@ void Intro::setStatus(int status, const QString &message, quint64 bytesAvailable
             freeString += " " + tr("(of %n GB needed)", "", requiredSpace);
             ui->freeSpace->setStyleSheet("QLabel { color: #800000 }");
         } else {
-            ui->freeSpace->setStyleSheet("");
+            ui->freeSpace->setStyleSheet("QLabel { font-style: italic; color: #DCDCDC}");
         }
         ui->freeSpace->setText(freeString + ".");
     }
