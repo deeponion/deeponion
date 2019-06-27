@@ -1163,7 +1163,7 @@
     </message>
     <message>
         <location line="+19"/>
-        <source>Attempting to spend DeepOnions that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
+        <source>Attempting to spend ONION that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2454,7 +2454,7 @@
     </message>
     <message>
         <location line="+142"/>
-        <source>Requested payments history</source>
+        <source>Requested Payments History</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

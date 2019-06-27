@@ -922,8 +922,8 @@
         <translation>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronising with the DeepOnion network, as detailed below.</translation>
     </message>
     <message>
-        <source>Attempting to spend DeepOnions that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
-        <translation>Attempting to spend DeepOnions that are affected by not-yet-displayed transactions will not be accepted by the network.</translation>
+        <source>Attempting to spend ONION that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
+        <translation>Attempting to spend ONION that are affected by not-yet-displayed transactions will not be accepted by the network.</translation>
     </message>
     <message>
         <source>Number of blocks left</source>
@@ -1892,8 +1892,8 @@
         <translation>Clear</translation>
     </message>
     <message>
-        <source>Requested payments history</source>
-        <translation>Requested payments history</translation>
+        <source>Requested Payments History</source>
+        <translation>Requested Payments History</translation>
     </message>
     <message>
         <source>&amp;Request payment</source>

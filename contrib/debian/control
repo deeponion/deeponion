@@ -4,7 +4,8 @@ Priority: optional
 Maintainer: Matt Corallo <matt@mattcorallo.com>
 Uploaders: Matt Corallo <matt@mattcorallo.com>
 Build-Depends: debhelper,
- devscripts,
+ autotools-dev,
+ bsdmainutils,
  automake,
  libtool,
  bash-completion,
@@ -19,11 +20,14 @@ Build-Depends: debhelper,
  libboost-test1.48-dev | libboost-test-dev (>> 1.47),
  libboost-chrono1.48-dev | libboost-chrono-dev (>> 1.47),
  libminiupnpc8-dev | libminiupnpc-dev,
- qt4-qmake, libqt4-dev,
- qttools5-dev-tools, qttools5-dev,
+ libqt5gui5,
+ libqt5core5a,
+ libqt5dbus5,
+ qttools5-dev,
+ qttools5-dev-tools,
  libqrencode-dev,
  libprotobuf-dev, protobuf-compiler,
- python,
+ python3,
  libzmq3-dev
 Standards-Version: 3.9.2
 Homepage: https://deeponion.org/

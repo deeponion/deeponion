@@ -922,7 +922,7 @@
         <translation>Nedávné transakce ještě nemusí být vidět, takže stav tvého účtu nemusí být platný. Jakmile se však tvá peněženka dosynchronizuje s DeepOnionovou sítí (viz informace níže), tak už bude stav správně.</translation>
     </message>
     <message>
-        <source>Attempting to spend DeepOnions that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
+        <source>Attempting to spend ONION that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
         <translation>Utrácení DeepOnionů, které už utratily zatím nezobrazené transakce, nebude DeepOnionovou sítí umožněno.</translation>
     </message>
     <message>
@@ -1872,7 +1872,7 @@
         <translation>Vyčistit</translation>
     </message>
     <message>
-        <source>Requested payments history</source>
+        <source>Requested Payments History</source>
         <translation>Historie vyžádaných plateb</translation>
     </message>
     <message>

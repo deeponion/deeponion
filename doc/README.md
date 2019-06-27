@@ -28,7 +28,7 @@ Drag DeepOnion-Qt to your applications folder, and then run DeepOnion-Qt.
 
 ### Need Help?
 
-* See the documentation at the [DeepOnion Knwledge Base](https://deeponion.org/community/support-tickets/knowledge-base)
+* See the documentation at the [DeepOnion Knowledge Base](https://deeponion.org/community/support-tickets/knowledge-base)
 for help and more information.
 * Ask for help on the [DeepOnion Forum](https://deeponion.org/community/).
 

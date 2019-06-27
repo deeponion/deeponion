@@ -850,7 +850,7 @@
         <translation>Notīrīt</translation>
     </message>
     <message>
-        <source>Requested payments history</source>
+        <source>Requested Payments History</source>
         <translation>Pieprasīto maksājumu vēsture</translation>
     </message>
     <message>

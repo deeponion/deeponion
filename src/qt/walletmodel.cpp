@@ -219,6 +219,7 @@ WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransact
     bool fSubtractFeeFromAmount = false;
     QList<SendCoinsRecipient> recipients = transaction.getRecipients();
     std::vector<CRecipient> vecSend;
+    bool fStealthAddressAdded = false;
 
     if(recipients.empty())
     {
@@ -272,7 +273,13 @@ WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransact
 
             std::string sAddr = rcp.address.toStdString();
 
-            if (IsStealthAddress(sAddr)) {
+            if (IsStealthAddress(sAddr)){
+
+                if(fStealthAddressAdded) {
+                    //Q_EMIT message(tr("Send Coins"), QString::fromStdString("Invalid stealth address"),CClientUIInterface::MSG_ERROR);
+                    return StealthAddressAdded;
+                }
+
                 CStealthAddress sxAddr ;
                 if(!sxAddr.SetEncoded(sAddr)) {
                     Q_EMIT message(tr("Send Coins"), QString::fromStdString("Invalid stealth address"),CClientUIInterface::MSG_ERROR);
@@ -292,7 +299,7 @@ WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransact
                 std::vector<uint8_t> vchNarr;
                 if (!wallet->GetStealthOutputs(sxAddr, sNarr, scriptPubKey , ephemP, vchNarr, strError)){
                     Q_EMIT message(tr("Send Coins"), QString::fromStdString(strError),CClientUIInterface::MSG_ERROR);
-                    return NarrationTooLong;
+                    return TransactionCreationFailed;
                 }
 
                 CRecipient recipient1 = {scriptPubKey, rcp.amount, rcp.fSubtractFeeFromAmount};
@@ -313,6 +320,8 @@ WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransact
 
                 // -- shuffle inputs, change output won't mix enough as it must be not fully random for plantext narrations
                 std::random_shuffle(vecSend.begin(), vecSend.end());
+
+                fStealthAddressAdded = true;
             }
             else {
             	CScript scriptPubKey = GetScriptForDestination(DecodeDestination(rcp.address.toStdString()));

@@ -561,7 +561,7 @@ void BitcoinGUI::createToolBars()
     {
 
         // DeepOnion: Left Toolbar design
-        int toolBarWidth = 180;
+        int toolBarWidth = 190;
         // Create the toolbars
         fakeToolbarForBlueLine = addToolBar(tr("Fake toolbar for blue line"));
         fakeToolbarForBlueLine->setFixedHeight(59);
