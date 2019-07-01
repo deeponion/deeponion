@@ -352,6 +352,11 @@ bool CWallet::AddCScript(const CScript& redeemScript)
 // provides no real security
 bool fWalletUnlockStakingOnly = false;
 
+// optional setting to unlock wallet for DeepSend only
+// serves to disable the trivial sendmoney when OS account compromised
+// provides no real security
+bool fWalletUnlockDeepSendOnly = false;
+
 bool CWallet::LoadCScript(const CScript& redeemScript)
 {
     /* A sanity check was added in pull #3843 to avoid adding redeemScripts

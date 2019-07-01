@@ -43,6 +43,7 @@ extern unsigned int nTxConfirmTarget;
 extern bool bSpendZeroConfChange;
 extern bool fWalletRbf;
 extern bool fWalletUnlockStakingOnly;
+extern bool fWalletUnlockDeepSendOnly;
 
 static const unsigned int DEFAULT_KEYPOOL_SIZE = 1000;
 //! -paytxfee default

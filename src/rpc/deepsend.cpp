@@ -3,6 +3,7 @@
 
 #include <rpc/server.h>
 #include <validation.h>
+#include <wallet/wallet.h>
 
 #include <univalue.h>
 
@@ -55,10 +56,36 @@ UniValue listservicenodes(const JSONRPCRequest& request)
     return obj;   
 }
 
+UniValue getdeepsendinfo(const JSONRPCRequest& request)
+{
+	if (request.fHelp || request.params.size() != 0)
+	        throw std::runtime_error(
+            "getdeepsendinfo\n"
+            "Returns an object containing deepsend-related information."
+			"\nResult:\n"
+			"{\n"
+			"  \"enabled\": true,             (boolean) If deepsend is enabled\n"
+			"}\n"
+			"\nExamples:\n"
+			+ HelpExampleCli("getdeepsendinfo", "")
+			+ HelpExampleRpc("getdeepsendinfo", "")
+        );
+
+    LOCK(cs_main);
+
+    UniValue obj(UniValue::VOBJ);
+
+    obj.push_back(Pair("enabled", fWalletUnlockDeepSendOnly));
+
+    return obj;
+}
+
+
 static const CRPCCommand commands[] =
 { //  category              name                      actor (function)         argNames
   //  --------------------- ------------------------  -----------------------  ----------
     { "deepsend",           "getlastanontxinfo",      &getlastanontxinfo,      {} },
+    { "deepsend",           "getdeepsendinfo",        &getdeepsendinfo,        {} },
     { "deepsend",           "listservicenodes",       &listservicenodes,       {} },
 };
 

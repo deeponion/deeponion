@@ -208,6 +208,7 @@ void WalletFrame::lockWallet()
     {
         walletView->lockWallet();
         fWalletUnlockStakingOnly = false;
+        fWalletUnlockDeepSendOnly = false;
     }
 }
 
