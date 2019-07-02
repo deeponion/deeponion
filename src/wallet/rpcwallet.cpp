@@ -2420,7 +2420,8 @@ UniValue walletpassphrase(const JSONRPCRequest& request)
         fWalletUnlockDeepSendOnly = request.params[3].get_bool();
 
     pwallet->nRelockTime = GetTime() + nSleepTime;
-
+    RPCRunLater(strprintf("lockwallet(%s)", pwallet->GetName()), boost::bind(LockWallet, pwallet), nSleepTime);
+    
     return NullUniValue;
 }
 
