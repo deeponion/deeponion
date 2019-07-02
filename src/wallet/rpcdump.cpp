@@ -99,6 +99,7 @@ UniValue importprivkey(const JSONRPCRequest& request)
     if (!EnsureWalletIsAvailable(pwallet, request.fHelp)) {
         return NullUniValue;
     }
+
     if (request.fHelp || request.params.size() < 1 || request.params.size() > 3)
         throw std::runtime_error(
             "importprivkey \"privkey\" ( \"label\" ) ( rescan )\n"
@@ -120,7 +121,8 @@ UniValue importprivkey(const JSONRPCRequest& request)
             + HelpExampleCli("importprivkey", "\"mykey\" \"\" false") +
             "\nAs a JSON-RPC call\n"
             + HelpExampleRpc("importprivkey", "\"mykey\", \"testing\", false")
-        );  
+        );
+
 
     WalletRescanReserver reserver(pwallet);
     bool fRescan = true;
@@ -133,6 +135,7 @@ UniValue importprivkey(const JSONRPCRequest& request)
         std::string strLabel = "";
         if (!request.params[1].isNull())
             strLabel = request.params[1].get_str();
+
         // Whether to perform rescan after import
         if (!request.params[2].isNull())
             fRescan = request.params[2].get_bool();
@@ -167,7 +170,7 @@ UniValue importprivkey(const JSONRPCRequest& request)
 
             // Don't throw error in case a key is already there
             if (pwallet->HaveKey(vchAddress)) {
-                return "Key already importet";
+                return NullUniValue;
             }
 
             // whenever a key is imported, we need to scan the whole chain
@@ -184,7 +187,7 @@ UniValue importprivkey(const JSONRPCRequest& request)
         pwallet->RescanFromTime(TIMESTAMP_MIN, reserver, true /* update */);
     }
 
-    return "Import successful";
+    return NullUniValue;
 }
 
 UniValue abortrescan(const JSONRPCRequest& request)
