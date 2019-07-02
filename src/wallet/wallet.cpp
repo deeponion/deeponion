@@ -416,9 +416,9 @@ bool CWallet::Unlock(const SecureString& strWalletPassphrase)
                 return false;
             if (!crypter.Decrypt(pMasterKey.second.vchCryptedKey, _vMasterKey))
                 continue; // try another master key
+            if (!CCryptoKeyStore::Unlock(_vMasterKey))
+                return false;
         }
-        if (!CCryptoKeyStore::Unlock(_vMasterKey))
-            return false;
         UnlockStealthAddresses(_vMasterKey);
         return true;
     }
