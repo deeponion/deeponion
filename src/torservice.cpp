@@ -127,6 +127,8 @@ TorService::TorService(struct event_base* _base):
     else
         argv.push_back("17570");
 
+    argv.push_back("--HiddenServiceVersion");
+    argv.push_back("2");
     if (clientTransportPlugin)
     {
         argv.push_back("--ClientTransportPlugin");

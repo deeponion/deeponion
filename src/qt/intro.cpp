@@ -14,6 +14,7 @@
 
 #include <util.h>
 
+
 #include <QFileDialog>
 #include <QSettings>
 #include <QMessageBox>
@@ -22,9 +23,9 @@
 
 static const uint64_t GB_BYTES = 1000000000LL;
 /* Minimum free space (in GB) needed for data directory */
-static const uint64_t BLOCK_CHAIN_SIZE = 14;
+static const uint64_t BLOCK_CHAIN_SIZE = 3;
 /* Minimum free space (in GB) needed for data directory when pruned; Does not include prune target */
-static const uint64_t CHAIN_STATE_SIZE = 3;
+static const uint64_t CHAIN_STATE_SIZE = 1;
 /* Total required space (in GB) depending on user choice (prune, not prune) */
 static uint64_t requiredSpace;
 
@@ -126,7 +127,7 @@ Intro::Intro(QWidget *parent) :
     ui->lblExplanation1->setText(ui->lblExplanation1->text()
         .arg(tr(PACKAGE_NAME))
         .arg(BLOCK_CHAIN_SIZE)
-        .arg(2009)
+        .arg(2017)
         .arg(tr("DeepOnion"))
     );
     ui->lblExplanation2->setText(ui->lblExplanation2->text().arg(tr(PACKAGE_NAME)));
@@ -244,7 +245,7 @@ void Intro::setStatus(int status, const QString &message, quint64 bytesAvailable
     {
     case FreespaceChecker::ST_OK:
         ui->errorMessage->setText(message);
-        ui->errorMessage->setStyleSheet("");
+        ui->errorMessage->setStyleSheet("QLabel { font-style: italic; color: #DCDCDC}");
         break;
     case FreespaceChecker::ST_ERROR:
         ui->errorMessage->setText(tr("Error") + ": " + message);
@@ -262,7 +263,7 @@ void Intro::setStatus(int status, const QString &message, quint64 bytesAvailable
             freeString += " " + tr("(of %n GB needed)", "", requiredSpace);
             ui->freeSpace->setStyleSheet("QLabel { color: #800000 }");
         } else {
-            ui->freeSpace->setStyleSheet("");
+            ui->freeSpace->setStyleSheet("QLabel { font-style: italic; color: #DCDCDC}");
         }
         ui->freeSpace->setText(freeString + ".");
     }
