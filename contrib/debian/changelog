@@ -1,3 +1,9 @@
+deeponion (2.0.3-NonDV) bionic; urgency=medium
+
+  * Tor upgrade Release of DeepOnion.
+
+ -- Liam Alford (nezero) <nezero@nezero.com>  Wed, 22 May 2019 12:00:00 -0000
+
 deeponion (2.0.2-NonDV) bionic; urgency=medium
 
   * First Release of DeepOnion.
