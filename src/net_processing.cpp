@@ -1657,8 +1657,12 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
         }
 
         // Be shy and don't send version until we hear
-        if (pfrom->fInbound)
+        if (pfrom->fInbound) {
             PushNodeVersion(pfrom, connman, GetAdjustedTime());
+            // DeepOnion: Due to Tor proxy we do not know it's onion address, so set it here.
+            LogPrint(BCLog::NET, "ProcessMessages: setting peer %d AddrName to %s\n", pfrom->GetId(), addrFrom.ToString());
+            pfrom->MaybeSetAddrName(addrFrom.ToString());
+        }
 
         connman->PushMessage(pfrom, CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::VERACK));
 
