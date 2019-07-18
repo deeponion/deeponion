@@ -54,19 +54,19 @@ Node Update Scripts
 
 #### *Work in progress...*
 
-### [README](contrib/scripts/README.txt)
+### [README](/contrib/scripts/README.txt)
 These scripts will download and/or create DeepOnion.conf for DeepOnion Wallet. 
 
-### [Linux](contrib/scripts/)
+### [Linux](/contrib/scripts/)
 
-#### [Update Nodes](contrib/scripts/linux.sh)
+#### [Update Nodes](/contrib/scripts/linux.sh)
 Update official DeepOnion nodes
-#### [China Nodes](contrib/scripts/linuxc.sh)
+#### [China Nodes](/contrib/scripts/linuxc.sh)
 Update for China users or other Tor blocked countries
-#### [Nova Nodes](contrib/scripts/linuxn.sh)
+#### [Nova Nodes](/contrib/scripts/linuxn.sh)
 Update to NovaExchange node list
 
-### [Windows](contrib/scripts/)
+### [Windows](/contrib/scripts/)
 Coming soon...
-### [Mac](contrib/scripts/)
+### [Mac](/contrib/scripts/)
 Coming soon...
