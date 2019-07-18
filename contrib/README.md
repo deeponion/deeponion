@@ -48,3 +48,25 @@ Utilities to generate test vectors for the data-driven Litecoin tests.
 
 ### [Verify Binaries](/contrib/verifybinaries) ###
 This script attempts to download and verify the signature file SHA256SUMS.asc from litecoin.org.
+
+Node Update Scripts
+---------------------
+
+#### *Work in progress...*
+
+### [README](contrib/scripts/README.txt)
+These scripts will download and/or create DeepOnion.conf for DeepOnion Wallet. 
+
+### [Linux](contrib/scripts/)
+
+#### [Update Nodes](contrib/scripts/linux.sh)
+Update official DeepOnion nodes
+#### [China Nodes](contrib/scripts/linuxc.sh)
+Update for China users or other Tor blocked countries
+#### [Nova Nodes](contrib/scripts/linuxn.sh)
+Update to NovaExchange node list
+
+### [Windows](contrib/scripts/)
+Coming soon...
+### [Mac](contrib/scripts/)
+Coming soon...
