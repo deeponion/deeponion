@@ -52,7 +52,7 @@ This script attempts to download and verify the signature file SHA256SUMS.asc fr
 Node Update Scripts
 ---------------------
 
-#### *Work in progress...*
+*Work in progress...*
 
 ### [README](/contrib/scripts/README.txt)
 These scripts will download and/or create DeepOnion.conf for DeepOnion Wallet. 
@@ -67,6 +67,6 @@ Update for China users or other Tor blocked countries
 Update to NovaExchange node list
 
 ### [Windows](/contrib/scripts/)
-Coming soon...
+*Coming soon...*
 ### [Mac](/contrib/scripts/)
-Coming soon...
+*Coming soon...*
