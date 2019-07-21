@@ -4,25 +4,17 @@
 
 These bash scripts will download and/or create DeepOnion.conf for DeepOnion Wallet. 
 China users or other Tor blocked countries will use linuxc.sh . 
-All others will use linux.sh. Type the following into terminal.
+All others will use linux.sh.
 
-##### To make the scripts executable:
+##### To exeute the scripts, in terminal type:
 
-`chmod +x linux.sh`
+`cd ~/.DeepOnion && chmod +x linux.sh && /linux.sh`
 
 **OR**
 
-`chmod +x linuxc.sh`
+`cd ~/.DeepOnion && chmod +x linuxc.sh && ./linuxc.sh`
 
 depending on which you are using. 
-
-##### To execute the scripts:
-
-./linux.sh
-
-**OR**
-
-./linuxc.sh
 
 #### Windows
 
