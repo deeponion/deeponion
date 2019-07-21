@@ -2,7 +2,7 @@
 
 #### Linux 
 
-These scripts will download and/or create DeepOnion.conf for DeepOnion Wallet. 
+These bash scripts will download and/or create DeepOnion.conf for DeepOnion Wallet. 
 China users or other Tor blocked countries will use linuxc.sh . 
 All others will use linux.sh. Type the following into terminal.
 
