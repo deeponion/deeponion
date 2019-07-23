@@ -37,7 +37,6 @@ class QTimer;
 QT_END_NAMESPACE
 
 static const int STEALTH_LENGTH_TRESHOLD = 75;
-static CAmount MAX_ALLOWED_DEEP_SEND = 10 * COIN;
 
 class SendCoinsRecipient
 {
