@@ -388,13 +388,6 @@ inline uint32_t ByteReverse(uint32_t value)
     return (value<<16) | (value>>16);
 }
 
-// deepsend related
-static const CAmount MIN_ANON_SERVICE_COIN = 5 * COIN;	
-static const double DEEPSEND_FEE_RATE = 0.01;
-static const CAmount DEEPSEND_MIN_FEE = 0.01 * COIN;
-static const CAmount MAX_ALLOWED_DEEP_SEND = 10 * COIN;
-
 const std::string currentDateTime();
-
 
 #endif // BITCOIN_UTIL_H
