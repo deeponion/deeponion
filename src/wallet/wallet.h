@@ -45,6 +45,7 @@ extern bool fWalletRbf;
 extern bool fWalletUnlockStakingOnly;
 extern bool fWalletUnlockDeepSendOnly;
 
+
 static const unsigned int DEFAULT_KEYPOOL_SIZE = 1000;
 //! -paytxfee default
 static const CAmount DEFAULT_TRANSACTION_FEE = 10000;
@@ -693,6 +694,7 @@ private:
     std::mutex mutexScanning;
     friend class WalletRescanReserver;
 
+    bool deepSendRequested;
 
     /**
      * Select a set of coins such that nValueRet >= nTargetValue and at least
@@ -801,6 +803,9 @@ public:
         }
     }
 
+    void DeepSendRequested(bool _transactDeepSend);
+    bool DeepSendRequested();
+
     void LoadKeyPool(int64_t nIndex, const CKeyPool &keypool);
 
     // Map from Key ID to key metadata.
@@ -833,6 +838,7 @@ public:
     {
         delete pwalletdbEncryption;
         pwalletdbEncryption = nullptr;
+        DeepSendRequested(false);
     }
 
     void SetNull()

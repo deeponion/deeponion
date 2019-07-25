@@ -151,6 +151,8 @@ UniValue sendwithdeepsend(const JSONRPCRequest& request)
     CCoinControl coinControl;
     coinControl.SetDeepSend(true);
 
+    pwallet->DeepSendRequested(true);
+
     std::vector< std::pair<std::string, CAmount> > vecSend;
     vecSend.push_back(std::make_pair(sAddr, nAmount));
 
@@ -158,7 +160,8 @@ UniValue sendwithdeepsend(const JSONRPCRequest& request)
 
     bool b = StartP2pMixerSendProcess(vecSend, &coinControl);
 
-    return b ? "StartP2pMixerSendProcess successfully started." : "StartP2pMixerSendProcess failed.";
+    pwallet->DeepSendRequested(false);
+    return b ? "StartP2pMixerSendProcess successfully started.": "StartP2pMixerSendProcess failed.";
 }
 
 static const CRPCCommand commands[] =

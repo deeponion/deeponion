@@ -5561,4 +5561,14 @@ int CWallet::GetSelfAddressCount()
 	return count;
 }
 
+void CWallet::DeepSendRequested(bool _deepSendRequested)
+{
+    deepSendRequested = _deepSendRequested;
+}
+
+bool CWallet::DeepSendRequested()
+{
+    return deepSendRequested;
+}
+
 
