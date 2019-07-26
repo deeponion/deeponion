@@ -2427,7 +2427,6 @@ UniValue walletpassphrase(const JSONRPCRequest& request)
         fWalletUnlockStakingOnly = request.params[2].get_bool();
 
     fWalletUnlockDeepSendOnly = false;
-
     if (!request.params[3].isNull())
         fWalletUnlockDeepSendOnly = request.params[3].get_bool();
 

@@ -674,7 +674,7 @@ void Stake()
 	SetThreadPriority(THREAD_PRIORITY_LOWEST);
 	while (true) {
 		try {
-            while (vpwallets.empty() || vpwallets[0]->IsLocked())
+            while (vpwallets.empty() || !vpwallets[0]->IsUnLockedForStaking())
             {
                 nLastCoinStakeSearchInterval = 0;
                 MilliSleep(1000);

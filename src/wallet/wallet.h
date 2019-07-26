@@ -1210,7 +1210,10 @@ public:
      * This function will automatically add the necessary scripts to the wallet.
      */
     CTxDestination AddAndGetDestinationForScript(const CScript& script, OutputType);
-    
+
+    bool IsUnLockedForStaking();
+    bool IsUnLockedForDeepsend();
+
     int GetSelfAddressCount();
     std::string GetOneSelfAddress();
     std::string GetAddressPubKey(std::string strAddress);

@@ -5496,6 +5496,16 @@ CTxDestination CWallet::AddAndGetDestinationForScript(const CScript& script, Out
     }
 }
 
+bool CWallet::IsUnLockedForStaking()
+{
+    return ((!IsLocked() && fWalletUnlockStakingOnly) || (!IsLocked() && !fWalletUnlockDeepSendOnly && !fWalletUnlockStakingOnly));
+}
+
+bool CWallet::IsUnLockedForDeepsend()
+{
+    return ((!IsLocked() && fWalletUnlockDeepSendOnly) || (!IsLocked() && !fWalletUnlockDeepSendOnly && !fWalletUnlockStakingOnly));
+}
+
 std::string CWallet::GetOneSelfAddress()
 {
 	// we want to get a self address. it doesn't matter which address we get, 

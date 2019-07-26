@@ -62,7 +62,12 @@ UniValue listservicenodes(const JSONRPCRequest& request)
 
 UniValue getdeepsendinfo(const JSONRPCRequest& request)
 {
-	if (request.fHelp || request.params.size() != 0)
+	CWallet * const pwallet = GetWalletForJSONRPCRequest(request);
+    if (!EnsureWalletIsAvailable(pwallet, request.fHelp)) {
+        return NullUniValue;
+    }
+
+    if (request.fHelp || request.params.size() != 0)
 	        throw std::runtime_error(
             "getdeepsendinfo\n"
             "Returns an object containing deepsend-related information."
@@ -79,7 +84,7 @@ UniValue getdeepsendinfo(const JSONRPCRequest& request)
 
     UniValue obj(UniValue::VOBJ);
 
-    obj.push_back(Pair("enabled", fWalletUnlockDeepSendOnly));
+    obj.push_back(Pair("enabled", pwallet->IsUnLockedForDeepsend()));
 
     return obj;
 }
