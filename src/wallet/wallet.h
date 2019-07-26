@@ -45,7 +45,6 @@ extern bool fWalletRbf;
 extern bool fWalletUnlockStakingOnly;
 extern bool fWalletUnlockDeepSendOnly;
 
-
 static const unsigned int DEFAULT_KEYPOOL_SIZE = 1000;
 //! -paytxfee default
 static const CAmount DEFAULT_TRANSACTION_FEE = 10000;
@@ -838,7 +837,6 @@ public:
     {
         delete pwalletdbEncryption;
         pwalletdbEncryption = nullptr;
-        DeepSendRequested(false);
     }
 
     void SetNull()
