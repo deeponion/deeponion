@@ -82,7 +82,8 @@ void EnsureWalletIsUnlocked(CWallet * const pwallet)
 {
     if(pwallet->DeepSendRequested())
     {
-        if(!pwallet->IsLocked() || fWalletUnlockDeepSendOnly )
+        //Make sure wallet is either unflagged unlocked or unlocked and flagged for deepsend only
+        if((!pwallet->IsLocked() && !fWalletUnlockStakingOnly) || (!pwallet->IsLocked() && fWalletUnlockDeepSendOnly))
             return;
         else
         {
