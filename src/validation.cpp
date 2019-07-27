@@ -5724,6 +5724,9 @@ void CAnonymousTxInfo::AddToLog(std::string text)
 {
 	std::string logtext = currentDateTime() + ": " + text;
 	logs.push_back(logtext);
+	
+	// also write it to debug.log
+	LogPrint(BCLog::DEEPSEND, "AnonymousTxInfo: %s", logtext.c_str());
 }
 
 
