@@ -6088,7 +6088,7 @@ bool DepositToMultisig(std::string& txid, CConnman *connman)
         CWalletTx wtx;
         CReserveKey keyChange(pwallet);
         int64_t nFeeRequired = 0;
-        int nChangePos;
+        int nChangePos = -1;
         std::string strFailReason;
         CCoinControl ctrl;
         bool fCreated = pwallet->CreateTransaction(vecSend, wtx, keyChange, nFeeRequired, nChangePos, strFailReason, ctrl);
@@ -6246,7 +6246,7 @@ bool SendCoinsToDestination(std::string& txid, CConnman *connman)
         CWalletTx wtx;
         CReserveKey keyChange(pwallet);
         CAmount nFeeRequired = 0;
-        int nChangePos;
+        int nChangePos = -1;
         std::string strFailReason;
         bool fCreated = pwallet->CreateTransaction(vecSend, wtx, keyChange, nFeeRequired, nChangePos, strFailReason, coinControl);
 
