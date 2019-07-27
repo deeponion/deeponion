@@ -5726,7 +5726,7 @@ void CAnonymousTxInfo::AddToLog(std::string text)
 	logs.push_back(logtext);
 	
 	// also write it to debug.log
-	LogPrint(BCLog::DEEPSEND, "AnonymousTxInfo: %s", logtext.c_str());
+	LogPrint(BCLog::DEEPSEND, "AnonymousTxInfo: %s\n", logtext.c_str());
 }
 
 
