@@ -6062,24 +6062,13 @@ bool DepositToMultisig(std::string& txid, CConnman *connman)
 	txid = "";
 	const CCoinControl* coinControl = NULL;
 	CWallet* pwallet = vpwallets[0];
-
+	
 	if(pCurrentAnonymousTxInfo->GetAtxStatus() < ATX_STATUS_MSADDR)
 	{
 		return false;
 	}
 
-	coinControl = pCurrentAnonymousTxInfo->GetCoinControl();
-
-	CAmount nBalance = 0;
-    if(coinControl)
-    {
-    	nBalance = pwallet->GetAvailableBalance(coinControl);
-    }
-    else 
-    {
-    	nBalance = pwallet->GetBalance();
-    }
-
+	CAmount nBalance = pwallet->GetBalance();
     CAmount requiredAmount = pCurrentAnonymousTxInfo->GetTotalRequiredCoinsToSend();
 	std::string multisigAddress = pCurrentAnonymousTxInfo->GetMultiSigAddress();
 
@@ -6090,8 +6079,6 @@ bool DepositToMultisig(std::string& txid, CConnman *connman)
     }
 
     {
-        LOCK2(cs_main, pwallet->cs_wallet);
-
         std::vector<CRecipient> vecSend;
 		CTxDestination dest = DecodeDestination(multisigAddress);
 		CScript scriptPubKey = GetScriptForDestination(dest);
@@ -6103,7 +6090,8 @@ bool DepositToMultisig(std::string& txid, CConnman *connman)
         int64_t nFeeRequired = 0;
         int nChangePos;
         std::string strFailReason;
-        bool fCreated = pwallet->CreateTransaction(vecSend, wtx, keyChange, nFeeRequired, nChangePos, strFailReason, *coinControl);
+        CCoinControl ctrl;
+        bool fCreated = pwallet->CreateTransaction(vecSend, wtx, keyChange, nFeeRequired, nChangePos, strFailReason, ctrl);
 
         if(!fCreated)
         {
@@ -6113,7 +6101,7 @@ bool DepositToMultisig(std::string& txid, CConnman *connman)
                 return false;
             }
 
-            LogPrintf("DepositToMultisig(): Error in creating transaction\n"); 
+            LogPrintf("DepositToMultisig(): Error in creating transaction: %s\n", strFailReason.c_str()); 
             return false;
         }
 
@@ -6401,12 +6389,18 @@ bool SignMultiSigDistributionTx()
     for (unsigned int i = 0; i < mergedTx.vin.size(); i++) 
     {
         CTxIn& txin = mergedTx.vin[i];
+        if (mapPrevOut.count(txin.prevout) == 0)
+        {
+            fComplete = false;
+            continue;
+        }
+        
         const Coin& coin = view.AccessCoin(txin.prevout);
         if (coin.IsSpent()) {
             LogPrintf("SignMultiSigDistributionTx: Input not found or already spent");
             return false;
         }
-        const CScript& prevPubKey = coin.out.scriptPubKey;
+        const CScript& prevPubKey = mapPrevOut[txin.prevout];
         const CAmount& amount = coin.out.nValue;
 
         SignatureData sigdata;
@@ -6434,11 +6428,6 @@ bool SignMultiSigDistributionTx()
 	if(signedcount == 2 && fComplete == false)
 	{
 		LogPrintf("ERROR. SignMultiSigDistributionTx: signedcount == 2 but not complete.\n");
-		return false;
-	}
-	else if(signedcount == 1 && fComplete == true)
-	{
-		LogPrintf("ERROR. SignMultiSigDistributionTx: signedcount == 1 but already complete.\n");
 		return false;
 	}
 
