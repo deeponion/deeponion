@@ -319,6 +319,10 @@ UniValue createmultisig(const JSONRPCRequest& request)
         }
     }
 
+	for(CPubKey pk: pubkeys)
+	{
+		LogPrint(BCLog::DEEPSEND, ">> cpubkey = %s\n", pk.GetID().ToString().c_str());
+	}
     // Construct using pay-to-script-hash:
     CScript inner = CreateMultisigRedeemscript(required, pubkeys);
     CScriptID innerID(inner);

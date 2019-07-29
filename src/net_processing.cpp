@@ -3168,7 +3168,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 			selfAddress = pCurrentAnonymousTxInfo->GetSelfAddress();
 			selfPubKey = pCurrentAnonymousTxInfo->GetSelfPubKey();
 			pCurrentAnonymousTxInfo->SetAddressAndPubKey(ROLE_SENDER, senderAddress, senderPubKey);
-			logText = "Set Sender Address = " + senderAddress + ", PublicKey = " + senderPubKey.substr(0, 30) + ".";
+			logText = "Set Sender Address = " + senderAddress + ", PublicKey = " + senderPubKey + ".";
 			pCurrentAnonymousTxInfo->AddToLog(logText);
 		}
 
@@ -3234,7 +3234,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 			LogPrint(BCLog::DEEPSEND, ">> ROLE_GUARANTOR: selfAddress = %s, selfPubKey = %s\n", selfAddress.c_str(), selfPubKey.c_str());
 			pCurrentAnonymousTxInfo->SetAnonymousId(anonymousTxId);
 			pCurrentAnonymousTxInfo->SetAddressAndPubKey(ROLE_SENDER, senderAddress, senderPubKey);
-			logText = "Set Sender Address = " + senderAddress + ", PublicKey = " + senderPubKey.substr(0, 30) + ".";
+			logText = "Set Sender Address = " + senderAddress + ", PublicKey = " + senderPubKey + ".";
 			pCurrentAnonymousTxInfo->AddToLog(logText);
 		}
 
@@ -3271,7 +3271,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 			pCurrentAnonymousTxInfo->SetAddressAndPubKey(ROLE_MIXER, mixerAddress, mixerPubKey);
 			std::string logText = "Mixer accepted request.";
 			pCurrentAnonymousTxInfo->AddToLog(logText);
-			logText = "Set Mixer Address = " + mixerAddress + ", PublicKey = " + mixerPubKey.substr(0, 30) + ".";
+			logText = "Set Mixer Address = " + mixerAddress + ", PublicKey = " + mixerPubKey + ".";
 			pCurrentAnonymousTxInfo->AddToLog(logText);
 		}
     }
@@ -3300,7 +3300,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 			pCurrentAnonymousTxInfo->SetAddressAndPubKey(ROLE_GUARANTOR, guarantorAddress, guarantorPubKey);
 			std::string logText = "Guarantor accepted request.";
 			pCurrentAnonymousTxInfo->AddToLog(logText);
-			logText = "Set Guarantor Address = " + guarantorAddress + ", PublicKey = " + guarantorPubKey.substr(0, 30) + ".";
+			logText = "Set Guarantor Address = " + guarantorAddress + ", PublicKey = " + guarantorPubKey + ".";
 			pCurrentAnonymousTxInfo->AddToLog(logText);
 		}
 	}
@@ -3326,7 +3326,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 		{
 			LOCK(cs_deepsend);
 			pCurrentAnonymousTxInfo->SetAddressAndPubKey(ROLE_MIXER, mixerAddress, mixerPubKey);
-			std::string logText = "Set Mixer Address = " + mixerAddress + ", PublicKey = " + mixerPubKey.substr(0, 30) + ".";
+			std::string logText = "Set Mixer Address = " + mixerAddress + ", PublicKey = " + mixerPubKey + ".";
 			pCurrentAnonymousTxInfo->AddToLog(logText);
 
 			// send a message back to mixer, giving him guarantor's pubkey
@@ -3389,7 +3389,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 			pCurrentAnonymousTxInfo->SetAddressAndPubKey(ROLE_GUARANTOR, guarantorAddress, guarantorPubKey);
 			std::string logText = "Guarantor accepted request.";
 			pCurrentAnonymousTxInfo->AddToLog(logText);
-			logText = "Set Guarantor Address = " + guarantorAddress + ", PublicKey = " + guarantorPubKey.substr(0, 30) + ".";
+			logText = "Set Guarantor Address = " + guarantorAddress + ", PublicKey = " + guarantorPubKey + ".";
 			pCurrentAnonymousTxInfo->AddToLog(logText);
 		}
     }
@@ -3576,7 +3576,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 
 				// prepare multisig tx
 				std::string multisigtx = CreateMultiSigDistributionTx();
-				logText = "Multisig distribution transaction is created. TxID = " + multisigtx.substr(0, 30) + "...";
+				logText = "Multisig distribution transaction is created. TxID = " + multisigtx + ".";
 				pCurrentAnonymousTxInfo->AddToLog(logText);
 
 				std::string selfAddress = pCurrentAnonymousTxInfo->GetSelfAddress();
@@ -3694,7 +3694,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 					return error("processing message msdisttx - Can't sign multisig distribution tx.");
 				}
 				std::string disttx = pCurrentAnonymousTxInfo->GetTx();
-				logText = "Mixer successfully signed the distribution tx. TxID = " + disttx.substr(0, 30) + "...";
+				logText = "Mixer successfully signed the distribution tx. TxID = " + disttx + ".";
 				pCurrentAnonymousTxInfo->AddToLog(logText);
 
 				std::string selfAddress = pCurrentAnonymousTxInfo->GetSelfAddress();
@@ -3767,7 +3767,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 
 		std::string logText = "Received Mixer send coin TxID. TxID = " + sendtxid + ".";
 		pCurrentAnonymousTxInfo->AddToLog(logText);
-		logText = "Received multisig distribution TxID after Mixer signed. TxID = " + disttx.substr(0, 30) + "...";
+		logText = "Received multisig distribution TxID after Mixer signed. TxID = " + disttx + ".";
 		pCurrentAnonymousTxInfo->AddToLog(logText);
 
 		// only sender needs to check and sign/post tx - sender relay and check the send tx first
@@ -3852,7 +3852,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 				std::string disttx = pCurrentAnonymousTxInfo->GetTx();
 				pCurrentAnonymousTxInfo->SetTx(disttx, 2);
 
-				logText = "Sender successfully signed the multisig distribution transaction. TxID = " + disttx.substr(0, 30) + "...";
+				logText = "Sender successfully signed the multisig distribution transaction. TxID = " + disttx + ".";
 				pCurrentAnonymousTxInfo->AddToLog(logText);
 				logText = "Multisig distribution transaction is fully signed.";
 				pCurrentAnonymousTxInfo->AddToLog(logText);

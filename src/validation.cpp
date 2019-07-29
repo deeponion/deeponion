@@ -6026,9 +6026,9 @@ bool CreateMultiSigAddress()
 
     // Construct using pay-to-script-hash:
     std::vector<CPubKey> pubkeys;
-    pubkeys.resize(keys.size());
     for (unsigned int i = 0; i < keys.size(); ++i) 
     {
+    	LogPrint(BCLog::DEEPSEND, ">> i = %d, pubkey = %s\n", i, keys[i].c_str());
         if (IsHex(keys[i]) && (keys[i].length() == 66 || keys[i].length() == 130)) 
         {
             pubkeys.push_back(HexToPubKey(keys[i]));
@@ -6040,15 +6040,16 @@ bool CreateMultiSigAddress()
     }
     
     {
-    	LOCK2(cs_main, pwallet->cs_wallet);
-    	OutputType output_type = g_address_type;
-
-    	// Construct using pay-to-script-hash:
-    	CScript inner = CreateMultisigRedeemscript(nRequired, pubkeys);
-    	pwallet->AddCScript(inner);
-    	CTxDestination destMultisig = pwallet->AddAndGetDestinationForScript(inner, output_type);
+    	for(CPubKey pk: pubkeys)
+    	{
+    		LogPrint(BCLog::DEEPSEND, ">> cpubkey = %s\n", pk.GetID().ToString().c_str());
+    	}
     	
-        std::string multiSigAddress = EncodeDestination(destMultisig);
+    	// Construct using pay-to-script-hash:
+        CScript inner = CreateMultisigRedeemscript(nRequired, pubkeys);
+        CScriptID innerID(inner);
+    	
+        std::string multiSigAddress = EncodeDestination(innerID);
         std::string redeemScript = HexStr(inner.begin(), inner.end());
         LogPrint(BCLog::DEEPSEND, ">> CreateMultiSigAddress: multiSigAddress = %s, redeemScript = %s\n",
     			multiSigAddress.c_str(), redeemScript.c_str());
