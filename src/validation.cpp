@@ -6720,7 +6720,11 @@ void UpdateAnonymousServiceList(CNode* pNode, std::string keyAddress, std::strin
 
 bool CheckAnonymousServiceConditions() 
 {
-	CWallet* pwallet = vpwallets[0];
+    CWallet* pwallet = vpwallets[0];
+
+	if (!pwallet->IsUnLockedForDeepsend())
+        return false;    
+
 	CAmount nBalance = GetAvailableBalance();
 
 	if(nBalance < MIN_ANON_SERVICE_COIN)
