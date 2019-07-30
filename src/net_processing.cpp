@@ -3588,21 +3588,24 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 				std::string txid;
 				int voutnSender;
 				std::string pkSender;
-				pCurrentAnonymousTxInfo->GetMultisigTxOutInfo(ROLE_SENDER, txid, voutnSender, pkSender);
+				CAmount amountSender;
+				pCurrentAnonymousTxInfo->GetMultisigTxOutInfo(ROLE_SENDER, txid, voutnSender, pkSender, amountSender);
 
 				int voutnMixer;
 				std::string pkMixer;
-				pCurrentAnonymousTxInfo->GetMultisigTxOutInfo(ROLE_MIXER, txid, voutnMixer, pkMixer);
+				CAmount amountMixer;
+				pCurrentAnonymousTxInfo->GetMultisigTxOutInfo(ROLE_MIXER, txid, voutnMixer, pkMixer, amountMixer);
 
 				int voutnGuarantor;
 				std::string pkGuarantor;
-				pCurrentAnonymousTxInfo->GetMultisigTxOutInfo(ROLE_SENDER, txid, voutnGuarantor, pkGuarantor);
+				CAmount amountGuarantor;
+				pCurrentAnonymousTxInfo->GetMultisigTxOutInfo(ROLE_SENDER, txid, voutnGuarantor, pkGuarantor, amountGuarantor);
 
-				connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::DS_MSDISTTX, anonymousTxId, multisigtx, voutnSender, pkSender, 
-						voutnMixer, pkMixer, voutnGuarantor, pkGuarantor, vchSig));
+				connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::DS_MSDISTTX, anonymousTxId, multisigtx, voutnSender, pkSender, amountSender,
+						voutnMixer, pkMixer, amountMixer, voutnGuarantor, pkGuarantor, amountGuarantor, vchSig));
 				CNode* pNode = pCurrentAnonymousTxInfo->GetNode(ROLE_MIXER);
-				connman->PushMessage(pNode, msgMaker.Make(NetMsgType::DS_MSDISTTX, anonymousTxId, multisigtx, voutnSender, pkSender, 
-						voutnMixer, pkMixer, voutnGuarantor, pkGuarantor, vchSig));
+				connman->PushMessage(pNode, msgMaker.Make(NetMsgType::DS_MSDISTTX, anonymousTxId, multisigtx, voutnSender, pkSender, amountSender,
+						voutnMixer, pkMixer, amountMixer, voutnGuarantor, pkGuarantor, amountGuarantor, vchSig));
 
 				logText = "Multisig distribution transaction and TxIns are sent to Sender and Mixer.";
 				pCurrentAnonymousTxInfo->AddToLog(logText);
@@ -3642,14 +3645,17 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 		std::string multisigtx;
 		int voutnSender;
 		std::string pkSender;
+		CAmount amountSender;
 		int voutnMixer;
 		std::string pkMixer;
+		CAmount amountMixer;
 		int voutnGuarantor;
 		std::string pkGuarantor;
+		CAmount amountGuarantor;
 		std::vector<unsigned char> vchSig;
 
-        vRecv >> anonymousTxId >> multisigtx >> voutnSender >> pkSender 
-			>> voutnMixer >> pkMixer >> voutnGuarantor >> pkGuarantor >> vchSig;
+        vRecv >> anonymousTxId >> multisigtx >> voutnSender >> pkSender >> amountSender
+			>> voutnMixer >> pkMixer >> amountMixer >> voutnGuarantor >> pkGuarantor >> amountGuarantor >> vchSig;
 
 		{
 			LOCK(cs_deepsend);
@@ -3665,9 +3671,9 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 			}
 
 			pCurrentAnonymousTxInfo->SetTx(multisigtx, 0);
-			pCurrentAnonymousTxInfo->SetVoutAndScriptPubKey(ROLE_SENDER, voutnSender, pkSender);
-			pCurrentAnonymousTxInfo->SetVoutAndScriptPubKey(ROLE_MIXER, voutnMixer, pkMixer);
-			pCurrentAnonymousTxInfo->SetVoutAndScriptPubKey(ROLE_GUARANTOR, voutnGuarantor, pkGuarantor);
+			pCurrentAnonymousTxInfo->SetVoutAndScriptPubKey(ROLE_SENDER, voutnSender, pkSender, amountSender);
+			pCurrentAnonymousTxInfo->SetVoutAndScriptPubKey(ROLE_MIXER, voutnMixer, pkMixer, amountMixer);
+			pCurrentAnonymousTxInfo->SetVoutAndScriptPubKey(ROLE_GUARANTOR, voutnGuarantor, pkGuarantor, amountGuarantor);
 
 			std::string logText = "Received multisig distribution transaction. TxID = " + multisigtx + ".";
 			pCurrentAnonymousTxInfo->AddToLog(logText);

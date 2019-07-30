@@ -15,6 +15,7 @@
 #include <consensus/merkle.h>
 #include <consensus/tx_verify.h>
 #include <consensus/validation.h>
+#include <core_io.h>
 #include <cuckoocache.h>
 #include <hash.h>
 #include <init.h>
@@ -6135,7 +6136,6 @@ std::string CreateMultiSigDistributionTx()
 		LogPrintf("ERROR. Can not extract sender's deposit tx voutN and scriptPubKey.\n");
 		return "";
 	}
-	pCurrentAnonymousTxInfo->SetVoutAndScriptPubKey(ROLE_SENDER, voutnSender, scriptPubKeySender);
 
 	// mixer
 	std::string txidMixer = pCurrentAnonymousTxInfo->GetTxid(ROLE_MIXER);
@@ -6147,7 +6147,6 @@ std::string CreateMultiSigDistributionTx()
 		LogPrintf("ERROR. Can not extract mixer's deposit tx voutN and scriptPubKey.\n");
 		return "";
 	}
-	pCurrentAnonymousTxInfo->SetVoutAndScriptPubKey(ROLE_MIXER, voutnMixer, scriptPubKeyMixer);
 
 	// guarantor
 	std::string txidGuarantor = pCurrentAnonymousTxInfo->GetTxid(ROLE_GUARANTOR);
@@ -6159,7 +6158,6 @@ std::string CreateMultiSigDistributionTx()
 		LogPrintf("ERROR. Can not extract guarantor's deposit tx voutN and scriptPubKey.\n");
 		return "";
 	}
-	pCurrentAnonymousTxInfo->SetVoutAndScriptPubKey(ROLE_GUARANTOR, voutnGuarantor, scriptPubKeyGuarantor);
 
 	// now creating raw distribution tx
 	CMutableTransaction rawMutableTx;
@@ -6185,25 +6183,31 @@ std::string CreateMultiSigDistributionTx()
 	CAmount servicefee = (paidfee - fee) / 2;
 
 	// sender gets baseAmount
+	CAmount amountSender = baseAmount;
 	std::string addressSender = pCurrentAnonymousTxInfo->GetAddress(ROLE_SENDER);
 	CTxDestination addressS = DecodeDestination(addressSender);
 	CScript spkSender = GetScriptForDestination(addressS);
-	CTxOut out1(baseAmount, spkSender);
+	CTxOut out1(amountSender, spkSender);
 	rawMutableTx.vout.push_back(out1);
+	pCurrentAnonymousTxInfo->SetVoutAndScriptPubKey(ROLE_SENDER, voutnSender, scriptPubKeySender, amountSender);	
 
 	// mixer gets 2 * baseAmount + servicefee
+	CAmount amountMixer = 2 * baseAmount + servicefee;
 	std::string addressMixer = pCurrentAnonymousTxInfo->GetAddress(ROLE_MIXER);
 	CTxDestination addressM = DecodeDestination(addressMixer);
 	CScript spkMixer = GetScriptForDestination(addressM);
-	CTxOut out2(2 * baseAmount + servicefee, spkMixer);
+	CTxOut out2(amountMixer, spkMixer);
 	rawMutableTx.vout.push_back(out2);
+	pCurrentAnonymousTxInfo->SetVoutAndScriptPubKey(ROLE_MIXER, voutnMixer, scriptPubKeyMixer, amountMixer);
 
 	// guarantor gets baseAmount + servicefee
+	CAmount amountGuarator = baseAmount + servicefee;
 	std::string addressGuarantor = pCurrentAnonymousTxInfo->GetAddress(ROLE_GUARANTOR);
 	CTxDestination addressG = DecodeDestination(addressGuarantor);
 	CScript spkGuarantor = GetScriptForDestination(addressG);
-	CTxOut out3(baseAmount + servicefee, spkGuarantor);
+	CTxOut out3(amountGuarator, spkGuarantor);
 	rawMutableTx.vout.push_back(out3);
+	pCurrentAnonymousTxInfo->SetVoutAndScriptPubKey(ROLE_GUARANTOR, voutnGuarantor, scriptPubKeyGuarantor, amountGuarator);
 	
 	CTransaction rawTx(rawMutableTx);
 
@@ -6284,58 +6288,28 @@ bool SignMultiSigDistributionTx()
 	std::string miltisigtx = pCurrentAnonymousTxInfo->GetTx();
 	LogPrint(BCLog::DEEPSEND, ">> SignMultiSigDistributionTx: miltisigtx = %s\n", miltisigtx.c_str());
 
-	std::vector<unsigned char> txData(ParseHex(miltisigtx));
-    CDataStream ssData(txData, SER_NETWORK, PROTOCOL_VERSION);
-    std::vector<CTransaction> txVariants;
-    while (!ssData.empty())
-    {
-        try 
-		{
-        	CMutableTransaction mtx;
-            ssData >> mtx;
-            txVariants.push_back(mtx);
-            LogPrint(BCLog::DEEPSEND, ">> SignMultiSigDistributionTx: CTransaction:\n");
-        }
-        catch (std::exception &e) 
-		{
-        	LogPrintf("ERROR. SignMultiSigDistributionTx: TX decode failed.\n");
-            return false;
-        }
+	LOCK2(cs_main, pwallet->cs_wallet);
+    CMutableTransaction mtx;
+    if (!DecodeHexTx(mtx, miltisigtx, true)) {
+    	LogPrintf("SignMultiSigDistributionTx(): Error. Multisig-Tx decode failed");
     }
 
-    if (txVariants.empty())
-	{
-    	LogPrintf("ERROR. SignMultiSigDistributionTx: Missing transaction.\n");
-        return false;
-	}
-
-    // mergedTx will end up with all the signatures; it
-    // starts as a clone of the rawtx:
-    CMutableTransaction mergedTx(txVariants[0]);
-    bool fComplete = true;
-
-    // Fetch previous transactions (inputs)
-    std::map<COutPoint, CScript> mapPrevOut;
+    // Fetch previous transactions (inputs):
     CCoinsView viewDummy;
     CCoinsViewCache view(&viewDummy);
     {
-        LOCK(cs_main);
         LOCK(mempool.cs);
         CCoinsViewCache &viewChain = *pcoinsTip;
         CCoinsViewMemPool viewMempool(&viewChain, mempool);
-        view.SetBackend(viewMempool); 		// temporarily switch cache backend to db+mempool view
+        view.SetBackend(viewMempool); // temporarily switch cache backend to db+mempool view
 
-        Coin coinPrev;
-        for (const CTxIn& txin: mergedTx.vin) {
-            view.AccessCoin(txin.prevout); 	// Load entries from viewChain into view; can fail.
-        	if(view.GetCoin(txin.prevout, coinPrev)){
-        		mapPrevOut[txin.prevout] = coinPrev.out.scriptPubKey;
-        	}
+        for (const CTxIn& txin : mtx.vin) {
+            view.AccessCoin(txin.prevout); // Load entries from viewChain into view; can fail.
         }
 
-        view.SetBackend(viewDummy); 		// switch back to avoid locking mempool for too long    	
+        view.SetBackend(viewDummy); // switch back to avoid locking mempool for too long
     }
-    
+
 	// get self private key 
 	std::string selfAddress = pCurrentAnonymousTxInfo->GetSelfAddress();
 	CTxDestination saddr = DecodeDestination(selfAddress);
@@ -6352,75 +6326,74 @@ bool SignMultiSigDistributionTx()
     	LogPrintf("SignMultiSigDistributionTx(): Private key not available\n");
     	return false;
     }
-    
-    CPrivKey privKey = key.GetPrivKey();
 
     bool fGivenKeys = true;
-    bool b = true;
     CBasicKeyStore tempKeystore;
     tempKeystore.AddKey(key);
 
-    // Add previous txouts
-	b = AddPrevTxOut(ROLE_SENDER, tempKeystore, mapPrevOut);
+    // Add previous txouts 
+
+    bool b = AddPrevTxOut(ROLE_SENDER, tempKeystore, view);
 	if(!b)
 	{
 		LogPrintf("SignMultiSigDistributionTx(): failed add previous txout, for sender\n");
 		return false;
 	}
 
-	b = AddPrevTxOut(ROLE_MIXER, tempKeystore, mapPrevOut);
+	b = AddPrevTxOut(ROLE_MIXER, tempKeystore, view);
 	if(!b)
 	{
 		LogPrintf("SignMultiSigDistributionTx: failed add previous txout, for mixer\n");
 		return false;
 	}
 
-	b = AddPrevTxOut(ROLE_GUARANTOR, tempKeystore, mapPrevOut);
+	b = AddPrevTxOut(ROLE_GUARANTOR, tempKeystore, view);
 	if(!b)
 	{
 		LogPrintf("SignMultiSigDistributionTx: failed add previous txout, for guarantor\n");
 		return false;
 	}
 
-    const CKeyStore& keystore = tempKeystore;
-
+	const CKeyStore& keystore = tempKeystore;
     int nHashType = SIGHASH_ALL;
     bool fHashSingle = ((nHashType & ~SIGHASH_ANYONECANPAY) == SIGHASH_SINGLE);
 
-    const CTransaction txConst(mergedTx);
-    
+    // Use CTransaction for the constant parts of the
+    // transaction to avoid rehashing.
+    const CTransaction txConst(mtx);
+    bool fComplete = true;
     // Sign what we can:
-    for (unsigned int i = 0; i < mergedTx.vin.size(); i++) 
-    {
-        CTxIn& txin = mergedTx.vin[i];
-        if (mapPrevOut.count(txin.prevout) == 0)
-        {
-            fComplete = false;
-            continue;
-        }
-        
+    for (unsigned int i = 0; i < mtx.vin.size(); i++) {
+        CTxIn& txin = mtx.vin[i];
         const Coin& coin = view.AccessCoin(txin.prevout);
         if (coin.IsSpent()) {
-            LogPrintf("SignMultiSigDistributionTx: Input not found or already spent");
+            LogPrintf("Error. Input not found or already spent");
             return false;
         }
-        const CScript& prevPubKey = mapPrevOut[txin.prevout];
+        const CScript& prevPubKey = coin.out.scriptPubKey;
         const CAmount& amount = coin.out.nValue;
 
         SignatureData sigdata;
+        // Only sign SIGHASH_SINGLE if there's a corresponding output:
+        if (!fHashSingle || (i < mtx.vout.size()))
+            ProduceSignature(MutableTransactionSignatureCreator(&keystore, &mtx, i, amount, nHashType), prevPubKey, sigdata);
+        sigdata = CombineSignatures(prevPubKey, TransactionSignatureChecker(&txConst, i, amount), sigdata, DataFromTransaction(mtx, i));
 
-        // ... and merge in other signatures:
-        for (const CMutableTransaction& txv : txVariants) {
-            if (txv.vin.size() > i) {
-                sigdata = CombineSignatures(prevPubKey, TransactionSignatureChecker(&txConst, i, amount), sigdata, DataFromTransaction(txv, i));
+        UpdateTransaction(mtx, i, sigdata);
+
+        ScriptError serror = SCRIPT_ERR_OK;
+        if (!VerifyScript(txin.scriptSig, prevPubKey, &txin.scriptWitness, STANDARD_SCRIPT_VERIFY_FLAGS, TransactionSignatureChecker(&txConst, i, amount), &serror)) {
+            if (serror == SCRIPT_ERR_INVALID_STACK_OPERATION) {
+                // this will be a partial sign, which is ok
+            	fComplete = false;
+            } else {
+                LogPrintf("SignMultiSigDistributionTx(): error: %s\n", ScriptErrorString(serror));
+                return false;
             }
         }
     }
     
-    CDataStream ssTx(SER_NETWORK, PROTOCOL_VERSION);
-    ssTx << mergedTx;
-	std::string signedTx = HexStr(ssTx.begin(), ssTx.end());
-
+	std::string signedTx = EncodeHexTx(mtx);
 	int signedcount = pCurrentAnonymousTxInfo->GetSignedCount();
 	LogPrint(BCLog::DEEPSEND, ">> SignMultiSigDistributionTx: SignedCount before incrementing = %d\n", signedcount);
 
@@ -6433,6 +6406,11 @@ bool SignMultiSigDistributionTx()
 	{
 		LogPrintf("ERROR. SignMultiSigDistributionTx: signedcount == 2 but not complete.\n");
 		return false;
+	}
+	else if(signedcount == 1 && fComplete == true)
+	{
+		LogPrintf("ERROR. SignMultiSigDistributionTx: signedcount == 1 but already complete.\n");
+		return false;		
 	}
 
 	pCurrentAnonymousTxInfo->SetTx(signedTx, signedcount);
@@ -6546,8 +6524,6 @@ bool SendMultiSigDistributionTx(CConnman *connman)
 }
 
 
-
-
 bool ExtractVoutAndScriptPubKey(AnonymousTxRole role, std::string txid, int& voutn, std::string& hexScriptPubKey)
 {
 	LogPrint(BCLog::DEEPSEND, ">> ExtractVoutAndScriptPubKey for txid = %s\n", txid.c_str());
@@ -6584,48 +6560,50 @@ bool ExtractVoutAndScriptPubKey(AnonymousTxRole role, std::string txid, int& vou
 }
 
 
-bool AddPrevTxOut(AnonymousTxRole role, CBasicKeyStore& tempKeystore, std::map<COutPoint, CScript>& mapPrevOut)
+bool AddPrevTxOut(AnonymousTxRole role, CBasicKeyStore& tempKeystore, CCoinsViewCache& view)
 {
 	std::string txidHex = "";
 	int nOut = 0;
 	std::string pkHex = "";
-	pCurrentAnonymousTxInfo->GetMultisigTxOutInfo(role, txidHex, nOut, pkHex);
+	CAmount amount = 0;
+	pCurrentAnonymousTxInfo->GetMultisigTxOutInfo(role, txidHex, nOut, pkHex, amount);
 
-	LogPrint(BCLog::DEEPSEND, ">> AddPrevTxOut: role = %d, txidHex = %s, nOut = %d, pkHex = %s\n", 
-			role, txidHex.c_str(), nOut, pkHex.c_str());
+	LogPrint(BCLog::DEEPSEND, ">> AddPrevTxOut: role = %d, txidHex = %s, nOut = %d, pkHex = %s, amount = %ld\n", 
+			role, txidHex.c_str(), nOut, pkHex.c_str(), amount);
 
 	std::string rdmScript = pCurrentAnonymousTxInfo->GetRedeemScript();
 	LogPrint(BCLog::DEEPSEND, ">> AddPrevTxOut: rdmScript = %s\n", rdmScript.c_str());
 
 	uint256 txid;
     txid.SetHex(txidHex);
-
     std::vector<unsigned char> pkData(ParseHex(pkHex));
     CScript scriptPubKey(pkData.begin(), pkData.end());
 
-    COutPoint outpoint(txid, nOut);
-    if(mapPrevOut.count(outpoint))
-    {
-		// Complain if scriptPubKey doesn't match
-		if (mapPrevOut[outpoint] != scriptPubKey)
-		{
-			std::string err("Previous output scriptPubKey mismatch:\n");
-			err = err + mapPrevOut[outpoint].ToString() + "\nvs:\n"+
-				scriptPubKey.ToString();
-			printf("AddPrevTxOut: Error. %s\n", err.c_str());
-			return false;
-		}
+    COutPoint out(txid, nOut);
+    const Coin& coin = view.AccessCoin(out);
+	if (!coin.IsSpent() && coin.out.scriptPubKey != scriptPubKey) {
+    	std::string err("Previous output scriptPubKey mismatch:\n");
+       	err = err + ScriptToAsmStr(coin.out.scriptPubKey) + "\nvs:\n"+
+        	ScriptToAsmStr(scriptPubKey);
+		LogPrintf("AddPrevTxOut: Error. %s\n", err.c_str());
+		return false;
 	}
-	else
-		mapPrevOut[outpoint] = scriptPubKey;
+    Coin newcoin;
+    newcoin.out.scriptPubKey = scriptPubKey;
+    newcoin.out.nValue = 0;
+    newcoin.out.nValue = amount;
+    newcoin.nHeight = 1;
+    view.AddCoin(out, std::move(newcoin), true);
 
 	// if redeemScript given and not using the local wallet (private keys
 	// given), add redeemScript to the tempKeystore so it can be signed:
-	if (scriptPubKey.IsPayToScriptHash())
+	if (scriptPubKey.IsPayToScriptHash() || scriptPubKey.IsPayToWitnessScriptHash())
 	{
 		std::vector<unsigned char> rsData(ParseHex(rdmScript));
 		CScript redeemScript(rsData.begin(), rsData.end());
 		tempKeystore.AddCScript(redeemScript);
+        // Automatically also add the P2WSH wrapped version of the script (to deal with P2SH-P2WSH).
+        tempKeystore.AddCScript(GetScriptForWitness(redeemScript));
 	}
 
 	return true;

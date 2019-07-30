@@ -558,7 +558,10 @@ private:
 	std::string		sPubKeySender;
 	std::string		sPubKeyMixer;	
 	std::string		sPubKeyGuarantor;
-
+	CAmount			amountSender;
+	CAmount			amountMixer;
+	CAmount			amountGuarantor;
+	
 public:
 	MultisigTxInfo()
 	{
@@ -573,6 +576,9 @@ public:
 		sPubKeySender = "";
 		sPubKeyMixer = "";
 		sPubKeyGuarantor = "";
+		amountSender = 0;
+		amountMixer = 0;
+		amountGuarantor = 0;
 	}
 
 	void clean()
@@ -588,6 +594,9 @@ public:
 		sPubKeySender = "";
 		sPubKeyMixer = "";
 		sPubKeyGuarantor = "";
+		amountSender = 0;
+		amountMixer = 0;
+		amountGuarantor = 0;
 	}
 
 	std::string GetTx() const
@@ -625,7 +634,7 @@ public:
 		return txid;
 	}
 
-	void GetTxOutInfo(AnonymousTxRole role, std::string& txid, int& voutn, std::string& pubkey) const
+	void GetTxOutInfo(AnonymousTxRole role, std::string& txid, int& voutn, std::string& pubkey, CAmount& amount) const
 	{
 		txid = "";
 		voutn = 0;
@@ -637,18 +646,21 @@ public:
 				txid = txidSender;
 				voutn = voutNSender;
 				pubkey = sPubKeySender;
+				amount = amountSender;
 				break;
 
 			case ROLE_MIXER:
 				txid = txidMixer;
 				voutn = voutNMixer;
 				pubkey = sPubKeyMixer;
+				amount = amountMixer;
 				break;
 
 			case ROLE_GUARANTOR:
 				txid = txidGuarantor;
 				voutn = voutNGuarantor;
 				pubkey = sPubKeyGuarantor;
+				amount = amountGuarantor;
 				break;
 				
 			case ROLE_UNKNOWN:
@@ -677,23 +689,26 @@ public:
 		}
 	}
 
-	void SetVoutAndScriptPubKey(AnonymousTxRole role, int voutn, std::string scriptPubKey)
+	void SetVoutAndScriptPubKey(AnonymousTxRole role, int voutn, std::string scriptPubKey, CAmount amount)
 	{
 		switch (role)
 		{
 			case ROLE_SENDER:
 				voutNSender = voutn;
 				sPubKeySender = scriptPubKey;
+				amountSender = amount;
 				break;
 
 			case ROLE_MIXER:
 				voutNMixer = voutn;
 				sPubKeyMixer = scriptPubKey;
+				amountMixer = amount;
 				break;
 
 			case ROLE_GUARANTOR:
 				voutNGuarantor = voutn;
 				sPubKeyGuarantor = scriptPubKey;
+				amountGuarantor = amount;
 				break;
 				
 			case ROLE_UNKNOWN:
@@ -1011,9 +1026,9 @@ public:
 		return pMultiSigDistributionTx->GetSignedCount();
 	}
 
-	void GetMultisigTxOutInfo(AnonymousTxRole role, std::string& txid, int& voutn, std::string& pubkey) const
+	void GetMultisigTxOutInfo(AnonymousTxRole role, std::string& txid, int& voutn, std::string& pubkey, CAmount& amount) const
 	{
-		pMultiSigDistributionTx->GetTxOutInfo(role, txid, voutn, pubkey);
+		pMultiSigDistributionTx->GetTxOutInfo(role, txid, voutn, pubkey, amount);
 	}
 
 	std::string GetCommittedMsTx() const
@@ -1031,9 +1046,9 @@ public:
 		pParties->SetNode(role, pN);
 	}
 
-	void SetVoutAndScriptPubKey(AnonymousTxRole role, int vout, std::string pubkey)
+	void SetVoutAndScriptPubKey(AnonymousTxRole role, int vout, std::string pubkey, CAmount amount)
 	{
-		pMultiSigDistributionTx->SetVoutAndScriptPubKey(role, vout, pubkey);
+		pMultiSigDistributionTx->SetVoutAndScriptPubKey(role, vout, pubkey, amount);
 	}
 
 	void SetLastActivityTime();
@@ -1081,7 +1096,7 @@ extern CAnonymousTxInfo* pCurrentAnonymousTxInfo;
 extern std::map<std::string, std::string> mapAnonymousServices;
 
 /** DeepSend related function */
-bool AddPrevTxOut(AnonymousTxRole role, CBasicKeyStore& tempKeystore, std::map<COutPoint, CScript>& mapPrevOut);
+bool AddPrevTxOut(AnonymousTxRole role, CBasicKeyStore& tempKeystore, CCoinsViewCache& view);
 bool CheckAnonymousServiceConditions();
 bool CreateMultiSigAddress();
 std::string CreateMultiSigDistributionTx();
