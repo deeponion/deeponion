@@ -6161,7 +6161,8 @@ std::string CreateMultiSigDistributionTx()
 
 	// now creating raw distribution tx
 	CMutableTransaction rawMutableTx;
-
+	rawMutableTx.nTime = GetAdjustedTime();
+	
     uint256 txid256;
     txid256.SetHex(txidSender);
     CTxIn in1(COutPoint(uint256(txid256), voutnSender));
@@ -6465,7 +6466,7 @@ bool SendMultiSigDistributionTx(CConnman *connman)
     		CValidationState state;
     		bool fMissingInputs;
     		if (!AcceptToMemoryPool(mempool, state, std::move(txRef), &fMissingInputs,
-    				nullptr /* plTxnReplaced */, false /* bypass_limits */, DEFAULT_MIN_RELAY_TX_FEE)) 
+    				nullptr /* plTxnReplaced */, false /* bypass_limits */, 0)) 
     		{
     			if (state.IsInvalid()) 
     			{
