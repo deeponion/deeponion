@@ -156,16 +156,15 @@ UniValue sendwithdeepsend(const JSONRPCRequest& request)
     CCoinControl coinControl;
     coinControl.SetDeepSend(true);
 
-    pwallet->DeepSendRequested(true);
-
     std::vector< std::pair<std::string, CAmount> > vecSend;
     vecSend.push_back(std::make_pair(sAddr, nAmount));
 
-    EnsureWalletIsUnlocked(pwallet);
+    //Make sure wallet is either unflagged unlocked or unlocked and flagged for deepsend only
+    if((pwallet->IsLocked() || (!pwallet->IsLocked() && !fWalletUnlockDeepSendOnly && fWalletUnlockStakingOnly)))
+        return "Unlock wallet for DeepSend";
 
     bool b = StartP2pMixerSendProcess(vecSend, &coinControl);
 
-    pwallet->DeepSendRequested(false);
     return b ? "StartP2pMixerSendProcess successfully started.": "StartP2pMixerSendProcess failed.";
 }
 

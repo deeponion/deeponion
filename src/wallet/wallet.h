@@ -693,8 +693,6 @@ private:
     std::mutex mutexScanning;
     friend class WalletRescanReserver;
 
-    bool deepSendRequested;
-
     /**
      * Select a set of coins such that nValueRet >= nTargetValue and at least
      * all coins from coinControl are selected; Never select unconfirmed coins
@@ -801,9 +799,6 @@ public:
             return "dummy";
         }
     }
-
-    void DeepSendRequested(bool _transactDeepSend);
-    bool DeepSendRequested();
 
     void LoadKeyPool(int64_t nIndex, const CKeyPool &keypool);
 

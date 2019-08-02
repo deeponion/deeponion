@@ -79,18 +79,7 @@ bool EnsureWalletIsAvailable(CWallet * const pwallet, bool avoidException)
 }
 
 void EnsureWalletIsUnlocked(CWallet * const pwallet)
-{
-    if(pwallet->DeepSendRequested())
-    {
-        //Make sure wallet is either unflagged unlocked or unlocked and flagged for deepsend only
-        if((!pwallet->IsLocked() && !fWalletUnlockStakingOnly) || (!pwallet->IsLocked() && fWalletUnlockDeepSendOnly))
-            return;
-        else
-        {
-            pwallet->DeepSendRequested(false);
-            throw JSONRPCError(RPC_WALLET_UNLOCK_NEEDED, "Error: Please enter the wallet passphrase with walletpassphrase first.");
-        }
-    }
+{  
     if (pwallet->IsLocked()) {
         throw JSONRPCError(RPC_WALLET_UNLOCK_NEEDED, "Error: Please enter the wallet passphrase with walletpassphrase first.");
     }

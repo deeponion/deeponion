@@ -5570,15 +5570,3 @@ int CWallet::GetSelfAddressCount()
     LogPrint(BCLog::DEEPSEND, ">> GetSelfAddressCount: count = %d\n", count);
 	return count;
 }
-
-void CWallet::DeepSendRequested(bool _deepSendRequested)
-{
-    deepSendRequested = _deepSendRequested;
-}
-
-bool CWallet::DeepSendRequested()
-{
-    return deepSendRequested;
-}
-
-
