@@ -282,6 +282,10 @@ enum ServiceFlags : uint64_t {
     // NODE_XTHIN means the node supports Xtreme Thinblocks
     // If this is turned off then the node will not service nor make xthin requests
     NODE_XTHIN = (1 << 4),
+    // NODE_DEEP_SEND mean the node supports the DeepSend Protocol and will
+    // respond to DeepSend Protocol messages.
+    // See TODO: Add a reference to DeepSend definition.
+    NODE_DEEP_SEND = (1 << 7),
     // NODE_NETWORK_LIMITED means the same as NODE_NETWORK with the limitation of only
     // serving the last 288 (2 day) blocks
     // See BIP159 for details on how this is implemented.

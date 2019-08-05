@@ -1203,6 +1203,7 @@ void CConnman::ThreadSocketHandler()
                     if (fDelete) {
                         vNodesDisconnected.remove(pnode);
                         DeleteNode(pnode);
+                        GetUpdatedServiceListCount();
                     }
                 }
             }

@@ -1791,19 +1791,22 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 //        }
         pfrom->fSuccessfullyConnected = true;
         
-        //
-        // Message: deepsend announcement
-        //
-    	CWallet* pwallet = vpwallets[0];
-        bool b = CheckAnonymousServiceConditions();
-		std::string selfAddress = pwallet->GetOneSelfAddress();
+        // If we support the DeepSend Service announce our status
+        if((pfrom->GetLocalServices() & NODE_DEEP_SEND)) {
+            //
+            // Message: deepsend announcement
+            //
+            CWallet* pwallet = vpwallets[0];
+            bool b = CheckAnonymousServiceConditions();
+            std::string selfAddress = pwallet->GetOneSelfAddress();
 
-		LogPrint(BCLog::DEEPSEND, ">> broadcasting mixservice messages with b = %d to %s\n", b, pfrom->addr.ToString());
-        std::string status = "false";
-        if(b && selfAddress != "")
-        	 status = "true";
+            LogPrint(BCLog::DEEPSEND, ">> broadcasting mixservice messages with b = %d to %s\n", b, pfrom->addr.ToString());
+            std::string status = "false";
+            if(b && selfAddress != "")
+                 status = "true";
 
-        connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::DS_SERVICEANN, selfAddress, status));
+            connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::DS_SERVICEANN, selfAddress, status));
+        }
     }
 
     else if (!pfrom->fSuccessfullyConnected)
@@ -2831,6 +2834,23 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
         }
         if (bPingFinished) {
             pfrom->nPingNonceSent = 0;
+        }
+
+        // If we support the DeepSend Service announce our status
+        if((pfrom->GetLocalServices() & NODE_DEEP_SEND)) {
+            //
+            // Message: deepsend announcement
+            //
+            CWallet* pwallet = vpwallets[0];
+            bool b = CheckAnonymousServiceConditions();
+            std::string selfAddress = pwallet->GetOneSelfAddress();
+
+            LogPrint(BCLog::DEEPSEND, ">> broadcasting mixservice messages with b = %d to %s\n", b, pfrom->addr.ToString());
+            std::string status = "false";
+            if(b && selfAddress != "")
+                 status = "true";
+
+            connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::DS_SERVICEANN, selfAddress, status));
         }
     }
 
