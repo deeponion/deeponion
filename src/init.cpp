@@ -414,6 +414,7 @@ std::string HelpMessage(HelpMessageMode mode)
     strUsage += HelpMessageOpt("-timeout=<n>", strprintf(_("Specify connection timeout in milliseconds (minimum: 1, default: %d)"), DEFAULT_CONNECT_TIMEOUT));
     strUsage += HelpMessageOpt("-torcontrol=<ip>:<port>", strprintf(_("Tor control port to use if onion listening enabled (default: %s)"), DEFAULT_TOR_CONTROL));
     strUsage += HelpMessageOpt("-torpassword=<pass>", _("Tor control port password (default: empty)"));
+    strUsage += HelpMessageOpt("-torport=<port>", _("Start internal Tor node on port (default: 9081)"));
 #ifdef USE_UPNP
 #if USE_UPNP
     strUsage += HelpMessageOpt("-upnp", _("Use UPnP to map the listening port (default: 1 when listening and no -proxy)"));
@@ -1387,7 +1388,7 @@ bool AppInitMain()
     } else {
         // DeepOnion always uses Tor, if not specified, connect to our default Tor node.
         CService onionProxy;
-        if (!Lookup("127.0.0.1", onionProxy, 9081, fNameLookup)) {
+        if (!Lookup("127.0.0.1", onionProxy, gArgs.GetArg("-torport", 9081), fNameLookup)) {
             return InitError(strprintf(_("Invalid -onion address or hostname: '%s'"), onionArg));
         }
         proxyType addrOnion = proxyType(onionProxy, proxyRandomize);

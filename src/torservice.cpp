@@ -108,7 +108,8 @@ TorService::TorService(struct event_base* _base):
     argv.push_back("--Log");
     argv.push_back("notice file " + log_file.string());
     argv.push_back("--SocksPort");
-    argv.push_back("9081");
+    int torport = gArgs.GetArg("-torport", 9081);
+    argv.push_back(std::to_string(torport));
     argv.push_back("--ignore-missing-torrc");
     argv.push_back("-f");
     std::string torrc = (tor_dir / "torrc").string();
@@ -122,11 +123,12 @@ TorService::TorService(struct event_base* _base):
     argv.push_back("--HiddenServiceDir");
     argv.push_back((tor_dir / "onion").string());
     argv.push_back("--HiddenServicePort");
-    if (fTestNet)
-        argv.push_back("26550");
-    else
-        argv.push_back("17570");
 
+    // If the port has changed then create the hidden service on a different port.
+    int port = gArgs.GetArg("-port", -1);
+    std::string sport = port != -1 ? std::to_string(port) : (fTestNet ? "17570" : "26550");
+    LogPrintf("torservice: Creating hidden service on port %s\n", sport);
+    argv.push_back(sport);
     argv.push_back("--HiddenServiceVersion");
     argv.push_back("2");
     if (clientTransportPlugin)
