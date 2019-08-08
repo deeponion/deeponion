@@ -153,7 +153,7 @@ static const bool DEFAULT_PEERBLOOMFILTERS = true;
 static const int DEFAULT_STOPATHEIGHT = 0;
 
 /** Reject headers if someone attempts to start a chain this far back */
-static const int ATTACK_DETECTION_HEIGHT = 100;
+static const int ATTACK_DETECTION_HEIGHT = 500;
 
 struct BlockHasher
 {
