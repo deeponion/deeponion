@@ -660,7 +660,7 @@ std::string CNode::GetAddrName() const {
 
 void CNode::MaybeSetAddrName(const std::string& addrNameIn) {
     LOCK(cs_addrName);
-    if (addrName.empty()) {
+    if (addrName.empty() || ( addrName.find("onion") == std::string::npos && addrNameIn.find("onion") != std::string::npos) ) {
         addrName = addrNameIn;
     }
 }

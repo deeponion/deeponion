@@ -1660,7 +1660,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
         if (pfrom->fInbound) {
             PushNodeVersion(pfrom, connman, GetAdjustedTime());
             // DeepOnion: Due to Tor proxy we do not know it's onion address, so set it here.
-            LogPrint(BCLog::NET, "ProcessMessages: setting peer %d AddrName to %s\n", pfrom->GetId(), addrFrom.ToString());
+            LogPrint(BCLog::NET, "ProcessMessages: setting peer %d AddrName to %s\n", pfrom->GetId(), addrFrom.ToString().c_str());
             pfrom->MaybeSetAddrName(addrFrom.ToString());
         }
 

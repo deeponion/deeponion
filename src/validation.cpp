@@ -6643,8 +6643,10 @@ void UpdateAnonymousServiceList(CNode* pNode, std::string keyAddress, std::strin
 	
 	// remove non-onion address
 	std::string onion = ".onion";
-	if(addr.find(onion) == std::string::npos)
+	if(addr.find(onion) == std::string::npos) {
+		LogPrint(BCLog::DEEPSEND, ">> UpdateAnonymousServiceList. Not an .onion address, addr = %s\n", addr.c_str());
 		return;
+	}
 
 	LogPrint(BCLog::DEEPSEND, ">> UpdateAnonymousServiceList. key = %s, addr = %s, status = %s\n", keyAddress.c_str(), addr.c_str(), status.c_str());
 	LogPrint(BCLog::DEEPSEND, ">> DeepSend List current size: %d\n", mapAnonymousServices.size());
