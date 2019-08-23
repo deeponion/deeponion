@@ -126,7 +126,7 @@ TorService::TorService(struct event_base* _base):
 
     // If the port has changed then create the hidden service on a different port.
     int port = gArgs.GetArg("-port", -1);
-    std::string sport = port != -1 ? std::to_string(port) : (fTestNet ? "17570" : "26550");
+    std::string sport = port != -1 ? std::to_string(port) : (fTestNet ? "26550"  : "17570");
     LogPrintf("torservice: Creating hidden service on port %s\n", sport);
     argv.push_back(sport);
     argv.push_back("--HiddenServiceVersion");
