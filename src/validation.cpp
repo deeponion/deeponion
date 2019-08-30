@@ -107,7 +107,7 @@ int LAST_REGISTERED_BTC_BLOCK_HEIGHT = 583427;
 std::string LAST_REGISTERED_BLOCKCHAIN_HASH = "1cae2b39342c00852b925569357ce213d1ee82fde9d5e191cb8035224f5e7cf5";
 std::string LAST_REGISTERED_BTC_TX = "64dce430d41f0a818dc4f7d4e4ec8e34b3c6fc91b55ec107507e9875a87a35ec";
 
-static const int NUM_OF_POW_CHECKPOINT = 31;
+static const int NUM_OF_POW_CHECKPOINT = 30;
 static const int checkpointPoWHeight[NUM_OF_POW_CHECKPOINT][2] =
 {
 		{   9601,   4611},
@@ -139,8 +139,7 @@ static const int checkpointPoWHeight[NUM_OF_POW_CHECKPOINT][2] =
 		{1200000, 235100},
 		{1250000, 243054},
 		{1300021, 252612},
-		{1350006, 261895},
-		{1390072, 269386},
+		{1350006, 261894},
 };
 
 
