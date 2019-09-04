@@ -27,4 +27,6 @@ static constexpr unsigned int LOCKTIME_VERIFY_SEQUENCE = (1 << 0);
 /** Use GetMedianTimePast() instead of nTime for end point timestamp. */
 static constexpr unsigned int LOCKTIME_MEDIAN_TIME_PAST = (1 << 1);
 
+static const int SWITCH_BLOCK_DSBUG_END = 1423000;
+
 #endif // BITCOIN_CONSENSUS_CONSENSUS_H
