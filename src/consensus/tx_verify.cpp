@@ -10,6 +10,7 @@
 #include <stealth.h>
 
 #include <consensus/validation.h>
+#include <wallet/fees.h>
 
 // TODO remove the following dependencies
 #include <chain.h>
@@ -307,6 +308,11 @@ bool Consensus::CheckTxInputs(const CTransaction& tx, CValidationState& state, c
     if (!MoneyRange(txfee_aux)) {
         return state.DoS(100, false, REJECT_INVALID, "bad-txns-fee-outofrange");
     }
+    
+    // enforce transaction fees for every block after SWITCH_BLOCK_DSBUG_END (1423000)
+    if (nSpendHeight > SWITCH_BLOCK_DSBUG_END && txfee_aux < GetRequiredFee(1000))
+        return state.DoS(100, false, REJECT_INVALID, "tx-did-not=pay-enough-fee", false,
+        	strprintf("%s not paying required fee=%s, paid=%s", tx.GetHash().ToString().c_str(), FormatMoney(GetRequiredFee(1000)), FormatMoney(txfee_aux)));
 
     txfee = txfee_aux;
     return true;
