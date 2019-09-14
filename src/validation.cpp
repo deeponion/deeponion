@@ -1326,7 +1326,7 @@ CAmount GetProofOfWorkReward(int nHeight, const CBlockIndex* pindex)
 	}
 
 	int nPoWHeight = GetPowHeight(pindex);
-	LogPrintf(">> nHeight = %d, nPoWHeight = %d\n", nHeight, nPoWHeight);
+	LogPrint(BCLog::STAKE, ">> nHeight = %d, nPoWHeight = %d\n", nHeight, nPoWHeight);
 	int mm = nPoWHeight / 131400;
 	nSubsidy >>= mm;
 
