@@ -6185,7 +6185,7 @@ std::string CreateMultiSigDistributionTx()
     CAmount paidfee = baseAmount * DEEPSEND_FEE_RATE;
 	if(paidfee < DEEPSEND_MIN_FEE)
 		paidfee = DEEPSEND_MIN_FEE;
-	CAmount fee = 5 * DEFAULT_BLOCK_MIN_TX_FEE;	// may need to adjust this
+	CAmount fee = DEFAULT_BLOCK_MIN_TX_FEE;	
 	CAmount servicefee = (paidfee - fee) / 2;
 
 	// sender gets baseAmount
