@@ -84,7 +84,7 @@ UniValue getdeepsendinfo(const JSONRPCRequest& request)
 
     UniValue obj(UniValue::VOBJ);
 
-    obj.push_back(Pair("enabled", pwallet->IsUnLockedForDeepsend()));
+    obj.push_back(Pair("enabled", CheckAnonymousServiceConditions() ));
 
     return obj;
 }

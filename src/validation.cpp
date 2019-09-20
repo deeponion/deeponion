@@ -6707,6 +6707,9 @@ void UpdateAnonymousServiceList(CNode* pNode, std::string keyAddress, std::strin
 
 bool CheckAnonymousServiceConditions() 
 {
+    if (IsInitialBlockDownload())
+        return false;
+
     CWallet* pwallet = vpwallets[0];
 
 	if (!pwallet->IsUnLockedForDeepsend())
