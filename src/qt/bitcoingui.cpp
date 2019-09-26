@@ -1007,9 +1007,17 @@ void BitcoinGUI::updateMixerIcon()
     if(cnt > 1)
 		b = true;
 
-	if(b)
-	{
-		if(IsCurrentAnonymousTxInProcess())
+    labelMixerIcon->setPixmap(QIcon(":/icons/mixer_off").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
+
+    if (g_connman == 0 || g_connman->GetNodeCount(CConnman::CONNECTIONS_ALL) == 0)
+        labelMixerIcon->setToolTip(tr("Anonymous DeepSend Not Available - The wallet is offline"));
+    else if (IsInitialBlockDownload())
+        labelMixerIcon->setToolTip(tr("Anonymous DeepSend Not Available - The wallet is syncing"));
+    else if (!b)
+        labelMixerIcon->setToolTip(tr("Anonymous DeepSend Not Available - You Do Not Have Enough Service Nodes Connected"));
+    else if (b)
+    {
+        if(IsCurrentAnonymousTxInProcess())
 		{
 			labelMixerIcon->setPixmap(QIcon(":/icons/mixer_process").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
 			labelMixerIcon->setToolTip(tr("Anonymous DeepSend Currently Processing"));
@@ -1021,10 +1029,7 @@ void BitcoinGUI::updateMixerIcon()
 		}
     }
     else
-    {
-        labelMixerIcon->setPixmap(QIcon(":/icons/mixer_off").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
-		labelMixerIcon->setToolTip(tr("DeepSend Not Available - You Do Not Have Enough Service Nodes Connected"));
-    }
+        labelMixerIcon->setToolTip(tr("Anonymous DeepSend Not Available"));
 }
 
 void BitcoinGUI::updateOnionIcon()

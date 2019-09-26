@@ -135,6 +135,10 @@ UniValue sendwithdeepsend(const JSONRPCRequest& request)
 	/*if(nAmount > MAX_ALLOWED_DEEP_SEND)
         return "DeepSend only allows maximum of %1 now. Please reduce send amount or use regular send.";*/
 
+    // check if the wallet is synced
+    if(IsInitialBlockDownload())
+        return "DeepSend requires the wallet to be synced.";
+
     // check if there are mixer/garantor available
     if(!(g_connman->GetUpdatedServiceListCount() > 1))
         return "DeepSend requires at least 2 anonymous service nodes available. You don't have enough service nodes connected. Please use regular-send or try later.";

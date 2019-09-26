@@ -127,7 +127,8 @@ public:
 		AnotherDeepSendInProgress,
 		NotEnoughReserveForDeepSend,
 		NotSupportedDeepSendToStealthTx,
-		StartDeepSendFailed
+		StartDeepSendFailed,
+        DeepSendWalletSyncing
     };
 
     enum EncryptionStatus
@@ -238,6 +239,7 @@ public:
     //deepsend
     bool AreServiceNodesAvailable();
     bool IsAnotherDeepSendInProcess();
+    bool IsWalletSyncing();
 
     QString getBlockchainStatusText();
     QString getBlockchainStatusDetailsText();

@@ -355,6 +355,12 @@ WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransact
 			return DeepSendAmountExceeded;
 		}
 
+		// check if the wallet is syncing
+		if(IsWalletSyncing())
+		{
+			return DeepSendWalletSyncing;
+		}
+
 		// check if there are mixer/garantor available
 		if(!AreServiceNodesAvailable())
 		{
@@ -985,11 +991,13 @@ bool WalletModel::AreServiceNodesAvailable()
 	return b; 
 }
 
-
 bool WalletModel::IsAnotherDeepSendInProcess()
 {
 	return IsCurrentAnonymousTxInProcess();
 }
 
-
+bool WalletModel::IsWalletSyncing()
+{
+	return IsInitialBlockDownload();
+}
 

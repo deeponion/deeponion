@@ -622,6 +622,9 @@ void SendCoinsDialog::processSendCoinsReturn(const WalletModel::SendCoinsReturn 
     case WalletModel::InvalidStealthAddress:
         msgParams.first = tr("The recipient stealth address is not valid. Please recheck.");
         break;
+    case WalletModel::DeepSendWalletSyncing:
+        msgParams.first = tr("DeepSend requires the wallet to be synced.");
+        break;
     case WalletModel::StealthAddressAdded:
         msgParams.first = tr("Only one stealth address per transaction can be included.");
         break;
