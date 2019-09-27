@@ -6618,7 +6618,13 @@ bool AddPrevTxOut(AnonymousTxRole role, CBasicKeyStore& tempKeystore, CCoinsView
 
 void UpdateAnonymousServiceList(CNode* pNode, std::string keyAddress, std::string status, CConnman *connman)
 {
-	bool bAdd = false;
+
+    if (IsInitialBlockDownload()){
+		LogPrint(BCLog::DEEPSEND, ">> UpdateAnonymousServiceList. Wallet not synced");
+		return false;
+	}
+
+    bool bAdd = false;
 	if(status == "true")
 		bAdd = true;
 
