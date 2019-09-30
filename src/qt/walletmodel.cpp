@@ -998,6 +998,6 @@ bool WalletModel::IsAnotherDeepSendInProcess()
 
 bool WalletModel::IsWalletSyncing()
 {
-	return IsInitialBlockDownload();
+	return IsInitialBlockDownload2();
 }
 

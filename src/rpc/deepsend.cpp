@@ -136,7 +136,7 @@ UniValue sendwithdeepsend(const JSONRPCRequest& request)
         return "DeepSend only allows maximum of %1 now. Please reduce send amount or use regular send.";*/
 
     // check if the wallet is synced
-    if(IsInitialBlockDownload())
+    if(IsInitialBlockDownload2())
         return "DeepSend requires the wallet to be synced.";
 
     // check if there are mixer/garantor available

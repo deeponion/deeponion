@@ -1385,6 +1385,20 @@ bool IsInitialBlockDownload()
     return false;
 }
 
+bool IsInitialBlockDownload2()
+{
+    LOCK(cs_main);
+    if (fImporting || fReindex)
+        return true;
+    if (chainActive.Tip() == nullptr)
+        return true;
+    if (chainActive.Tip()->nChainWork < nMinimumChainWork)
+        return true;
+    if (chainActive.Tip()->GetBlockTime() < (GetTime() - nMaxTipAge))
+        return true;
+    return false;
+}
+
 CBlockIndex *pindexBestForkTip = nullptr, *pindexBestForkBase = nullptr;
 
 static void AlertNotify(const std::string& strMessage)
@@ -6620,7 +6634,7 @@ bool AddPrevTxOut(AnonymousTxRole role, CBasicKeyStore& tempKeystore, CCoinsView
 void UpdateAnonymousServiceList(CNode* pNode, std::string keyAddress, std::string status, CConnman *connman)
 {
 
-    if (IsInitialBlockDownload()){
+    if (IsInitialBlockDownload2()){
 		LogPrint(BCLog::DEEPSEND, ">> UpdateAnonymousServiceList. Wallet not synced");
 		return;
 	}
@@ -6714,7 +6728,7 @@ void UpdateAnonymousServiceList(CNode* pNode, std::string keyAddress, std::strin
 
 bool CheckAnonymousServiceConditions() 
 {
-    if (IsInitialBlockDownload())
+    if (IsInitialBlockDownload2())
         return false;
 
     CWallet* pwallet = vpwallets[0];
