@@ -1362,6 +1362,7 @@ CAmount GetProofOfStakeReward(int64_t nCoinAge, const CBlockIndex* pindex)
 
 bool IsInitialBlockDownload()
 {
+	LogPrint(BCLog::STAKE, "In InitialBlockDownload\n");
     // Once this function has returned false, it must remain false.
     static std::atomic<bool> latchToFalse{false};
     // Optimization: pre-test latch before taking the lock.
