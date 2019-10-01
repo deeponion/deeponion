@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1064</width>
-    <height>706</height>
+    <width>1199</width>
+    <height>854</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -157,7 +157,7 @@
            <number>6</number>
           </property>
           <item>
-           <layout class="QVBoxLayout" name="verticalLayoutCoinControl" stretch="0,0,0,0,0,1">
+           <layout class="QVBoxLayout" name="verticalLayoutCoinControl" stretch="0,0,0,0,1">
             <property name="spacing">
              <number>0</number>
             </property>
@@ -644,58 +644,6 @@
              </layout>
             </item>
             <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="0,0,0">
-              <property name="spacing">
-               <number>0</number>
-              </property>
-              <property name="topMargin">
-               <number>5</number>
-              </property>
-              <property name="rightMargin">
-               <number>5</number>
-              </property>
-              <item>
-               <widget class="QCheckBox" name="checkBoxDeepSend">
-                <property name="maximumSize">
-                 <size>
-                  <width>15</width>
-                  <height>16777215</height>
-                 </size>
-                </property>
-                <property name="text">
-                 <string>CheckBox</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QLabel" name="label_2">
-                <property name="maximumSize">
-                 <size>
-                  <width>80</width>
-                  <height>16777215</height>
-                 </size>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-                <property name="pixmap">
-                 <pixmap resource="../bitcoin.qrc">:/icons/deepsend</pixmap>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QLabel" name="label_3">
-                <property name="text">
-                 <string>(DeepSend - each send is limited to max 10 ONIONs. 1% fee (min 0.01 ONION) will be added to the tx)</string>
-                </property>
-                <property name="margin">
-                 <number>2</number>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-            <item>
              <spacer name="verticalSpacerCoinControl">
               <property name="orientation">
                <enum>Qt::Vertical</enum>
@@ -723,11 +671,11 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>1006</width>
-            <height>104</height>
+            <width>1141</width>
+            <height>209</height>
            </rect>
           </property>
-          <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0,1">
+          <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0,0,0,1">
            <property name="leftMargin">
             <number>0</number>
            </property>
@@ -760,6 +708,81 @@
              </property>
              <property name="text">
               <string>Send Coins</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="0,0,0,0">
+             <property name="spacing">
+              <number>0</number>
+             </property>
+             <property name="topMargin">
+              <number>5</number>
+             </property>
+             <property name="rightMargin">
+              <number>5</number>
+             </property>
+             <item>
+              <spacer name="horizontalSpacer_8">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeType">
+                <enum>QSizePolicy::Fixed</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>10</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="checkBoxDeepSend">
+               <property name="maximumSize">
+                <size>
+                 <width>15</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>CheckBox</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="label_2">
+               <property name="maximumSize">
+                <size>
+                 <width>80</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+               <property name="pixmap">
+                <pixmap resource="../bitcoin.qrc">:/icons/deepsend</pixmap>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="label_3">
+               <property name="text">
+                <string>(DeepSend - each send is limited to max 1 ONIONs. 1% fee (min 0.01 ONION) will be added to the tx)</string>
+               </property>
+               <property name="margin">
+                <number>2</number>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <widget class="Line" name="line">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
              </property>
             </widget>
            </item>
