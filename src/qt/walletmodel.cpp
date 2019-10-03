@@ -356,7 +356,7 @@ WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransact
 		}
 
 		// there's a minimum allowed amount too
-		if(total < MIM_ALLOWED_DEEP_SEND)
+		if(total < MIN_ALLOWED_DEEP_SEND)
 		{
 			return DeepSendAmountTooSmall;
 		}
