@@ -604,6 +604,9 @@ void SendCoinsDialog::processSendCoinsReturn(const WalletModel::SendCoinsReturn 
     case WalletModel::DeepSendAmountExceeded:
         msgParams.first = tr("DeepSend only allows maximum of %1 now. Please reduce send amount or use regular send.").arg(BitcoinUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(), MAX_ALLOWED_DEEP_SEND));
         break;
+    case WalletModel::DeepSendAmountTooSmall:
+        msgParams.first = tr("DeepSend only allows minimum of %1 now. Please increase send amount or use regular send.").arg(BitcoinUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(), MIN_ALLOWED_DEEP_SEND));
+        break;
     case WalletModel::ServiceNodesNotAvailable:
         msgParams.first = tr("DeepSend requires at least 2 anonymous service nodes available. You don't have enough service nodes connected. Please use regular-send or try later.");
         break;

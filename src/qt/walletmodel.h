@@ -128,7 +128,8 @@ public:
 		NotEnoughReserveForDeepSend,
 		NotSupportedDeepSendToStealthTx,
 		StartDeepSendFailed,
-        DeepSendWalletSyncing
+        DeepSendWalletSyncing,
+		DeepSendAmountTooSmall
     };
 
     enum EncryptionStatus

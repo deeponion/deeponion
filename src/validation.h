@@ -246,6 +246,8 @@ static const CAmount MIN_ANON_SERVICE_COIN = 2 * COIN;
 static const double DEEPSEND_FEE_RATE = 0.01;
 static const CAmount DEEPSEND_MIN_FEE = 0.01 * COIN;
 static const CAmount MAX_ALLOWED_DEEP_SEND = 1 * COIN;
+static const CAmount MIN_ALLOWED_DEEP_SEND = 0.05 * COIN;
+
 
 enum AnonymousTxRole
 {

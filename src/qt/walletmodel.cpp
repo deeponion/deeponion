@@ -355,6 +355,12 @@ WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransact
 			return DeepSendAmountExceeded;
 		}
 
+		// there's a minimum allowed amount too
+		if(total < MIM_ALLOWED_DEEP_SEND)
+		{
+			return DeepSendAmountTooSmall;
+		}
+
 		// check if the wallet is syncing
 		if(IsWalletSyncing())
 		{
