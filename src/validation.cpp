@@ -5657,7 +5657,7 @@ bool CAnonymousTxInfo::CheckDepositTxes()
 bool CAnonymousTxInfo::CheckSendTx()
 {
 	bool b = false;
-	CAmount amount0 = 0;
+	CAmount amount0 = GetTotalRequiredCoinsToSend(ROLE_MIXER);;
 	CAmount amount = 0;
 	lastActivityTime = GetTime();
 	CWallet* pWallet = vpwallets[0];
@@ -5665,48 +5665,71 @@ bool CAnonymousTxInfo::CheckSendTx()
 	uint256 hash;
 	hash.SetHex(sendTx);
 
-	if(pWallet->mapWallet.count(hash))
-	{
-		LogPrint(BCLog::DEEPSEND, ">> found send txid for %s\n", sendTx.c_str());
+    CTransactionRef tx;
+    uint256 hashBlock;
 
-		const CWalletTx& wtx = pWallet->mapWallet[hash];
-		CAmount nCredit = wtx.GetCredit(ISMINE_ALL);
-		CAmount nDebit = wtx.GetDebit(ISMINE_ALL);
-		CAmount nNet = nCredit - nDebit;
-		CAmount nFee = (wtx.IsFromMe(ISMINE_ALL) ? wtx.tx->GetValueOut() - nDebit : 0);
-		amount = nNet - nFee;
-		amount0 = GetTotalRequiredCoinsToSend(ROLE_MIXER);
-
-		if(amount < amount0)
-		{
-			LogPrint(BCLog::DEEPSEND, ">> Mixer did not send enough to destination. Expected = %ld, deposited = %ld\n", amount0, amount);
-			return false;
-		}
-	}
-	else
+    if(GetTransaction(hash, tx, Params().GetConsensus(), hashBlock))
     {
-		CTransactionRef tx;
-        uint256 hashBlock;
-        
-        if(GetTransaction(hash, tx, Params().GetConsensus(), hashBlock))
+        LogPrint(BCLog::DEEPSEND, ">> CheckSendTx: found tx for sendTx = %s\n", sendTx.c_str());
+
+        int sz = pCurrentAnonymousTxInfo->GetSize();
+        std::vector<std::pair<std::string, CAmount>> vecSend;
+
+        for(int i = 0; i < sz; i++)
         {
-        	LogPrint(BCLog::DEEPSEND, ">> CheckSendTx: found tx for sendTx = %s\n", sendTx.c_str());
-
-			amount = GetDepositedAmount(*tx);
-			LogPrint(BCLog::DEEPSEND, ">> CheckSendTx: found deposited amount from tx = %ld\n", amount);
-
-			if(amount < amount0)
-			{
-				LogPrint(BCLog::DEEPSEND, ">> CheckSendTx: did not send enough. Expected = %ld, deposited = %ld\n", amount0, amount);
-				return false;
-			}
+            std::pair<std::string, CAmount> senddata = pCurrentAnonymousTxInfo->GetValue(i);
+            vecSend.push_back(senddata);
+            LogPrint(BCLog::DEEPSEND, ">> CheckSendTx: Looking for %ld sent to %s\n", senddata.second, senddata.first.c_str());
         }
-        else
-		{
-        	LogPrint(BCLog::DEEPSEND, ">> CheckSendTx: not found sendTx = %s\n", sendTx.c_str());
-			return false;
-		}
-	}
+        std::vector<CTxOut> vout = tx->vout;
+
+        for(const CTxOut& out: vout)
+        {
+            CScript sPubKey = out.scriptPubKey;
+            std::vector<CTxDestination> addresses;
+            int nRequired;
+            txnouttype type;
+            bool b = false;
+
+            if(!ExtractDestinations(sPubKey, type, addresses, nRequired))
+                continue;
+
+            for(const CTxDestination& addr: addresses)
+            {
+                for(const std::pair<std::string, CAmount> senddata : vecSend) {
+                    std::string strAddr = EncodeDestination(addr);
+                    LogPrint(BCLog::DEEPSEND, ">> CheckSendTx: Matching TxOut (%ld) to %s Against %s (%ld)\n", out.nValue, strAddr.c_str(), senddata.first.c_str(), senddata.second);
+                    if(strAddr == senddata.first && out.nValue == senddata.second)
+                    {
+                        b = true;
+                        break;
+                    }
+                }
+                if(b) {
+                    break;
+                }
+
+            }
+
+            if(b) {
+                amount += out.nValue;
+                LogPrint(BCLog::DEEPSEND, ">> CheckSendTx: added to amount from tx = %ld\n", amount);
+            }
+        }
+
+        LogPrint(BCLog::DEEPSEND, ">> CheckSendTx: found deposited amount from tx = %ld\n", amount);
+
+        if(amount < amount0)
+        {
+            LogPrint(BCLog::DEEPSEND, ">> CheckSendTx: did not send enough. Expected = %ld, deposited = %ld\n", amount0, amount);
+            return false;
+        }
+    }
+    else
+    {
+        LogPrint(BCLog::DEEPSEND, ">> CheckSendTx: not found sendTx = %s\n", sendTx.c_str());
+        return false;
+    }
 
 	return true;
 }
