@@ -57,6 +57,7 @@
 #include <QToolButton>
 #include <QVBoxLayout>
 
+
 #if QT_VERSION < 0x050000
 #include <QTextDocument>
 #include <QUrl>
@@ -607,6 +608,10 @@ void BitcoinGUI::createToolBars()
 void BitcoinGUI::setClientModel(ClientModel *_clientModel)
 {
     this->clientModel = _clientModel;
+
+    //DeepOnion: Check for possible updates
+    clientModel->checkForNewVersion();
+
     if(_clientModel)
     {
         // Create system tray menu (or setup the dock menu) that late to prevent users from calling actions,

@@ -7,6 +7,14 @@
 
 #include <QObject>
 #include <QDateTime>
+#include <QTimer>
+#include <QJsonDocument>
+#include <QNetworkReply>
+#include <QByteArray>
+#include <QNetworkAccessManager>
+#include <QNetworkRequest>
+#include <QtGlobal>
+#include <QApplication>
 
 #include <atomic>
 
@@ -62,6 +70,8 @@ public:
 
     double getVerificationProgress(const CBlockIndex *tip) const;
     QDateTime getLastBlockDate() const;
+
+    bool checkForNewVersion();
 
     //! Return true if core is doing initial block download
     bool inInitialBlockDownload() const;

@@ -326,6 +326,32 @@ static void BlockTipChanged(ClientModel *clientmodel, bool initialSync, const CB
     }
 }
 
+bool ClientModel::checkForNewVersion()
+{
+    QUrl url("https://deeponion.org/latestversion.txt");
+    qInfo() << url.toString();
+    QNetworkRequest request(url);
+    QNetworkAccessManager nam;
+    QNetworkReply * reply = nam.get(request);
+    QTimer *timer = new QTimer(this);
+
+    bool timeout=false;
+    timer->start(5000);
+
+    while(!timeout){
+        qApp->processEvents();
+        if(reply->isFinished()) break;
+    }
+
+    if(reply->isFinished()){
+        QByteArray response_data = reply->readAll();
+        QString DataAsString = QString(response_data);
+    }else{
+    QString replyMessage = "Timeout";
+    }
+
+}
+
 void ClientModel::subscribeToCoreSignals()
 {
     // Connect signals to client
