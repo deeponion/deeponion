@@ -347,12 +347,20 @@ bool ClientModel::isNewVersionAvailable()
         QByteArray response_data = reply->readAll();
         int ver = QString(response_data).toInt();
         if(isNewVersion(ver))
-            return true;
+        {
+            versionStatus = "<font color=red>outdated</>";
+            versionOutDated = true;
+        }
         else
-            return false;
+        {
+            versionStatus = "<font color=green>up to date</>";
+            versionOutDated = false;
+        }
+        return true;
     }
     else{
-    QString replyMessage = "Timeout";
+        versionStatus = "<i> - not available - </i>";
+        return false;
     }
 }
 
@@ -362,6 +370,16 @@ bool ClientModel::isNewVersion(int ver)
        return true;
    else
        return false;
+}
+
+QString ClientModel::VersionStatus()
+{
+    return versionStatus;
+}
+
+bool ClientModel::VersionOutDated()
+{
+    return versionOutDated;
 }
 
 void ClientModel::subscribeToCoreSignals()

@@ -91,6 +91,7 @@ BitcoinGUI::BitcoinGUI(const PlatformStyle *_platformStyle, const NetworkStyle *
     connectionsControl(0),
     labelBlocksIcon(0),
     progressBarLabel(0),
+    versionAlert(0),
     labelStakingIcon(0),
     labelOnionIcon(0),
     progressBar(0),
@@ -295,8 +296,14 @@ BitcoinGUI::BitcoinGUI(const PlatformStyle *_platformStyle, const NetworkStyle *
     progressBar->setAlignment(Qt::AlignCenter);
     progressBar->setVisible(false);
 
+    versionAlert = new QLabel();
+    versionAlert->setVisible(false);
+//    versionAlert->setAlignment(Qt::AlignCenter);
+
+
     statusBar()->addWidget(progressBarLabel);
     statusBar()->addWidget(progressBar);
+    statusBar()->addWidget(versionAlert);
     statusBar()->addPermanentWidget(frameBlocks);
     statusBar()->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getStatusBarBackgroundColor());
     statusBar()->setMinimumHeight(50);
@@ -609,8 +616,13 @@ void BitcoinGUI::setClientModel(ClientModel *_clientModel)
 {
     this->clientModel = _clientModel;
 
-    //DeepOnion: Check for possible updates
+    //Check for new version and show an alert
     clientModel->isNewVersionAvailable();
+    if(clientModel->VersionOutDated())
+    {
+        versionAlert->setText(tr("A new Version is available. Update your wallet!"));
+        versionAlert->setVisible(true);
+    }
 
     if(_clientModel)
     {

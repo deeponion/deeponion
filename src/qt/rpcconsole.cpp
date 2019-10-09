@@ -567,7 +567,11 @@ bool RPCConsole::eventFilter(QObject* obj, QEvent *event)
 void RPCConsole::setClientModel(ClientModel *model)
 {
     clientModel = model;
+    //DeepOnion: Check for possible updates
+    clientModel->isNewVersionAvailable();
+
     ui->trafficGraph->setClientModel(model);
+
     if (model && clientModel->getPeerTableModel() && clientModel->getBanTableModel()) {
         // Keep up to date with client
         setNumConnections(model->getNumConnections());
@@ -672,6 +676,15 @@ void RPCConsole::setClientModel(ClientModel *model)
         // Provide initial values
         ui->clientVersion->setText(model->formatFullVersion());
         ui->clientUserAgent->setText(model->formatSubVersion());
+        ui->versionCheck->setText(tr("This version is ") + model->VersionStatus());
+        if(model->VersionOutDated())
+        {
+            ui->versionInfo->setText(tr("A new wallet version is available. Please update for fast and secure transactions."));
+            ui->versionInfo->setFrameShape(QFrame::Box);
+        }
+        else
+            ui->versionInfo->setVisible(false);
+
         ui->dataDir->setText(model->dataDir());
         ui->startupTime->setText(model->formatClientStartupTime());
         ui->networkName->setText(QString::fromStdString(Params().NetworkIDString()));
@@ -983,6 +996,13 @@ void RPCConsole::on_showMeDetailsButton_clicked()
     BlockchainDialog dlg;
     dlg.setLabelText(walletModel);
     dlg.exec();
+}
+
+void RPCConsole::on_scanForUpdatesButton_clicked()
+{
+    ui->versionCheck->setText("This version is ...");
+    clientModel->isNewVersionAvailable();
+    ui->versionCheck->setText("This version is " + clientModel->VersionStatus());
 }
 
 void RPCConsole::scrollToEnd()

@@ -73,6 +73,8 @@ public:
 
     bool isNewVersionAvailable();
     bool isNewVersion(int vers);
+    QString VersionStatus();
+    bool VersionOutDated();
 
     //! Return true if core is doing initial block download
     bool inInitialBlockDownload() const;
@@ -104,6 +106,9 @@ private:
 
     void subscribeToCoreSignals();
     void unsubscribeFromCoreSignals();
+
+    QString versionStatus;
+    bool versionOutDated;
 
 Q_SIGNALS:
     void numConnectionsChanged(int count);

@@ -105,6 +105,7 @@ private:
     QLabel *connectionsControl;
     QLabel *labelBlocksIcon;
     QLabel *progressBarLabel;
+    QLabel *versionAlert;
     QLabel *labelStakingIcon;
     QLabel *labelOnionIcon;    
     QProgressBar *progressBar;
