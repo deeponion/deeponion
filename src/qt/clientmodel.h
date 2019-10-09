@@ -71,7 +71,8 @@ public:
     double getVerificationProgress(const CBlockIndex *tip) const;
     QDateTime getLastBlockDate() const;
 
-    bool checkForNewVersion();
+    bool isNewVersionAvailable();
+    bool isNewVersion(int vers);
 
     //! Return true if core is doing initial block download
     bool inInitialBlockDownload() const;

@@ -610,7 +610,7 @@ void BitcoinGUI::setClientModel(ClientModel *_clientModel)
     this->clientModel = _clientModel;
 
     //DeepOnion: Check for possible updates
-    clientModel->checkForNewVersion();
+    clientModel->isNewVersionAvailable();
 
     if(_clientModel)
     {

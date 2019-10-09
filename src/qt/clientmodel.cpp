@@ -326,7 +326,7 @@ static void BlockTipChanged(ClientModel *clientmodel, bool initialSync, const CB
     }
 }
 
-bool ClientModel::checkForNewVersion()
+bool ClientModel::isNewVersionAvailable()
 {
     QUrl url("https://deeponion.org/latestversion.txt");
     qInfo() << url.toString();
@@ -345,11 +345,23 @@ bool ClientModel::checkForNewVersion()
 
     if(reply->isFinished()){
         QByteArray response_data = reply->readAll();
-        QString DataAsString = QString(response_data);
-    }else{
+        int ver = QString(response_data).toInt();
+        if(isNewVersion(ver))
+            return true;
+        else
+            return false;
+    }
+    else{
     QString replyMessage = "Timeout";
     }
+}
 
+bool ClientModel::isNewVersion(int ver)
+{
+   if(ver > CLIENT_VERSION)
+       return true;
+   else
+       return false;
 }
 
 void ClientModel::subscribeToCoreSignals()
