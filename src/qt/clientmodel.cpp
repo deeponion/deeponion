@@ -333,35 +333,35 @@ bool ClientModel::isNewVersionAvailable()
     QNetworkRequest request(url);
     QNetworkAccessManager nam;
     QNetworkReply * reply = nam.get(request);
-    QTimer *timer = new QTimer(this);
+    QTimer timer;
+    timer.setSingleShot(true);
+    timer.start(5000);
 
-    bool timeout=false;
-    timer->start(5000);
-
-    while(!timeout){
+    while(timer.isActive()){
         qApp->processEvents();
-        if(reply->isFinished()) break;
-    }
-
-    if(reply->isFinished()){
-        QByteArray response_data = reply->readAll();
-        int ver = QString(response_data).toInt();
-        if(isNewVersion(ver))
-        {
-            versionStatus = "<font color=red>outdated</>";
-            versionOutDated = true;
+        if(reply->isFinished()){
+            timer.stop();
+            QByteArray response_data = reply->readAll();
+            int ver = QString(response_data).toInt();
+            if(ver == 0) return false;
+            if(isNewVersion(ver))
+            {
+                versionStatus = "<font color=red>outdated</>";
+                versionOutDated = true;
+            }
+            else
+            {
+                versionStatus = "<font color=green>up to date</>";
+                versionOutDated = false;
+            }
+            reply->abort();
+            return true;
         }
-        else
-        {
-            versionStatus = "<font color=green>up to date</>";
-            versionOutDated = false;
-        }
-        return true;
     }
-    else{
-        versionStatus = "<i> - not available - </i>";
-        return false;
-    }
+    //Timeout
+    versionStatus = "<i> - not available - </i>";
+    reply->abort();
+    return false;
 }
 
 bool ClientModel::isNewVersion(int ver)

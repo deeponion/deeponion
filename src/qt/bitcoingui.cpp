@@ -617,8 +617,7 @@ void BitcoinGUI::setClientModel(ClientModel *_clientModel)
     this->clientModel = _clientModel;
 
     //Check for new version and show an alert
-    clientModel->isNewVersionAvailable();
-    if(clientModel->VersionOutDated())
+    if(clientModel->isNewVersionAvailable()&&clientModel->VersionOutDated())
     {
         versionAlert->setText(tr("A new Version is available. Update your wallet!"));
         versionAlert->setVisible(true);
