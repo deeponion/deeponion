@@ -388,7 +388,7 @@ bool ClientModel::isNewVersion(int ver)
    if(ver > CLIENT_VERSION)
        return true;
    else
-      return true;// return false;
+       return false;
 }
 
 QString ClientModel::VersionStatus()
