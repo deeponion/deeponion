@@ -567,8 +567,6 @@ bool RPCConsole::eventFilter(QObject* obj, QEvent *event)
 void RPCConsole::setClientModel(ClientModel *model)
 {
     clientModel = model;
-    //DeepOnion: Check for possible updates
-    clientModel->isNewVersionAvailable();
 
     ui->trafficGraph->setClientModel(model);
 

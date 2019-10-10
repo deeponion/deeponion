@@ -15,6 +15,7 @@
 #include <QNetworkRequest>
 #include <QtGlobal>
 #include <QApplication>
+#include <QNetworkProxy>
 
 #include <atomic>
 
