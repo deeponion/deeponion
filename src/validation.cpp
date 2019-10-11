@@ -6658,7 +6658,7 @@ void UpdateAnonymousServiceList(CNode* pNode, std::string keyAddress, std::strin
 {
 
     if (IsInitialBlockDownload2()){
-		LogPrint(BCLog::DEEPSEND, ">> UpdateAnonymousServiceList. Wallet not synced");
+		LogPrint(BCLog::DEEPSEND, ">> UpdateAnonymousServiceList. Wallet not synced\n");
 		return;
 	}
 
