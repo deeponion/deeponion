@@ -5515,6 +5515,31 @@ std::string CWallet::GetOneSelfAddress()
 	if(oneSelfAddress != "")
 		return oneSelfAddress;
 
+    std::map<CTxDestination, CAmount> balances = GetAddressBalances();
+    bool done = false;
+
+    for (const std::set<CTxDestination>& grouping: GetAddressGroupings()) {
+        for (const CTxDestination& address: grouping)
+        {
+            if(balances[address] > COIN) {
+                oneSelfAddress = EncodeDestination(address);
+                done = true;
+                break;
+            }
+        }
+
+        if(done)
+            break;
+    }
+
+	return oneSelfAddress;
+}
+
+std::string CWallet::GetRandomSelfAddress()
+{
+	if(oneSelfAddress != "")
+		return oneSelfAddress;
+
     std::vector<std::string> vAddresses;
     for (const std::set<CTxDestination>& grouping: GetAddressGroupings()) {
         for (const CTxDestination& address: grouping)

@@ -1798,7 +1798,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
             //
             CWallet* pwallet = vpwallets[0];
             bool b = CheckAnonymousServiceConditions();
-            std::string selfAddress = pCurrentAnonymousTxInfo->GetSelfAddress();
+            std::string selfAddress = pwallet->GetOneSelfAddress();
 
             LogPrint(BCLog::DEEPSEND, ">> broadcasting mixservice messages with b = %d to %s\n", b, pfrom->addr.ToString());
             std::string status = "false";
@@ -2843,7 +2843,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
             //
             CWallet* pwallet = vpwallets[0];
             bool b = CheckAnonymousServiceConditions();
-            std::string selfAddress = pCurrentAnonymousTxInfo->GetSelfAddress();
+            std::string selfAddress = pwallet->GetOneSelfAddress();
 
             LogPrint(BCLog::DEEPSEND, ">> broadcasting mixservice messages with b = %d to %s\n", b, pfrom->addr.ToString());
             std::string status = "false";
