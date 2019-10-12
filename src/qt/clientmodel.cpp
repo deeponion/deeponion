@@ -336,7 +336,7 @@ bool ClientModel::isNewVersionAvailable()
     proxy.setHostName("127.0.0.1");
     proxy.setPort(9081);
 
-    QUrl url("https://deeponion.org/latestversion.txt");
+    QUrl url("https://deeponion.org/latestVersion.php");
     qInfo() << url.toString();
     QNetworkRequest request(url);
     QNetworkAccessManager nam;
