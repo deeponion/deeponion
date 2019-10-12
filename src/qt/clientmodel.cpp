@@ -45,6 +45,8 @@ ClientModel::ClientModel(OptionsModel *_optionsModel, QObject *parent) :
     connect(pollTimer, SIGNAL(timeout()), this, SLOT(updateTimer()));
     pollTimer->start(MODEL_UPDATE_DELAY);
 
+    versionOutDated = false;
+
     subscribeToCoreSignals();
 }
 
@@ -324,6 +326,79 @@ static void BlockTipChanged(ClientModel *clientmodel, bool initialSync, const CB
                                   Q_ARG(bool, fHeader));
         nLastUpdateNotification = now;
     }
+}
+
+bool ClientModel::isNewVersionAvailable()
+{
+    //Connect to default tor node
+    QNetworkProxy proxy;
+    proxy.setType(QNetworkProxy::Socks5Proxy);
+    proxy.setHostName("127.0.0.1");
+    proxy.setPort(9081);
+
+    QUrl url("https://deeponion.org/latestVersion.php");
+    qInfo() << url.toString();
+    QNetworkRequest request(url);
+    QNetworkAccessManager nam;
+    nam.setProxy(proxy);
+    QNetworkReply * reply = nam.get(request);
+    QTimer timer;
+    timer.setSingleShot(true);
+    timer.start(5000);
+
+    while(timer.isActive()){
+        qApp->processEvents();
+        if(reply->isFinished()){
+            timer.stop();
+
+        //    QMessageBox Msgbox;
+        //        Msgbox.setText(reply->readAll());
+        //        Msgbox.exec();
+
+            QByteArray response_data = reply->readAll();
+            int ver = QString(response_data).toInt();
+            if(ver == 0)
+            {
+                versionStatus = "<i> - not available - </i>";
+                reply->close();
+                return false; //Empty response
+            }
+            if(isNewVersion(ver))
+            {
+                versionStatus = "<font color=red>outdated</>";
+                versionOutDated = true;
+            }
+            else
+            {
+                versionStatus = "<font color=green>up to date</>";
+                versionOutDated = false;
+            }
+            reply->close();
+            return true;
+        }
+    }
+    //Timeout
+    versionStatus = "<i> - not available - </i>";
+    reply->close();
+    return false;
+}
+
+bool ClientModel::isNewVersion(int ver)
+{
+   if(ver > CLIENT_VERSION)
+       return true;
+   else
+       return false;
+}
+
+QString ClientModel::VersionStatus()
+{
+    return versionStatus;
+}
+
+bool ClientModel::VersionOutDated()
+{
+    return versionOutDated;
 }
 
 void ClientModel::subscribeToCoreSignals()
