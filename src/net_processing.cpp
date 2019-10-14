@@ -2947,7 +2947,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 			return error("processing message asvcavail - error in verifying signature. message ignored.");
 		}
 		
-        std::string selfAddress = pCurrentAnonymousTxInfo->GetSelfAddress();
+        std::string selfAddress = vpwallets[0]->GetRandomSelfAddress();
 		std::string guarantorKey = "";
 		LogPrint(BCLog::DEEPSEND, ">> asvcavail: mixer selfAddress = %s\n", selfAddress.c_str());
 
