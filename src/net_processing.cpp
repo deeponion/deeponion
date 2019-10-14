@@ -2947,7 +2947,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 			return error("processing message asvcavail - error in verifying signature. message ignored.");
 		}
 		
-        std::string selfAddress = pCurrentAnonymousTxInfo->GetSelfAddress();
+        std::string selfAddress = vpwallets[0]->GetRandomSelfAddress();
 		std::string guarantorKey = "";
 		LogPrint(BCLog::DEEPSEND, ">> asvcavail: mixer selfAddress = %s\n", selfAddress.c_str());
 
@@ -3715,24 +3715,104 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 				if(!b)
 				{
 					LogPrintf("ERROR. Mixer can't sign multisig distribution tx.\n");
-					return error("processing message msdisttx - Can't sign multisig distribution tx.");
+					std::string selfAddress = pCurrentAnonymousTxInfo->GetSelfAddress();
+
+		            b = SignMessageUsingAddress(selfAddress, selfAddress, vchSig);
+		            if(!b)
+		                return error("processing message msdistrelay - error in signing message with selfAddress");
+
+		            int cnt = 0;
+	                connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::DS_MSDISTRELAY, anonymousTxId, selfAddress, cnt, vchSig));
+				} else {
+                    std::string disttx = pCurrentAnonymousTxInfo->GetTx();
+                    logText = "Mixer successfully signed the distribution tx. TxID = " + disttx + ".";
+                    pCurrentAnonymousTxInfo->AddToLog(logText);
+
+                    std::string selfAddress = pCurrentAnonymousTxInfo->GetSelfAddress();
+                    b = SignMessageUsingAddress(sendtxid, selfAddress, vchSig);
+                    if(!b)
+                        return error("processing message msdisttx - error in signing message with sendtxid");
+
+                    connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::DS_DSTTXCMPLT, anonymousTxId, sendtxid, disttx, vchSig));
+                    CNode* pNode = pCurrentAnonymousTxInfo->GetNode(ROLE_SENDER);
+                    connman->PushMessage(pNode, msgMaker.Make(NetMsgType::DS_DSTTXCMPLT, anonymousTxId, sendtxid, disttx, vchSig));
 				}
-				std::string disttx = pCurrentAnonymousTxInfo->GetTx();
-				logText = "Mixer successfully signed the distribution tx. TxID = " + disttx + ".";
-				pCurrentAnonymousTxInfo->AddToLog(logText);
-
-				std::string selfAddress = pCurrentAnonymousTxInfo->GetSelfAddress();
-				b = SignMessageUsingAddress(sendtxid, selfAddress, vchSig);
-				if(!b)
-					return error("processing message msdisttx - error in signing message with sendtxid");
-
-				connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::DS_DSTTXCMPLT, anonymousTxId, sendtxid, disttx, vchSig));
-				CNode* pNode = pCurrentAnonymousTxInfo->GetNode(ROLE_SENDER);
-				connman->PushMessage(pNode, msgMaker.Make(NetMsgType::DS_DSTTXCMPLT, anonymousTxId, sendtxid, disttx, vchSig));
 			}
 		}
     }
+    else if (strCommand == NetMsgType::DS_MSDISTRELAY)    // message mixer -> guarantor || gaurantor -> mixer
+    {
+        LogPrint(BCLog::DEEPSEND, "Processing message msdistrelay from %s\n", pfrom->addr.ToString());
+        std::string anonymousTxId;
+        std::string selfAddress;
+        int cnt;
+        std::vector<unsigned char> vchSig;
+        vRecv >> anonymousTxId >> selfAddress >> cnt >> vchSig;
+        bool b = true;
 
+        if(VerifyMessageSignature(selfAddress, selfAddress, vchSig))
+        {
+            LogPrint(BCLog::DEEPSEND, ">> msdistrelay: signature verified.\n");
+        }
+        else
+        {
+            return error("processing message msdistrelay - signature can not be verified. message ignored.");
+        }
+
+        if(pCurrentAnonymousTxInfo->GetRole() == ROLE_MIXER)
+        {
+            // Try and sign distribtion TX again.
+            b = SignMultiSigDistributionTx();
+            if(!b)
+            {
+                LogPrintf("ERROR. Mixer can't sign multisig distribution tx count: %d.\n", cnt);
+                selfAddress = pCurrentAnonymousTxInfo->GetSelfAddress();
+
+                if(cnt > 9) {
+                    // Not much we can do here!
+                    return error("processing message msdistrelay - Too many attempts to sign.");
+                }
+
+                b = SignMessageUsingAddress(selfAddress, selfAddress, vchSig);
+                if(!b)
+                    // Not much we can do here!
+                    return error("processing message msdistrelay - error in signing message with selfAddress");
+
+                connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::DS_MSDISTRELAY, anonymousTxId, selfAddress, cnt, vchSig));
+            }  else {
+                std::string disttx = pCurrentAnonymousTxInfo->GetTx();
+                std::string logText = "Mixer successfully signed the distribution tx. TxID = " + disttx + ".";
+                pCurrentAnonymousTxInfo->AddToLog(logText);
+
+                std::string selfAddress = pCurrentAnonymousTxInfo->GetSelfAddress();
+                b = SignMessageUsingAddress(pCurrentAnonymousTxInfo->GetSendTx(), selfAddress, vchSig);
+                if(!b)
+                    return error("processing message msdistrelay - error in signing message with sendtxid");
+
+                connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::DS_DSTTXCMPLT, anonymousTxId, pCurrentAnonymousTxInfo->GetSendTx(), disttx, vchSig));
+                CNode* pNode = pCurrentAnonymousTxInfo->GetNode(ROLE_SENDER);
+                connman->PushMessage(pNode, msgMaker.Make(NetMsgType::DS_DSTTXCMPLT, anonymousTxId, pCurrentAnonymousTxInfo->GetSendTx(), disttx, vchSig));
+            }
+
+        }
+        else
+        {
+            if(cnt > 9) {
+                // Not much we can do here!
+                return error("processing message msdistrelay - Too many attempts to sign.");
+            }
+
+            MilliSleep(5000);
+            selfAddress = pCurrentAnonymousTxInfo->GetSelfAddress();
+
+            b = SignMessageUsingAddress(selfAddress, selfAddress, vchSig);
+            if(!b)
+                return error("processing message msdistrelay - error in signing message with selfAddress");
+
+            ++cnt;
+            connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::DS_MSDISTRELAY, anonymousTxId, selfAddress, cnt, vchSig));
+        }
+    }
 	else if (strCommand == NetMsgType::DS_MSTXRELAY)	// message guarantor -> sender
     {
 		LogPrint(BCLog::DEEPSEND, "Processing message mstxrelay from %s\n", pfrom->addr.ToString());

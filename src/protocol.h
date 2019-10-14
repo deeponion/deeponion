@@ -251,6 +251,7 @@ extern const char *DS_MSIGADDRRPLY;
 extern const char *DS_CHKMSTX;
 extern const char *DS_MSDISTTX;
 extern const char *DS_MSTXRELAY;
+extern const char *DS_MSDISTRELAY;
 extern const char *DS_DSTTXCMPLT;
 extern const char *DS_CHKDSTTXRELAY;
 extern const char *DS_CHKDSTTXREQ;

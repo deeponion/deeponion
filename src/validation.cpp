@@ -6411,7 +6411,7 @@ bool SignMultiSigDistributionTx()
         CTxIn& txin = mtx.vin[i];
         const Coin& coin = view.AccessCoin(txin.prevout);
         if (coin.IsSpent()) {
-            LogPrintf("Error. Input not found or already spent");
+            LogPrintf("SignMultiSigDistributionTx: Error. Input not found or already spent\n");
             return false;
         }
         const CScript& prevPubKey = coin.out.scriptPubKey;
