@@ -2947,8 +2947,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 			return error("processing message asvcavail - error in verifying signature. message ignored.");
 		}
 		
-    	CWallet* pwallet = vpwallets[0];
-		std::string selfAddress = pwallet->GetOneSelfAddress();
+        std::string selfAddress = pCurrentAnonymousTxInfo->GetSelfAddress();
 		std::string guarantorKey = "";
 		LogPrint(BCLog::DEEPSEND, ">> asvcavail: mixer selfAddress = %s\n", selfAddress.c_str());
 
@@ -3049,8 +3048,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 		std::string selfPubKey = "";
 		std::string ipGuarantor = "";
 
-    	CWallet* pwallet = vpwallets[0];
-		std::string selfAddress = pwallet->GetOneSelfAddress();
+        std::string selfAddress = pCurrentAnonymousTxInfo->GetSelfAddress();
 		bool b = SignMessageUsingAddress(selfAddress, selfAddress, vchSig);
 		if(!b) 
 		{

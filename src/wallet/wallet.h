@@ -1211,6 +1211,7 @@ public:
 
     int GetSelfAddressCount();
     std::string GetOneSelfAddress();
+    std::string GetRandomSelfAddress();
     std::string GetAddressPubKey(std::string strAddress);
 };
 
