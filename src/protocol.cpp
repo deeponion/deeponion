@@ -53,6 +53,7 @@ const char *DS_MSIGADDRRPLY="msigreply";
 const char *DS_CHKMSTX="checkmstx";
 const char *DS_MSDISTTX="msdisttx";
 const char *DS_MSTXRELAY="mstxrelay";
+const char *DS_MSDISTRELAY="msdistrelay";
 const char *DS_DSTTXCMPLT="sddstdone";
 const char *DS_CHKDSTTXRELAY="chksdrelay";
 const char *DS_CHKDSTTXREQ="checksdtx";

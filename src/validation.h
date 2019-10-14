@@ -1047,6 +1047,11 @@ public:
 		sendTx = tx;
 	}
 
+	std::string GetSendTx()
+    {
+        return sendTx;
+    }
+
 	void SetNode(AnonymousTxRole role, CNode* pN)
 	{
 		pParties->SetNode(role, pN);
