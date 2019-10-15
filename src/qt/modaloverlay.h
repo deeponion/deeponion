@@ -5,6 +5,7 @@
 #ifndef BITCOIN_QT_MODALOVERLAY_H
 #define BITCOIN_QT_MODALOVERLAY_H
 
+#include <qt/downloader.h>
 #include <QDateTime>
 #include <QWidget>
 
@@ -42,6 +43,11 @@ protected:
     bool eventFilter(QObject * obj, QEvent * ev);
     bool event(QEvent* ev);
 
+private Q_SLOTS:
+    void onQuickSyncClicked();
+    void onCancelButtonClicked();
+    void onUpdateProgress(qint64 bytesReceived, qint64 bytesTotal);
+
 private:
     Ui::ModalOverlay *ui;
     int bestHeaderHeight; //best known height (based on the headers)
@@ -50,6 +56,8 @@ private:
     bool layerIsVisible;
     bool userClosed;
     const PlatformStyle *platformStyle;
+    Downloader m_downloader;
+
 };
 
 #endif // BITCOIN_QT_MODALOVERLAY_H

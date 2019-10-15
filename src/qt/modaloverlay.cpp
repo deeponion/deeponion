@@ -10,6 +10,7 @@
 #include <chainparams.h>
 #include <qt/platformstyle.h>
 
+
 #include <QResizeEvent>
 #include <QPropertyAnimation>
 
@@ -20,15 +21,20 @@ bestHeaderHeight(0),
 bestHeaderDate(QDateTime()),
 layerIsVisible(false),
 userClosed(false),
+//m_downloader(0),
 platformStyle(_platformStyle)
 {
     ui->setupUi(this);
+    connect(ui->quickSyncButton, &QPushButton::clicked, this, &ModalOverlay::onQuickSyncClicked);
+    connect(ui->cancelPushButton, &QPushButton::clicked, this, &ModalOverlay::onCancelButtonClicked);
     connect(ui->closeButton, SIGNAL(clicked()), this, SLOT(closeClicked()));
+    connect(&m_downloader, &Downloader::updateDownloadProgress, this, &ModalOverlay::onUpdateProgress);
+
     if (parent) {
         parent->installEventFilter(this);
         raise();
     }
-
+    ui->downloadProgressBar->setValue(0);
     blockProcessTime.clear();
     setVisible(false);
 
@@ -186,4 +192,22 @@ void ModalOverlay::refreshStyle()
     ui->contentWidget->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getStyleSheet());
     ui->warningIcon->setIcon(platformStyle->SingleColorIcon(platformStyle->getThemeManager()->getCurrent()->getWarningIco()));
     ui->warningIcon->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQFrameGeneralStyle());
+}
+
+void ModalOverlay::onQuickSyncClicked()
+{
+    //m_downloader.get(ui->targetFolderLineEdit->text(), ui->urlLineEdit->text());
+}
+
+void ModalOverlay::onCancelButtonClicked()
+{
+    m_downloader.cancelDownload();
+    ui->downloadProgressBar->setMaximum(100);
+    ui->downloadProgressBar->setValue(0);
+}
+
+void ModalOverlay::onUpdateProgress(qint64 bytesReceived, qint64 bytesTotal)
+{
+    ui->downloadProgressBar->setMaximum(bytesTotal);
+    ui->downloadProgressBar->setValue(bytesReceived);
 }
