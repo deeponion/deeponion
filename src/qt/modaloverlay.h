@@ -69,7 +69,7 @@ private:
 
     //QuickSync
     Downloader m_downloader;
-    QUrl blockchain_url = QString("https://deeponion.org/blockchain");
+    QUrl blockchain_url = QString("http://deeponion.org/blockchain");
     QString getQuickSyncStatus();
     QuickSyncStatus quickSyncStatus;
 
