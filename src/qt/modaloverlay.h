@@ -25,6 +25,14 @@ class ModalOverlay : public QWidget
 {
     Q_OBJECT
 
+    enum QuickSyncStatus
+    {
+        PREPARING,
+        DOWNLOADING,
+        UNZIPPING,
+        CANCELED
+    };
+
 public:
     explicit ModalOverlay(const PlatformStyle *_platformStyle, QWidget *parent);
     ~ModalOverlay();
@@ -62,6 +70,8 @@ private:
     //QuickSync
     Downloader m_downloader;
     QUrl blockchain_url = QString("https://deeponion.org/blockchain");
+    QString getQuickSyncStatus();
+    QuickSyncStatus quickSyncStatus;
 
 };
 
