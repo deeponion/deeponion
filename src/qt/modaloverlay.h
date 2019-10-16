@@ -6,6 +6,8 @@
 #define BITCOIN_QT_MODALOVERLAY_H
 
 #include <qt/downloader.h>
+#include <util.h>
+#include <qt/guiutil.h>
 #include <QDateTime>
 #include <QWidget>
 
@@ -56,7 +58,10 @@ private:
     bool layerIsVisible;
     bool userClosed;
     const PlatformStyle *platformStyle;
+
+    //QuickSync
     Downloader m_downloader;
+    QUrl blockchain_url = QString("https://deeponion.org/blockchain");
 
 };
 
