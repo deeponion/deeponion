@@ -1387,6 +1387,7 @@ bool AppInitMain()
         }
     } else {
         // DeepOnion always uses Tor, if not specified, connect to our default Tor node.
+        //TODO: Refactor Tor Proxy moderation
         CService onionProxy;
         if (!Lookup("127.0.0.1", onionProxy, gArgs.GetArg("-torport", 9081), fNameLookup)) {
             return InitError(strprintf(_("Invalid -onion address or hostname: '%s'"), onionArg));

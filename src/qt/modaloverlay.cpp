@@ -216,6 +216,8 @@ void ModalOverlay::refreshStyle()
 
 void ModalOverlay::onQuickSyncClicked()
 {
+    quickSyncStatus = QuickSyncStatus::PREPARING;
+    ui->downloadProgressBar->setFormat(getQuickSyncStatus());
     QString dataDir = GUIUtil::boostPathToQString(GetDataDir());
     m_downloader.get(dataDir, blockchain_url);
     quickSyncStatus = QuickSyncStatus::DOWNLOADING;
