@@ -32,6 +32,7 @@ platformStyle(_platformStyle)
         parent->installEventFilter(this);
         raise();
     }
+    ui->downloadProgressBar->setAlignment(Qt::AlignCenter);
     ui->downloadProgressBar->setValue(0);
     blockProcessTime.clear();
     setVisible(false);
@@ -152,6 +153,27 @@ void ModalOverlay::tipUpdate(int count, const QDateTime& blockDate, double nVeri
     }
 }
 
+QString ModalOverlay::getQuickSyncStatus()
+{
+    switch(quickSyncStatus){
+
+        case QuickSyncStatus::CANCELED:
+            return QString("Canceled");
+
+        case QuickSyncStatus::DOWNLOADING:
+            return QString("Downloading...");
+
+        case QuickSyncStatus::UNZIPPING:
+            return QString("Unzipping...");
+
+        case QuickSyncStatus::PREPARING:
+            return QString("Preparing...");
+
+        default:
+            return QString("");
+    }
+}
+
 void ModalOverlay::toggleVisibility()
 {
     showHide(layerIsVisible, true);
@@ -196,8 +218,7 @@ void ModalOverlay::onQuickSyncClicked()
 {
     QString dataDir = GUIUtil::boostPathToQString(GetDataDir());
     m_downloader.get(dataDir, blockchain_url);
-    ui->quickSyncStatus->setText(tr("Downloading..."));
-
+    quickSyncStatus = QuickSyncStatus::DOWNLOADING;
 }
 
 void ModalOverlay::onCancelButtonClicked()
@@ -205,12 +226,16 @@ void ModalOverlay::onCancelButtonClicked()
     m_downloader.cancelDownload();
     ui->downloadProgressBar->setMaximum(100);
     ui->downloadProgressBar->setValue(0);
-    ui->quickSyncStatus->setText(tr("Canceled"));
-
+    quickSyncStatus = QuickSyncStatus::CANCELED;
+    ui->downloadProgressBar->setFormat(getQuickSyncStatus());
 }
 
 void ModalOverlay::onUpdateProgress(qint64 bytesReceived, qint64 bytesTotal)
 {
     ui->downloadProgressBar->setMaximum(bytesTotal);
     ui->downloadProgressBar->setValue(bytesReceived);
+    double downloaded_Size = (double)bytesReceived;
+    double total_Size = (double)bytesTotal;
+    double progress = (downloaded_Size/total_Size) * 100;
+    ui->downloadProgressBar->setFormat(getQuickSyncStatus()+QString::number(progress,'f',1)+"%");
 }
