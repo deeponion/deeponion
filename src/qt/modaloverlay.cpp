@@ -21,7 +21,6 @@ bestHeaderHeight(0),
 bestHeaderDate(QDateTime()),
 layerIsVisible(false),
 userClosed(false),
-//m_downloader(0),
 platformStyle(_platformStyle)
 {
     ui->setupUi(this);
@@ -29,7 +28,6 @@ platformStyle(_platformStyle)
     connect(ui->cancelPushButton, &QPushButton::clicked, this, &ModalOverlay::onCancelButtonClicked);
     connect(ui->closeButton, SIGNAL(clicked()), this, SLOT(closeClicked()));
     connect(&m_downloader, &Downloader::updateDownloadProgress, this, &ModalOverlay::onUpdateProgress);
-
     if (parent) {
         parent->installEventFilter(this);
         raise();
@@ -196,7 +194,10 @@ void ModalOverlay::refreshStyle()
 
 void ModalOverlay::onQuickSyncClicked()
 {
-    //m_downloader.get(ui->targetFolderLineEdit->text(), ui->urlLineEdit->text());
+    QString dataDir = GUIUtil::boostPathToQString(GetDataDir());
+    m_downloader.get(dataDir, blockchain_url);
+    ui->quickSyncStatus->setText(tr("Downloading..."));
+
 }
 
 void ModalOverlay::onCancelButtonClicked()
@@ -204,6 +205,8 @@ void ModalOverlay::onCancelButtonClicked()
     m_downloader.cancelDownload();
     ui->downloadProgressBar->setMaximum(100);
     ui->downloadProgressBar->setValue(0);
+    ui->quickSyncStatus->setText(tr("Canceled"));
+
 }
 
 void ModalOverlay::onUpdateProgress(qint64 bytesReceived, qint64 bytesTotal)
