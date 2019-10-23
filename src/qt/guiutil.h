@@ -17,6 +17,8 @@
 #include <QTableView>
 #include <QLabel>
 
+#include <zlib.h>
+
 class QValidatedLineEdit;
 class SendCoinsRecipient;
 
@@ -33,6 +35,9 @@ QT_END_NAMESPACE
  */
 namespace GUIUtil
 {
+    //QuickSync data handling
+    void deflate(fs::path Input_filename, fs::path Output_filename);
+
     // Create human-readable string from date
     QString dateTimeStr(const QDateTime &datetime);
     QString dateTimeStr(qint64 nTime);
