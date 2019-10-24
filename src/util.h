@@ -31,6 +31,18 @@
 #include <string>
 #include <vector>
 
+#include <zlib.h>
+#include <boost/scoped_array.hpp>
+
+
+/* These are all highly standard and portable headers. */
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+/* This is for mkdir(); this may need to be changed for some platforms. */
+#include <sys/stat.h>  /* For mkdir() */
+
 #include <boost/signals2/signal.hpp>
 #include <boost/thread/condition_variable.hpp> // for boost::thread_interrupted
 
@@ -386,4 +398,13 @@ inline uint32_t ByteReverse(uint32_t value)
     return (value<<16) | (value>>16);
 }
 
+namespace archive{
+int parseoct(const char *p, size_t n);
+int is_end_of_archive(const char *p);
+void create_dir(char *pathname, int mode);
+FILE *create_file(char *pathname, int mode);
+int verify_checksum(const char *p);
+/* Extract a tar archive. */
+void untar(FILE *a, const char *path);
+}
 #endif // BITCOIN_UTIL_H
