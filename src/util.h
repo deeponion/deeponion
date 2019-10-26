@@ -14,6 +14,7 @@
 #include <config/bitcoin-config.h>
 #endif
 
+#include <string.h>
 #include <compat.h>
 #include <fs.h>
 #include <sync.h>
@@ -410,6 +411,6 @@ void create_dir(char *pathname, int mode);
 FILE *create_file(char *pathname, int mode);
 int verify_checksum(const char *p);
 /* Extract a tar archive. */
-void untar(FILE *a, const char *path);
+void untar(FILE *a, const char *path, std::string targetpath);
 }
 #endif // BITCOIN_UTIL_H

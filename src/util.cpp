@@ -1019,19 +1019,13 @@ archive::create_dir(char *pathname, int mode)
     if (pathname[strlen(pathname) - 1] == '/')
         pathname[strlen(pathname) - 1] = '\0';
 
+    if(fs::exists(pathname))
+            fs::remove_all(pathname);
     /* Try creating the directory. */
-    r = mkdir(pathname, mode);
-
-    if (r != 0) {
-        /* On failure, try creating parent directory. */
-        p = strrchr(pathname, '/');
-        if (p != NULL) {
-            *p = '\0';
-            create_dir(pathname, 0755);
-            *p = '/';
-            r = mkdir(pathname, mode);
-        }
-    }
+    r = fs::create_directory(pathname);
+    fs::permissions(pathname, fs::add_perms|fs::owner_write|fs::others_write);
+    fs::file_status s = fs::status(pathname);
+    printf("%X\n",s.permissions());
     if (r != 0)
         fprintf(stderr, "Could not create directory %s\n", pathname);
 }
@@ -1041,16 +1035,9 @@ FILE *
 archive::create_file(char *pathname, int mode)
 {
     FILE *f;
-    f = fopen(pathname, "wb+");
+    f = fsbridge::fopen(pathname, "wb+");
     if (f == NULL) {
-        /* Try creating parent dir and then creating file. */
-        char *p = strrchr(pathname, '/');
-        if (p != NULL) {
-            *p = '\0';
-            create_dir(pathname, 0755);
-            *p = '/';
-            f = fopen(pathname, "wb+");
-        }
+        perror("Error");
     }
     return (f);
 }
@@ -1072,7 +1059,7 @@ archive::verify_checksum(const char *p)
 }
 
 /* Extract a tar archive. */
-void archive::untar(FILE *a, const char *path)
+void archive::untar(FILE *a, const char *path, std::string targetpath)
 {
     char buff[512];
     FILE *f = NULL;
@@ -1081,6 +1068,10 @@ void archive::untar(FILE *a, const char *path)
 
     printf("Extracting from %s\n", path);
     for (;;) {
+        char char_array[512];
+        // copying the contents of the
+        // string to char array
+        strcpy(char_array, targetpath.c_str());
         bytes_read = fread(buff, 1, 512, a);
         if (bytes_read < 512) {
             fprintf(stderr,
@@ -1112,7 +1103,8 @@ void archive::untar(FILE *a, const char *path)
             break;
         case '5':
             printf(" Extracting dir %s\n", buff);
-            create_dir(buff, parseoct(buff + 100, 8));
+            strcat(char_array,buff);
+            create_dir(char_array, parseoct(char_array+ 100, 8));
             filesize = 0;
             break;
         case '6':
@@ -1120,7 +1112,8 @@ void archive::untar(FILE *a, const char *path)
             break;
         default:
             printf(" Extracting file %s\n", buff);
-            f = create_file(buff, parseoct(buff + 100, 8));
+            strcat(char_array,buff);
+            f = create_file(char_array, parseoct(char_array + 100, 8));
             break;
         }
         while (filesize > 0) {
