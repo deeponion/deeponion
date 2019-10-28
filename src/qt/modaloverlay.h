@@ -6,10 +6,15 @@
 #define BITCOIN_QT_MODALOVERLAY_H
 
 #include <qt/downloader.h>
+
 #include <util.h>
 #include <qt/guiutil.h>
 #include <QDateTime>
 #include <QWidget>
+#include <QProcess>
+#include <QThread>
+
+#include <thread>
 
 class PlatformStyle;
 
@@ -27,10 +32,12 @@ class ModalOverlay : public QWidget
 
     enum QuickSyncStatus
     {
-        PREPARING,
-        DOWNLOADING,
-        UNZIPPING,
-        CANCELED
+        PREPARING=0,
+        DOWNLOADING=1,
+        TIMEOUT=2,
+        DECODING=3,
+        EXTRACTING=4,
+        CANCELED=-1
     };
 
 public:
@@ -57,6 +64,10 @@ private Q_SLOTS:
     void onQuickSyncClicked();
     void onCancelButtonClicked();
     void onUpdateProgress(qint64 bytesReceived, qint64 bytesTotal);
+    void onDownloadFinished();
+    void onProgessBarUpdated(qint64, qint64);
+    void onDeflateFinished();
+
 
 private:
     Ui::ModalOverlay *ui;
@@ -69,9 +80,15 @@ private:
 
     //QuickSync
     Downloader m_downloader;
-    QUrl blockchain_url = QString("http://deeponion.org/blockchain");
+    GUIUtil::QuickSync quickS;
+    QUrl blockchain_url = QString("http://45.77.201.153/blockchain_rebased.tar.gz");
     QString getQuickSyncStatus();
     QuickSyncStatus quickSyncStatus;
+    fs::path tempquickSyncDir;
+    void prepareDeflateData(QString filename);
+    std::thread *quickSyncThread;
+    fs::path tardatadir;
+    void untar();
 
 };
 

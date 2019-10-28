@@ -9,7 +9,7 @@
 
 #include <chainparams.h>
 #include <qt/platformstyle.h>
-
+#include <init.h>  // For StartShutdown
 
 #include <QResizeEvent>
 #include <QPropertyAnimation>
@@ -28,6 +28,10 @@ platformStyle(_platformStyle)
     connect(ui->cancelPushButton, &QPushButton::clicked, this, &ModalOverlay::onCancelButtonClicked);
     connect(ui->closeButton, SIGNAL(clicked()), this, SLOT(closeClicked()));
     connect(&m_downloader, &Downloader::updateDownloadProgress, this, &ModalOverlay::onUpdateProgress);
+    connect(&m_downloader, &Downloader::onFinished, this, &ModalOverlay::onDownloadFinished);
+    connect(&quickS, &GUIUtil::QuickSync::updateDeflateProgress, this, &ModalOverlay::onProgessBarUpdated, Qt::DirectConnection);
+    connect(&quickS, &GUIUtil::QuickSync::deflateFinished, this, &ModalOverlay::onDeflateFinished,Qt::DirectConnection);
+
     if (parent) {
         parent->installEventFilter(this);
         raise();
@@ -163,11 +167,17 @@ QString ModalOverlay::getQuickSyncStatus()
         case QuickSyncStatus::DOWNLOADING:
             return QString("Downloading...");
 
-        case QuickSyncStatus::UNZIPPING:
-            return QString("Unzipping...");
+        case QuickSyncStatus::DECODING:
+            return QString("Decoding...");
+
+        case QuickSyncStatus::EXTRACTING:
+            return QString("Extracting...");
 
         case QuickSyncStatus::PREPARING:
             return QString("Preparing...");
+
+        case QuickSyncStatus::TIMEOUT:
+            return QString("Timout...");
 
         default:
             return QString("");
@@ -218,14 +228,22 @@ void ModalOverlay::onQuickSyncClicked()
 {
     quickSyncStatus = QuickSyncStatus::PREPARING;
     ui->downloadProgressBar->setFormat(getQuickSyncStatus());
-    QString dataDir = GUIUtil::boostPathToQString(GetDataDir());
-    m_downloader.get(dataDir, blockchain_url);
+
+    //Create temp folder for downloading
+    tempquickSyncDir= GetDataDir() / fs::unique_path();
+   // tempquickSyncDir= GetDataDir() / "0172-8215-6efe-e447";
+    fs::create_directory(tempquickSyncDir);
+
+    //processQuickSyncData(QString("blockchain_rebased.tar.gz"));
+    prepareDeflateData(QString("blockchain_rebased.tar.gz"));
+   // m_downloader.get(GUIUtil::boostPathToQString(tempquickSyncDir), blockchain_url);
     quickSyncStatus = QuickSyncStatus::DOWNLOADING;
 }
 
 void ModalOverlay::onCancelButtonClicked()
 {
     m_downloader.cancelDownload();
+    fs::remove_all(tempquickSyncDir);
     ui->downloadProgressBar->setMaximum(100);
     ui->downloadProgressBar->setValue(0);
     quickSyncStatus = QuickSyncStatus::CANCELED;
@@ -240,4 +258,60 @@ void ModalOverlay::onUpdateProgress(qint64 bytesReceived, qint64 bytesTotal)
     double total_Size = (double)bytesTotal;
     double progress = (downloaded_Size/total_Size) * 100;
     ui->downloadProgressBar->setFormat(getQuickSyncStatus()+QString::number(progress,'f',1)+"%");
+}
+
+void ModalOverlay::onDownloadFinished()
+{
+    quickSyncStatus = QuickSyncStatus::DECODING;
+    ui->downloadProgressBar->setFormat(getQuickSyncStatus());
+    prepareDeflateData(m_downloader.getDataName());
+}
+
+void ModalOverlay::prepareDeflateData(QString file)
+{
+      std::string filename = file.toStdString();
+    //  fs::path datadir2= tempquickSyncDir / fs::path(filename);
+      fs::path datadir2 = GetDataDir()/"835a-44de-84e5-750e"/fs::path(filename);
+
+      size_t lastindex = filename.find_last_of(".");
+      std::string rawname = filename.substr(0, lastindex);
+//      tardatadir= tempquickSyncDir / fs::path(rawname);
+      tardatadir = GetDataDir()/"835a-44de-84e5-750e"/fs::path(rawname);
+
+      //Deflate in seperate thread
+      quickSyncThread =  new std::thread(&GUIUtil::QuickSync::deflate,&quickS,datadir2, tardatadir);
+}
+
+void ModalOverlay::untar()
+{
+    FILE * pFile;
+    pFile = fopen (tardatadir.c_str() ,"rb");
+    std::string targetpath = GetDataDir().string() + "/";
+    archive::untar(pFile, tardatadir.c_str(),targetpath);
+
+    fs::remove_all(tempquickSyncDir);
+
+
+    //StartShutdown();
+    //sleep(20000);         //make the programme waiting for 5 seconds
+    //QProcess::startDetached(qApp->arguments()[0], qApp->arguments());
+}
+
+
+void ModalOverlay::onProgessBarUpdated(qint64 processedData, qint64 data)
+{
+    ui->downloadProgressBar->setMaximum(data);
+    ui->downloadProgressBar->setValue(processedData);
+    double processed = double(processedData);
+    double total_Size = double(data);
+    double progress = (processed/total_Size) * 100;
+    ui->downloadProgressBar->setFormat(getQuickSyncStatus()+QString::number(progress,'f',1)+"%");
+
+}
+
+void ModalOverlay::onDeflateFinished()
+{
+    quickSyncStatus = QuickSyncStatus::EXTRACTING;
+    ui->downloadProgressBar->setFormat(getQuickSyncStatus());
+    untar();
 }
