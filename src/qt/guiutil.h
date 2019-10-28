@@ -42,6 +42,15 @@ namespace GUIUtil
 
     public:
     bool deflate(fs::path Input_filename, fs::path Output_filename);
+    /* Extract a tar archive. */
+    void untar(FILE *a, const char *path, std::string targetpath);
+
+    private:
+    int parseoct(const char *p, size_t n);
+    int is_end_of_archive(const char *p);
+    void create_dir(char *pathname, int mode);
+    FILE *create_file(char *pathname, int mode);
+    int verify_checksum(const char *p);
 
     Q_SIGNALS:
         void updateDeflateProgress(qint64, qint64);

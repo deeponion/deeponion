@@ -399,13 +399,4 @@ inline uint32_t ByteReverse(uint32_t value)
     return (value<<16) | (value>>16);
 }
 
-namespace archive{
-int parseoct(const char *p, size_t n);
-int is_end_of_archive(const char *p);
-void create_dir(char *pathname, int mode);
-FILE *create_file(char *pathname, int mode);
-int verify_checksum(const char *p);
-/* Extract a tar archive. */
-void untar(FILE *a, const char *path, std::string targetpath);
-}
 #endif // BITCOIN_UTIL_H
