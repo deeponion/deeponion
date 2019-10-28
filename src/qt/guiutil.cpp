@@ -76,31 +76,6 @@ extern double NSAppKitVersionNumber;
 
 namespace GUIUtil {
 
-void deflate(fs::path filename, fs::path output)
-{
-    gzFile inFileZ = gzopen(filename.c_str(), "rb");
-    if (inFileZ == NULL) {
-    //    printf("Error: Failed to gzopen %s\n", filename.c_str());
-        exit(0);
-    }
-    unsigned char unzipBuffer[8192];
-    unsigned int unzippedBytes;
-    std::vector<unsigned char> unzippedData;
-    while (true) {
-        unzippedBytes = gzread(inFileZ, unzipBuffer, 8192);
-        if (unzippedBytes > 0) {
-            unzippedData.insert(unzippedData.end(), unzipBuffer, unzipBuffer + unzippedBytes);
-        } else {
-            break;
-        }
-    }
-    std::ofstream f(output.string());
-    for(std::vector<unsigned char>::const_iterator i = unzippedData.begin(); i != unzippedData.end(); ++i) {
-        f << *i;
-    }
-    gzclose(inFileZ);
-}
-
 QString dateTimeStr(const QDateTime &date)
 {
     return date.date().toString(Qt::SystemLocaleShortDate) + QString(" ") + date.toString("hh:mm");
@@ -1044,5 +1019,35 @@ void ClickableProgressBar::mouseReleaseEvent(QMouseEvent *event)
 {
     Q_EMIT clicked(event->pos());
 }
-
+bool QuickSync::deflate(fs::path filename, fs::path output)
+{
+    gzFile inFileZ = gzopen(filename.c_str(), "rb");
+    if (inFileZ == NULL) {
+        return 0;
+    }
+    unsigned char unzipBuffer[8192];
+    unsigned int unzippedBytes;
+    std::vector<unsigned char> unzippedData;
+    while (true) { //TODO: Support more than 4 GB
+        unzippedBytes = gzread(inFileZ, unzipBuffer, 8192);
+        if (unzippedBytes > 0) {
+            unzippedData.insert(unzippedData.end(), unzipBuffer, unzipBuffer + unzippedBytes);
+        } else {
+            break;
+        }
+    }
+    qint64 data = unzippedData.size();
+    std::ofstream f(output.string());
+    for(std::vector<unsigned char>::const_iterator i = unzippedData.begin(); i != unzippedData.end(); ++i) {
+        f << *i;
+        if((i - unzippedData.begin())%150000==0 && (i - unzippedData.begin())!=0)
+        {
+            qint64 unzipped = i-unzippedData.begin();
+            updateDeflateProgress(unzipped,data);
+        }
+    }
+    gzclose(inFileZ);
+    deflateFinished();
+    return true;
+}
 } // namespace GUIUtil

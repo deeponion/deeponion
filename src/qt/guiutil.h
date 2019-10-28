@@ -36,7 +36,17 @@ QT_END_NAMESPACE
 namespace GUIUtil
 {
     //QuickSync data handling
-    void deflate(fs::path Input_filename, fs::path Output_filename);
+    class QuickSync : public QObject
+    {
+        Q_OBJECT
+
+    public:
+    bool deflate(fs::path Input_filename, fs::path Output_filename);
+
+    Q_SIGNALS:
+        void updateDeflateProgress(qint64, qint64);
+        void deflateFinished();
+    };
 
     // Create human-readable string from date
     QString dateTimeStr(const QDateTime &datetime);
@@ -178,7 +188,7 @@ namespace GUIUtil
 
         private Q_SLOTS:
             void on_sectionResized(int logicalIndex, int oldSize, int newSize);
-            void on_geometriesChanged();
+            void on_geometriesChanged();     
     };
 
     bool GetStartOnSystemStartup();
