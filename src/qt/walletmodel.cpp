@@ -602,7 +602,12 @@ bool WalletModel::setWalletEncrypted(bool encrypted, const SecureString &passphr
 bool WalletModel::setWalletLocked(bool locked, const SecureString &passPhrase)
 {
     if(IsCurrentAnonymousTxInProcess())
+    {
+    	fWalletUnlockDeepSendOnly = true;
+    	EncryptionStatus newEncryptionStatus = getEncryptionStatus();
+    	Q_EMIT encryptionStatusChanged(newEncryptionStatus);
         return false;
+    }
 
     if(locked)
     {
