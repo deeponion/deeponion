@@ -4008,7 +4008,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 
 					// send tx to both mixer and guarantor
 					CNode* pNode = pCurrentAnonymousTxInfo->GetNode(ROLE_GUARANTOR);
-					connman->PushMessage(pNode, msgMaker.Make(NetMsgType::DS_CANCEL, cancelTx, pSelfAddress, vchSig));
+					connman->PushMessage(pNode, msgMaker.Make(NetMsgType::DS_CANCEL, anonymousTxId, cancelTx, pSelfAddress, vchSig));
 				}
 				else
 				{
@@ -4030,10 +4030,11 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 	else if (strCommand == NetMsgType::DS_CANCEL)		// message sender -> guarantor
     {
 		LogPrint(BCLog::DEEPSEND, "Processing message canceldstx from %s\n", pfrom->addr.ToString());
+        std::string anonymousTxId;
 		std::string cancelTx;
 		std::string pSelfAddress;
 		std::vector<unsigned char> vchSig;
-        vRecv >> cancelTx >> pSelfAddress >> vchSig;
+        vRecv >> anonymousTxId >> cancelTx >> pSelfAddress >> vchSig;
 
 		{
 			LOCK(cs_deepsend);
@@ -4068,7 +4069,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 			std::string selfAddress = pCurrentAnonymousTxInfo->GetSelfAddress();
 			std::string committedTx = pCurrentAnonymousTxInfo->GetCommittedMsTx();
 
-			logText = "Multisig distribution transaction is successfully posted to the network. TxID = " + committedTx + ".";
+			std::string logText = "Multisig distribution transaction is successfully posted to the network. TxID = " + committedTx + ".";
 			pCurrentAnonymousTxInfo->AddToLog(logText);
 			logText = "Escrow's fund is refunded to each parties.";
 			pCurrentAnonymousTxInfo->AddToLog(logText);

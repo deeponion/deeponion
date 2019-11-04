@@ -257,6 +257,7 @@ extern const char *DS_CHKDSTTXRELAY;
 extern const char *DS_CHKDSTTXREQ;
 extern const char *DS_SENDCMPLT;
 extern const char *DS_SERVICEANN;
+extern const char *DS_CANCEL;
 };
 
 /* Get a vector of all valid message types (see above) */
