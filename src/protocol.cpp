@@ -59,6 +59,7 @@ const char *DS_CHKDSTTXRELAY="chksdrelay";
 const char *DS_CHKDSTTXREQ="checksdtx";
 const char *DS_SENDCMPLT="sendcmplt";
 const char *DS_SERVICEANN="mixservice";
+const char *DS_CANCEL="canceldstx";
 } // namespace NetMsgType
 
 /** All known message types. Keep this in the same order as the list of
@@ -109,6 +110,7 @@ const static std::string allNetMessageTypes[] = {
     NetMsgType::DS_CHKDSTTXREQ,
     NetMsgType::DS_SENDCMPLT,
     NetMsgType::DS_SERVICEANN,
+    NetMsgType::DS_CANCEL,
 };
 
 const static std::vector<std::string> allNetMessageTypesVec(allNetMessageTypes, allNetMessageTypes+ARRAYLEN(allNetMessageTypes));

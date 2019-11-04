@@ -3994,8 +3994,21 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 					logText = "Unable to verify Mixer's sendcoin transaction after 10 tries. Abort.";
 					pCurrentAnonymousTxInfo->AddToLog(logText);
 
-					// need to cancel tx - TODO
-					return error("processing message checksdtx - error can't verify all txids in 10 tries");
+					std::string cancelTx = CreateCancelDistributionTx();
+					// Distribution TX is now the cancel varient.
+					if(!SignMultiSigDistributionTx()) {
+						return error("processing message checksdtx - Couldn't sign cancellation TX.");
+					}
+					cancelTx = pCurrentAnonymousTxInfo->GetTx();
+					std::string pSelfAddress = pCurrentAnonymousTxInfo->GetSelfAddress();
+
+					bool b = SignMessageUsingAddress(cancelTx, pSelfAddress, vchSig);
+					if(!b)
+						return error("processing message canceldstx - error in signing message with cancelTx");
+
+					// send tx to both mixer and guarantor
+					CNode* pNode = pCurrentAnonymousTxInfo->GetNode(ROLE_GUARANTOR);
+					connman->PushMessage(pNode, msgMaker.Make(NetMsgType::DS_CANCEL, cancelTx, pSelfAddress, vchSig));
 				}
 				else
 				{
@@ -4014,7 +4027,65 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 			}
 		}
     }
+	else if (strCommand == NetMsgType::DS_CANCEL)		// message sender -> guarantor
+    {
+		LogPrint(BCLog::DEEPSEND, "Processing message canceldstx from %s\n", pfrom->addr.ToString());
+		std::string cancelTx;
+		std::string pSelfAddress;
+		std::vector<unsigned char> vchSig;
+        vRecv >> cancelTx >> pSelfAddress >> vchSig;
 
+		{
+			LOCK(cs_deepsend);
+
+			std::string senderAddress = pCurrentAnonymousTxInfo->GetAddress(ROLE_SENDER);
+
+			if(VerifyMessageSignature(cancelTx, senderAddress, vchSig))
+			{
+				LogPrint(BCLog::DEEPSEND, ">> canceldstx: signature verified.\n");
+			}
+			else
+			{
+				return error("processing message canceldstx - signature can not be verified. message ignored.");
+			}
+
+			// We've got a cancel message, check that cancelation is valid
+			bool successful = pCurrentAnonymousTxInfo->CheckSendTx();
+			if (!successful) {
+				// Overwrite the distribution
+				pCurrentAnonymousTxInfo->SetTx(cancelTx, 1);
+			}
+
+			bool b = SignMultiSigDistributionTx();
+			if(!b) {
+				return error("processing message canceldstx - Couldn't sign cancel TX.");
+			}
+			b = SendMultiSigDistributionTx(connman);
+			if(!b) {
+				return error("processing message canceldstx - Couldn't send cancel TX.");
+			}
+
+			std::string selfAddress = pCurrentAnonymousTxInfo->GetSelfAddress();
+			std::string committedTx = pCurrentAnonymousTxInfo->GetCommittedMsTx();
+
+			logText = "Multisig distribution transaction is successfully posted to the network. TxID = " + committedTx + ".";
+			pCurrentAnonymousTxInfo->AddToLog(logText);
+			logText = "Escrow's fund is refunded to each parties.";
+			pCurrentAnonymousTxInfo->AddToLog(logText);
+			logText = "Anonymous Send is successful.";
+			pCurrentAnonymousTxInfo->AddToLog(logText);
+
+			b = SignMessageUsingAddress(committedTx, selfAddress, vchSig);
+			if(!b)
+				return error("processing message checkmstx - error in signing message with multisigtx");
+
+			// send tx to both mixer and sender
+			connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::DS_SENDCMPLT, anonymousTxId, committedTx, vchSig));
+			CNode* pNode = pCurrentAnonymousTxInfo->GetNode(ROLE_MIXER);
+			connman->PushMessage(pNode, msgMaker.Make(NetMsgType::DS_SENDCMPLT, anonymousTxId, committedTx, vchSig));
+		}
+
+    }
 	else if (strCommand == NetMsgType::DS_SENDCMPLT)		// message sender -> guarantor, mixer
     {
 		LogPrint(BCLog::DEEPSEND, "Processing message sendcmplt from %s\n", pfrom->addr.ToString());
