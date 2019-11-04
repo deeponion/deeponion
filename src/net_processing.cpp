@@ -3939,7 +3939,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 			std::string logText = "Verify Mixer's sendcoin TxID. This is verification No." + std::to_string(cnt) + ".";
 			pCurrentAnonymousTxInfo->AddToLog(logText);
 
-			bool successful = pCurrentAnonymousTxInfo->CheckSendTx();
+            bool successful = pCurrentAnonymousTxInfo->CheckSendTx();
 
 			if(successful)	
 			{
@@ -4050,13 +4050,25 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 				return error("processing message canceldstx - signature can not be verified. message ignored.");
 			}
 
+			// We shouldn't receive this message unless mixer has reported a a Send TX check here for safety.
+			if(pCurrentAnonymousTxInfo->GetSendTx().length() == 0) {
+                return error("processing message canceldstx - Out of sync cancellation message, ignore.");
+			}
+
 			// We've got a cancel message, check that cancelation is valid
 			bool successful = pCurrentAnonymousTxInfo->CheckSendTx();
+			std::string logText = "Request to cancel received.";
+            pCurrentAnonymousTxInfo->AddToLog(logText);
 			if (!successful) {
 				// Overwrite the distribution
 				pCurrentAnonymousTxInfo->SetTx(cancelTx, 1);
+                logText = "Changed to cancel distribution.";
+			} else {
+			    logText = "Mixer has already sent funds, signing and distributing as normal.";
 			}
+            pCurrentAnonymousTxInfo->AddToLog(logText);
 
+            // We have either a signed by 1 normal distribution or cancel distribution, so should be able to sign and broadcast.
 			bool b = SignMultiSigDistributionTx();
 			if(!b) {
 				return error("processing message canceldstx - Couldn't sign cancel TX.");
@@ -4069,7 +4081,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 			std::string selfAddress = pCurrentAnonymousTxInfo->GetSelfAddress();
 			std::string committedTx = pCurrentAnonymousTxInfo->GetCommittedMsTx();
 
-			std::string logText = "Multisig distribution transaction is successfully posted to the network. TxID = " + committedTx + ".";
+			logText = "Multisig distribution transaction is successfully posted to the network. TxID = " + committedTx + ".";
 			pCurrentAnonymousTxInfo->AddToLog(logText);
 			logText = "Escrow's fund is refunded to each parties.";
 			pCurrentAnonymousTxInfo->AddToLog(logText);
@@ -4081,9 +4093,9 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 				return error("processing message checkmstx - error in signing message with multisigtx");
 
 			// send tx to both mixer and sender
-			connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::DS_SENDCMPLT, anonymousTxId, committedTx, vchSig));
+			connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::DS_CANCELCMPLT, anonymousTxId, committedTx, vchSig));
 			CNode* pNode = pCurrentAnonymousTxInfo->GetNode(ROLE_MIXER);
-			connman->PushMessage(pNode, msgMaker.Make(NetMsgType::DS_SENDCMPLT, anonymousTxId, committedTx, vchSig));
+			connman->PushMessage(pNode, msgMaker.Make(NetMsgType::DS_CANCELCMPLT, anonymousTxId, committedTx, vchSig));
 		}
 
     }
@@ -4121,6 +4133,40 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 			pCurrentAnonymousTxInfo->clean(false);
 		}
 	}
+    else if (strCommand == NetMsgType::DS_CANCELCMPLT)        // message sender -> guarantor, mixer
+    {
+        LogPrint(BCLog::DEEPSEND, "Processing message cancelcmplt from %s\n", pfrom->addr.ToString());
+        std::string anonymousTxId;
+        std::string committedTx;
+        std::vector<unsigned char> vchSig;
+        vRecv >> anonymousTxId >> committedTx >> vchSig;
+
+        {
+            LOCK(cs_deepsend);
+
+            std::string senderAddress = pCurrentAnonymousTxInfo->GetAddress(ROLE_GUARANTOR);
+
+            if(VerifyMessageSignature(committedTx, senderAddress, vchSig))
+            {
+                LogPrint(BCLog::DEEPSEND, ">> cancelcmplt: signature verified.\n");
+            }
+            else
+            {
+                return error("processing message cancelcmplt - signature can not be verified. message ignored.");
+            }
+
+            pCurrentAnonymousTxInfo->SetCommittedMsTx(committedTx);
+            std::string logText = "Received multisig distribution tx execution. TxID = " + committedTx + ".";
+            pCurrentAnonymousTxInfo->AddToLog(logText);
+            logText = "Escrow's fund is refunded to each parties.";
+            pCurrentAnonymousTxInfo->AddToLog(logText);
+            logText = "Anonymous Send is successful and completed.";
+            pCurrentAnonymousTxInfo->AddToLog(logText);
+
+            // cleanup
+            pCurrentAnonymousTxInfo->clean(false);
+        }
+    }
 
 	else if (strCommand == NetMsgType::DS_SERVICEANN)
     {

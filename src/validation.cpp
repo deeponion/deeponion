@@ -6204,7 +6204,8 @@ std::string CreateMultiSigDistributionTx()
 
 	// now creating raw distribution tx
 	CMutableTransaction rawMutableTx;
-	rawMutableTx.nTime = GetAdjustedTime();
+	// Put 5 mins into the future to allow avoid timing issues.
+	rawMutableTx.nTime = GetAdjustedTime() + (5 * 60000);
 	
     uint256 txid256;
     txid256.SetHex(txidSender);
