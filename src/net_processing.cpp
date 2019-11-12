@@ -3161,7 +3161,6 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 		std::string guarantorIP = GetConnectedIP(keyGarantor);
 		CNode* pGuarantorNode = connman->GetConnectedNode(guarantorIP);
 
-		// TODO: need to try to connect to that node if it is not there, also need to send back message
 		if(pGuarantorNode == NULL)
 		{
 			return error("ERROR mixrequest: cannot connect to Guarantor node.");
@@ -3228,7 +3227,6 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 		CNode* pMixerNode = connman->GetConnectedNode(mixerIP);
         LogPrint(BCLog::DEEPSEND, ">> guarantreq: got mixer-node. Address = %s\n", mixerIP.c_str());
 
-		// TODO: need to try to connect to that node if it is not there, also need to send back message
 		if(pMixerNode == NULL)
 		{
 			return error("ERROR guarantreq: cannot connect to Mixer Node.");
@@ -4004,11 +4002,11 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 
 					bool b = SignMessageUsingAddress(cancelTx, pSelfAddress, vchSig);
 					if(!b)
-						return error("processing message canceldstx - error in signing message with cancelTx");
+						return error("processing message checksdtx - error in signing message with cancelTx");
 
-					// send tx to both mixer and guarantor
+			        std::string source = "sender";
 					CNode* pNode = pCurrentAnonymousTxInfo->GetNode(ROLE_GUARANTOR);
-					connman->PushMessage(pNode, msgMaker.Make(NetMsgType::DS_CANCEL, anonymousTxId, cancelTx, pSelfAddress, vchSig));
+					connman->PushMessage(pNode, msgMaker.Make(NetMsgType::DS_CANCEL, anonymousTxId, cancelTx, pSelfAddress, source, vchSig));
 				}
 				else
 				{
@@ -4033,13 +4031,20 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
         std::string anonymousTxId;
 		std::string cancelTx;
 		std::string pSelfAddress;
+        std::string source;
 		std::vector<unsigned char> vchSig;
-        vRecv >> anonymousTxId >> cancelTx >> pSelfAddress >> vchSig;
+        vRecv >> anonymousTxId >> cancelTx >> pSelfAddress >> source >> vchSig;
 
 		{
 			LOCK(cs_deepsend);
 
-			std::string senderAddress = pCurrentAnonymousTxInfo->GetAddress(ROLE_SENDER);
+	        AnonymousTxRole sourceRole = ROLE_SENDER;
+	        if(source == "mixer")
+	            sourceRole = ROLE_MIXER;
+	        else if(source == "guarantor")
+	            sourceRole = ROLE_GUARANTOR;
+
+			std::string senderAddress = pCurrentAnonymousTxInfo->GetAddress(sourceRole);
 
 			if(VerifyMessageSignature(cancelTx, senderAddress, vchSig))
 			{
@@ -4090,11 +4095,20 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 
 			b = SignMessageUsingAddress(committedTx, selfAddress, vchSig);
 			if(!b)
-				return error("processing message checkmstx - error in signing message with multisigtx");
+				return error("processing message canceldstx - error in signing message with committedTx");
 
-			// send tx to both mixer and sender
-			connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::DS_CANCELCMPLT, anonymousTxId, committedTx, vchSig));
-			CNode* pNode = pCurrentAnonymousTxInfo->GetNode(ROLE_MIXER);
+			// Send the complete message to other parties.
+			CNode* pNode;
+			if( (sourceRole == ROLE_SENDER && pCurrentAnonymousTxInfo->GetRole() == ROLE_MIXER) ||
+			        (sourceRole == ROLE_MIXER && pCurrentAnonymousTxInfo->GetRole() == ROLE_SENDER) ) {
+			    pNode = pCurrentAnonymousTxInfo->GetNode(ROLE_GUARANTOR);
+			} else if((sourceRole == ROLE_GUARANTOR && pCurrentAnonymousTxInfo->GetRole() == ROLE_MIXER) ||
+                    (sourceRole == ROLE_MIXER && pCurrentAnonymousTxInfo->GetRole() == ROLE_GUARANTOR)) {
+			    pNode = pCurrentAnonymousTxInfo->GetNode(ROLE_SENDER);
+			} else {
+			    pNode = pCurrentAnonymousTxInfo->GetNode(ROLE_MIXER);
+			}
+            connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::DS_CANCELCMPLT, anonymousTxId, committedTx, vchSig));
 			connman->PushMessage(pNode, msgMaker.Make(NetMsgType::DS_CANCELCMPLT, anonymousTxId, committedTx, vchSig));
 		}
 
@@ -4160,7 +4174,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
             pCurrentAnonymousTxInfo->AddToLog(logText);
             logText = "Escrow's fund is refunded to each parties.";
             pCurrentAnonymousTxInfo->AddToLog(logText);
-            logText = "Anonymous Send is successful and completed.";
+            logText = "Anonymous Send is successful and cancelled.";
             pCurrentAnonymousTxInfo->AddToLog(logText);
 
             // cleanup
