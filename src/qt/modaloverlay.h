@@ -17,6 +17,8 @@
 #include <thread>
 
 class PlatformStyle;
+class ClientModel;
+
 
 //! The required delta of headers to the estimated number of available headers until we show the IBD progress
 static constexpr int HEADER_HEIGHT_DELTA_SYNC = 24;
@@ -44,6 +46,10 @@ public:
     explicit ModalOverlay(const PlatformStyle *_platformStyle, QWidget *parent);
     ~ModalOverlay();
 
+
+Q_SIGNALS:
+    void setNetworkStatus(bool active);
+
 public Q_SLOTS:
     void tipUpdate(int count, const QDateTime& blockDate, double nVerificationProgress);
     void setKnownBestHeight(int count, const QDateTime& blockDate);
@@ -68,6 +74,8 @@ private Q_SLOTS:
     void onProgessBarUpdated(qint64, qint64);
     void onDeflateFinished();
 
+public:
+    void setClientModel(ClientModel*);
 
 private:
     Ui::ModalOverlay *ui;
@@ -77,11 +85,12 @@ private:
     bool layerIsVisible;
     bool userClosed;
     const PlatformStyle *platformStyle;
+    ClientModel *clientmodel;
 
     //QuickSync
     Downloader m_downloader;
     GUIUtil::QuickSync quickS;
-    QUrl blockchain_url = QString("http://45.77.201.153/blockchain_rebased.tar.gz");
+    const QUrl blockchain_url = QString("http://45.77.201.153/blockchain_rebased.tar.gz");
     QString getQuickSyncStatus();
     QuickSyncStatus quickSyncStatus;
     fs::path tempquickSyncDir;

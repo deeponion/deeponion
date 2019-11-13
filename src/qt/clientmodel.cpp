@@ -157,6 +157,11 @@ void ClientModel::updateTimer()
 
 }
 
+void ClientModel::updateNetwork(bool active)
+{
+    Q_EMIT setNetworkActive(active);
+}
+
 void ClientModel::updateNumConnections(int numConnections)
 {
     Q_EMIT numConnectionsChanged(numConnections);
