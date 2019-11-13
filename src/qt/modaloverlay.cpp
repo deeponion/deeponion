@@ -6,6 +6,7 @@
 #include <qt/forms/ui_modaloverlay.h>
 
 #include <qt/guiutil.h>
+#include <qt/clientmodel.h>
 
 #include <chainparams.h>
 #include <qt/platformstyle.h>
@@ -225,16 +226,15 @@ void ModalOverlay::refreshStyle()
 }
 
 void ModalOverlay::onQuickSyncClicked()
-{
+{    
+    setNetworkStatus(false);
     quickSyncStatus = QuickSyncStatus::PREPARING;
     ui->downloadProgressBar->setFormat(getQuickSyncStatus());
 
     //Create temp folder for downloading
     tempquickSyncDir= GetDataDir() / fs::unique_path();
-   // tempquickSyncDir= GetDataDir() / "0172-8215-6efe-e447";
     fs::create_directory(tempquickSyncDir);
 
-    //processQuickSyncData(QString("blockchain_rebased.tar.gz"));
     prepareDeflateData(QString("blockchain_rebased.tar.gz"));
    // m_downloader.get(GUIUtil::boostPathToQString(tempquickSyncDir), blockchain_url);
     quickSyncStatus = QuickSyncStatus::DOWNLOADING;
@@ -248,6 +248,9 @@ void ModalOverlay::onCancelButtonClicked()
     ui->downloadProgressBar->setValue(0);
     quickSyncStatus = QuickSyncStatus::CANCELED;
     ui->downloadProgressBar->setFormat(getQuickSyncStatus());
+
+    //Free Network
+    setNetworkStatus(true);
 }
 
 void ModalOverlay::onUpdateProgress(qint64 bytesReceived, qint64 bytesTotal)
@@ -270,12 +273,12 @@ void ModalOverlay::onDownloadFinished()
 void ModalOverlay::prepareDeflateData(QString file)
 {
       std::string filename = file.toStdString();
-    //  fs::path datadir2= tempquickSyncDir / fs::path(filename);
+      //fs::path datadir2= tempquickSyncDir / fs::path(filename);
       fs::path datadir2 = GetDataDir()/"835a-44de-84e5-750e"/fs::path(filename);
 
       size_t lastindex = filename.find_last_of(".");
       std::string rawname = filename.substr(0, lastindex);
-//      tardatadir= tempquickSyncDir / fs::path(rawname);
+      //tardatadir= tempquickSyncDir / fs::path(rawname);
       tardatadir = GetDataDir()/"835a-44de-84e5-750e"/fs::path(rawname);
 
       //Deflate in seperate thread
@@ -284,10 +287,11 @@ void ModalOverlay::prepareDeflateData(QString file)
 
 void ModalOverlay::untar()
 {
+    fs::remove_all("/home/thohemp/.DeepOnion/blocks");
     FILE * pFile;
     pFile = fopen (tardatadir.c_str() ,"rb");
     std::string targetpath = GetDataDir().string() + "/";
-    archive::untar(pFile, tardatadir.c_str(),targetpath);
+    quickS.untar(pFile, tardatadir.c_str(),targetpath);
 
     fs::remove_all(tempquickSyncDir);
 
@@ -314,4 +318,11 @@ void ModalOverlay::onDeflateFinished()
     quickSyncStatus = QuickSyncStatus::EXTRACTING;
     ui->downloadProgressBar->setFormat(getQuickSyncStatus());
     untar();
+}
+
+void ModalOverlay::setClientModel(ClientModel *clientmodel)
+{
+    this->clientmodel = clientmodel;
+    // Deactivate network for quick sync operations
+    connect(this,SIGNAL(setNetworkStatus(bool)), clientmodel, SLOT(updateNetwork(bool)));
 }
