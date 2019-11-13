@@ -6302,6 +6302,9 @@ std::string CreateCancelDistributionTx()
 	    CTxOut out1(amountSender, spkSender);
 	    rawMutableTx.vout.push_back(out1);
 	    pCurrentAnonymousTxInfo->SetVoutAndScriptPubKey(ROLE_SENDER, voutnSender, scriptPubKeySender, amountSender);
+	} else {
+	    // If sender never sent the funds there is no service fee
+	    servicefee = 0;
 	}
 
 	// mixer
@@ -6315,8 +6318,8 @@ std::string CreateCancelDistributionTx()
 	    CTxIn in2(COutPoint(uint256(txid256), voutnMixer));
 	    rawMutableTx.vin.push_back(in2);
 
-	    // mixer gets baseAmount + servicefee, as they have not yet sent the funds
-	    CAmount amountMixer = baseAmount + servicefee;
+	    // mixer gets baseAmount + servicefee, as they have not yet sent the funds or just baseamount if the sender hasn't paid in
+	    CAmount amountMixer = servicefee == 0 ? (baseAmount - DEFAULT_BLOCK_MIN_TX_FEE) : (baseAmount + servicefee);
 	    std::string addressMixer = pCurrentAnonymousTxInfo->GetAddress(ROLE_MIXER);
 	    CTxDestination addressM = DecodeDestination(addressMixer);
 	    CScript spkMixer = GetScriptForDestination(addressM);
@@ -6336,8 +6339,8 @@ std::string CreateCancelDistributionTx()
 	    CTxIn in3(COutPoint(uint256(txid256), voutnGuarantor));
 	    rawMutableTx.vin.push_back(in3);
 
-	    // guarantor gets baseAmount + servicefee
-	    CAmount amountGuarator = baseAmount + servicefee;
+	    // guarantor gets baseAmount + servicefee if the sender paid in, otherwise just baseamount
+	    CAmount amountGuarator = servicefee == 0 ? (baseAmount - DEFAULT_BLOCK_MIN_TX_FEE) : (baseAmount + servicefee);
 	    std::string addressGuarantor = pCurrentAnonymousTxInfo->GetAddress(ROLE_GUARANTOR);
 	    CTxDestination addressG = DecodeDestination(addressGuarantor);
 	    CScript spkGuarantor = GetScriptForDestination(addressG);
