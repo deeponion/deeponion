@@ -778,7 +778,7 @@ static bool AcceptToMemoryPoolWorker(const CChainParams& chainparams, CTxMemPool
             // DeepOnion: Attempt to find the previous out, don't fail if we don't find it as we are
             // are not allowing it to be done slowly, we shouldn't get here if it doesn't exists anyway
             if (GetTransaction(txin.prevout.hash, txPrev, Params().GetConsensus(), hash_block, false)) {
-                if(txPrev->nTime > tx.nTime) {
+                if((txPrev->nTime - 3600) > tx.nTime) {
                     return state.DoS(100, false, REJECT_INVALID, "bad-txns-early-timestamp");
                 }
             }
@@ -6792,6 +6792,20 @@ void UpdateAnonymousServiceList(CNode* pNode, std::string keyAddress, std::strin
 	if(addr.find(onion) == std::string::npos) {
 		LogPrint(BCLog::DEEPSEND, ">> UpdateAnonymousServiceList. Not an .onion address, addr = %s\n", addr.c_str());
 		return;
+	}
+	
+	// temp: only allow certain address
+	/*
+	if(addr != std::string("xu7nhy6qokb3afrf.onion") && addr != std::string("uhyrk5j3h76pbiwk.onion") && addr != std::string("2botmkfkdxzsax3u.onion")) {
+		LogPrint(BCLog::DEEPSEND, ">> UpdateAnonymousServiceList. Not allowed address, addr = %s\n", addr.c_str());
+		return;		
+	}
+	*/
+	
+	// ignore banned address
+	if(connman->IsBanned((CNetAddr)pNode->addr)) {
+		LogPrint(BCLog::DEEPSEND, ">> UpdateAnonymousServiceList. Address is banned, addr = %s\n", addr.c_str());
+		return;		
 	}
 
 	LogPrint(BCLog::DEEPSEND, ">> UpdateAnonymousServiceList. key = %s, addr = %s, status = %s\n", keyAddress.c_str(), addr.c_str(), status.c_str());

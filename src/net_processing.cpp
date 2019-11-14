@@ -4060,6 +4060,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
                 return error("processing message canceldstx - Out of sync cancellation message, ignore.");
 			}
 
+			int isCanceled = 1;
 			// We've got a cancel message, check that cancelation is valid
 			bool successful = pCurrentAnonymousTxInfo->CheckSendTx();
 			std::string logText = "Request to cancel received.";
@@ -4070,6 +4071,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
                 logText = "Changed to cancel distribution.";
 			} else {
 			    logText = "Mixer has already sent funds, signing and distributing as normal.";
+			    isCanceled = 0;
 			}
             pCurrentAnonymousTxInfo->AddToLog(logText);
 
@@ -4108,8 +4110,8 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 			} else {
 			    pNode = pCurrentAnonymousTxInfo->GetNode(ROLE_MIXER);
 			}
-            connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::DS_CANCELCMPLT, anonymousTxId, committedTx, vchSig));
-			connman->PushMessage(pNode, msgMaker.Make(NetMsgType::DS_CANCELCMPLT, anonymousTxId, committedTx, vchSig));
+            connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::DS_CANCELCMPLT, anonymousTxId, committedTx, isCanceled, vchSig));
+			connman->PushMessage(pNode, msgMaker.Make(NetMsgType::DS_CANCELCMPLT, anonymousTxId, committedTx, isCanceled, vchSig));
 		}
 
     }
@@ -4147,13 +4149,14 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 			pCurrentAnonymousTxInfo->clean(false);
 		}
 	}
-    else if (strCommand == NetMsgType::DS_CANCELCMPLT)        // message sender -> guarantor, mixer
+    else if (strCommand == NetMsgType::DS_CANCELCMPLT)        // message guarantor-> sender, mixer
     {
         LogPrint(BCLog::DEEPSEND, "Processing message cancelcmplt from %s\n", pfrom->addr.ToString());
         std::string anonymousTxId;
         std::string committedTx;
+        int isCanceled;
         std::vector<unsigned char> vchSig;
-        vRecv >> anonymousTxId >> committedTx >> vchSig;
+        vRecv >> anonymousTxId >> committedTx >> isCanceled >> vchSig;
 
         {
             LOCK(cs_deepsend);
@@ -4174,7 +4177,10 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
             pCurrentAnonymousTxInfo->AddToLog(logText);
             logText = "Escrow's fund is refunded to each parties.";
             pCurrentAnonymousTxInfo->AddToLog(logText);
-            logText = "Anonymous Send is successful and cancelled.";
+            if(isCanceled)
+            	logText = "Anonymous Send is successful and cancelled.";
+            else
+            	logText = "Anonymous Send is successful and completed.";
             pCurrentAnonymousTxInfo->AddToLog(logText);
 
             // cleanup
