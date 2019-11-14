@@ -4055,13 +4055,8 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 				return error("processing message canceldstx - signature can not be verified. message ignored.");
 			}
 
-			// We shouldn't receive this message unless mixer has reported a a Send TX check here for safety.
-			if(pCurrentAnonymousTxInfo->GetSendTx().length() == 0) {
-                return error("processing message canceldstx - Out of sync cancellation message, ignore.");
-			}
-
-			int isCanceled = 1;
 			// We've got a cancel message, check that cancelation is valid
+			int isCanceled = 1;
 			bool successful = pCurrentAnonymousTxInfo->CheckSendTx();
 			std::string logText = "Request to cancel received.";
             pCurrentAnonymousTxInfo->AddToLog(logText);
