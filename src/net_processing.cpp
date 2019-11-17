@@ -4003,6 +4003,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 					if(!b)
 						return error("processing message checksdtx - error in signing message with cancelTx");
 
+					cancelTx = pCurrentAnonymousTxInfo->GetTx();
 			        std::string source = "sender";
 					CNode* pNode = pCurrentAnonymousTxInfo->GetNode(ROLE_GUARANTOR);
 					connman->PushMessage(pNode, msgMaker.Make(NetMsgType::DS_CANCEL, anonymousTxId, cancelTx, pSelfAddress, source, vchSig));

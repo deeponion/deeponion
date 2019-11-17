@@ -6271,40 +6271,12 @@ std::string CreateCancelDistributionTx()
 	// sender
 	std::string txidSender = pCurrentAnonymousTxInfo->GetTxid(ROLE_SENDER);
 	int voutnSender;
-
-    // now creating raw distribution tx
-    CMutableTransaction rawMutableTx;
-    rawMutableTx.nTime = GetAdjustedTime();
-    uint256 txid256;
-
-    // Calulate outputs
-    CAmount baseAmount = pCurrentAnonymousTxInfo->GetTotalRequiredCoinsToSend(ROLE_MIXER);
-    CAmount paidfee = baseAmount * DEEPSEND_FEE_RATE;
-    if(paidfee < DEEPSEND_MIN_FEE)
-        paidfee = DEEPSEND_MIN_FEE;
-    CAmount fee = DEFAULT_BLOCK_MIN_TX_FEE * 2;
-    CAmount servicefee = (paidfee - fee) / 2;
-
-
 	std::string scriptPubKeySender;
 	bool b = ExtractVoutAndScriptPubKey(ROLE_SENDER, txidSender, voutnSender, scriptPubKeySender);
-	if(b)
+	if(!b)
 	{
-	    txid256.SetHex(txidSender);
-	    CTxIn in1(COutPoint(uint256(txid256), voutnSender));
-	    rawMutableTx.vin.push_back(in1);
-
-	    // sender gets 2 * baseAmount as mixer has not yet sent funds
-	    CAmount amountSender = 2 * baseAmount;
-	    std::string addressSender = pCurrentAnonymousTxInfo->GetAddress(ROLE_SENDER);
-	    CTxDestination addressS = DecodeDestination(addressSender);
-	    CScript spkSender = GetScriptForDestination(addressS);
-	    CTxOut out1(amountSender, spkSender);
-	    rawMutableTx.vout.push_back(out1);
-	    pCurrentAnonymousTxInfo->SetVoutAndScriptPubKey(ROLE_SENDER, voutnSender, scriptPubKeySender, amountSender);
-	} else {
-	    // If sender never sent the funds there is no service fee
-	    servicefee = 0;
+		LogPrintf("ERROR. Can not extract sender's deposit tx voutN and scriptPubKey.\n");
+		return "";
 	}
 
 	// mixer
@@ -6312,20 +6284,10 @@ std::string CreateCancelDistributionTx()
 	int voutnMixer;
 	std::string scriptPubKeyMixer;
 	b = ExtractVoutAndScriptPubKey(ROLE_MIXER, txidMixer, voutnMixer, scriptPubKeyMixer);
-	if(b)
+	if(!b)
 	{
-	    txid256.SetHex(txidMixer);
-	    CTxIn in2(COutPoint(uint256(txid256), voutnMixer));
-	    rawMutableTx.vin.push_back(in2);
-
-	    // mixer gets baseAmount + servicefee, as they have not yet sent the funds or just baseamount if the sender hasn't paid in
-	    CAmount amountMixer = servicefee == 0 ? (baseAmount - DEFAULT_BLOCK_MIN_TX_FEE) : (baseAmount + servicefee);
-	    std::string addressMixer = pCurrentAnonymousTxInfo->GetAddress(ROLE_MIXER);
-	    CTxDestination addressM = DecodeDestination(addressMixer);
-	    CScript spkMixer = GetScriptForDestination(addressM);
-	    CTxOut out2(amountMixer, spkMixer);
-	    rawMutableTx.vout.push_back(out2);
-	    pCurrentAnonymousTxInfo->SetVoutAndScriptPubKey(ROLE_MIXER, voutnMixer, scriptPubKeyMixer, amountMixer);
+		LogPrintf("ERROR. Can not extract mixer's deposit tx voutN and scriptPubKey.\n");
+		return "";
 	}
 
 	// guarantor
@@ -6333,33 +6295,69 @@ std::string CreateCancelDistributionTx()
 	int voutnGuarantor;
 	std::string scriptPubKeyGuarantor;
 	b = ExtractVoutAndScriptPubKey(ROLE_GUARANTOR, txidGuarantor, voutnGuarantor, scriptPubKeyGuarantor);
-	if(b)
+	if(!b)
 	{
-	    txid256.SetHex(txidGuarantor);
-	    CTxIn in3(COutPoint(uint256(txid256), voutnGuarantor));
-	    rawMutableTx.vin.push_back(in3);
-
-	    // guarantor gets baseAmount + servicefee if the sender paid in, otherwise just baseamount
-	    CAmount amountGuarator = servicefee == 0 ? (baseAmount - DEFAULT_BLOCK_MIN_TX_FEE) : (baseAmount + servicefee);
-	    std::string addressGuarantor = pCurrentAnonymousTxInfo->GetAddress(ROLE_GUARANTOR);
-	    CTxDestination addressG = DecodeDestination(addressGuarantor);
-	    CScript spkGuarantor = GetScriptForDestination(addressG);
-	    CTxOut out3(amountGuarator, spkGuarantor);
-	    rawMutableTx.vout.push_back(out3);
-	    pCurrentAnonymousTxInfo->SetVoutAndScriptPubKey(ROLE_GUARANTOR, voutnGuarantor, scriptPubKeyGuarantor, amountGuarator);
+		LogPrintf("ERROR. Can not extract guarantor's deposit tx voutN and scriptPubKey.\n");
+		return "";
 	}
 
-	if(rawMutableTx.vin.size() == 0) {
-        LogPrintf("ERROR. Cannot create cancellation TX as there were no deposits\n");
-        return "";
-	}
+	// now creating raw distribution tx
+	CMutableTransaction rawMutableTx;
+	rawMutableTx.nTime = GetAdjustedTime();
+	
+    uint256 txid256;
+    txid256.SetHex(txidSender);
+    CTxIn in1(COutPoint(uint256(txid256), voutnSender));
+    rawMutableTx.vin.push_back(in1);
 
+    txid256.SetHex(txidMixer);
+    CTxIn in2(COutPoint(uint256(txid256), voutnMixer));
+    rawMutableTx.vin.push_back(in2);
+
+    txid256.SetHex(txidGuarantor);
+    CTxIn in3(COutPoint(uint256(txid256), voutnGuarantor));
+    rawMutableTx.vin.push_back(in3);
+
+    CAmount baseAmount = pCurrentAnonymousTxInfo->GetTotalRequiredCoinsToSend(ROLE_MIXER);
+    CAmount paidfee = baseAmount * DEEPSEND_FEE_RATE;
+	if(paidfee < DEEPSEND_MIN_FEE)
+		paidfee = DEEPSEND_MIN_FEE;
+	CAmount fee = DEFAULT_BLOCK_MIN_TX_FEE * 2;	
+	CAmount servicefee = (paidfee - fee) / 2;
+
+	// sender gets 2 * baseAmount + servicefee
+	CAmount amountSender = 2 * baseAmount + servicefee;
+	std::string addressSender = pCurrentAnonymousTxInfo->GetAddress(ROLE_SENDER);
+	CTxDestination addressS = DecodeDestination(addressSender);
+	CScript spkSender = GetScriptForDestination(addressS);
+	CTxOut out1(amountSender, spkSender);
+	rawMutableTx.vout.push_back(out1);
+	pCurrentAnonymousTxInfo->SetVoutAndScriptPubKey(ROLE_SENDER, voutnSender, scriptPubKeySender, amountSender);	
+
+	// mixer gets baseAmount
+	CAmount amountMixer = baseAmount;
+	std::string addressMixer = pCurrentAnonymousTxInfo->GetAddress(ROLE_MIXER);
+	CTxDestination addressM = DecodeDestination(addressMixer);
+	CScript spkMixer = GetScriptForDestination(addressM);
+	CTxOut out2(amountMixer, spkMixer);
+	rawMutableTx.vout.push_back(out2);
+	pCurrentAnonymousTxInfo->SetVoutAndScriptPubKey(ROLE_MIXER, voutnMixer, scriptPubKeyMixer, amountMixer);
+
+	// guarantor gets baseAmount + servicefee
+	CAmount amountGuarator = baseAmount + servicefee;
+	std::string addressGuarantor = pCurrentAnonymousTxInfo->GetAddress(ROLE_GUARANTOR);
+	CTxDestination addressG = DecodeDestination(addressGuarantor);
+	CScript spkGuarantor = GetScriptForDestination(addressG);
+	CTxOut out3(amountGuarator, spkGuarantor);
+	rawMutableTx.vout.push_back(out3);
+	pCurrentAnonymousTxInfo->SetVoutAndScriptPubKey(ROLE_GUARANTOR, voutnGuarantor, scriptPubKeyGuarantor, amountGuarator);
+	
 	CTransaction rawTx(rawMutableTx);
 
     CDataStream ss(SER_NETWORK, PROTOCOL_VERSION);
     ss << rawTx;
     std::string tx = HexStr(ss.begin(), ss.end());
-    LogPrint(BCLog::DEEPSEND, ">> Distribution tx created. tx = %s\n", tx.c_str());
+    LogPrint(BCLog::DEEPSEND, ">> Cancellation tx created. tx = %s\n", tx.c_str());
 
 	pCurrentAnonymousTxInfo->SetTx(tx, 0);
 
@@ -6801,6 +6799,7 @@ void UpdateAnonymousServiceList(CNode* pNode, std::string keyAddress, std::strin
 		return;		
 	}
 	*/
+
 	
 	// ignore banned address
 	if(connman->IsBanned((CNetAddr)pNode->addr)) {
