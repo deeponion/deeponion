@@ -3997,7 +3997,6 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 					if(!SignMultiSigDistributionTx()) {
 						return error("processing message checksdtx - Couldn't sign cancellation TX.");
 					}
-					cancelTx = pCurrentAnonymousTxInfo->GetTx();
 					std::string pSelfAddress = pCurrentAnonymousTxInfo->GetSelfAddress();
 
 					bool b = SignMessageUsingAddress(cancelTx, pSelfAddress, vchSig);

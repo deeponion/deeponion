@@ -5392,12 +5392,12 @@ void CAnonymousTxInfo::SetTx(std::string tx, int sc)
 {
 	lastActivityTime = GetTime();
 
-	if(sc == 0 && status < ATX_STATUS_MSTXR0)
+	if(sc == 0)
 	{
 		status = ATX_STATUS_MSTXR0;
 		pMultiSigDistributionTx->SetTx(tx, sc);
 	}
-	else if(sc == 1 && status < ATX_STATUS_MSTXR1)
+	else if(sc == 1)
 	{
 		status = ATX_STATUS_MSTXR1;
 		pMultiSigDistributionTx->SetTx(tx, sc);
