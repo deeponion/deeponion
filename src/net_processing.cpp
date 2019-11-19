@@ -4173,7 +4173,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
             logText = "Escrow's fund is refunded to each parties.";
             pCurrentAnonymousTxInfo->AddToLog(logText);
             if(isCanceled)
-            	logText = "Anonymous Send is successful and cancelled.";
+            	logText = "Anonymous Send is successfully cancelled.";
             else
             	logText = "Anonymous Send is successful and completed.";
             pCurrentAnonymousTxInfo->AddToLog(logText);
