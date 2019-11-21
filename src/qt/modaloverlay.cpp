@@ -25,8 +25,6 @@ userClosed(false),
 platformStyle(_platformStyle)
 {
     ui->setupUi(this);
-  //  quickSyncThread = new QThread(this);
-  //  quickS.moveToThread(quickSyncThread);
     connect(ui->quickSyncButton, &QPushButton::clicked, this, &ModalOverlay::onQuickSyncClicked);
     connect(ui->cancelPushButton, &QPushButton::clicked, this, &ModalOverlay::onCancelButtonClicked);
     connect(ui->closeButton, SIGNAL(clicked()), this, SLOT(closeClicked()));
@@ -239,8 +237,7 @@ void ModalOverlay::onQuickSyncClicked()
     tempquickSyncDir= GetDataDir() / fs::unique_path();
     fs::create_directory(tempquickSyncDir);
 
-    prepareDeflateData(QString("blockchain_rebased.tar.gz"));
-    //m_downloader.get(GUIUtil::boostPathToQString(tempquickSyncDir), blockchain_url);
+    m_downloader.get(GUIUtil::boostPathToQString(tempquickSyncDir), blockchain_url);
     quickSyncStatus = QuickSyncStatus::DOWNLOADING;
 }
 
@@ -281,18 +278,14 @@ void ModalOverlay::onDownloadFinished()
 void ModalOverlay::prepareDeflateData(QString file)
 {
       std::string filename = file.toStdString();
-      //fs::path datadir2= tempquickSyncDir / fs::path(filename);
-      fs::path datadir2 = GetDataDir()/"835a-44de-84e5-750e"/fs::path(filename);
+      fs::path datadir2= tempquickSyncDir / fs::path(filename);
 
       size_t lastindex = filename.find_last_of(".");
       std::string rawname = filename.substr(0, lastindex);
-      //tardatadir= tempquickSyncDir / fs::path(rawname);
-      tardatadir = GetDataDir()/"835a-44de-84e5-750e"/fs::path(rawname);
+      tardatadir= tempquickSyncDir / fs::path(rawname);
 
-      //Deflate in seperate thread
+      //Deflate in seperate thread to obtain UI responsive
       new std::thread(&GUIUtil::QuickSync::deflate,&quickS,datadir2,tardatadir);
-      //quickSyncThread->deflate(datadir2, tardatadir);
-     // quickS.deflate(datadir2, tardatadir);
 }
 
 void ModalOverlay::untar()
@@ -300,7 +293,7 @@ void ModalOverlay::untar()
     FILE * pFile;
     pFile = fopen (tardatadir.c_str() ,"rb");
     std::string targetpath = GetDataDir().string() + "/";
-   // std::string targetpath = tempquickSyncDir.string();
+    //Untar in seperate thread to obtain UI responsive
     new std::thread(&GUIUtil::QuickSync::untar,&quickS,pFile, tardatadir.c_str(),targetpath);
 }
 
