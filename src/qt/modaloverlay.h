@@ -13,6 +13,7 @@
 #include <QWidget>
 #include <QProcess>
 #include <QThread>
+#include <QMessageBox>
 
 #include <thread>
 
@@ -73,6 +74,7 @@ private Q_SLOTS:
     void onDownloadFinished();
     void onProgessBarUpdated(qint64, qint64);
     void onDeflateFinished();
+    void onUntarFinished();
 
 public:
     void setClientModel(ClientModel*);
@@ -88,6 +90,7 @@ private:
     ClientModel *clientmodel;
 
     //QuickSync
+    bool deflationrequested;
     Downloader m_downloader;
     GUIUtil::QuickSync quickS;
     const QUrl blockchain_url = QString("http://45.77.201.153/blockchain_rebased.tar.gz");
@@ -95,10 +98,11 @@ private:
     QuickSyncStatus quickSyncStatus;
     fs::path tempquickSyncDir;
     void prepareDeflateData(QString filename);
-    std::thread *quickSyncThread;
+    QThread *quickSyncThread;
     fs::path tardatadir;
     void untar();
 
+    QMessageBox *quickSyncFinishedMessageBox;
 };
 
 #endif // BITCOIN_QT_MODALOVERLAY_H

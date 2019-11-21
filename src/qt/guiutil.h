@@ -55,6 +55,7 @@ namespace GUIUtil
     Q_SIGNALS:
         void updateDeflateProgress(qint64, qint64);
         void deflateFinished();
+        void untarFinished();
     };
 
     // Create human-readable string from date

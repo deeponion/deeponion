@@ -25,13 +25,16 @@ userClosed(false),
 platformStyle(_platformStyle)
 {
     ui->setupUi(this);
+  //  quickSyncThread = new QThread(this);
+  //  quickS.moveToThread(quickSyncThread);
     connect(ui->quickSyncButton, &QPushButton::clicked, this, &ModalOverlay::onQuickSyncClicked);
     connect(ui->cancelPushButton, &QPushButton::clicked, this, &ModalOverlay::onCancelButtonClicked);
     connect(ui->closeButton, SIGNAL(clicked()), this, SLOT(closeClicked()));
     connect(&m_downloader, &Downloader::updateDownloadProgress, this, &ModalOverlay::onUpdateProgress);
     connect(&m_downloader, &Downloader::onFinished, this, &ModalOverlay::onDownloadFinished);
-    connect(&quickS, &GUIUtil::QuickSync::updateDeflateProgress, this, &ModalOverlay::onProgessBarUpdated, Qt::DirectConnection);
-    connect(&quickS, &GUIUtil::QuickSync::deflateFinished, this, &ModalOverlay::onDeflateFinished,Qt::DirectConnection);
+    connect(&quickS, &GUIUtil::QuickSync::updateDeflateProgress, this, &ModalOverlay::onProgessBarUpdated,Qt::QueuedConnection);
+    connect(&quickS, &GUIUtil::QuickSync::deflateFinished, this, &ModalOverlay::onDeflateFinished,Qt::QueuedConnection);
+    connect(&quickS, &GUIUtil::QuickSync::untarFinished, this, &ModalOverlay::onUntarFinished, Qt::QueuedConnection);
 
     if (parent) {
         parent->installEventFilter(this);
@@ -40,6 +43,7 @@ platformStyle(_platformStyle)
     ui->downloadProgressBar->setAlignment(Qt::AlignCenter);
     ui->downloadProgressBar->setValue(0);
     blockProcessTime.clear();
+    deflationrequested = false;
     setVisible(false);
 
     // DeepOnion: Theme
@@ -226,7 +230,7 @@ void ModalOverlay::refreshStyle()
 }
 
 void ModalOverlay::onQuickSyncClicked()
-{    
+{
     setNetworkStatus(false);
     quickSyncStatus = QuickSyncStatus::PREPARING;
     ui->downloadProgressBar->setFormat(getQuickSyncStatus());
@@ -236,7 +240,7 @@ void ModalOverlay::onQuickSyncClicked()
     fs::create_directory(tempquickSyncDir);
 
     prepareDeflateData(QString("blockchain_rebased.tar.gz"));
-   // m_downloader.get(GUIUtil::boostPathToQString(tempquickSyncDir), blockchain_url);
+    //m_downloader.get(GUIUtil::boostPathToQString(tempquickSyncDir), blockchain_url);
     quickSyncStatus = QuickSyncStatus::DOWNLOADING;
 }
 
@@ -248,7 +252,7 @@ void ModalOverlay::onCancelButtonClicked()
     ui->downloadProgressBar->setValue(0);
     quickSyncStatus = QuickSyncStatus::CANCELED;
     ui->downloadProgressBar->setFormat(getQuickSyncStatus());
-
+    deflationrequested = false;
     //Free Network
     setNetworkStatus(true);
 }
@@ -265,9 +269,13 @@ void ModalOverlay::onUpdateProgress(qint64 bytesReceived, qint64 bytesTotal)
 
 void ModalOverlay::onDownloadFinished()
 {
-    quickSyncStatus = QuickSyncStatus::DECODING;
-    ui->downloadProgressBar->setFormat(getQuickSyncStatus());
-    prepareDeflateData(m_downloader.getDataName());
+    if(!deflationrequested)
+    {
+        quickSyncStatus = QuickSyncStatus::DECODING;
+        ui->downloadProgressBar->setFormat(getQuickSyncStatus());
+        deflationrequested = true;
+        prepareDeflateData(m_downloader.getDataName());
+    }
 }
 
 void ModalOverlay::prepareDeflateData(QString file)
@@ -282,25 +290,19 @@ void ModalOverlay::prepareDeflateData(QString file)
       tardatadir = GetDataDir()/"835a-44de-84e5-750e"/fs::path(rawname);
 
       //Deflate in seperate thread
-      quickSyncThread =  new std::thread(&GUIUtil::QuickSync::deflate,&quickS,datadir2, tardatadir);
+      new std::thread(&GUIUtil::QuickSync::deflate,&quickS,datadir2,tardatadir);
+      //quickSyncThread->deflate(datadir2, tardatadir);
+     // quickS.deflate(datadir2, tardatadir);
 }
 
 void ModalOverlay::untar()
 {
-    fs::remove_all("/home/thohemp/.DeepOnion/blocks");
     FILE * pFile;
     pFile = fopen (tardatadir.c_str() ,"rb");
     std::string targetpath = GetDataDir().string() + "/";
-    quickS.untar(pFile, tardatadir.c_str(),targetpath);
-
-    fs::remove_all(tempquickSyncDir);
-
-
-    //StartShutdown();
-    //sleep(20000);         //make the programme waiting for 5 seconds
-    //QProcess::startDetached(qApp->arguments()[0], qApp->arguments());
+   // std::string targetpath = tempquickSyncDir.string();
+    new std::thread(&GUIUtil::QuickSync::untar,&quickS,pFile, tardatadir.c_str(),targetpath);
 }
-
 
 void ModalOverlay::onProgessBarUpdated(qint64 processedData, qint64 data)
 {
@@ -320,6 +322,21 @@ void ModalOverlay::onDeflateFinished()
     untar();
 }
 
+void ModalOverlay::onUntarFinished()
+{
+    fs::remove_all(tempquickSyncDir);
+    //Quicksync data is downloaded and untard
+    //Announce it and prepare for closing wallet for restart
+    quickSyncFinishedMessageBox = new QMessageBox;
+    quickSyncFinishedMessageBox->setWindowTitle("QuickSync is prepared for wallet restart");
+    quickSyncFinishedMessageBox->setText("The wallet will close now. Restart the wallet to initialize the blockchain!");
+    quickSyncFinishedMessageBox->setStandardButtons(QMessageBox::Yes);
+
+    if(quickSyncFinishedMessageBox->exec() == QMessageBox::Yes)
+    {
+        StartShutdown();
+    }
+}
 void ModalOverlay::setClientModel(ClientModel *clientmodel)
 {
     this->clientmodel = clientmodel;
