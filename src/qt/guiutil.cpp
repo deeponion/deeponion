@@ -1018,7 +1018,7 @@ void ClickableProgressBar::mouseReleaseEvent(QMouseEvent *event)
 }
 
 bool QuickSync::deflate(fs::path filename, fs::path output)
-{
+{    
     gzFile inFileZ = gzopen(filename.c_str(), "rb");
     if (inFileZ == NULL) {
         return 0;
@@ -1038,14 +1038,14 @@ bool QuickSync::deflate(fs::path filename, fs::path output)
     std::ofstream f(output.string());
     for(std::vector<unsigned char>::const_iterator i = unzippedData.begin(); i != unzippedData.end(); ++i) {
         f << *i;
-        if((i - unzippedData.begin())%150000==0 && (i - unzippedData.begin())!=0)
+        if((i - unzippedData.begin())%1000000==0 && (i - unzippedData.begin())!=0)
         {
             qint64 unzipped = i-unzippedData.begin();
-            updateDeflateProgress(unzipped,data);
+            Q_EMIT updateDeflateProgress(unzipped,data);
         }
     }
     gzclose(inFileZ);
-    deflateFinished();
+    Q_EMIT deflateFinished();
     return true;
 }
 
@@ -1083,20 +1083,19 @@ QuickSync::is_end_of_archive(const char *p)
 void
 QuickSync::create_dir(char *pathname, int mode)
 {
-    char *p;
     bool r;
 
     /* Strip trailing '/' */
     if (pathname[strlen(pathname) - 1] == '/')
         pathname[strlen(pathname) - 1] = '\0';
 
+    fs::file_status s = fs::status(pathname);
+    printf("%X\n",s.permissions());
     if(fs::exists(pathname))
             fs::remove_all(pathname);
     /* Try creating the directory. */
     r = fs::create_directory(pathname);
     fs::permissions(pathname, fs::add_perms|fs::owner_write|fs::others_write);
-    fs::file_status s = fs::status(pathname);
-    printf("%X\n",s.permissions());
     if (!r)
         fprintf(stderr, "Could not create directory %s\n", pathname);
 }
@@ -1152,6 +1151,7 @@ void QuickSync::untar(FILE *a, const char *path, std::string targetpath)
         }
         if (is_end_of_archive(buff)) {
             printf("End of %s\n", path);
+            Q_EMIT untarFinished();
             return;
         }
         if (!verify_checksum(buff)) {
@@ -1182,7 +1182,7 @@ void QuickSync::untar(FILE *a, const char *path, std::string targetpath)
             printf(" Ignoring FIFO %s\n", buff);
             break;
         default:
-            printf(" Extracting file %s\n", buff);
+            //printf(" Extracting file %s\n", buff);
             strcat(char_array,buff);
             f = create_file(char_array, parseoct(char_array + 100, 8));
             break;
