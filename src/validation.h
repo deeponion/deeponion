@@ -1062,6 +1062,10 @@ public:
 		pMultiSigDistributionTx->SetVoutAndScriptPubKey(role, vout, pubkey, amount);
 	}
 
+	void SetCancelled(bool c) {
+	    cancelled = true;
+	}
+
 	void SetLastActivityTime();
 	void SetAnonymousId(std::string aId);
 	void SetCommittedMsTx(std::string tx);
@@ -1073,6 +1077,7 @@ public:
 	bool SetInitialData(AnonymousTxRole role, std::vector< std::pair<std::string, int64_t> > vecSendInfo, const CCoinControl* pCoinControl,
 		CNode* pSendNode, CNode* pMixerNode, CNode* pGuarantorNode);
 	bool CanReset() const;
+	bool ShouldCancel() const;
 	CAmount GetTotalRequiredCoinsToSend(AnonymousTxRole role = ROLE_UNKNOWN);
 
 	bool CheckDepositTxes();
@@ -1099,6 +1104,7 @@ private:
 
 	std::vector< std::pair<std::string, int64_t> > vecSendInfo;
 	std::vector<std::string>	logs;
+	bool                        cancelled;
 };
 
 

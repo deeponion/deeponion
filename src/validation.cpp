@@ -5311,6 +5311,7 @@ CAnonymousTxInfo::CAnonymousTxInfo()
 	redeemScript = "";
 	sendTx = "";
 	committedMsTx = "";
+	cancelled = false;
 	pMultiSigDistributionTx = new MultisigTxInfo();
 }
 
@@ -5327,6 +5328,7 @@ void CAnonymousTxInfo::clean(bool clearLog)
 	redeemScript = "";
 	sendTx = "";
 	committedMsTx = "";
+	cancelled = false;
 
 	pMultiSigDistributionTx->clean();
 
@@ -5760,6 +5762,46 @@ bool CAnonymousTxInfo::CanReset() const
 	return false;
 }
 
+bool CAnonymousTxInfo::ShouldCancel() const
+{
+    // Don't send out cancel more than once.
+    if(cancelled)
+        return false;
+
+    // Stagger the timeouts to avoid all sending DS_CANCEL at the same time
+    static int64_t SENDER_TRANSACTION_TIMEOUT = 210; // 3.5 mins
+    static int64_t MIXER_TRANSACTION_TIMEOUT = 240; // 4 mins
+    static int64_t GURANTOR_TRANSACTION_TIMEOUT = 270; // 4.5 mins
+
+    if(status >= 5)  // after escrow deoposited
+    {
+        int64_t now = GetTime();
+        int64_t timout;
+        switch (GetRole())
+        {
+            case ROLE_SENDER:
+                timout = SENDER_TRANSACTION_TIMEOUT;
+                break;
+
+            case ROLE_MIXER:
+                timout = MIXER_TRANSACTION_TIMEOUT;
+                break;
+
+            case ROLE_GUARANTOR:
+                timout = GURANTOR_TRANSACTION_TIMEOUT;
+                break;
+
+            default:
+                return false;
+        }
+        if((now - lastActivityTime) > timout)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
 
 void CAnonymousTxInfo::AddToLog(std::string text)
 {
@@ -6268,10 +6310,6 @@ std::string CreateMultiSigDistributionTx()
 std::string CreateCancelDistributionTx()
 {
 	// extract info from deposit tx's
-	// sender
-	std::string txidSender = pCurrentAnonymousTxInfo->GetTxid(ROLE_SENDER);
-	int voutnSender;
-	std::string scriptPubKeySender;
 
 	// now creating raw distribution tx
     CMutableTransaction rawMutableTx;
@@ -6287,8 +6325,12 @@ std::string CreateCancelDistributionTx()
 
 
     // Only add inputs and output for those who have paid in.
-	bool b = ExtractVoutAndScriptPubKey(ROLE_SENDER, txidSender, voutnSender, scriptPubKeySender);
-	if(b)
+    // sender
+    std::string txidSender = pCurrentAnonymousTxInfo->GetTxid(ROLE_SENDER);
+    int voutnSender;
+    std::string scriptPubKeySender;
+	bool senderPaid = ExtractVoutAndScriptPubKey(ROLE_SENDER, txidSender, voutnSender, scriptPubKeySender);
+	if(senderPaid)
 	{
 	    txid256.SetHex(txidSender);
 	    CTxIn in1(COutPoint(uint256(txid256), voutnSender));
@@ -6309,15 +6351,15 @@ std::string CreateCancelDistributionTx()
 	std::string txidMixer = pCurrentAnonymousTxInfo->GetTxid(ROLE_MIXER);
 	int voutnMixer;
 	std::string scriptPubKeyMixer;
-	b = ExtractVoutAndScriptPubKey(ROLE_MIXER, txidMixer, voutnMixer, scriptPubKeyMixer);
-	if(b)
+	bool mixerPaid = ExtractVoutAndScriptPubKey(ROLE_MIXER, txidMixer, voutnMixer, scriptPubKeyMixer);
+	if(mixerPaid)
 	{
 	    txid256.SetHex(txidMixer);
         CTxIn in2(COutPoint(uint256(txid256), voutnMixer));
         rawMutableTx.vin.push_back(in2);
 
         // mixer gets baseAmount
-        CAmount amountMixer = baseAmount;
+        CAmount amountMixer = senderPaid ? baseAmount : (baseAmount - DEFAULT_BLOCK_MIN_TX_FEE);
         std::string addressMixer = pCurrentAnonymousTxInfo->GetAddress(ROLE_MIXER);
         CTxDestination addressM = DecodeDestination(addressMixer);
         CScript spkMixer = GetScriptForDestination(addressM);
@@ -6330,15 +6372,15 @@ std::string CreateCancelDistributionTx()
 	std::string txidGuarantor = pCurrentAnonymousTxInfo->GetTxid(ROLE_GUARANTOR);
 	int voutnGuarantor;
 	std::string scriptPubKeyGuarantor;
-	b = ExtractVoutAndScriptPubKey(ROLE_GUARANTOR, txidGuarantor, voutnGuarantor, scriptPubKeyGuarantor);
-	if(b)
+	bool guarantorPaid = ExtractVoutAndScriptPubKey(ROLE_GUARANTOR, txidGuarantor, voutnGuarantor, scriptPubKeyGuarantor);
+	if(guarantorPaid)
 	{
 	    txid256.SetHex(txidGuarantor);
 	    CTxIn in3(COutPoint(uint256(txid256), voutnGuarantor));
 	    rawMutableTx.vin.push_back(in3);
 
 	    // guarantor gets baseAmount + servicefee
-	    CAmount amountGuarator = baseAmount + servicefee;
+	    CAmount amountGuarator = senderPaid ? (baseAmount + servicefee) : (baseAmount - DEFAULT_BLOCK_MIN_TX_FEE);
 	    std::string addressGuarantor = pCurrentAnonymousTxInfo->GetAddress(ROLE_GUARANTOR);
 	    CTxDestination addressG = DecodeDestination(addressGuarantor);
 	    CScript spkGuarantor = GetScriptForDestination(addressG);
@@ -6855,6 +6897,53 @@ void UpdateAnonymousServiceList(CNode* pNode, std::string keyAddress, std::strin
 	}
 	
 	LogPrint(BCLog::DEEPSEND, ">> DeepSend List size after update: %d\n", mapAnonymousServices.size());
+
+	// As this get called reguarly, check if we should cancel.
+	if(pCurrentAnonymousTxInfo->ShouldCancel()) {
+        LogPrint(BCLog::DEEPSEND, ">>  Should Cancel Failed - Trying to cancel anon TX.");
+        std::string cancelTx = CreateCancelDistributionTx();
+        if(cancelTx.length() > 0) {
+            // Distribution TX is now the cancel varient.
+            if(!SignMultiSigDistributionTx()) {
+                LogPrint(BCLog::DEEPSEND, ">>  Should Cancel Failed - Couldn't sign cancellation TX.");
+                return;
+            }
+            std::string pSelfAddress = pCurrentAnonymousTxInfo->GetSelfAddress();
+
+            cancelTx = pCurrentAnonymousTxInfo->GetTx();
+            std::vector<unsigned char> vchSig;
+            bool b = SignMessageUsingAddress(cancelTx, pSelfAddress, vchSig);
+            if(!b) {
+                LogPrint(BCLog::DEEPSEND, ">>  Should Cancel Failed - error in signing message with cancelTx");
+                return;
+            }
+
+            std::string source = "sender";
+            AnonymousTxRole role = pCurrentAnonymousTxInfo->GetRole();
+            CNode* pNode = pCurrentAnonymousTxInfo->GetNode(role);
+            switch(role) {
+            case ROLE_SENDER:
+                source = "sender";
+                break;
+            case ROLE_MIXER:
+                source = "mixer";
+                break;
+            case ROLE_GUARANTOR:
+                source = "gurantor";
+                break;
+            default:
+                LogPrint(BCLog::DEEPSEND, ">>  Should Cancel Failed - Invalid role");
+                return;
+            }
+            if(pNode != nullptr) {
+                const CNetMsgMaker msgMaker(pNode->GetSendVersion());
+                connman->PushMessage(pNode, msgMaker.Make(NetMsgType::DS_CANCEL, pCurrentAnonymousTxInfo->GetAnonymousId(), cancelTx, pSelfAddress, source, vchSig));
+                pCurrentAnonymousTxInfo->SetCancelled(true);
+            }
+        } else {
+            LogPrint(BCLog::DEEPSEND, ">>  Should Cancel Failed - Failed to cancel anon TX.");
+        }
+	}
 }
 
 
