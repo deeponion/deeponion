@@ -12,10 +12,7 @@ Downloader::Downloader(QObject* parent) :
     connect(&m_manager, &QNetworkAccessManager::finished, this, &Downloader::onReply);
 }
 
-Downloader::~Downloader()
-{
-
-}
+Downloader::~Downloader(){}
 
 
 bool Downloader::get(const QString& targetFolder, const QUrl& url)
@@ -26,7 +23,6 @@ bool Downloader::get(const QString& targetFolder, const QUrl& url)
     }
 
     m_file = new QFile(targetFolder + QDir::separator() + url.fileName());
-    // Пробуем открыть файл
     if (!m_file->open(QIODevice::WriteOnly))
     {
         delete m_file;
@@ -36,19 +32,21 @@ bool Downloader::get(const QString& targetFolder, const QUrl& url)
 
     //Set Proxy
     //TODO: Merge with init and version check proxy in clientmodel
-    QNetworkProxy proxy;
-    proxy.setType(QNetworkProxy::Socks5Proxy);
-    proxy.setHostName("127.0.0.1");
-    proxy.setPort(9081);
+ //   QNetworkProxy proxy;
+ //   proxy.setType(QNetworkProxy::Socks5Proxy);
+ //   proxy.setHostName("127.0.0.1");
+ //   proxy.setPort(9081);
 
-    m_manager.setProxy(proxy);
+ //   m_manager.setProxy(proxy);
 
     QNetworkRequest request(url);
     request.setAttribute(QNetworkRequest::FollowRedirectsAttribute, true);
     m_currentReply = m_manager.get(request);
+    SetDataName(url.fileName());
 
     connect(m_currentReply, &QNetworkReply::readyRead, this, &Downloader::onReadyRead);
     connect(m_currentReply, &QNetworkReply::downloadProgress, this, &Downloader::updateDownloadProgress);
+    connect(m_currentReply, &QNetworkReply::finished, this, &Downloader::onFinished);
     return true;
 }
 
@@ -83,4 +81,14 @@ void Downloader::onReply(QNetworkReply* reply)
     delete m_file;
     m_file = nullptr;
     reply->deleteLater();
+}
+
+void Downloader::SetDataName(QString name)
+{
+    fileName = name;
+}
+
+QString Downloader::getDataName()
+{
+    return fileName;
 }

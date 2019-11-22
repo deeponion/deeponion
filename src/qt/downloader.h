@@ -16,12 +16,16 @@ public:
     virtual ~Downloader();
 
     bool get(const QString& targetFolder, const QUrl& url);
+    QString getDataName();
+
 
 public Q_SLOTS:
     void cancelDownload();
 
 Q_SIGNALS:
     void updateDownloadProgress(qint64 bytesReceived, qint64 bytesTotal);
+    void onFinished();
+
 
 private Q_SLOTS:
     void onReadyRead();
@@ -31,6 +35,8 @@ private:
     QNetworkReply* m_currentReply {nullptr};
     QFile* m_file                 {nullptr};
     QNetworkAccessManager m_manager;
+    void SetDataName(QString name);
+    QString fileName;
 };
 
 #endif // BITCOIN_QT_DOWNLOADER_H
