@@ -44,6 +44,10 @@ platformStyle(_platformStyle)
     deflationrequested = false;
     setVisible(false);
 
+    //QuickSync Configuration
+    showQuickSyncOptions = false;
+
+
     // DeepOnion: Theme
     ui->contentWidget->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getStyleSheet());
     ui->warningIcon->setIcon(platformStyle->SingleColorIcon(platformStyle->getThemeManager()->getCurrent()->getWarningIco()));

@@ -98,11 +98,14 @@ private:
     QuickSyncStatus quickSyncStatus;
     fs::path tempquickSyncDir;
     void prepareDeflateData(QString filename);
-    QThread *quickSyncThread;
     fs::path tardatadir;
     void untar();
 
     QMessageBox *quickSyncFinishedMessageBox;
+
+    //QuickSync options
+    bool showQuickSyncOptions;
+
 };
 
 #endif // BITCOIN_QT_MODALOVERLAY_H
