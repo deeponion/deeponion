@@ -4025,7 +4025,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 			}
 		}
     }
-	else if (strCommand == NetMsgType::DS_CANCEL)		// message sender -> guarantor
+	else if (strCommand == NetMsgType::DS_CANCEL)		// message any -> any
     {
 		LogPrint(BCLog::DEEPSEND, "Processing message canceldstx from %s\n", pfrom->addr.ToString());
         std::string anonymousTxId;
@@ -4105,8 +4105,23 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 			} else {
 			    pNode = pCurrentAnonymousTxInfo->GetNode(ROLE_MIXER);
 			}
-            connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::DS_CANCELCMPLT, anonymousTxId, committedTx, isCanceled, vchSig));
-			connman->PushMessage(pNode, msgMaker.Make(NetMsgType::DS_CANCELCMPLT, anonymousTxId, committedTx, isCanceled, vchSig));
+            std::string source = "sender";
+            AnonymousTxRole role = pCurrentAnonymousTxInfo->GetRole();
+            switch(role) {
+            case ROLE_SENDER:
+                source = "sender";
+                break;
+            case ROLE_MIXER:
+                source = "mixer";
+                break;
+            case ROLE_GUARANTOR:
+                source = "gurantor";
+                break;
+            default:
+                return error("processing message canceldstx - Invalid role");
+            }
+            connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::DS_CANCELCMPLT, anonymousTxId, committedTx, isCanceled, source, vchSig));
+			connman->PushMessage(pNode, msgMaker.Make(NetMsgType::DS_CANCELCMPLT, anonymousTxId, committedTx, isCanceled, source, vchSig));
 		}
 
     }
@@ -4144,19 +4159,26 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 			pCurrentAnonymousTxInfo->clean(false);
 		}
 	}
-    else if (strCommand == NetMsgType::DS_CANCELCMPLT)        // message guarantor-> sender, mixer
+    else if (strCommand == NetMsgType::DS_CANCELCMPLT)        // message any -> any
     {
         LogPrint(BCLog::DEEPSEND, "Processing message cancelcmplt from %s\n", pfrom->addr.ToString());
         std::string anonymousTxId;
         std::string committedTx;
         int isCanceled;
+        std::string source;
         std::vector<unsigned char> vchSig;
-        vRecv >> anonymousTxId >> committedTx >> isCanceled >> vchSig;
+        vRecv >> anonymousTxId >> committedTx >> isCanceled >> source >> vchSig;
 
         {
             LOCK(cs_deepsend);
 
-            std::string senderAddress = pCurrentAnonymousTxInfo->GetAddress(ROLE_GUARANTOR);
+            AnonymousTxRole sourceRole = ROLE_SENDER;
+            if(source == "mixer")
+                sourceRole = ROLE_MIXER;
+            else if(source == "guarantor")
+                sourceRole = ROLE_GUARANTOR;
+
+            std::string senderAddress = pCurrentAnonymousTxInfo->GetAddress(sourceRole);
 
             if(VerifyMessageSignature(committedTx, senderAddress, vchSig))
             {
@@ -4168,7 +4190,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
             }
 
             pCurrentAnonymousTxInfo->SetCommittedMsTx(committedTx);
-            std::string logText = "Received multisig distribution tx execution. TxID = " + committedTx + ".";
+            std::string logText = "Received multisig distribution from " + source + " tx execution. TxID = " + committedTx + ".";
             pCurrentAnonymousTxInfo->AddToLog(logText);
             logText = "Escrow's fund is refunded to each parties.";
             pCurrentAnonymousTxInfo->AddToLog(logText);
@@ -4189,6 +4211,71 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 		std::string keyAddress;
         vRecv >> keyAddress >> status;
 		UpdateAnonymousServiceList(pfrom, keyAddress, status, connman);
+
+	    // As this get called reguarly, check if we should cancel.
+	    if(pCurrentAnonymousTxInfo->ShouldCancel()) {
+	        LogPrint(BCLog::DEEPSEND, ">>  Should Cancel - Trying to cancel anon TX.\n");
+	        std::string cancelTx = CreateCancelDistributionTx();
+	        if(cancelTx.length() > 0) {
+	            // Distribution TX is now the cancel varient.
+	            if(SignMultiSigDistributionTx()) {
+	                std::string pSelfAddress = pCurrentAnonymousTxInfo->GetSelfAddress();
+
+	                cancelTx = pCurrentAnonymousTxInfo->GetTx();
+	                std::vector<unsigned char> vchSig;
+	                bool b = SignMessageUsingAddress(cancelTx, pSelfAddress, vchSig);
+	                if(b) {
+
+	                    std::string source = "";
+	                    LogPrint(BCLog::DEEPSEND, ">>  Should Cancel Failed - DEBUG 1\n");
+	                    AnonymousTxRole role = pCurrentAnonymousTxInfo->GetRole();
+	                    LogPrint(BCLog::DEEPSEND, ">>  Should Cancel Failed - DEBUG 2\n");
+	                    LogPrint(BCLog::DEEPSEND, ">>  Should Cancel Failed - DEBUG 3\n");
+	                    CNode* pNode = NULL;
+	                    switch(role) {
+	                    case ROLE_SENDER:
+	                        source = "sender";
+	                        pNode = pCurrentAnonymousTxInfo->GetNode(ROLE_GUARANTOR);
+	                        if(pNode == NULL)
+	                            pNode = pCurrentAnonymousTxInfo->GetNode(ROLE_MIXER);
+	                        break;
+	                    case ROLE_MIXER:
+	                        source = "mixer";
+                            pNode = pCurrentAnonymousTxInfo->GetNode(ROLE_SENDER);
+                            if(pNode == NULL)
+                                pNode = pCurrentAnonymousTxInfo->GetNode(ROLE_GUARANTOR);
+	                        break;
+	                    case ROLE_GUARANTOR:
+	                        source = "gurantor";
+                            pNode = pCurrentAnonymousTxInfo->GetNode(ROLE_MIXER);
+                            if(pNode == NULL)
+                                pNode = pCurrentAnonymousTxInfo->GetNode(ROLE_SENDER);
+	                        break;
+	                    default:
+	                        LogPrint(BCLog::DEEPSEND, ">>  Should Cancel Failed - Invalid role\n");
+
+	                    }
+	                    LogPrint(BCLog::DEEPSEND, ">>  Should Cancel Failed - DEBUG 4\n");
+	                    if(pNode != nullptr && source.length() > 0) {
+
+	                        LogPrint(BCLog::DEEPSEND, ">>  Should Cancel Failed - DEBUG 6\n");
+	                        connman->PushMessage(pNode, msgMaker.Make(NetMsgType::DS_CANCEL, pCurrentAnonymousTxInfo->GetAnonymousId(), cancelTx, pSelfAddress, source, vchSig));
+	                        LogPrint(BCLog::DEEPSEND, ">>  Should Cancel Failed - DEBUG 7\n");
+	                        pCurrentAnonymousTxInfo->SetCancelled(true);
+	                        LogPrint(BCLog::DEEPSEND, ">>  Should Cancel Failed - DEBUG 8\n");
+	                    }
+	                    LogPrint(BCLog::DEEPSEND, ">>  Should Cancel Failed - DEBUG 9\n");
+	                } else {
+	                    LogPrint(BCLog::DEEPSEND, ">>  Should Cancel Failed - error in signing message with cancelTx\n");
+	                }
+	            } else {
+                    LogPrint(BCLog::DEEPSEND, ">>  Should Cancel Failed - Couldn't sign cancellation TX.\n");
+	            }
+	        } else {
+	            LogPrint(BCLog::DEEPSEND, ">>  Should Cancel Failed - Failed to cancel anon TX.");
+	        }
+	    }
+
 	}
 
     else if (strCommand == NetMsgType::NOTFOUND) {

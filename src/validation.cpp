@@ -5750,7 +5750,7 @@ bool CAnonymousTxInfo::CanReset() const
 {
 	static int64_t MAXIMUM_TRANSACTION_TIMEOUT = 180; // 3 mins, in first few steps, no reply allows remove
 
-	if(status < 5)	// before escrow deoposited
+	if(status < 4)	// before escrow deoposited
 	{
 		int64_t now = GetTime();
 		if((now - lastActivityTime) > MAXIMUM_TRANSACTION_TIMEOUT)	
@@ -5773,7 +5773,7 @@ bool CAnonymousTxInfo::ShouldCancel() const
     static int64_t MIXER_TRANSACTION_TIMEOUT = 240; // 4 mins
     static int64_t GURANTOR_TRANSACTION_TIMEOUT = 270; // 4.5 mins
 
-    if(status >= 5)  // after escrow deoposited
+    if(status >= 4)  // after escrow deoposited
     {
         int64_t now = GetTime();
         int64_t timout;
@@ -6898,52 +6898,6 @@ void UpdateAnonymousServiceList(CNode* pNode, std::string keyAddress, std::strin
 	
 	LogPrint(BCLog::DEEPSEND, ">> DeepSend List size after update: %d\n", mapAnonymousServices.size());
 
-	// As this get called reguarly, check if we should cancel.
-	if(pCurrentAnonymousTxInfo->ShouldCancel()) {
-        LogPrint(BCLog::DEEPSEND, ">>  Should Cancel Failed - Trying to cancel anon TX.");
-        std::string cancelTx = CreateCancelDistributionTx();
-        if(cancelTx.length() > 0) {
-            // Distribution TX is now the cancel varient.
-            if(!SignMultiSigDistributionTx()) {
-                LogPrint(BCLog::DEEPSEND, ">>  Should Cancel Failed - Couldn't sign cancellation TX.");
-                return;
-            }
-            std::string pSelfAddress = pCurrentAnonymousTxInfo->GetSelfAddress();
-
-            cancelTx = pCurrentAnonymousTxInfo->GetTx();
-            std::vector<unsigned char> vchSig;
-            bool b = SignMessageUsingAddress(cancelTx, pSelfAddress, vchSig);
-            if(!b) {
-                LogPrint(BCLog::DEEPSEND, ">>  Should Cancel Failed - error in signing message with cancelTx");
-                return;
-            }
-
-            std::string source = "sender";
-            AnonymousTxRole role = pCurrentAnonymousTxInfo->GetRole();
-            CNode* pNode = pCurrentAnonymousTxInfo->GetNode(role);
-            switch(role) {
-            case ROLE_SENDER:
-                source = "sender";
-                break;
-            case ROLE_MIXER:
-                source = "mixer";
-                break;
-            case ROLE_GUARANTOR:
-                source = "gurantor";
-                break;
-            default:
-                LogPrint(BCLog::DEEPSEND, ">>  Should Cancel Failed - Invalid role");
-                return;
-            }
-            if(pNode != nullptr) {
-                const CNetMsgMaker msgMaker(pNode->GetSendVersion());
-                connman->PushMessage(pNode, msgMaker.Make(NetMsgType::DS_CANCEL, pCurrentAnonymousTxInfo->GetAnonymousId(), cancelTx, pSelfAddress, source, vchSig));
-                pCurrentAnonymousTxInfo->SetCancelled(true);
-            }
-        } else {
-            LogPrint(BCLog::DEEPSEND, ">>  Should Cancel Failed - Failed to cancel anon TX.");
-        }
-	}
 }
 
 

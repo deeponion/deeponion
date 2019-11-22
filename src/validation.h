@@ -1062,8 +1062,8 @@ public:
 		pMultiSigDistributionTx->SetVoutAndScriptPubKey(role, vout, pubkey, amount);
 	}
 
-	void SetCancelled(bool c) {
-	    cancelled = true;
+    void SetCancelled(bool c) {
+	    cancelled = c;
 	}
 
 	void SetLastActivityTime();
