@@ -5658,8 +5658,11 @@ bool CAnonymousTxInfo::CheckDepositTxes()
 
 bool CAnonymousTxInfo::CheckSendTx()
 {
+	if(sendTx == "")
+		return false;
+	
 	bool b = false;
-	CAmount amount0 = GetTotalRequiredCoinsToSend(ROLE_MIXER);;
+	CAmount amount0 = GetTotalRequiredCoinsToSend(ROLE_MIXER);
 	CAmount amount = 0;
 	lastActivityTime = GetTime();
 	CWallet* pWallet = vpwallets[0];
@@ -5750,7 +5753,7 @@ bool CAnonymousTxInfo::CanReset() const
 {
 	static int64_t MAXIMUM_TRANSACTION_TIMEOUT = 180; // 3 mins, in first few steps, no reply allows remove
 
-	if(status < 4)	// before escrow deoposited
+	if(status < ATX_STATUS_MSADDR)	// before escrow deposited
 	{
 		int64_t now = GetTime();
 		if((now - lastActivityTime) > MAXIMUM_TRANSACTION_TIMEOUT)	
@@ -5762,8 +5765,14 @@ bool CAnonymousTxInfo::CanReset() const
 	return false;
 }
 
-bool CAnonymousTxInfo::ShouldCancel() const
+bool CAnonymousTxInfo::ShouldCancelRunawayProcess() const
 {
+	if(!IsCurrentTxInProcess())
+		return false;
+	
+	if(status < ATX_STATUS_MSADDR)
+		return false;
+	
     // Don't send out cancel more than once.
     if(cancelled)
         return false;
@@ -5773,33 +5782,30 @@ bool CAnonymousTxInfo::ShouldCancel() const
     static int64_t MIXER_TRANSACTION_TIMEOUT = 240; // 4 mins
     static int64_t GURANTOR_TRANSACTION_TIMEOUT = 270; // 4.5 mins
 
-    if(status >= 4)  // after escrow deoposited
+    int64_t now = GetTime();
+    int64_t timout;
+    switch (GetRole())
     {
-        int64_t now = GetTime();
-        int64_t timout;
-        switch (GetRole())
-        {
-            case ROLE_SENDER:
-                timout = SENDER_TRANSACTION_TIMEOUT;
-                break;
+		case ROLE_SENDER:
+			timout = SENDER_TRANSACTION_TIMEOUT;
+			break;
 
-            case ROLE_MIXER:
-                timout = MIXER_TRANSACTION_TIMEOUT;
-                break;
+		case ROLE_MIXER:
+			timout = MIXER_TRANSACTION_TIMEOUT;
+			break;
 
-            case ROLE_GUARANTOR:
-                timout = GURANTOR_TRANSACTION_TIMEOUT;
-                break;
+		case ROLE_GUARANTOR:
+			timout = GURANTOR_TRANSACTION_TIMEOUT;
+			break;
 
-            default:
-                return false;
-        }
-        if((now - lastActivityTime) > timout)
-        {
-            return true;
-        }
-    }
-
+		default:
+			return false;
+	}
+    
+	if((now - lastActivityTime) > timout)
+	{
+		return true;
+	}
     return false;
 }
 

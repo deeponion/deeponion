@@ -4213,7 +4213,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 		UpdateAnonymousServiceList(pfrom, keyAddress, status, connman);
 
 	    // As this get called reguarly, check if we should cancel.
-	    if(pCurrentAnonymousTxInfo->ShouldCancel()) {
+	    if(pCurrentAnonymousTxInfo->ShouldCancelRunawayProcess()) {
 	        LogPrint(BCLog::DEEPSEND, ">>  Should Cancel - Trying to cancel anon TX.\n");
 	        std::string cancelTx = CreateCancelDistributionTx();
 	        if(cancelTx.length() > 0) {

@@ -1077,7 +1077,7 @@ public:
 	bool SetInitialData(AnonymousTxRole role, std::vector< std::pair<std::string, int64_t> > vecSendInfo, const CCoinControl* pCoinControl,
 		CNode* pSendNode, CNode* pMixerNode, CNode* pGuarantorNode);
 	bool CanReset() const;
-	bool ShouldCancel() const;
+	bool ShouldCancelRunawayProcess() const;
 	CAmount GetTotalRequiredCoinsToSend(AnonymousTxRole role = ROLE_UNKNOWN);
 
 	bool CheckDepositTxes();
