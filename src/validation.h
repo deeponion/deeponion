@@ -1117,7 +1117,7 @@ bool AddPrevTxOut(AnonymousTxRole role, CBasicKeyStore& tempKeystore, CCoinsView
 bool CheckAnonymousServiceConditions();
 bool CreateMultiSigAddress();
 std::string CreateMultiSigDistributionTx();
-std::string CreateCancelDistributionTx();
+std::string CreateCancelDistributionTx(bool);
 bool DepositToMultisig(std::string& txid, CConnman *connman);
 bool ExtractVoutAndScriptPubKey(AnonymousTxRole role, std::string txid, int& voutn, std::string& hexScriptPubKey);
 bool FindGuarantorKey(std::map<std::string, std::string> mapSnList, std::string& guarantorKey);

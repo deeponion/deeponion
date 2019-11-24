@@ -6313,7 +6313,7 @@ std::string CreateMultiSigDistributionTx()
 	return tx;
 }
 
-std::string CreateCancelDistributionTx()
+std::string CreateCancelDistributionTx(bool runAwayProcess)
 {
 	// extract info from deposit tx's
 
@@ -6342,8 +6342,10 @@ std::string CreateCancelDistributionTx()
 	    CTxIn in1(COutPoint(uint256(txid256), voutnSender));
 	    rawMutableTx.vin.push_back(in1);
 
-	    // sender gets 2 * baseAmount + servicefee
+	    // sender gets 2 * baseAmount + servicefee, in runaway he gets all fees
 	    CAmount amountSender = 2 * baseAmount + servicefee;
+	    if(runAwayProcess)
+	    	amountSender = 2 * baseAmount + 2 * servicefee;
 	    std::string addressSender = pCurrentAnonymousTxInfo->GetAddress(ROLE_SENDER);
 	    CTxDestination addressS = DecodeDestination(addressSender);
 	    CScript spkSender = GetScriptForDestination(addressS);
@@ -6386,13 +6388,15 @@ std::string CreateCancelDistributionTx()
 	    rawMutableTx.vin.push_back(in3);
 
 	    // guarantor gets baseAmount + servicefee
-	    CAmount amountGuarator = senderPaid ? (baseAmount + servicefee) : (baseAmount - DEFAULT_BLOCK_MIN_TX_FEE);
+	    CAmount amountGuarantor = senderPaid ? (baseAmount + servicefee) : (baseAmount - DEFAULT_BLOCK_MIN_TX_FEE);
+	    if(senderPaid && runAwayProcess)
+	    	amountGuarantor = baseAmount;
 	    std::string addressGuarantor = pCurrentAnonymousTxInfo->GetAddress(ROLE_GUARANTOR);
 	    CTxDestination addressG = DecodeDestination(addressGuarantor);
 	    CScript spkGuarantor = GetScriptForDestination(addressG);
-	    CTxOut out3(amountGuarator, spkGuarantor);
+	    CTxOut out3(amountGuarantor, spkGuarantor);
 	    rawMutableTx.vout.push_back(out3);
-	    pCurrentAnonymousTxInfo->SetVoutAndScriptPubKey(ROLE_GUARANTOR, voutnGuarantor, scriptPubKeyGuarantor, amountGuarator);
+	    pCurrentAnonymousTxInfo->SetVoutAndScriptPubKey(ROLE_GUARANTOR, voutnGuarantor, scriptPubKeyGuarantor, amountGuarantor);
 	}
 	
 	CTransaction rawTx(rawMutableTx);

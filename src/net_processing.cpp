@@ -1524,7 +1524,7 @@ static void processCancelRunawayProcess(CNode* pfrom, CConnman* connman)
 {
 	LogPrint(BCLog::DEEPSEND, ">> Processing Cancel Runaway Deepsend Tx process...\n");
 	const CNetMsgMaker msgMaker(pfrom->GetSendVersion());
-	std::string cancelTx = CreateCancelDistributionTx();
+	std::string cancelTx = CreateCancelDistributionTx(true);
 	if(cancelTx.length() > 0) {
             
 		// Distribution TX is now the cancel varient.
@@ -4061,7 +4061,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 					logText = "Unable to verify Mixer's sendcoin transaction after 10 tries. Abort.";
 					pCurrentAnonymousTxInfo->AddToLog(logText);
 
-					std::string cancelTx = CreateCancelDistributionTx();
+					std::string cancelTx = CreateCancelDistributionTx(false);
 					// Distribution TX is now the cancel varient.
 					if(!SignMultiSigDistributionTx()) {
 						return error("processing message checksdtx - Couldn't sign cancellation TX.");
