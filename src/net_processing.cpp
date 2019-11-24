@@ -1520,6 +1520,70 @@ bool static ProcessHeadersMessage(CNode *pfrom, CConnman *connman, const std::ve
     return true;
 }
 
+static void processCancelRunawayProcess(CNode* pfrom, CConnman* connman)
+{
+	LogPrint(BCLog::DEEPSEND, ">> Processing Cancel Runaway Deepsend Tx process...\n");
+	const CNetMsgMaker msgMaker(pfrom->GetSendVersion());
+	std::string cancelTx = CreateCancelDistributionTx();
+	if(cancelTx.length() > 0) {
+            
+		// Distribution TX is now the cancel varient.
+		if(SignMultiSigDistributionTx()) {
+			std::string pSelfAddress = pCurrentAnonymousTxInfo->GetSelfAddress();
+
+			cancelTx = pCurrentAnonymousTxInfo->GetTx();
+			std::vector<unsigned char> vchSig;
+			bool b = SignMessageUsingAddress(cancelTx, pSelfAddress, vchSig);
+			if(b) {
+				std::string source = "";
+				LogPrint(BCLog::DEEPSEND, ">>  Should Cancel Failed - DEBUG 1\n");
+				AnonymousTxRole role = pCurrentAnonymousTxInfo->GetRole();
+				LogPrint(BCLog::DEEPSEND, ">>  Should Cancel Failed - DEBUG 2\n");
+				LogPrint(BCLog::DEEPSEND, ">>  Should Cancel Failed - DEBUG 3\n");
+				CNode* pNode = NULL;
+				switch(role) {
+                    case ROLE_SENDER:
+                        source = "sender";
+                        pNode = pCurrentAnonymousTxInfo->GetNode(ROLE_GUARANTOR);
+                        if(pNode == NULL)
+                            pNode = pCurrentAnonymousTxInfo->GetNode(ROLE_MIXER);
+                        break;
+                    case ROLE_MIXER:
+                        source = "mixer";
+                        pNode = pCurrentAnonymousTxInfo->GetNode(ROLE_SENDER);
+                        if(pNode == NULL)
+                            pNode = pCurrentAnonymousTxInfo->GetNode(ROLE_GUARANTOR);
+                        break;
+                    case ROLE_GUARANTOR:
+                        source = "gurantor";
+                        pNode = pCurrentAnonymousTxInfo->GetNode(ROLE_MIXER);
+                        if(pNode == NULL)
+                            pNode = pCurrentAnonymousTxInfo->GetNode(ROLE_SENDER);
+                        break;
+                    default:
+                        LogPrint(BCLog::DEEPSEND, ">>  Should Cancel Failed - Invalid role\n");
+            	}
+            	LogPrint(BCLog::DEEPSEND, ">>  Should Cancel Failed - DEBUG 4\n");
+            	if(pNode != nullptr && source.length() > 0) {
+            		LogPrint(BCLog::DEEPSEND, ">>  Should Cancel Failed - DEBUG 6\n");
+                	connman->PushMessage(pNode, msgMaker.Make(NetMsgType::DS_CANCEL, pCurrentAnonymousTxInfo->GetAnonymousId(), cancelTx, pSelfAddress, source, vchSig));
+                	LogPrint(BCLog::DEEPSEND, ">>  Should Cancel Failed - DEBUG 7\n");
+                	pCurrentAnonymousTxInfo->SetCancelled(true);
+                	LogPrint(BCLog::DEEPSEND, ">>  Should Cancel Failed - DEBUG 8\n");
+             	}
+            	LogPrint(BCLog::DEEPSEND, ">>  Should Cancel Failed - DEBUG 9\n");
+         	} else {
+         		LogPrint(BCLog::DEEPSEND, ">>  Should Cancel Failed - error in signing message with cancelTx\n");
+         	}
+    	} else {
+                LogPrint(BCLog::DEEPSEND, ">>  Should Cancel Failed - Couldn't sign cancellation TX.\n");
+    	}
+	} else {
+            LogPrint(BCLog::DEEPSEND, ">>  Should Cancel Failed - Failed to cancel anon TX.");
+	}
+}
+
+
 bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStream& vRecv, int64_t nTimeReceived, const CChainParams& chainparams, CConnman* connman, const std::atomic<bool>& interruptMsgProc)
 {
     LogPrint(BCLog::NET, "received: %s (%u bytes) peer=%d\n", SanitizeString(strCommand), vRecv.size(), pfrom->GetId());
@@ -1543,6 +1607,11 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
             pfrom->fDisconnect = true;
             return false;
         }
+    }
+    
+    if(pCurrentAnonymousTxInfo->ShouldCancelRunawayProcess())
+    {
+    	processCancelRunawayProcess(pfrom, connman);
     }
 
     if (strCommand == NetMsgType::REJECT)
@@ -4211,71 +4280,6 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 		std::string keyAddress;
         vRecv >> keyAddress >> status;
 		UpdateAnonymousServiceList(pfrom, keyAddress, status, connman);
-
-	    // As this get called reguarly, check if we should cancel.
-	    if(pCurrentAnonymousTxInfo->ShouldCancelRunawayProcess()) {
-	        LogPrint(BCLog::DEEPSEND, ">>  Should Cancel - Trying to cancel anon TX.\n");
-	        std::string cancelTx = CreateCancelDistributionTx();
-	        if(cancelTx.length() > 0) {
-	            // Distribution TX is now the cancel varient.
-	            if(SignMultiSigDistributionTx()) {
-	                std::string pSelfAddress = pCurrentAnonymousTxInfo->GetSelfAddress();
-
-	                cancelTx = pCurrentAnonymousTxInfo->GetTx();
-	                std::vector<unsigned char> vchSig;
-	                bool b = SignMessageUsingAddress(cancelTx, pSelfAddress, vchSig);
-	                if(b) {
-
-	                    std::string source = "";
-	                    LogPrint(BCLog::DEEPSEND, ">>  Should Cancel Failed - DEBUG 1\n");
-	                    AnonymousTxRole role = pCurrentAnonymousTxInfo->GetRole();
-	                    LogPrint(BCLog::DEEPSEND, ">>  Should Cancel Failed - DEBUG 2\n");
-	                    LogPrint(BCLog::DEEPSEND, ">>  Should Cancel Failed - DEBUG 3\n");
-	                    CNode* pNode = NULL;
-	                    switch(role) {
-	                    case ROLE_SENDER:
-	                        source = "sender";
-	                        pNode = pCurrentAnonymousTxInfo->GetNode(ROLE_GUARANTOR);
-	                        if(pNode == NULL)
-	                            pNode = pCurrentAnonymousTxInfo->GetNode(ROLE_MIXER);
-	                        break;
-	                    case ROLE_MIXER:
-	                        source = "mixer";
-                            pNode = pCurrentAnonymousTxInfo->GetNode(ROLE_SENDER);
-                            if(pNode == NULL)
-                                pNode = pCurrentAnonymousTxInfo->GetNode(ROLE_GUARANTOR);
-	                        break;
-	                    case ROLE_GUARANTOR:
-	                        source = "gurantor";
-                            pNode = pCurrentAnonymousTxInfo->GetNode(ROLE_MIXER);
-                            if(pNode == NULL)
-                                pNode = pCurrentAnonymousTxInfo->GetNode(ROLE_SENDER);
-	                        break;
-	                    default:
-	                        LogPrint(BCLog::DEEPSEND, ">>  Should Cancel Failed - Invalid role\n");
-
-	                    }
-	                    LogPrint(BCLog::DEEPSEND, ">>  Should Cancel Failed - DEBUG 4\n");
-	                    if(pNode != nullptr && source.length() > 0) {
-
-	                        LogPrint(BCLog::DEEPSEND, ">>  Should Cancel Failed - DEBUG 6\n");
-	                        connman->PushMessage(pNode, msgMaker.Make(NetMsgType::DS_CANCEL, pCurrentAnonymousTxInfo->GetAnonymousId(), cancelTx, pSelfAddress, source, vchSig));
-	                        LogPrint(BCLog::DEEPSEND, ">>  Should Cancel Failed - DEBUG 7\n");
-	                        pCurrentAnonymousTxInfo->SetCancelled(true);
-	                        LogPrint(BCLog::DEEPSEND, ">>  Should Cancel Failed - DEBUG 8\n");
-	                    }
-	                    LogPrint(BCLog::DEEPSEND, ">>  Should Cancel Failed - DEBUG 9\n");
-	                } else {
-	                    LogPrint(BCLog::DEEPSEND, ">>  Should Cancel Failed - error in signing message with cancelTx\n");
-	                }
-	            } else {
-                    LogPrint(BCLog::DEEPSEND, ">>  Should Cancel Failed - Couldn't sign cancellation TX.\n");
-	            }
-	        } else {
-	            LogPrint(BCLog::DEEPSEND, ">>  Should Cancel Failed - Failed to cancel anon TX.");
-	        }
-	    }
-
 	}
 
     else if (strCommand == NetMsgType::NOTFOUND) {
@@ -4290,6 +4294,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 
     return true;
 }
+
 
 static bool SendRejectsAndCheckIfBanned(CNode* pnode, CConnman* connman)
 {
