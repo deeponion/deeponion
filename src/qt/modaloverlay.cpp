@@ -28,6 +28,7 @@ platformStyle(_platformStyle)
     connect(ui->quickSyncButton, &QPushButton::clicked, this, &ModalOverlay::onQuickSyncClicked);
     connect(ui->cancelPushButton, &QPushButton::clicked, this, &ModalOverlay::onCancelButtonClicked);
     connect(ui->closeButton, SIGNAL(clicked()), this, SLOT(closeClicked()));
+    connect(ui->quicksyncoptionsButton, &QPushButton::clicked,this,&ModalOverlay::onQuickSyncOptionsClicked);
     connect(&m_downloader, &Downloader::updateDownloadProgress, this, &ModalOverlay::onUpdateProgress);
     connect(&m_downloader, &Downloader::onFinished, this, &ModalOverlay::onDownloadFinished);
     connect(&quickS, &GUIUtil::QuickSync::updateDeflateProgress, this, &ModalOverlay::onProgessBarUpdated,Qt::QueuedConnection);
@@ -99,6 +100,13 @@ void ModalOverlay::setKnownBestHeight(int count, const QDateTime& blockDate)
 
 void ModalOverlay::tipUpdate(int count, const QDateTime& blockDate, double nVerificationProgress)
 {
+    if(nVerificationProgress > 0.7)
+        showQuickSync = false;
+    else
+        showQuickSync = true;
+    updateQuickSyncVisibility();
+
+
     QDateTime currentDate = QDateTime::currentDateTime();
 
     // keep a vector of samples of verification progress at height
@@ -339,4 +347,46 @@ void ModalOverlay::setClientModel(ClientModel *clientmodel)
     this->clientmodel = clientmodel;
     // Deactivate network for quick sync operations
     connect(this,SIGNAL(setNetworkStatus(bool)), clientmodel, SLOT(updateNetwork(bool)));
+}
+
+void ModalOverlay::onQuickSyncOptionsClicked()
+{
+    if(showQuickSyncOptions)
+        showQuickSyncOptions = false;
+    else
+        showQuickSyncOptions = true;
+
+    updateQuickSyncVisibility();
+}
+void ModalOverlay::updateQuickSyncVisibility()
+{
+    if(!showQuickSync)
+    {
+        ui->quickSyncButton->hide();
+        ui->downloadProgressBar->hide();
+        ui->quicksyncoptionsButton->hide();
+        ui->cancelPushButton->hide();
+
+        ui->bootstrapServerAddressEdit->hide();
+        ui->proxycheckBox->hide();
+    }
+    else
+    {
+        ui->quickSyncButton->show();
+        ui->downloadProgressBar->show();
+        ui->quicksyncoptionsButton->show();
+        ui->cancelPushButton->show();
+
+        if(showQuickSyncOptions)
+        {
+            ui->bootstrapServerAddressEdit->show();
+            ui->proxycheckBox->show();
+        }
+        else
+        {
+            ui->bootstrapServerAddressEdit->hide();
+            ui->proxycheckBox->hide();
+        }
+    }
+
 }
