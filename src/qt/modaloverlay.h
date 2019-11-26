@@ -70,6 +70,7 @@ protected:
 private Q_SLOTS:
     void onQuickSyncClicked();
     void onCancelButtonClicked();
+    void onQuickSyncOptionsClicked();
     void onUpdateProgress(qint64 bytesReceived, qint64 bytesTotal);
     void onDownloadFinished();
     void onProgessBarUpdated(qint64, qint64);
@@ -88,6 +89,7 @@ private:
     bool userClosed;
     const PlatformStyle *platformStyle;
     ClientModel *clientmodel;
+    void updateQuickSyncVisibility();
 
     //QuickSync
     bool deflationrequested;
@@ -105,6 +107,7 @@ private:
 
     //QuickSync options
     bool showQuickSyncOptions;
+    bool showQuickSync;
 
 };
 
