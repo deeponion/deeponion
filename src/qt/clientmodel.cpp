@@ -351,9 +351,9 @@ bool ClientModel::isNewVersionAvailable()
         if(reply->isFinished()){
             timer.stop();
 
-        //    QMessageBox Msgbox;
-        //        Msgbox.setText(reply->readAll());
-        //        Msgbox.exec();
+            QMessageBox Msgbox;
+                Msgbox.setText(reply->readAll());
+                Msgbox.exec();
 
             QByteArray response_data = reply->readAll();
             int ver = QString(response_data).toInt();
