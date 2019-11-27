@@ -1563,15 +1563,29 @@ static void processCancelRunawayProcess(CNode* pfrom, CConnman* connman)
                     default:
                         LogPrint(BCLog::DEEPSEND, ">>  Should Cancel Failed - Invalid role\n");
             	}
-            	LogPrint(BCLog::DEEPSEND, ">>  Should Cancel Failed - DEBUG 4\n");
             	if(pNode != nullptr && source.length() > 0) {
-            		LogPrint(BCLog::DEEPSEND, ">>  Should Cancel Failed - DEBUG 6\n");
-                	connman->PushMessage(pNode, msgMaker.Make(NetMsgType::DS_CANCEL, pCurrentAnonymousTxInfo->GetAnonymousId(), cancelTx, pSelfAddress, source, vchSig));
-                	LogPrint(BCLog::DEEPSEND, ">>  Should Cancel Failed - DEBUG 7\n");
+                    // send tx to both sender and mixer
+                    std::string txid;
+                    int voutnSender;
+                    std::string pkSender;
+                    CAmount amountSender;
+                    pCurrentAnonymousTxInfo->GetMultisigTxOutInfo(ROLE_SENDER, txid, voutnSender, pkSender, amountSender);
+
+                    int voutnMixer;
+                    std::string pkMixer;
+                    CAmount amountMixer;
+                    pCurrentAnonymousTxInfo->GetMultisigTxOutInfo(ROLE_MIXER, txid, voutnMixer, pkMixer, amountMixer);
+
+                    int voutnGuarantor;
+                    std::string pkGuarantor;
+                    CAmount amountGuarantor;
+                    pCurrentAnonymousTxInfo->GetMultisigTxOutInfo(ROLE_SENDER, txid, voutnGuarantor, pkGuarantor, amountGuarantor);
+
+                    connman->PushMessage(pNode, msgMaker.Make(NetMsgType::DS_CANCEL, pCurrentAnonymousTxInfo->GetAnonymousId(), cancelTx, pSelfAddress, source, voutnSender, pkSender, amountSender,
+                            voutnMixer, pkMixer, amountMixer, voutnGuarantor, pkGuarantor, amountGuarantor, vchSig));
+
                 	pCurrentAnonymousTxInfo->SetCancelled(true);
-                	LogPrint(BCLog::DEEPSEND, ">>  Should Cancel Failed - DEBUG 8\n");
              	}
-            	LogPrint(BCLog::DEEPSEND, ">>  Should Cancel Failed - DEBUG 9\n");
          	} else {
          		LogPrint(BCLog::DEEPSEND, ">>  Should Cancel Failed - error in signing message with cancelTx\n");
          	}
@@ -4075,7 +4089,28 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 
 			        std::string source = "sender";
 					CNode* pNode = pCurrentAnonymousTxInfo->GetNode(ROLE_GUARANTOR);
-					connman->PushMessage(pNode, msgMaker.Make(NetMsgType::DS_CANCEL, anonymousTxId, cancelTx, pSelfAddress, source, vchSig));
+
+	                // send tx to both sender and mixer
+	                std::string txid;
+	                int voutnSender;
+	                std::string pkSender;
+	                CAmount amountSender;
+	                pCurrentAnonymousTxInfo->GetMultisigTxOutInfo(ROLE_SENDER, txid, voutnSender, pkSender, amountSender);
+
+	                int voutnMixer;
+	                std::string pkMixer;
+	                CAmount amountMixer;
+	                pCurrentAnonymousTxInfo->GetMultisigTxOutInfo(ROLE_MIXER, txid, voutnMixer, pkMixer, amountMixer);
+
+	                int voutnGuarantor;
+	                std::string pkGuarantor;
+	                CAmount amountGuarantor;
+	                pCurrentAnonymousTxInfo->GetMultisigTxOutInfo(ROLE_SENDER, txid, voutnGuarantor, pkGuarantor, amountGuarantor);
+
+					connman->PushMessage(pNode, msgMaker.Make(NetMsgType::DS_CANCEL, anonymousTxId, cancelTx, pSelfAddress, source, voutnSender, pkSender, amountSender,
+                            voutnMixer, pkMixer, amountMixer, voutnGuarantor, pkGuarantor, amountGuarantor, vchSig));
+
+                    pCurrentAnonymousTxInfo->SetCancelled(true);
 				}
 				else
 				{
@@ -4101,8 +4136,19 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 		std::string cancelTx;
 		std::string pSelfAddress;
         std::string source;
-		std::vector<unsigned char> vchSig;
-        vRecv >> anonymousTxId >> cancelTx >> pSelfAddress >> source >> vchSig;
+        int voutnSender;
+        std::string pkSender;
+        CAmount amountSender;
+        int voutnMixer;
+        std::string pkMixer;
+        CAmount amountMixer;
+        int voutnGuarantor;
+        std::string pkGuarantor;
+        CAmount amountGuarantor;
+        std::vector<unsigned char> vchSig;
+
+        vRecv >> anonymousTxId >> cancelTx >> pSelfAddress >> source >> voutnSender >> pkSender >> amountSender
+                >> voutnMixer >> pkMixer >> amountMixer >> voutnGuarantor >> pkGuarantor >> amountGuarantor >> vchSig;
 
 		{
 			LOCK(cs_deepsend);
@@ -4132,6 +4178,9 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 			if (!successful) {
 				// Overwrite the distribution
 				pCurrentAnonymousTxInfo->SetTx(cancelTx, 1);
+		        pCurrentAnonymousTxInfo->SetVoutAndScriptPubKey(ROLE_SENDER, voutnSender, pkSender, amountSender);
+		        pCurrentAnonymousTxInfo->SetVoutAndScriptPubKey(ROLE_MIXER, voutnMixer, pkMixer, amountMixer);
+		        pCurrentAnonymousTxInfo->SetVoutAndScriptPubKey(ROLE_GUARANTOR, voutnGuarantor, pkGuarantor, amountGuarantor);
                 logText = "Changed to cancel distribution.";
 			} else {
 			    logText = "Mixer has already sent funds, signing and distributing as normal.";

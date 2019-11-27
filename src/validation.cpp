@@ -5778,9 +5778,9 @@ bool CAnonymousTxInfo::ShouldCancelRunawayProcess() const
         return false;
 
     // Stagger the timeouts to avoid all sending DS_CANCEL at the same time
-    static int64_t SENDER_TRANSACTION_TIMEOUT = 210; // 3.5 mins
+    static int64_t GURANTOR_TRANSACTION_TIMEOUT = 210; // 3.5 mins
     static int64_t MIXER_TRANSACTION_TIMEOUT = 240; // 4 mins
-    static int64_t GURANTOR_TRANSACTION_TIMEOUT = 270; // 4.5 mins
+    static int64_t SENDER_TRANSACTION_TIMEOUT = 270; // 4.5 mins
 
     int64_t now = GetTime();
     int64_t timout;
@@ -6840,12 +6840,12 @@ void UpdateAnonymousServiceList(CNode* pNode, std::string keyAddress, std::strin
 	}
 	
 	// temp: only allow certain address
-	/*
-	if(addr != std::string("xu7nhy6qokb3afrf.onion") && addr != std::string("uhyrk5j3h76pbiwk.onion") && addr != std::string("2botmkfkdxzsax3u.onion")) {
-		LogPrint(BCLog::DEEPSEND, ">> UpdateAnonymousServiceList. Not allowed address, addr = %s\n", addr.c_str());
-		return;		
-	}
-	*/
+
+//	if(addr != std::string("chi6rlwedk3xmtua.onion") && addr != std::string("r4kyfixzyw3dbav2.onion")) {
+//		LogPrint(BCLog::DEEPSEND, ">> UpdateAnonymousServiceList. Not allowed address, addr = %s\n", addr.c_str());
+//		return;
+//	}
+
 
 	
 	// ignore banned address
