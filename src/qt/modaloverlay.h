@@ -15,7 +15,6 @@
 #include <QThread>
 #include <QMessageBox>
 #include <QInputDialog>
-#include <QDir>
 
 #include <thread>
 
