@@ -15,7 +15,7 @@ public:
     explicit Downloader(QObject* parent = nullptr);
     virtual ~Downloader();
 
-    bool get(const QString& targetFolder, const QUrl& url);
+    bool get(const QString& targetFolder, const QUrl& url, bool &proxy);
     QString getDataName();
 
 
