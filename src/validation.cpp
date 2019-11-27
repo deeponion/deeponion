@@ -778,7 +778,9 @@ static bool AcceptToMemoryPoolWorker(const CChainParams& chainparams, CTxMemPool
             // DeepOnion: Attempt to find the previous out, don't fail if we don't find it as we are
             // are not allowing it to be done slowly, we shouldn't get here if it doesn't exists anyway
             if (GetTransaction(txin.prevout.hash, txPrev, Params().GetConsensus(), hash_block, false)) {
-                if((txPrev->nTime - 3600) > tx.nTime) {
+            	// we need to put an allowance, but this will cause a fork, so will do whenever we decide a mandatory release
+                // if((txPrev->nTime - 3600) > tx.nTime) {
+                if(txPrev->nTime > tx.nTime) {
                     return state.DoS(100, false, REJECT_INVALID, "bad-txns-early-timestamp");
                 }
             }
