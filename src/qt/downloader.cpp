@@ -15,7 +15,7 @@ Downloader::Downloader(QObject* parent) :
 Downloader::~Downloader(){}
 
 
-bool Downloader::get(const QString& targetFolder, const QUrl& url)
+bool Downloader::get(const QString& targetFolder, const QUrl& url, bool& proxy)
 {
     if (targetFolder.isEmpty() || url.isEmpty())
     {
@@ -32,12 +32,14 @@ bool Downloader::get(const QString& targetFolder, const QUrl& url)
 
     //Set Proxy
     //TODO: Merge with init and version check proxy in clientmodel
- //   QNetworkProxy proxy;
- //   proxy.setType(QNetworkProxy::Socks5Proxy);
- //   proxy.setHostName("127.0.0.1");
- //   proxy.setPort(9081);
-
- //   m_manager.setProxy(proxy);
+    if(proxy)
+    {
+        QNetworkProxy proxy;
+        proxy.setType(QNetworkProxy::Socks5Proxy);
+        proxy.setHostName("127.0.0.1");
+        proxy.setPort(9081);
+        m_manager.setProxy(proxy);
+     }
 
     QNetworkRequest request(url);
     request.setAttribute(QNetworkRequest::FollowRedirectsAttribute, true);

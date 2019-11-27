@@ -29,6 +29,8 @@ platformStyle(_platformStyle)
     connect(ui->cancelPushButton, &QPushButton::clicked, this, &ModalOverlay::onCancelButtonClicked);
     connect(ui->closeButton, SIGNAL(clicked()), this, SLOT(closeClicked()));
     connect(ui->quicksyncoptionsButton, &QPushButton::clicked,this,&ModalOverlay::onQuickSyncOptionsClicked);
+    connect(ui->editServerAddressButton,&QPushButton::clicked, this, &ModalOverlay::onEditServerAddressButton);
+    connect(ui->proxycheckBox, &QCheckBox::stateChanged, this, &ModalOverlay::onProxyActivated);
     connect(&m_downloader, &Downloader::updateDownloadProgress, this, &ModalOverlay::onUpdateProgress);
     connect(&m_downloader, &Downloader::onFinished, this, &ModalOverlay::onDownloadFinished);
     connect(&quickS, &GUIUtil::QuickSync::updateDeflateProgress, this, &ModalOverlay::onProgessBarUpdated,Qt::QueuedConnection);
@@ -41,6 +43,8 @@ platformStyle(_platformStyle)
     }
     ui->downloadProgressBar->setAlignment(Qt::AlignCenter);
     ui->downloadProgressBar->setValue(0);
+    ui->bootstrapServerAddressEdit->setText(blockchain_url.toString());
+    ui->proxycheckBox->setChecked(true);
     blockProcessTime.clear();
     deflationrequested = false;
     setVisible(false);
@@ -249,7 +253,7 @@ void ModalOverlay::onQuickSyncClicked()
     tempquickSyncDir= GetDataDir() / fs::unique_path();
     fs::create_directory(tempquickSyncDir);
 
-    m_downloader.get(GUIUtil::boostPathToQString(tempquickSyncDir), blockchain_url);
+    m_downloader.get(GUIUtil::boostPathToQString(tempquickSyncDir), blockchain_url, proxyActivated);
     quickSyncStatus = QuickSyncStatus::DOWNLOADING;
 }
 
@@ -358,6 +362,28 @@ void ModalOverlay::onQuickSyncOptionsClicked()
 
     updateQuickSyncVisibility();
 }
+
+void ModalOverlay::onEditServerAddressButton()
+{
+    bool ok;
+    QString text = QInputDialog::getText(this, tr("Set Address"),
+                                            tr("Address name:"), QLineEdit::Normal,
+                                            blockchain_url.toString(), &ok);
+    if (ok && !text.isEmpty())
+    {
+        ui->bootstrapServerAddressEdit->setText(text);
+        blockchain_url = text;
+     }
+}
+
+void ModalOverlay::onProxyActivated()
+{
+    if(proxyActivated)
+        proxyActivated=false;
+    else
+        proxyActivated=true;
+}
+
 void ModalOverlay::updateQuickSyncVisibility()
 {
     if(!showQuickSync)
@@ -369,6 +395,7 @@ void ModalOverlay::updateQuickSyncVisibility()
 
         ui->bootstrapServerAddressEdit->hide();
         ui->proxycheckBox->hide();
+        ui->editServerAddressButton->hide();
     }
     else
     {
@@ -381,11 +408,13 @@ void ModalOverlay::updateQuickSyncVisibility()
         {
             ui->bootstrapServerAddressEdit->show();
             ui->proxycheckBox->show();
+            ui->editServerAddressButton->show();
         }
         else
         {
             ui->bootstrapServerAddressEdit->hide();
             ui->proxycheckBox->hide();
+            ui->editServerAddressButton->hide();
         }
     }
 

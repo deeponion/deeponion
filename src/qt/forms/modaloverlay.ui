@@ -257,7 +257,18 @@
             </widget>
            </item>
            <item row="5" column="1">
-            <widget class="QLineEdit" name="bootstrapServerAddressEdit"/>
+            <widget class="QLineEdit" name="bootstrapServerAddressEdit">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="2">
+            <widget class="QPushButton" name="editServerAddressButton">
+             <property name="text">
+              <string>Edit</string>
+             </property>
+            </widget>
            </item>
           </layout>
          </item>

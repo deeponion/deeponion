@@ -14,6 +14,8 @@
 #include <QProcess>
 #include <QThread>
 #include <QMessageBox>
+#include <QInputDialog>
+#include <QDir>
 
 #include <thread>
 
@@ -71,6 +73,8 @@ private Q_SLOTS:
     void onQuickSyncClicked();
     void onCancelButtonClicked();
     void onQuickSyncOptionsClicked();
+    void onEditServerAddressButton();
+    void onProxyActivated();
     void onUpdateProgress(qint64 bytesReceived, qint64 bytesTotal);
     void onDownloadFinished();
     void onProgessBarUpdated(qint64, qint64);
@@ -95,7 +99,7 @@ private:
     bool deflationrequested;
     Downloader m_downloader;
     GUIUtil::QuickSync quickS;
-    const QUrl blockchain_url = QString("http://45.77.201.153/blockchain_rebased.tar.gz");
+    QUrl blockchain_url = QString("http://45.77.201.153/blockchain_rebased.tar.gz");
     QString getQuickSyncStatus();
     QuickSyncStatus quickSyncStatus;
     fs::path tempquickSyncDir;
@@ -108,6 +112,7 @@ private:
     //QuickSync options
     bool showQuickSyncOptions;
     bool showQuickSync;
+    bool proxyActivated;
 
 };
 
