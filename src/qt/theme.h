@@ -72,7 +72,7 @@ public:
     const QString getSubSectionTitleStyle() const;
     const QString getRoundedButtonStyle() const;
 	const QString getDeepOnionLogo() const;
-
+    const QString getSendDeepSendIco() const;
     const QString getSpinnerPath() const;
 
 protected:
@@ -138,6 +138,7 @@ protected:
     QString subSectionTitleStyle;
     QString roundedButtonStyle;
     QString deepOnionLogo;
+    QString sendDeepSendIco;
     QString spinnerPath;
     
 	QString title_background;

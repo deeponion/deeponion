@@ -117,6 +117,7 @@ SendCoinsDialog::SendCoinsDialog(const PlatformStyle *_platformStyle, QWidget *p
     ui->customFee->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getPayAmountStyle());
     ui->radioSmartFee->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getRadioTextStyle());
     ui->radioCustomFee->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getRadioTextStyle());
+    ui->label_2->setPixmap(QPixmap(platformStyle->getThemeManager()->getCurrent()->getSendDeepSendIco()));
 
     // init transaction fee section
     QSettings settings;
@@ -957,6 +958,7 @@ void SendCoinsDialog::refreshStyle()
     ui->customFee->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getPayAmountStyle());
     ui->radioSmartFee->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getRadioTextStyle());
     ui->radioCustomFee->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getRadioTextStyle());
+    ui->label_2->setPixmap(QPixmap(platformStyle->getThemeManager()->getCurrent()->getSendDeepSendIco()));
 
     for(int i = 0; i < ui->entries->count(); ++i)
     {

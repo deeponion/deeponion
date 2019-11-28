@@ -671,8 +671,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>1141</width>
-            <height>209</height>
+            <width>1133</width>
+            <height>190</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0,0,0,1">
@@ -723,6 +723,19 @@
               <number>5</number>
              </property>
              <item>
+              <widget class="QCheckBox" name="checkBoxDeepSend">
+               <property name="maximumSize">
+                <size>
+                 <width>15</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>CheckBox</string>
+               </property>
+              </widget>
+             </item>
+             <item>
               <spacer name="horizontalSpacer_8">
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
@@ -739,19 +752,6 @@
               </spacer>
              </item>
              <item>
-              <widget class="QCheckBox" name="checkBoxDeepSend">
-               <property name="maximumSize">
-                <size>
-                 <width>15</width>
-                 <height>16777215</height>
-                </size>
-               </property>
-               <property name="text">
-                <string>CheckBox</string>
-               </property>
-              </widget>
-             </item>
-             <item>
               <widget class="QLabel" name="label_2">
                <property name="maximumSize">
                 <size>
@@ -763,7 +763,7 @@
                 <string/>
                </property>
                <property name="pixmap">
-                <pixmap resource="../bitcoin.qrc">:/icons/deepsend</pixmap>
+                <pixmap resource="../bitcoin.qrc">:/icons/deepsendBlueDark</pixmap>
                </property>
               </widget>
              </item>
