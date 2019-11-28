@@ -57,6 +57,7 @@
 #include <QToolButton>
 #include <QVBoxLayout>
 
+
 #if QT_VERSION < 0x050000
 #include <QTextDocument>
 #include <QUrl>
@@ -90,6 +91,7 @@ BitcoinGUI::BitcoinGUI(const PlatformStyle *_platformStyle, const NetworkStyle *
     connectionsControl(0),
     labelBlocksIcon(0),
     progressBarLabel(0),
+    versionAlert(0),
     labelStakingIcon(0),
     labelOnionIcon(0),
     progressBar(0),
@@ -304,8 +306,14 @@ BitcoinGUI::BitcoinGUI(const PlatformStyle *_platformStyle, const NetworkStyle *
     progressBar->setAlignment(Qt::AlignCenter);
     progressBar->setVisible(false);
 
+    versionAlert = new QLabel();
+    versionAlert->setVisible(false);
+//    versionAlert->setAlignment(Qt::AlignCenter);
+
+
     statusBar()->addWidget(progressBarLabel);
     statusBar()->addWidget(progressBar);
+    statusBar()->addWidget(versionAlert);
     statusBar()->addPermanentWidget(frameBlocks);
     statusBar()->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getStatusBarBackgroundColor());
     statusBar()->setMinimumHeight(50);
@@ -617,6 +625,18 @@ void BitcoinGUI::createToolBars()
 void BitcoinGUI::setClientModel(ClientModel *_clientModel)
 {
     this->clientModel = _clientModel;
+
+    //Check for new version and show an alert
+    if(clientModel->isNewVersionAvailable())
+    {
+        if(clientModel->VersionOutDated())
+        {
+            versionAlert->setText(tr("A new version is available. Please update your wallet!"));
+            versionAlert->setVisible(true);
+        }
+
+    }
+
     if(_clientModel)
     {
         // Create system tray menu (or setup the dock menu) that late to prevent users from calling actions,

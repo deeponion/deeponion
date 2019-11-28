@@ -7,6 +7,15 @@
 
 #include <QObject>
 #include <QDateTime>
+#include <QTimer>
+#include <QJsonDocument>
+#include <QNetworkReply>
+#include <QByteArray>
+#include <QNetworkAccessManager>
+#include <QNetworkRequest>
+#include <QtGlobal>
+#include <QApplication>
+#include <QNetworkProxy>
 
 #include <atomic>
 
@@ -63,6 +72,11 @@ public:
     double getVerificationProgress(const CBlockIndex *tip) const;
     QDateTime getLastBlockDate() const;
 
+    bool isNewVersionAvailable();
+    bool isNewVersion(int vers);
+    QString VersionStatus();
+    bool VersionOutDated();
+
     //! Return true if core is doing initial block download
     bool inInitialBlockDownload() const;
     //! Returns enum BlockSource of the current importing/syncing state
@@ -93,6 +107,9 @@ private:
 
     void subscribeToCoreSignals();
     void unsubscribeFromCoreSignals();
+
+    QString versionStatus;
+    bool versionOutDated;
 
 Q_SIGNALS:
     void numConnectionsChanged(int count);

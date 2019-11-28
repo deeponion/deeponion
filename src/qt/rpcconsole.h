@@ -72,6 +72,8 @@ private Q_SLOTS:
     void on_verifyBlockchainButton_clicked();
     /** open the blockchain info page */
     void on_showMeDetailsButton_clicked();
+    //DeepOnion: Scan for a new version
+    void on_scanForUpdatesButton_clicked();
     /** change the time range of the network traffic graph */
     void on_sldGraphRange_valueChanged(int value);
     /** update traffic statistics */
