@@ -154,8 +154,8 @@ static const int MAX_UNCONNECTING_HEADERS = 10;
 
 static const bool DEFAULT_PEERBLOOMFILTERS = true;
 
-/** DeepSend service default, currently its an opt out service. */
-static const bool DEFAULT_DEEPSENDNODE = true;
+/** DeepSend service default, currently its an opt in service. */
+static const bool DEFAULT_DEEPSENDNODE = false;
 
 /** Default for -stopatheight */
 static const int DEFAULT_STOPATHEIGHT = 0;
