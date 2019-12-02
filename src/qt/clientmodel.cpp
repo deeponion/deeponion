@@ -341,7 +341,7 @@ bool ClientModel::isNewVersionAvailable()
     QNetworkRequest request(url);
     QNetworkAccessManager nam;
     nam.setProxy(proxy);
-    QNetworkReply * reply = nam.get(request);
+    QNetworkReply* reply = nam.get(request);
     QTimer timer;
     timer.setSingleShot(true);
     timer.start(5000);
@@ -394,6 +394,11 @@ bool ClientModel::isNewVersion(int ver)
 QString ClientModel::VersionStatus()
 {
     return versionStatus;
+}
+
+void ClientModel::SetVersionStatus(QString _versionStatus)
+{
+    versionStatus = _versionStatus;
 }
 
 bool ClientModel::VersionOutDated()
