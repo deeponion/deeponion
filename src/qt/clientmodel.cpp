@@ -396,11 +396,6 @@ QString ClientModel::VersionStatus()
     return versionStatus;
 }
 
-void ClientModel::SetVersionStatus(QString _versionStatus)
-{
-    versionStatus = _versionStatus;
-}
-
 bool ClientModel::VersionOutDated()
 {
     return versionOutDated;

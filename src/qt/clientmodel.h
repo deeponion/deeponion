@@ -75,7 +75,6 @@ public:
     bool isNewVersionAvailable();
     bool isNewVersion(int vers);
     QString VersionStatus();
-    void SetVersionStatus(QString _versionStatus);
     bool VersionOutDated();
 
     //! Return true if core is doing initial block download
