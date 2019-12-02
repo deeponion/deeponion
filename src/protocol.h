@@ -259,6 +259,10 @@ extern const char *DS_SENDCMPLT;
 extern const char *DS_SERVICEANN;
 extern const char *DS_CANCEL;
 extern const char *DS_CANCELCMPLT;
+extern const char *DS_MSIGMIXSENT;
+extern const char *DS_CHKSDRELAY;
+extern const char *DS_CHKSENDERTX;
+extern const char *DS_MSIGGRTSENT;
 };
 
 /* Get a vector of all valid message types (see above) */

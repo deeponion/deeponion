@@ -1079,7 +1079,8 @@ public:
 	bool CanReset() const;
 	bool ShouldCancelRunawayProcess() const;
 	CAmount GetTotalRequiredCoinsToSend(AnonymousTxRole role = ROLE_UNKNOWN);
-
+	
+	bool CheckSenderDepositTx();
 	bool CheckDepositTxes();
 	bool CheckSendTx();
 	bool IsCurrentTxInProcess() const;

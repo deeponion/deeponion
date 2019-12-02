@@ -5625,6 +5625,24 @@ bool CAnonymousTxInfo::CheckDeposit(AnonymousTxRole role, CWallet* pWallet)
 }
 
 
+bool CAnonymousTxInfo::CheckSenderDepositTx()
+{
+	CWallet* pWallet = vpwallets[0];
+	lastActivityTime = GetTime();
+	MilliSleep(10000);
+	
+	LogPrint(BCLog::DEEPSEND, ">> CheckSenderDepositTx: Verify sender's deposit.\n");
+	bool b = CheckDeposit(ROLE_SENDER, pWallet);
+	if(!b)
+	{
+		LogPrint(BCLog::DEEPSEND, ">> CheckSenderDepositTx: sender's deposit verification failed.\n");
+		return false;
+	}
+
+	return true;
+}
+
+
 bool CAnonymousTxInfo::CheckDepositTxes()
 {
 	CWallet* pWallet = vpwallets[0];
@@ -6841,15 +6859,14 @@ void UpdateAnonymousServiceList(CNode* pNode, std::string keyAddress, std::strin
 		return;
 	}
 	
-	// temp: only allow certain address
+	// *** for deepsend testing: only allow certain address
+	/*
+	if(addr != std::string("xu7nhy6qokb3afrf.onion") && addr != std::string("uhyrk5j3h76pbiwk.onion") && addr != std::string("2botmkfkdxzsax3u.onion")) {
+		LogPrint(BCLog::DEEPSEND, ">> UpdateAnonymousServiceList. Not allowed address, addr = %s\n", addr.c_str());
+		return;
+	}
+	*/
 
-//	if(addr != std::string("chi6rlwedk3xmtua.onion") && addr != std::string("r4kyfixzyw3dbav2.onion")) {
-//		LogPrint(BCLog::DEEPSEND, ">> UpdateAnonymousServiceList. Not allowed address, addr = %s\n", addr.c_str());
-//		return;
-//	}
-
-
-	
 	// ignore banned address
 	if(connman->IsBanned((CNetAddr)pNode->addr)) {
 		LogPrint(BCLog::DEEPSEND, ">> UpdateAnonymousServiceList. Address is banned, addr = %s\n", addr.c_str());
