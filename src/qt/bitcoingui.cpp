@@ -626,19 +626,19 @@ void BitcoinGUI::setClientModel(ClientModel *_clientModel)
 {
     this->clientModel = _clientModel;
 
-    //Check for new version and show an alert
-    if(clientModel->isNewVersionAvailable())
-    {
-        if(clientModel->VersionOutDated())
-        {
-            versionAlert->setText(tr("A new version is available. Please update your wallet!"));
-            versionAlert->setVisible(true);
-        }
-
-    }
-
     if(_clientModel)
     {
+        //Check for new version and show an alert
+        if(clientModel->isNewVersionAvailable())
+        {
+            if(clientModel->VersionOutDated())
+            {
+                versionAlert->setText(tr("A new version is available. Please update your wallet!"));
+                versionAlert->setVisible(true);
+            }
+
+        }
+
         // Create system tray menu (or setup the dock menu) that late to prevent users from calling actions,
         // while the client has not yet fully loaded
         createTrayIconMenu();
