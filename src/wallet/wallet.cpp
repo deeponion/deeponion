@@ -266,9 +266,7 @@ bool CWallet::AddKeyPubKeyWithDB(CWalletDB &walletdb, const CKey& secret, const 
     }
 
     if (!IsCrypted()) {
-        return walletdb.WriteKey(pubkey,
-                                                 secret.GetPrivKey(),
-                                                 mapKeyMetadata[pubkey.GetID()]);
+        return walletdb.WriteKey(pubkey, secret.GetPrivKey(), mapKeyMetadata[pubkey.GetID()]);
     }
     return true;
 }
@@ -353,6 +351,11 @@ bool CWallet::AddCScript(const CScript& redeemScript)
 // serves to disable the trivial sendmoney when OS account compromised
 // provides no real security
 bool fWalletUnlockStakingOnly = false;
+
+// optional setting to unlock wallet for DeepSend only
+// serves to disable the trivial sendmoney when OS account compromised
+// provides no real security
+bool fWalletUnlockDeepSendOnly = false;
 
 bool CWallet::LoadCScript(const CScript& redeemScript)
 {
@@ -5492,4 +5495,95 @@ CTxDestination CWallet::AddAndGetDestinationForScript(const CScript& script, Out
     }
     default: assert(false);
     }
+}
+
+bool CWallet::IsUnLockedForStaking()
+{
+    return ((!IsLocked() && fWalletUnlockStakingOnly) || (!IsLocked() && !fWalletUnlockDeepSendOnly && !fWalletUnlockStakingOnly));
+}
+
+bool CWallet::IsUnLockedForDeepsend()
+{
+    return ((!IsLocked() && fWalletUnlockDeepSendOnly) || (!IsLocked() && !fWalletUnlockDeepSendOnly && !fWalletUnlockStakingOnly));
+}
+
+std::string CWallet::GetOneSelfAddress()
+{
+	// we want to get a self address. it doesn't matter which address we get, 
+	// whether it is an address in the sending selected coins or not.
+
+	if(oneSelfAddress != "")
+		return oneSelfAddress;
+
+    std::map<CTxDestination, CAmount> balances = GetAddressBalances();
+    bool done = false;
+
+    for (const std::set<CTxDestination>& grouping: GetAddressGroupings()) {
+        for (const CTxDestination& address: grouping)
+        {
+            if(balances[address] > COIN) {
+                oneSelfAddress = EncodeDestination(address);
+                done = true;
+                break;
+            }
+        }
+
+        if(done)
+            break;
+    }
+
+	return oneSelfAddress;
+}
+
+std::string CWallet::GetRandomSelfAddress()
+{
+	if(oneSelfAddress != "")
+		return oneSelfAddress;
+
+    std::vector<std::string> vAddresses;
+    for (const std::set<CTxDestination>& grouping: GetAddressGroupings()) {
+        for (const CTxDestination& address: grouping)
+        {
+            vAddresses.push_back (EncodeDestination(address));
+        }
+    }
+
+    int randomIndex = rand() % vAddresses.size();
+	return vAddresses[randomIndex];
+}
+
+std::string CWallet::GetAddressPubKey(std::string strAddress)
+{
+	CTxDestination saddr = DecodeDestination(strAddress);
+    CKeyID* keyID = boost::get<CKeyID>(&saddr);
+    if (!keyID) 
+    {
+    	LogPrintf("GetAddressPubKey(): Address does not refer to key");
+    	return "";
+    }
+    
+    CKey key;
+    if (!GetKey(*keyID, key)) 
+    {
+    	LogPrintf("GetAddressPubKey(): Private key not available\n");
+    	return "";
+    }
+    
+    CPubKey vchPubKey = key.GetPubKey();
+    std::string pubKey = HexStr(vchPubKey.begin(), vchPubKey.end());
+	return pubKey;
+}
+
+
+int CWallet::GetSelfAddressCount()
+{
+	int count = 0;
+    for (const std::pair<CTxDestination, CAddressBookData>& entry: mapAddressBook) 
+    {
+        if (::IsMine(*this, entry.first)) 
+        	count++;
+    }
+
+    LogPrint(BCLog::DEEPSEND, ">> GetSelfAddressCount: count = %d\n", count);
+	return count;
 }

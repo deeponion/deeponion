@@ -391,6 +391,7 @@ std::string HelpMessage(HelpMessageMode mode)
     strUsage += HelpMessageOpt("-bantime=<n>", strprintf(_("Number of seconds to keep misbehaving peers from reconnecting (default: %u)"), DEFAULT_MISBEHAVING_BANTIME));
     strUsage += HelpMessageOpt("-bind=<addr>", _("Bind to given address and always listen on it. Use [host]:port notation for IPv6"));
     strUsage += HelpMessageOpt("-connect=<ip>", _("Connect only to the specified node(s); -connect=0 disables automatic connections (the rules for this peer are the same as for -addnode)"));
+    strUsage += HelpMessageOpt("-deepsendnode", strprintf(_("Participate in the DeepSend network and perform services for the network when possible. (default: %u)"), DEFAULT_DEEPSENDNODE));
     strUsage += HelpMessageOpt("-discover", _("Discover own IP addresses (default: 1 when listening and no -externalip or -proxy)"));
     strUsage += HelpMessageOpt("-dns", _("Allow DNS lookups for -addnode, -seednode and -connect") + " " + strprintf(_("(default: %u)"), DEFAULT_NAME_LOOKUP));
     strUsage += HelpMessageOpt("-dnsseed", _("Query for peer addresses via DNS lookup, if low on addresses (default: 1 unless -connect used)"));
@@ -413,6 +414,7 @@ std::string HelpMessage(HelpMessageMode mode)
     strUsage += HelpMessageOpt("-timeout=<n>", strprintf(_("Specify connection timeout in milliseconds (minimum: 1, default: %d)"), DEFAULT_CONNECT_TIMEOUT));
     strUsage += HelpMessageOpt("-torcontrol=<ip>:<port>", strprintf(_("Tor control port to use if onion listening enabled (default: %s)"), DEFAULT_TOR_CONTROL));
     strUsage += HelpMessageOpt("-torpassword=<pass>", _("Tor control port password (default: empty)"));
+    strUsage += HelpMessageOpt("-torport=<port>", _("Start internal Tor node on port (default: 9081)"));
 #ifdef USE_UPNP
 #if USE_UPNP
     strUsage += HelpMessageOpt("-upnp", _("Use UPnP to map the listening port (default: 1 when listening and no -proxy)"));
@@ -1115,6 +1117,9 @@ bool AppInitParameterInteraction()
     if (gArgs.GetBoolArg("-peerbloomfilters", DEFAULT_PEERBLOOMFILTERS))
         nLocalServices = ServiceFlags(nLocalServices | NODE_BLOOM);
 
+    if (gArgs.GetBoolArg("-deepsendnode", DEFAULT_DEEPSENDNODE))
+        nLocalServices = ServiceFlags(nLocalServices | NODE_DEEP_SEND);
+
     if (gArgs.GetArg("-rpcserialversion", DEFAULT_RPC_SERIALIZE_VERSION) < 0)
         return InitError("rpcserialversion must be non-negative.");
 
@@ -1383,7 +1388,7 @@ bool AppInitMain()
     } else {
         // DeepOnion always uses Tor, if not specified, connect to our default Tor node.
         CService onionProxy;
-        if (!Lookup("127.0.0.1", onionProxy, 9081, fNameLookup)) {
+        if (!Lookup("127.0.0.1", onionProxy, gArgs.GetArg("-torport", 9081), fNameLookup)) {
             return InitError(strprintf(_("Invalid -onion address or hostname: '%s'"), onionArg));
         }
         proxyType addrOnion = proxyType(onionProxy, proxyRandomize);

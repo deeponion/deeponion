@@ -39,6 +39,33 @@ const char *SENDCMPCT="sendcmpct";
 const char *CMPCTBLOCK="cmpctblock";
 const char *GETBLOCKTXN="getblocktxn";
 const char *BLOCKTXN="blocktxn";
+// deepsend message types
+const char *DS_SVCAVAIL="asvcavail";
+const char *DS_SVCREPLY="asvcreply";
+const char *DS_MIXREQ="mixrequest";
+const char *DS_MIXREPLY="mixreply";
+const char *DS_GRNTREQ="guarantreq";
+const char *DS_GRNTREPLY="grntreply";
+const char *DS_CHKGRNT="checkguarant";
+const char *DS_CHKGRNTRPLY="chkgreply";
+const char *DS_MSIGADDR="msigaddr";
+const char *DS_MSIGADDRRPLY="msigreply";
+const char *DS_CHKMSTX="checkmstx";
+const char *DS_MSDISTTX="msdisttx";
+const char *DS_MSTXRELAY="mstxrelay";
+const char *DS_MSDISTRELAY="msdistrelay";
+const char *DS_DSTTXCMPLT="sddstdone";
+const char *DS_CHKDSTTXRELAY="chksdrelay";
+const char *DS_CHKDSTTXREQ="checksdtx";
+const char *DS_SENDCMPLT="sendcmplt";
+const char *DS_SERVICEANN="mixservice";
+const char *DS_CANCEL="canceldstx";
+const char *DS_CANCELCMPLT="cancelcmplt";
+const char *DS_MSIGMIXSENT="msigmixsent";
+const char *DS_MSIGGRTSENT="msiggrtsent";
+const char *DS_CHKSDRELAY="chksdrelay";
+const char *DS_CHKSENDERTX="chksendertx";
+
 } // namespace NetMsgType
 
 /** All known message types. Keep this in the same order as the list of
@@ -71,7 +98,28 @@ const static std::string allNetMessageTypes[] = {
     NetMsgType::CMPCTBLOCK,
     NetMsgType::GETBLOCKTXN,
     NetMsgType::BLOCKTXN,
+    NetMsgType::DS_SVCAVAIL,
+    NetMsgType::DS_SVCREPLY,
+    NetMsgType::DS_MIXREQ,
+    NetMsgType::DS_MIXREPLY,
+    NetMsgType::DS_GRNTREQ,
+    NetMsgType::DS_GRNTREPLY,
+    NetMsgType::DS_CHKGRNT,
+    NetMsgType::DS_CHKGRNTRPLY,
+    NetMsgType::DS_MSIGADDR,
+    NetMsgType::DS_MSIGADDRRPLY,
+    NetMsgType::DS_CHKMSTX,
+    NetMsgType::DS_MSDISTTX,
+    NetMsgType::DS_MSTXRELAY,
+    NetMsgType::DS_DSTTXCMPLT,
+    NetMsgType::DS_CHKDSTTXRELAY,
+    NetMsgType::DS_CHKDSTTXREQ,
+    NetMsgType::DS_SENDCMPLT,
+    NetMsgType::DS_SERVICEANN,
+    NetMsgType::DS_CANCEL,
+    NetMsgType::DS_CANCELCMPLT,
 };
+
 const static std::vector<std::string> allNetMessageTypesVec(allNetMessageTypes, allNetMessageTypes+ARRAYLEN(allNetMessageTypes));
 
 CMessageHeader::CMessageHeader(const MessageStartChars& pchMessageStartIn)

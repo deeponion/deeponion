@@ -89,6 +89,13 @@
     <file alias="arrow_down_white">res/icons/arrowdown-white.png</file>
     <file alias="deepVaultLogoWhite">res/icons/dv-white-logo.png</file>
     <file alias="deepVaultLogoColor">res/icons/dv-color-logo.png</file>
+    <file alias="mixer_off">res/icons/mixer_off.png</file>
+    <file alias="mixer_process">res/icons/mixer_process.png</file>
+    <file alias="mixer_on">res/icons/mixer_on.png</file>        
+	<file alias="deepsendBlueDark">res/icons/deepsend-blue-dark-theme.png</file>
+	<file alias="deepsendBlueLight">res/icons/deepsend-blue-light-theme.png</file>
+	<file alias="deepsendGreenDark">res/icons/deepsend-green-dark-theme.png</file>
+	<file alias="deepsendGreenLight">res/icons/deepsend-green-light-theme.png</file>
   </qresource>
   <qresource prefix="/icons/purple">
       <file alias="overview">res/icons/purple/overview.png</file>

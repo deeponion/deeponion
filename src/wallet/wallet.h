@@ -43,6 +43,7 @@ extern unsigned int nTxConfirmTarget;
 extern bool bSpendZeroConfChange;
 extern bool fWalletRbf;
 extern bool fWalletUnlockStakingOnly;
+extern bool fWalletUnlockDeepSendOnly;
 
 static const unsigned int DEFAULT_KEYPOOL_SIZE = 1000;
 //! -paytxfee default
@@ -692,7 +693,6 @@ private:
     std::mutex mutexScanning;
     friend class WalletRescanReserver;
 
-
     /**
      * Select a set of coins such that nValueRet >= nTargetValue and at least
      * all coins from coinControl are selected; Never select unconfirmed coins
@@ -711,6 +711,8 @@ private:
     int64_t nNextResend;
     int64_t nLastResend;
     bool fBroadcastTransactions;
+    
+    std::string oneSelfAddress;
 
     /**
      * Used to keep track of spent outpoints, and
@@ -848,6 +850,7 @@ public:
         nRelockTime = 0;
         fAbortRescan = false;
         fScanningWallet = false;
+        oneSelfAddress = "";
     }
 
     std::map<uint256, CWalletTx> mapWallet;
@@ -1202,6 +1205,14 @@ public:
      * This function will automatically add the necessary scripts to the wallet.
      */
     CTxDestination AddAndGetDestinationForScript(const CScript& script, OutputType);
+
+    bool IsUnLockedForStaking();
+    bool IsUnLockedForDeepsend();
+
+    int GetSelfAddressCount();
+    std::string GetOneSelfAddress();
+    std::string GetRandomSelfAddress();
+    std::string GetAddressPubKey(std::string strAddress);
 };
 
 /** A key allocated from the key pool. */

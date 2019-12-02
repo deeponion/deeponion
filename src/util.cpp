@@ -253,9 +253,10 @@ const CLogCategoryDesc LogCategories[] =
     {BCLog::LEVELDB, "leveldb"},
     {BCLog::POS, "pos"},
     {BCLog::STAKE, "stake"},
-    {BCLog::STEALTH, "stealth"},   
+    {BCLog::STEALTH, "stealth"},
     {BCLog::WALLET, "wallet"},
-    {BCLog::DEEPVAULT, "deepvault"},   
+    {BCLog::DEEPVAULT, "deepvault"},
+    {BCLog::DEEPSEND, "deepsend"},
     {BCLog::ALL, "1"},
     {BCLog::ALL, "all"},
 };
@@ -965,3 +966,15 @@ int64_t GetStartupTime()
 {
     return nStartupTime;
 }
+
+const std::string currentDateTime() 
+{
+    time_t     now = time(0);
+    struct tm  tstruct;
+    char       buf[80];
+    tstruct = *localtime(&now);
+    strftime(buf, sizeof(buf), "%Y-%m-%d.%X", &tstruct);
+
+    return buf;
+}
+

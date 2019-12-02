@@ -16,6 +16,7 @@ void ThemeDarkGreen::init()
 
 	aboutImg = ":/images/about_dark_green";
     deepOnionLogo = ":/icons/DeepOnionLogoGreen";
+    sendDeepSendIco = ":/icons/deepsendGreenDark";
     
     ThemeDark::init();
 }
