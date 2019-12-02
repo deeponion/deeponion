@@ -674,6 +674,8 @@ void RPCConsole::setClientModel(ClientModel *model)
         // Provide initial values
         ui->clientVersion->setText(model->formatFullVersion());
         ui->clientUserAgent->setText(model->formatSubVersion());
+        //Check for new Version
+        model->isNewVersionAvailable();
         ui->versionCheck->setText(tr("This version is ") + model->VersionStatus());
         if(model->VersionOutDated())
         {
@@ -1000,7 +1002,7 @@ void RPCConsole::on_scanForUpdatesButton_clicked()
 {
     ui->versionCheck->setText("This version is ...");
     clientModel->isNewVersionAvailable();
-    ui->versionCheck->setText("This version is " + clientModel->VersionStatus());
+    ui->versionCheck->setText(("This version is ")+clientModel->VersionStatus());
 }
 
 void RPCConsole::scrollToEnd()
