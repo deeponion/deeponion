@@ -341,7 +341,7 @@ bool ClientModel::isNewVersionAvailable()
     QNetworkRequest request(url);
     QNetworkAccessManager nam;
     nam.setProxy(proxy);
-    QNetworkReply * reply = nam.get(request);
+    QNetworkReply* reply = nam.get(request);
     QTimer timer;
     timer.setSingleShot(true);
     timer.start(5000);
