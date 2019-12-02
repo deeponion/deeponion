@@ -61,6 +61,11 @@ const char *DS_SENDCMPLT="sendcmplt";
 const char *DS_SERVICEANN="mixservice";
 const char *DS_CANCEL="canceldstx";
 const char *DS_CANCELCMPLT="cancelcmplt";
+const char *DS_MSIGMIXSENT="msigmixsent";
+const char *DS_MSIGGRTSENT="msiggrtsent";
+const char *DS_CHKSDRELAY="chksdrelay";
+const char *DS_CHKSENDERTX="chksendertx";
+
 } // namespace NetMsgType
 
 /** All known message types. Keep this in the same order as the list of
