@@ -719,6 +719,9 @@
              <property name="topMargin">
               <number>5</number>
              </property>
+             <property name="leftMargin">
+              <number>10</number>
+             </property>
              <property name="rightMargin">
               <number>5</number>
              </property>
