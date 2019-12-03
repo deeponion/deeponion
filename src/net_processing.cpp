@@ -1536,47 +1536,64 @@ static void processCancelRunawayProcess(CNode* pfrom, CConnman* connman)
 			bool b = SignMessageUsingAddress(cancelTx, pSelfAddress, vchSig);
 			if(b) {
 				std::string source = "";
+
+				// Get the details, of the outputs to decide who best to send the cancel to.
+				std::string txid;
+                int voutnSender;
+                std::string pkSender;
+                CAmount amountSender;
+                pCurrentAnonymousTxInfo->GetMultisigTxOutInfo(ROLE_SENDER, txid, voutnSender, pkSender, amountSender);
+
+                int voutnMixer;
+                std::string pkMixer;
+                CAmount amountMixer;
+                pCurrentAnonymousTxInfo->GetMultisigTxOutInfo(ROLE_MIXER, txid, voutnMixer, pkMixer, amountMixer);
+
+                int voutnGuarantor;
+                std::string pkGuarantor;
+                CAmount amountGuarantor;
+                pCurrentAnonymousTxInfo->GetMultisigTxOutInfo(ROLE_SENDER, txid, voutnGuarantor, pkGuarantor, amountGuarantor);
+
 				AnonymousTxRole role = pCurrentAnonymousTxInfo->GetRole();
 				CNode* pNode = NULL;
 				switch(role) {
                     case ROLE_SENDER:
                         source = "sender";
-                        pNode = pCurrentAnonymousTxInfo->GetNode(ROLE_GUARANTOR);
-                        if(pNode == NULL)
+                        // The guarantor has paid in, use them first
+                        if(amountGuarantor > 0) {
+                            pNode = pCurrentAnonymousTxInfo->GetNode(ROLE_GUARANTOR);
+                        }
+                        // If the gurnator hasn't paid in or has gone away, use the mixer.
+                        if(pNode == NULL) {
                             pNode = pCurrentAnonymousTxInfo->GetNode(ROLE_MIXER);
+                        }
                         break;
                     case ROLE_MIXER:
                         source = "mixer";
-                        pNode = pCurrentAnonymousTxInfo->GetNode(ROLE_SENDER);
-                        if(pNode == NULL)
+                        // The guarantor has paid in, use them first
+                        if(amountGuarantor > 0) {
                             pNode = pCurrentAnonymousTxInfo->GetNode(ROLE_GUARANTOR);
+                        }
+                        // If the gurnator hasn't paid in or has gone away, use the sender.
+                        if(pNode == NULL) {
+                            pNode = pCurrentAnonymousTxInfo->GetNode(ROLE_SENDER);
+                        }
                         break;
                     case ROLE_GUARANTOR:
-                        source = "gurantor";
-                        pNode = pCurrentAnonymousTxInfo->GetNode(ROLE_MIXER);
-                        if(pNode == NULL)
+                        source = "guarantor";
+                        // The mixer has paid in, use them first
+                        if(amountMixer > 0) {
+                            pNode = pCurrentAnonymousTxInfo->GetNode(ROLE_MIXER);
+                        }
+                        // If the mixer hasn't paid in or has gone away, use the sender.
+                        if(pNode == NULL) {
                             pNode = pCurrentAnonymousTxInfo->GetNode(ROLE_SENDER);
+                        }
                         break;
                     default:
                         LogPrint(BCLog::DEEPSEND, ">>  Should Cancel Failed - Invalid role\n");
             	}
             	if(pNode != nullptr && source.length() > 0) {
-                    // send tx to both sender and mixer
-                    std::string txid;
-                    int voutnSender;
-                    std::string pkSender;
-                    CAmount amountSender;
-                    pCurrentAnonymousTxInfo->GetMultisigTxOutInfo(ROLE_SENDER, txid, voutnSender, pkSender, amountSender);
-
-                    int voutnMixer;
-                    std::string pkMixer;
-                    CAmount amountMixer;
-                    pCurrentAnonymousTxInfo->GetMultisigTxOutInfo(ROLE_MIXER, txid, voutnMixer, pkMixer, amountMixer);
-
-                    int voutnGuarantor;
-                    std::string pkGuarantor;
-                    CAmount amountGuarantor;
-                    pCurrentAnonymousTxInfo->GetMultisigTxOutInfo(ROLE_SENDER, txid, voutnGuarantor, pkGuarantor, amountGuarantor);
 
                     connman->PushMessage(pNode, msgMaker.Make(NetMsgType::DS_CANCEL, pCurrentAnonymousTxInfo->GetAnonymousId(), cancelTx, pSelfAddress, source, voutnSender, pkSender, amountSender,
                             voutnMixer, pkMixer, amountMixer, voutnGuarantor, pkGuarantor, amountGuarantor, vchSig));
@@ -4224,7 +4241,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 
 				// send tx to both mixer and guarantor
 				connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::DS_SENDCMPLT, anonymousTxId, committedTx, vchSig));
-				CNode* pNode = pCurrentAnonymousTxInfo->GetNode(ROLE_GUARANTOR);
+				CNode* pNode = pCurrentAnonymousTxInfo->GetNode(ROLE_MIXER);
 				connman->PushMessage(pNode, msgMaker.Make(NetMsgType::DS_SENDCMPLT, anonymousTxId, committedTx, vchSig));
 			}
 			else
@@ -4434,13 +4451,50 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
             // We have either a signed by 1 normal distribution or cancel distribution, so should be able to sign and broadcast.
 			bool b = SignMultiSigDistributionTx();
 			if(!b) {
-				std::string err = "processing message " + strCommand + " - couldn't sign cancel tx.";
-				return error(err.c_str());
+			    // If there is a problem with the original distribution TX we may have just been sent a new one to sign.
+			    if(isCanceled == 0) {
+	                // Overwrite the distribution
+	                pCurrentAnonymousTxInfo->SetTx(cancelTx, 1);
+	                pCurrentAnonymousTxInfo->SetVoutAndScriptPubKey(ROLE_SENDER, voutnSender, pkSender, amountSender);
+	                pCurrentAnonymousTxInfo->SetVoutAndScriptPubKey(ROLE_MIXER, voutnMixer, pkMixer, amountMixer);
+	                pCurrentAnonymousTxInfo->SetVoutAndScriptPubKey(ROLE_GUARANTOR, voutnGuarantor, pkGuarantor, amountGuarantor);
+	                logText = "Unable to sign original distribution, changed to use new distribution TX.";
+
+	                b = SignMultiSigDistributionTx();
+	                if(!b) {
+	                    std::string err = "processing message " + strCommand + " - couldn't sign new redistribution tx.";
+	                    return error(err.c_str());
+	                }
+			    } else {
+                    std::string err = "processing message " + strCommand + " - couldn't sign cancel tx.";
+                    return error(err.c_str());
+			    }
 			}
 			b = SendMultiSigDistributionTx(connman);
 			if(!b) {
-				std::string err = "processing message " + strCommand + " - couldn't send cancel tx.";
-				return error(err.c_str());
+                // If there is a problem with the original distribution TX we may have just been sent a new one to sign.
+                if(isCanceled == 0) {
+                    // Overwrite the distribution
+                    pCurrentAnonymousTxInfo->SetTx(cancelTx, 1);
+                    pCurrentAnonymousTxInfo->SetVoutAndScriptPubKey(ROLE_SENDER, voutnSender, pkSender, amountSender);
+                    pCurrentAnonymousTxInfo->SetVoutAndScriptPubKey(ROLE_MIXER, voutnMixer, pkMixer, amountMixer);
+                    pCurrentAnonymousTxInfo->SetVoutAndScriptPubKey(ROLE_GUARANTOR, voutnGuarantor, pkGuarantor, amountGuarantor);
+                    logText = "Unable to send original distribution, changed to use new distribution TX.";
+
+                    b = SignMultiSigDistributionTx();
+                    if(!b) {
+                        std::string err = "processing message " + strCommand + " - couldn't sign new redistribution tx.";
+                        return error(err.c_str());
+                    }
+                    b = SendMultiSigDistributionTx(connman);
+                    if(!b) {
+                        std::string err = "processing message " + strCommand + " - couldn't send new redistribution tx.";
+                        return error(err.c_str());
+                    }
+                } else {
+                    std::string err = "processing message " + strCommand + " - couldn't send cancel tx.";
+                    return error(err.c_str());
+                }
 			}
 
 			std::string selfAddress = pCurrentAnonymousTxInfo->GetSelfAddress();
@@ -4480,7 +4534,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
                 source = "mixer";
                 break;
             case ROLE_GUARANTOR:
-                source = "gurantor";
+                source = "guarantor";
                 break;
             default:
 				std::string err = "processing message " + strCommand + " - invalid role.";

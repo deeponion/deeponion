@@ -6335,7 +6335,10 @@ std::string CreateMultiSigDistributionTx()
 
 std::string CreateCancelDistributionTx(bool runAwayProcess)
 {
-	// extract info from deposit tx's
+    // If we've timed out yet all have paid in. Create a new full distribution instead.
+	if(pCurrentAnonymousTxInfo->CheckDepositTxes() && pCurrentAnonymousTxInfo->CheckSendTx()) {
+	    return CreateMultiSigDistributionTx();
+	}
 
 	// now creating raw distribution tx
     CMutableTransaction rawMutableTx;
@@ -6860,12 +6863,11 @@ void UpdateAnonymousServiceList(CNode* pNode, std::string keyAddress, std::strin
 	}
 	
 	// *** for deepsend testing: only allow certain address
-	/*
-	if(addr != std::string("xu7nhy6qokb3afrf.onion") && addr != std::string("uhyrk5j3h76pbiwk.onion") && addr != std::string("2botmkfkdxzsax3u.onion")) {
-		LogPrint(BCLog::DEEPSEND, ">> UpdateAnonymousServiceList. Not allowed address, addr = %s\n", addr.c_str());
-		return;
-	}
-	*/
+//	if(addr != std::string("chi6rlwedk3xmtua.onion") && addr != std::string("r4kyfixzyw3dbav2.onion")) {
+//	    LogPrint(BCLog::DEEPSEND, ">> UpdateAnonymousServiceList. Not allowed address, addr = %s\n", addr.c_str());
+//		return;
+//	}
+
 
 	// ignore banned address
 	if(connman->IsBanned((CNetAddr)pNode->addr)) {
