@@ -50,7 +50,6 @@ void ThemeLight::init()
     hdDisabledIco = ":/icons/hd_disabled";
     warningIco = ":/icons/warning";
     deepVaultLogoIco = ":/icons/deepVaultLogoColor";
-    sendDeepSendIco = ":/icons/deepsendBlueLight";
     
     spinnerPath = ":/movies/spinner-%1";
 

@@ -74,6 +74,8 @@ UniValue getdeepsendinfo(const JSONRPCRequest& request)
 			"\nResult:\n"
 			"{\n"
 			"  \"enabled\": true,             (boolean) If deepsend is enabled\n"
+	        "  \"servicenodes\": 2,           (int) Currently connected service nodes\n"
+            "  \"anontxinprogress\": true,    (boolean) If deepsend tx is in progress\n"
 			"}\n"
 			"\nExamples:\n"
 			+ HelpExampleCli("getdeepsendinfo", "")
@@ -85,6 +87,8 @@ UniValue getdeepsendinfo(const JSONRPCRequest& request)
     UniValue obj(UniValue::VOBJ);
 
     obj.push_back(Pair("enabled", CheckAnonymousServiceConditions() ));
+    obj.push_back(Pair("servicenodes", g_connman->GetUpdatedServiceListCount() ));
+    obj.push_back(Pair("anontxinprogress", IsCurrentAnonymousTxInProcess() ));
 
     return obj;
 }

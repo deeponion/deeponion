@@ -64,7 +64,6 @@ void ThemeDark::init()
     hdDisabledIco = ":/icons/hd_disabled_white";
     warningIco = ":/icons/warning_white";
     deepVaultLogoIco = ":/icons/deepVaultLogoWhite";
-    sendDeepSendIco = ":/icons/deepsendBlueDark";
     
     spinnerPath = ":/movies/spinner-%1";
 

@@ -16,6 +16,7 @@ void ThemeFancyPurple::init()
 
 	aboutImg = ":/images/about_dark_purple";
     deepOnionLogo = ":/icons/DeepOnionLogoPurple";
+    sendDeepSendIco = ":/icons/deepsendPurpleDark";
     
     ThemeDark::init();
 }

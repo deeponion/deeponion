@@ -26,6 +26,7 @@ void ThemeLightPurple::init()
     
     aboutImg = ":/images/about_light_purple";
     deepOnionLogo = ":/icons/DeepOnionLogoPurple";
+    sendDeepSendIco = ":/icons/deepsendPurpleLight";
     
     ThemeLight::init();
 }
