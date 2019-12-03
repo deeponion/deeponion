@@ -2891,7 +2891,7 @@ uint64_t CConnman::CalculateKeyedNetGroup(const CAddress& ad) const
 int CConnman::GetUpdatedServiceListCount()
 {
 	int sz = mapAnonymousServices.size();
-	LogPrint(BCLog::DEEPSEND, ">> GetUpdatedServiceListCount: init sz = %d\n", sz);
+	// LogPrint(BCLog::DEEPSEND, ">> GetUpdatedServiceListCount: init sz = %d\n", sz);
 
 	std::map<std::string, std::string> mapNew;
 	{
@@ -2922,7 +2922,7 @@ int CConnman::GetUpdatedServiceListCount()
 
 	mapAnonymousServices = mapNew;
 	sz = mapAnonymousServices.size();
-	LogPrint(BCLog::DEEPSEND, ">> GetUpdatedServiceListCount: after sz = %d\n", sz);
+	// LogPrint(BCLog::DEEPSEND, ">> GetUpdatedServiceListCount: after sz = %d\n", sz);
 
 	return sz;
 }

@@ -118,6 +118,10 @@ const static std::string allNetMessageTypes[] = {
     NetMsgType::DS_SERVICEANN,
     NetMsgType::DS_CANCEL,
     NetMsgType::DS_CANCELCMPLT,
+    NetMsgType::DS_MSIGMIXSENT,
+    NetMsgType::DS_MSIGGRTSENT,
+    NetMsgType::DS_CHKSDRELAY,
+    NetMsgType::DS_CHKSENDERTX,	
 };
 
 const static std::vector<std::string> allNetMessageTypesVec(allNetMessageTypes, allNetMessageTypes+ARRAYLEN(allNetMessageTypes));

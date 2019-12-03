@@ -1536,10 +1536,7 @@ static void processCancelRunawayProcess(CNode* pfrom, CConnman* connman)
 			bool b = SignMessageUsingAddress(cancelTx, pSelfAddress, vchSig);
 			if(b) {
 				std::string source = "";
-				LogPrint(BCLog::DEEPSEND, ">>  Should Cancel Failed - DEBUG 1\n");
 				AnonymousTxRole role = pCurrentAnonymousTxInfo->GetRole();
-				LogPrint(BCLog::DEEPSEND, ">>  Should Cancel Failed - DEBUG 2\n");
-				LogPrint(BCLog::DEEPSEND, ">>  Should Cancel Failed - DEBUG 3\n");
 				CNode* pNode = NULL;
 				switch(role) {
                     case ROLE_SENDER:

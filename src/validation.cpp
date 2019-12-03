@@ -5956,13 +5956,13 @@ bool SignMessageUsingAddress(std::string message, std::string address, std::vect
 	
 	{
 	    LOCK2(cs_main, pwallet->cs_wallet);
-		LogPrint(BCLog::DEEPSEND, ">> SignMessageUsingAddress After lock\n");
+		// LogPrint(BCLog::DEEPSEND, ">> SignMessageUsingAddress After lock\n");
 	    
         //Make sure wallet is either unflagged unlocked or unlocked and flagged for deepsend only
         if((pwallet->IsLocked() || (!pwallet->IsLocked() && !fWalletUnlockDeepSendOnly && fWalletUnlockStakingOnly)))
             return "Unlock wallet for DeepSend";
 
-		LogPrint(BCLog::DEEPSEND, ">> SignMessageUsingAddress: EnsureWalletIsUnlocked done\n");
+		// LogPrint(BCLog::DEEPSEND, ">> SignMessageUsingAddress: EnsureWalletIsUnlocked done\n");
 		CTxDestination addr = DecodeDestination(address);
 
 	    if (!IsValidDestination(addr))
@@ -5996,7 +5996,7 @@ bool SignMessageUsingAddress(std::string message, std::string address, std::vect
 		}
 	}
 
-	LogPrint(BCLog::DEEPSEND, ">> SignMessageUsingAddress: completed\n");
+	// LogPrint(BCLog::DEEPSEND, ">> SignMessageUsingAddress: completed\n");
     return true;
 }
 
