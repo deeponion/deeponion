@@ -55,7 +55,7 @@ const char *DS_MSDISTTX="msdisttx";
 const char *DS_MSTXRELAY="mstxrelay";
 const char *DS_MSDISTRELAY="msdistrelay";
 const char *DS_DSTTXCMPLT="dsttxcmplt";
-const char *DS_CHKDSTTXRELAY="chkdsttxrelay";
+const char *DS_CHKDTXRLAY="chkdtxrlay";
 const char *DS_CHKDSTTXREQ="chkdsttxreq";
 const char *DS_SENDCMPLT="sendcmplt";
 const char *DS_SERVICEANN="mixservice";
@@ -112,7 +112,7 @@ const static std::string allNetMessageTypes[] = {
     NetMsgType::DS_MSDISTTX,
     NetMsgType::DS_MSTXRELAY,
     NetMsgType::DS_DSTTXCMPLT,
-    NetMsgType::DS_CHKDSTTXRELAY,
+    NetMsgType::DS_CHKDTXRLAY,
     NetMsgType::DS_CHKDSTTXREQ,
     NetMsgType::DS_SENDCMPLT,
     NetMsgType::DS_SERVICEANN,
