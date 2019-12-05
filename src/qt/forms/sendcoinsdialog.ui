@@ -671,8 +671,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>1133</width>
-            <height>190</height>
+            <width>1141</width>
+            <height>209</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0,0,0,1">
@@ -716,11 +716,11 @@
              <property name="spacing">
               <number>0</number>
              </property>
-             <property name="topMargin">
-              <number>5</number>
-             </property>
              <property name="leftMargin">
               <number>10</number>
+             </property>
+             <property name="topMargin">
+              <number>5</number>
              </property>
              <property name="rightMargin">
               <number>5</number>
@@ -773,7 +773,7 @@
              <item>
               <widget class="QLabel" name="label_3">
                <property name="text">
-                <string>(DeepSend - each send is limited to max 1 ONIONs. 1% fee (min 0.01 ONION) will be added to the tx)</string>
+                <string>(DeepSend - each send is limited to maximum 5 ONION (minimum 0.05 ONION). 1% fee (min 0.01 ONION) will be added to the tx)</string>
                </property>
                <property name="margin">
                 <number>2</number>
