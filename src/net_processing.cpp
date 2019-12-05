@@ -3335,6 +3335,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 		{
 			LOCK(cs_deepsend);
 
+			pCurrentAnonymousTxInfo->clean(true);
 			logText = "Received Guarantor request. Accepted.";
 			pCurrentAnonymousTxInfo->AddToLog(logText);
 			logText = "Set AnonymousId = " + anonymousTxId;
