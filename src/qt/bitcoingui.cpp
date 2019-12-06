@@ -1023,7 +1023,8 @@ void BitcoinGUI::updateMixerIcon()
     if(cnt > 1)
 		b = true;
 
-    labelMixerIcon->setPixmap(QIcon(":/icons/mixer_off").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
+//    labelMixerIcon->setPixmap(QIcon(":/icons/mixer_off").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
+    labelMixerIcon->setPixmap(platformStyle->SingleColorIcon(":/icons/mixer_off").pixmap(STATUSBAR_ICONSIZE, STATUSBAR_ICONSIZE));
 
     if (g_connman == 0 || g_connman->GetNodeCount(CConnman::CONNECTIONS_ALL) == 0)
         labelMixerIcon->setToolTip(tr("Anonymous DeepSend Not Available - The wallet is offline"));
@@ -1580,6 +1581,7 @@ void BitcoinGUI::refreshStyle()
     frameBlocks->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getStatusBarBackgroundColor());
     labelWalletEncryptionIcon->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getStatusBarBackgroundColor());
     labelStakingIcon->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getStatusBarBackgroundColor());
+    labelMixerIcon->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getStatusBarBackgroundColor());
     labelOnionIcon->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getStatusBarBackgroundColor());
     labelBlocksIcon->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getStatusBarBackgroundColor());
     labelWalletHDStatusIcon->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getStatusBarBackgroundColor());
