@@ -114,6 +114,7 @@ namespace BCLog {
         WALLET      = (1 << 24),
         DEEPVAULT   = (1 << 25),
         DEEPSEND    = (1 << 26),
+		CHECKPOINT  = (1 << 27),
         ALL         = ~(uint32_t)0,
     };
 }
