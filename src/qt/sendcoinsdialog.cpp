@@ -272,10 +272,7 @@ void SendCoinsDialog::on_sendButton_clicked()
     WalletModel::SendCoinsReturn prepareStatus;
 
     // Always use a CCoinControl instance, use the CoinControlDialog instance if CoinControl has been enabled
-    CCoinControl ctrl;
-    if (model->getOptionsModel()->getCoinControlFeatures())
-        ctrl = *CoinControlDialog::coinControl();
-
+    CCoinControl ctrl = *CoinControlDialog::coinControl();
     updateCoinControlState(ctrl);
 
     prepareStatus = model->prepareTransaction(currentTransaction, ctrl);
@@ -733,6 +730,14 @@ void SendCoinsDialog::updateCoinControlState(CCoinControl& ctrl)
     } else {
         ctrl.m_feerate.reset();
     }
+    
+    if(ui->checkBoxDeepSend->isChecked()) {
+    	ctrl.SetDeepSend(true);
+    }
+    else {
+    	ctrl.SetDeepSend(false);
+    }
+    
     // Avoid using global defaults when sending money from the GUI
     // Either custom fee will be used or if not selected, the confirmation target from dropdown box
     ctrl.m_confirm_target = getConfTargetForIndex(ui->confTargetSelector->currentIndex());
