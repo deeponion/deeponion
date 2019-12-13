@@ -1,3 +1,9 @@
+deeponion (2.1.0-NonDV) bionic; urgency=medium
+
+  * DeepSend Release.
+
+ -- Liam Alford (nezero) <nezero@nezero.com>  Thu, 17 Sep 2019 12:00:00 -0000
+
 deeponion (2.0.5-NonDV) bionic; urgency=medium
 
   * Small Bug Fixes.
