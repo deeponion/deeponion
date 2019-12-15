@@ -342,6 +342,10 @@ const QString Theme::getDeepOnionLogo()const {
     return deepOnionLogo;
 }
 
+const QString Theme::getSendDeepSendIco()const {
+    return sendDeepSendIco;
+}
+
 const QString Theme::getSpinnerPath()const {
     return spinnerPath;
 }

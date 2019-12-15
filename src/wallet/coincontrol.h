@@ -52,6 +52,7 @@ public:
         m_confirm_target.reset();
         signalRbf = fWalletRbf;
         m_fee_mode = FeeEstimateMode::UNSET;
+        deepSend = false;
     }
 
     bool HasSelected() const
@@ -83,9 +84,20 @@ public:
     {
         vOutpoints.assign(setSelected.begin(), setSelected.end());
     }
+    
+	void SetDeepSend(bool b)
+	{
+		deepSend = b;
+	}
+
+	bool GetDeepSend() const
+	{
+		return deepSend;
+	}
 
 private:
     std::set<COutPoint> setSelected;
+    bool deepSend;
 };
 
 #endif // BITCOIN_WALLET_COINCONTROL_H

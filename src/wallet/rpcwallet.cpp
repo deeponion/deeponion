@@ -38,6 +38,7 @@
 
 static const std::string WALLET_ENDPOINT_BASE = "/wallet/";
 
+
 CWallet *GetWalletForJSONRPCRequest(const JSONRPCRequest& request)
 {
     if (request.URI.substr(0, WALLET_ENDPOINT_BASE.size()) == WALLET_ENDPOINT_BASE) {
@@ -78,13 +79,16 @@ bool EnsureWalletIsAvailable(CWallet * const pwallet, bool avoidException)
 }
 
 void EnsureWalletIsUnlocked(CWallet * const pwallet)
-{
+{  
     if (pwallet->IsLocked()) {
         throw JSONRPCError(RPC_WALLET_UNLOCK_NEEDED, "Error: Please enter the wallet passphrase with walletpassphrase first.");
     }
     if (fWalletUnlockStakingOnly) {
         throw JSONRPCError(RPC_WALLET_UNLOCK_NEEDED, "Error: Wallet is unlocked for staking only.");
-    }    
+    }
+    if (fWalletUnlockDeepSendOnly) {
+        throw JSONRPCError(RPC_WALLET_UNLOCK_NEEDED, "Error: Wallet is unlocked for DeepSend only.");
+    }
 }
 
 void WalletTxToJSON(const CWalletTx& wtx, UniValue& entry)
@@ -426,7 +430,11 @@ static void SendMoney(CWallet * const pwallet, const CTxDestination &address, CA
         std::string strError = _("Error: Wallet unlocked for staking only, unable to create transaction.");
         throw JSONRPCError(RPC_WALLET_ERROR, strError);
     }
-
+    if (fWalletUnlockDeepSendOnly)
+    {
+        std::string strError = _("Error: Wallet unlocked for DeepSend only, unable to create transaction.");
+        throw JSONRPCError(RPC_WALLET_ERROR, strError);
+    }
     // Parse Bitcoin address
     CScript scriptPubKey = GetScriptForDestination(address);
 
@@ -2322,6 +2330,9 @@ UniValue keypoolrefill(const JSONRPCRequest& request)
 
 static void LockWallet(CWallet* pWallet)
 {
+    fWalletUnlockStakingOnly = false;
+    fWalletUnlockDeepSendOnly = false;
+
     LOCK(pWallet->cs_wallet);
     pWallet->nRelockTime = 0;
     pWallet->Lock();
@@ -2334,17 +2345,19 @@ UniValue walletpassphrase(const JSONRPCRequest& request)
         return NullUniValue;
     }
 
-    if (pwallet->IsCrypted() && (request.fHelp || request.params.size() < 2 || request.params.size() > 3)) {
+    if (pwallet->IsCrypted() && (request.fHelp || request.params.size() < 2 || request.params.size() > 4)) {
         throw std::runtime_error(
-            "walletpassphrase \"passphrase\" timeout [stakingonly]\n"
+            "walletpassphrase \"passphrase\" timeout [stakingonly] [deepsendonly]\n"
             "\nStores the wallet decryption key in memory for 'timeout' seconds.\n"
             "This is needed prior to performing transactions related to private keys such as sending DeepOnion\n"
             "\nArguments:\n"
             "1. \"passphrase\"     (string, required) The wallet passphrase\n"
             "2. timeout            (numeric, required) The time to keep the decryption key in seconds. Limited to at most 1073741824 (2^30) seconds.\n"
             "                                          Any value greater than 1073741824 seconds will be set to 1073741824 seconds.\n"
-            "3. staking            (bool, optional) Unlock wallet for staking only.\n"
-            "                                       If [stakingonly] is true sending functions are disabled. \n"
+            "3. stakingonly         (boolean, optional, default=false) Unlock wallet for staking only.\n"
+            "                                           If [stakingonly] is true sending functions are disabled. \n"
+            "4. deepsendonly        (boolean, optional, default=false) Unlock wallet for DeepSend only.\n"
+            "                                           If [deepsendonly] is true sending functions are disabled. \n"
             "\nNote:\n"
             "Issuing the walletpassphrase command while the wallet is already unlocked will set a new unlock\n"
             "time that overrides the old one.\n"
@@ -2399,12 +2412,16 @@ UniValue walletpassphrase(const JSONRPCRequest& request)
 
     // DeepOnion: if user OS account compromised prevent trivial sendmoney commands
     fWalletUnlockStakingOnly = false;
-    if (request.params.size() > 2)
+    if (!request.params[2].isNull())
         fWalletUnlockStakingOnly = request.params[2].get_bool();
+
+    fWalletUnlockDeepSendOnly = false;
+    if (!request.params[3].isNull())
+        fWalletUnlockDeepSendOnly = request.params[3].get_bool();
 
     pwallet->nRelockTime = GetTime() + nSleepTime;
     RPCRunLater(strprintf("lockwallet(%s)", pwallet->GetName()), boost::bind(LockWallet, pwallet), nSleepTime);
-
+    
     return NullUniValue;
 }
 
@@ -3865,7 +3882,11 @@ static void SendStealthMoney(CWallet * const pwallet, CStealthAddress& sxAddress
         strError = _("Error: Wallet unlocked for staking only, unable to create transaction.");
         throw JSONRPCError(RPC_WALLET_ERROR, strError);
     }
-
+    if (fWalletUnlockDeepSendOnly)
+    {
+        strError = _("Error: Wallet unlocked for DeepSend only, unable to create transaction.");
+        throw JSONRPCError(RPC_WALLET_ERROR, strError);
+    }
     //Parse Stealth address
     CScript scriptPubKey;
     std::vector<uint8_t> ephemP;

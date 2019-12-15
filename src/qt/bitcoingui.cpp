@@ -247,6 +247,11 @@ BitcoinGUI::BitcoinGUI(const PlatformStyle *_platformStyle, const NetworkStyle *
     labelStakingIcon->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getStatusBarBackgroundColor());
     labelStakingIcon->setMinimumWidth(statusIconLabelHeight);
     labelStakingIcon->setMinimumHeight(statusIconLabelHeight);
+    
+    labelMixerIcon = new QLabel();
+    labelMixerIcon->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getStatusBarBackgroundColor());
+    labelMixerIcon->setMinimumWidth(statusIconLabelHeight);
+    labelMixerIcon->setMinimumHeight(statusIconLabelHeight);
 
     labelOnionIcon = new QLabel();
     labelOnionIcon->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getStatusBarBackgroundColor());
@@ -259,7 +264,10 @@ BitcoinGUI::BitcoinGUI(const PlatformStyle *_platformStyle, const NetworkStyle *
         frameBlocksLayout->addWidget(unitDisplayControl);
         frameBlocksLayout->addStretch();
         frameBlocksLayout->addWidget(labelWalletEncryptionIcon);
+        frameBlocksLayout->addStretch();
         frameBlocksLayout->addWidget(labelWalletHDStatusIcon);
+        frameBlocksLayout->addStretch();
+        frameBlocksLayout->addWidget(labelMixerIcon);
     }
     frameBlocksLayout->addStretch();
     frameBlocksLayout->addWidget(labelStakingIcon);
@@ -272,14 +280,16 @@ BitcoinGUI::BitcoinGUI(const PlatformStyle *_platformStyle, const NetworkStyle *
     frameBlocksLayout->addStretch();
 
     // Staking icon 
-    
-    //if (GetBoolArg("-staking", true))
-    //{
-        QTimer *timerStakingIcon = new QTimer(labelStakingIcon);
-        connect(timerStakingIcon, SIGNAL(timeout()), this, SLOT(updateStakingIcon()));
-        timerStakingIcon->start(1000);
-        updateStakingIcon();
-    //}
+	QTimer *timerStakingIcon = new QTimer(labelStakingIcon);
+  	connect(timerStakingIcon, SIGNAL(timeout()), this, SLOT(updateStakingIcon()));
+	timerStakingIcon->start(1000);
+	updateStakingIcon();
+        
+	// Mixer icon
+	QTimer *timerMixerIcon = new QTimer(labelMixerIcon);
+	connect(timerMixerIcon, SIGNAL(timeout()), this, SLOT(updateMixerIcon()));
+	timerMixerIcon->start(30 * 1000);
+	updateMixerIcon();
    
     // TOR icon
     QTimer *timerOnionIcon = new QTimer(labelOnionIcon);
@@ -616,17 +626,6 @@ void BitcoinGUI::setClientModel(ClientModel *_clientModel)
 {
     this->clientModel = _clientModel;
 
-    //Check for new version and show an alert
-    if(clientModel->isNewVersionAvailable())
-    {
-        if(clientModel->VersionOutDated())
-        {
-            versionAlert->setText(tr("A new version is available. Please update your wallet!"));
-            versionAlert->setVisible(true);
-        }
-
-    }
-
     if(_clientModel)
     {
         // Create system tray menu (or setup the dock menu) that late to prevent users from calling actions,
@@ -666,6 +665,13 @@ void BitcoinGUI::setClientModel(ClientModel *_clientModel)
             // initialize the disable state of the tray icon with the current value in the model.
             setTrayIconVisible(optionsModel->getHideTrayIcon());
         }
+            //Check for new version and show an alert
+            if(clientModel->VersionOutDated())
+            {
+                versionAlert->setText(tr("A new version is available. Please update your wallet!"));
+                versionAlert->setVisible(true);
+            }
+
     } else {
         // Disable possibility to show main window via action
         toggleHideAction->setEnabled(false);
@@ -1005,6 +1011,42 @@ void BitcoinGUI::updateStakingIcon()
         else
             labelStakingIcon->setToolTip(tr("Not staking"));
     }
+}
+
+void BitcoinGUI::updateMixerIcon()
+{
+	bool b = false;
+    int cnt = 1;
+    if(g_connman)
+    	cnt = g_connman->GetUpdatedServiceListCount();
+    
+    if(cnt > 1)
+		b = true;
+
+//    labelMixerIcon->setPixmap(QIcon(":/icons/mixer_off").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
+    labelMixerIcon->setPixmap(platformStyle->SingleColorIcon(":/icons/mixer_off").pixmap(STATUSBAR_ICONSIZE, STATUSBAR_ICONSIZE));
+
+    if (g_connman == 0 || g_connman->GetNodeCount(CConnman::CONNECTIONS_ALL) == 0)
+        labelMixerIcon->setToolTip(tr("Anonymous DeepSend Not Available - The wallet is offline"));
+    else if (IsInitialBlockDownload())
+        labelMixerIcon->setToolTip(tr("Anonymous DeepSend Not Available - The wallet is syncing"));
+    else if (!b)
+        labelMixerIcon->setToolTip(tr("Anonymous DeepSend Not Available - You Do Not Have Enough Service Nodes Connected"));
+    else if (b)
+    {
+        if(IsCurrentAnonymousTxInProcess())
+		{
+			labelMixerIcon->setPixmap(QIcon(":/icons/mixer_process").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
+			labelMixerIcon->setToolTip(tr("Anonymous DeepSend Currently Processing"));
+		}
+		else
+		{
+			labelMixerIcon->setPixmap(QIcon(":/icons/mixer_on").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
+			labelMixerIcon->setToolTip(tr("Anonymous DeepSend Available. %1 Anonymous Service Nodes Available").arg(cnt));
+		}
+    }
+    else
+        labelMixerIcon->setToolTip(tr("Anonymous DeepSend Not Available"));
 }
 
 void BitcoinGUI::updateOnionIcon()
@@ -1370,9 +1412,9 @@ void BitcoinGUI::setEncryptionStatus(int status)
     case WalletModel::Unlocked:
         labelWalletEncryptionIcon->show();
         labelWalletEncryptionIcon->setPixmap(platformStyle->SingleColorIcon(":/icons/lock_open").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
-        if(fWalletUnlockStakingOnly)
+        if(fWalletUnlockStakingOnly || fWalletUnlockDeepSendOnly)
         {
-            labelWalletEncryptionIcon->setToolTip(tr("Wallet is <b>encrypted</b> and currently <b>unlocked for staking only</b>"));
+            labelWalletEncryptionIcon->setToolTip(tr("Wallet is <b>encrypted</b> and currently <b>unlocked for staking or DeepSend only</b>"));
         }
         else
         {
@@ -1539,6 +1581,7 @@ void BitcoinGUI::refreshStyle()
     frameBlocks->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getStatusBarBackgroundColor());
     labelWalletEncryptionIcon->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getStatusBarBackgroundColor());
     labelStakingIcon->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getStatusBarBackgroundColor());
+    labelMixerIcon->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getStatusBarBackgroundColor());
     labelOnionIcon->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getStatusBarBackgroundColor());
     labelBlocksIcon->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getStatusBarBackgroundColor());
     labelWalletHDStatusIcon->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getStatusBarBackgroundColor());

@@ -121,7 +121,15 @@ public:
         AbsurdFee,
         PaymentRequestExpired,
         InvalidStealthAddress,
-        StealthAddressAdded
+        StealthAddressAdded,
+		DeepSendAmountExceeded,
+		ServiceNodesNotAvailable,
+		AnotherDeepSendInProgress,
+		NotEnoughReserveForDeepSend,
+		NotSupportedDeepSendToStealthTx,
+		StartDeepSendFailed,
+        DeepSendWalletSyncing,
+		DeepSendAmountTooSmall
     };
 
     enum EncryptionStatus
@@ -167,6 +175,8 @@ public:
 
     // Send coins to a list of recipients
     SendCoinsReturn sendCoins(WalletModelTransaction &transaction);
+    // Send coins using mixer (DeepSend)
+    SendCoinsReturn sendCoinsUsingMixer(WalletModelTransaction &transaction, CCoinControl* pCoinControl);
 
     // Wallet encryption
     bool setWalletEncrypted(bool encrypted, const SecureString &passphrase);
@@ -226,6 +236,11 @@ public:
     OutputType getDefaultAddressType() const;
 
     int getDefaultConfirmTarget() const;
+    
+    //deepsend
+    bool AreServiceNodesAvailable();
+    bool IsAnotherDeepSendInProcess();
+    bool IsWalletSyncing();
 
     QString getBlockchainStatusText();
     QString getBlockchainStatusDetailsText();

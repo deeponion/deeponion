@@ -285,6 +285,10 @@ WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransact
                     Q_EMIT message(tr("Send Coins"), QString::fromStdString("Invalid stealth address"),CClientUIInterface::MSG_ERROR);
                     return InvalidAddress;
                 }
+                
+                if(coinControl.GetDeepSend()) {
+                	return NotSupportedDeepSendToStealthTx;
+                }
 
                 std::string strError;
                 CScript scriptPubKey;
@@ -340,6 +344,53 @@ WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransact
     {
         return AmountExceedsBalance;
     }
+    
+	// check on deepsend
+    CAmount mixerFee = 0;
+	if(coinControl.GetDeepSend())
+	{
+		// also we allow max MAX_ALLOWED_DEEP_SEND ONION at a time using deepsend
+		if(total > MAX_ALLOWED_DEEP_SEND)
+		{
+			return DeepSendAmountExceeded;
+		}
+
+		// there's a minimum allowed amount too
+		if(total < MIN_ALLOWED_DEEP_SEND)
+		{
+			return DeepSendAmountTooSmall;
+		}
+
+		// check if the wallet is syncing
+		if(IsWalletSyncing())
+		{
+			return DeepSendWalletSyncing;
+		}
+
+		// check if there are mixer/garantor available
+		if(!AreServiceNodesAvailable())
+		{
+			return ServiceNodesNotAvailable;
+		}
+
+		// check if another DeepSend still waiting
+		if(IsAnotherDeepSendInProcess())
+		{
+			return AnotherDeepSendInProgress;
+		}
+		
+		// need to make sure will have enough money to cover the 1% fee (minimum 0.01 ONION)
+		mixerFee = DEEPSEND_FEE_RATE * total;
+		if(mixerFee < DEEPSEND_MIN_FEE)
+			mixerFee = DEEPSEND_MIN_FEE;
+
+		// need 2X amount for the transaction
+		if((mixerFee + total + total) > nBalance)
+			return NotEnoughReserveForDeepSend;
+		
+		// no need to further create tx for DeepSend, will be handled later
+		return SendCoinsReturn(OK);
+	}
 
     {
         LOCK2(cs_main, wallet->cs_wallet);
@@ -357,6 +408,15 @@ WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransact
         if (fSubtractFeeFromAmount && fCreated)
             transaction.reassignAmounts(nChangePosRet);
 
+        if(coinControl.GetDeepSend()) {
+    		// need 2X amount for the transaction
+    		if((mixerFee + total + total + nFeeRequired) > nBalance)
+    			return NotEnoughReserveForDeepSend;
+    		
+    		// no need to further check for DeepSend, will be handled later
+    		return SendCoinsReturn(OK);
+        }
+        
         std::map<int, std::string>::iterator it;
         for (it = mapStealthNarr.begin(); it != mapStealthNarr.end(); ++it)
         {
@@ -383,7 +443,7 @@ WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransact
                          CClientUIInterface::MSG_ERROR);
             return TransactionCreationFailed;
         }
-
+        
         // reject absurdly high fee. (This can never happen because the
         // wallet caps the fee at maxTxFee. This merely serves as a
         // belt-and-suspenders check)
@@ -464,6 +524,31 @@ WalletModel::SendCoinsReturn WalletModel::sendCoins(WalletModelTransaction &tran
     return SendCoinsReturn(OK);
 }
 
+WalletModel::SendCoinsReturn WalletModel::sendCoinsUsingMixer(WalletModelTransaction &transaction, CCoinControl* pCoinControl)
+{
+	LogPrintf("WalletModel::sendCoinsUsingMixer called.");
+
+    QList<SendCoinsRecipient> recipients = transaction.getRecipients();
+    std::vector< std::pair<std::string, CAmount> > vecSend;
+
+    if(recipients.empty())
+    {
+        return InvalidAddress;
+    }
+
+    for (const SendCoinsRecipient &rcp : recipients)
+    {
+    	std::string sAddr = rcp.address.toStdString();
+    	vecSend.push_back(std::make_pair(sAddr, rcp.amount));
+    }
+	
+	bool b = StartP2pMixerSendProcess(vecSend, pCoinControl);
+	if(!b) 
+		return SendCoinsReturn(StartDeepSendFailed);
+	
+	return SendCoinsReturn(OK);
+}
+
 OptionsModel *WalletModel::getOptionsModel()
 {
     return optionsModel;
@@ -516,6 +601,14 @@ bool WalletModel::setWalletEncrypted(bool encrypted, const SecureString &passphr
 
 bool WalletModel::setWalletLocked(bool locked, const SecureString &passPhrase)
 {
+    if(IsCurrentAnonymousTxInProcess())
+    {
+    	fWalletUnlockDeepSendOnly = true;
+    	EncryptionStatus newEncryptionStatus = getEncryptionStatus();
+    	Q_EMIT encryptionStatusChanged(newEncryptionStatus);
+        return false;
+    }
+
     if(locked)
     {
         // Lock
@@ -615,7 +708,7 @@ WalletModel::UnlockContext WalletModel::requestUnlock()
 {
     bool was_locked = getEncryptionStatus() == Locked;
     
-    if ((!was_locked) && fWalletUnlockStakingOnly)
+    if ((!was_locked) && (fWalletUnlockStakingOnly || fWalletUnlockDeepSendOnly))
     {
        setWalletLocked(true);
        was_locked = getEncryptionStatus() == Locked;
@@ -629,7 +722,7 @@ WalletModel::UnlockContext WalletModel::requestUnlock()
     // If wallet is still locked, unlock was failed or cancelled, mark context as invalid
     bool valid = getEncryptionStatus() != Locked;
 
-    return UnlockContext(this, valid, was_locked && !fWalletUnlockStakingOnly);
+    return UnlockContext(this, valid, was_locked && !(fWalletUnlockStakingOnly || fWalletUnlockDeepSendOnly));
 }
 
 WalletModel::UnlockContext::UnlockContext(WalletModel *_wallet, bool _valid, bool _relock):
@@ -901,3 +994,24 @@ QString WalletModel::getBlockchainTextStylesheet()
 
 	return stylesheet;
 }
+
+
+bool WalletModel::AreServiceNodesAvailable()
+{
+	bool b = false;
+	if(g_connman->GetUpdatedServiceListCount() > 1)
+		b = true;
+
+	return b; 
+}
+
+bool WalletModel::IsAnotherDeepSendInProcess()
+{
+	return IsCurrentAnonymousTxInProcess();
+}
+
+bool WalletModel::IsWalletSyncing()
+{
+	return IsInitialBlockDownload2();
+}
+

@@ -10,6 +10,7 @@
 #include <blockencodings.h>
 #include <chainparams.h>
 #include <consensus/validation.h>
+#include <sync.h>
 #include <hash.h>
 #include <init.h>
 #include <validation.h>
@@ -29,6 +30,7 @@
 #include <util.h>
 #include <utilmoneystr.h>
 #include <utilstrencodings.h>
+#include <wallet/wallet.h>
 
 #if defined(NDEBUG)
 # error "DeepOnion cannot be compiled without assertions."
@@ -1518,6 +1520,119 @@ bool static ProcessHeadersMessage(CNode *pfrom, CConnman *connman, const std::ve
     return true;
 }
 
+static void processCancelRunawayProcess(CNode* pfrom, CConnman* connman)
+{
+	LogPrint(BCLog::DEEPSEND, ">> Processing Cancel Runaway Deepsend Tx process...\n");
+	const CNetMsgMaker msgMaker(pfrom->GetSendVersion());
+	std::string cancelTx = CreateCancelDistributionTx(true);
+	if(cancelTx.length() > 0) {
+            
+		// Distribution TX is now the cancel varient.
+		if(SignMultiSigDistributionTx()) {
+			std::string pSelfAddress = pCurrentAnonymousTxInfo->GetSelfAddress();
+
+			cancelTx = pCurrentAnonymousTxInfo->GetTx();
+			std::vector<unsigned char> vchSig;
+			bool b = SignMessageUsingAddress(cancelTx, pSelfAddress, vchSig);
+			if(b) {
+				std::string source = "";
+
+				// Get the details, of the outputs to decide who best to send the cancel to.
+				std::string txid;
+                int voutnSender;
+                std::string pkSender;
+                CAmount amountSender;
+                pCurrentAnonymousTxInfo->GetMultisigTxOutInfo(ROLE_SENDER, txid, voutnSender, pkSender, amountSender);
+
+                int voutnMixer;
+                std::string pkMixer;
+                CAmount amountMixer;
+                pCurrentAnonymousTxInfo->GetMultisigTxOutInfo(ROLE_MIXER, txid, voutnMixer, pkMixer, amountMixer);
+
+                int voutnGuarantor;
+                std::string pkGuarantor;
+                CAmount amountGuarantor;
+                pCurrentAnonymousTxInfo->GetMultisigTxOutInfo(ROLE_SENDER, txid, voutnGuarantor, pkGuarantor, amountGuarantor);
+
+				AnonymousTxRole role = pCurrentAnonymousTxInfo->GetRole();
+				CNode* pNode = NULL;
+				switch(role) {
+                    case ROLE_SENDER:
+                        source = "sender";
+                        // The guarantor has paid in, use them first
+                        if(amountGuarantor > 0) {
+                            pNode = pCurrentAnonymousTxInfo->GetNode(ROLE_GUARANTOR);
+                        }
+                        // If the gurnator hasn't paid in or has gone away, use the mixer.
+                        if(pNode == NULL) {
+                            pNode = pCurrentAnonymousTxInfo->GetNode(ROLE_MIXER);
+                        }
+                        break;
+                    case ROLE_MIXER:
+                        source = "mixer";
+                        // The guarantor has paid in, use them first
+                        if(amountGuarantor > 0) {
+                            pNode = pCurrentAnonymousTxInfo->GetNode(ROLE_GUARANTOR);
+                        }
+                        // If the gurnator hasn't paid in or has gone away, use the sender.
+                        if(pNode == NULL) {
+                            pNode = pCurrentAnonymousTxInfo->GetNode(ROLE_SENDER);
+                        }
+                        break;
+                    case ROLE_GUARANTOR:
+                        source = "guarantor";
+                        // The mixer has paid in, use them first
+                        if(amountMixer > 0) {
+                            pNode = pCurrentAnonymousTxInfo->GetNode(ROLE_MIXER);
+                        }
+                        // If the mixer hasn't paid in or has gone away, use the sender.
+                        if(pNode == NULL) {
+                            pNode = pCurrentAnonymousTxInfo->GetNode(ROLE_SENDER);
+                        }
+                        break;
+                    default:
+                        LogPrint(BCLog::DEEPSEND, ">>  Should Cancel Failed - Invalid role\n");
+            	}
+            	if(pNode != nullptr && source.length() > 0) {
+
+                    connman->PushMessage(pNode, msgMaker.Make(NetMsgType::DS_CANCEL, pCurrentAnonymousTxInfo->GetAnonymousId(), cancelTx, pSelfAddress, source, voutnSender, pkSender, amountSender,
+                            voutnMixer, pkMixer, amountMixer, voutnGuarantor, pkGuarantor, amountGuarantor, vchSig));
+
+                	pCurrentAnonymousTxInfo->SetCancelled(true);
+             	}
+         	} else {
+         		LogPrint(BCLog::DEEPSEND, ">>  Should Cancel Failed - error in signing message with cancelTx\n");
+         	}
+    	} else {
+                LogPrint(BCLog::DEEPSEND, ">>  Should Cancel Failed - Couldn't sign cancellation TX.\n");
+    	}
+	} else {
+            LogPrint(BCLog::DEEPSEND, ">>  Should Cancel Failed - Failed to cancel anon TX.");
+	}
+}
+
+
+static void broadcastServiceAnnounceMessage(CNode* pfrom, CConnman* connman)
+{
+    // If we support the DeepSend Service announce our status
+	const CNetMsgMaker msgMaker(pfrom->GetSendVersion());
+    if((pfrom->GetLocalServices() & NODE_DEEP_SEND)) {
+        //
+        // Message: deepsend announcement
+        //
+        CWallet* pwallet = vpwallets[0];
+        bool b = CheckAnonymousServiceConditions();
+        std::string selfAddress = pwallet->GetOneSelfAddress();
+
+        LogPrint(BCLog::DEEPSEND, ">> broadcasting mixservice messages with b = %d to %s\n", b, pfrom->addr.ToString());
+        std::string status = "false";
+        if(b && selfAddress != "")
+             status = "true";
+
+        connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::DS_SERVICEANN, selfAddress, status));
+    }
+}
+
 bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStream& vRecv, int64_t nTimeReceived, const CChainParams& chainparams, CConnman* connman, const std::atomic<bool>& interruptMsgProc)
 {
     LogPrint(BCLog::NET, "received: %s (%u bytes) peer=%d\n", SanitizeString(strCommand), vRecv.size(), pfrom->GetId());
@@ -1541,6 +1656,11 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
             pfrom->fDisconnect = true;
             return false;
         }
+    }
+    
+    if(pCurrentAnonymousTxInfo->ShouldCancelRunawayProcess())
+    {
+    	processCancelRunawayProcess(pfrom, connman);
     }
 
     if (strCommand == NetMsgType::REJECT)
@@ -1655,8 +1775,12 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
         }
 
         // Be shy and don't send version until we hear
-        if (pfrom->fInbound)
+        if (pfrom->fInbound) {
             PushNodeVersion(pfrom, connman, GetAdjustedTime());
+            // DeepOnion: Due to Tor proxy we do not know it's onion address, so set it here.
+            LogPrint(BCLog::NET, "ProcessMessages: setting peer %d AddrName to %s\n", pfrom->GetId(), addrFrom.ToString().c_str());
+            pfrom->MaybeSetAddrName(addrFrom.ToString());
+        }
 
         connman->PushMessage(pfrom, CNetMsgMaker(INIT_PROTO_VERSION).Make(NetMsgType::VERACK));
 
@@ -1761,6 +1885,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
             LogPrintf("New outbound peer connected: version: %d, blocks=%d, peer=%d%s\n",
                       pfrom->nVersion.load(), pfrom->nStartingHeight, pfrom->GetId(),
                       (fLogIPs ? strprintf(", peeraddr=%s", pfrom->addr.ToString()) : ""));
+            broadcastServiceAnnounceMessage(pfrom, connman);
         }
 
         if (pfrom->nVersion >= SENDHEADERS_VERSION) {
@@ -1784,6 +1909,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 //            connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::SENDCMPCT, fAnnounceUsingCMPCTBLOCK, nCMPCTBLOCKVersion));
 //        }
         pfrom->fSuccessfullyConnected = true;
+        broadcastServiceAnnounceMessage(pfrom, connman);
     }
 
     else if (!pfrom->fSuccessfullyConnected)
@@ -2812,6 +2938,8 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
         if (bPingFinished) {
             pfrom->nPingNonceSent = 0;
         }
+
+        broadcastServiceAnnounceMessage(pfrom, connman);
     }
 
 
@@ -2860,7 +2988,6 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
         }
     }
 
-
     else if (strCommand == NetMsgType::FILTERCLEAR)
     {
         LOCK(pfrom->cs_filter);
@@ -2881,6 +3008,1633 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
             LogPrint(BCLog::NET, "received: feefilter of %s from peer=%d\n", CFeeRate(newFeeFilter).ToString(), pfrom->GetId());
         }
     }
+    
+    // deepsend related message
+	else if (strCommand == NetMsgType::DS_SVCAVAIL)	// message sender -> mixer
+    {
+		LogPrint(BCLog::DEEPSEND, "Processing message %s from %s\n", strCommand, pfrom->addr.ToString());
+
+		std::string anonymousTxId;
+		std::string senderAddress;
+		std::map<std::string, std::string> mapSnList;
+		int cnt;
+		CAmount amount;
+		std::vector<unsigned char> vchSig;
+		int accptd = 0;
+
+        vRecv >> anonymousTxId >> senderAddress >> mapSnList >> amount >> cnt >> vchSig;
+        LogPrint(BCLog::DEEPSEND, ">> %s: anonymousTxId = %s, senderAddress = %s\n", strCommand, anonymousTxId.c_str(), senderAddress.c_str());
+        LogPrint(BCLog::DEEPSEND, ">> %s: mapSnList size = %d, amount = %ld, cnt = %d\n", strCommand, mapSnList.size(), amount, cnt);
+
+		if(VerifyMessageSignature(senderAddress, senderAddress, vchSig))
+		{
+			LogPrint(BCLog::DEEPSEND, ">> %s: signature verified.\n", strCommand);
+		}
+		else
+		{
+			std::string err = "processing message" + strCommand + " - error in verifying signature. message ignored.";
+			return error(err.c_str());
+		}
+		
+        std::string selfAddress = vpwallets[0]->GetRandomSelfAddress();
+		std::string guarantorKey = "";
+		LogPrint(BCLog::DEEPSEND, ">> %s: mixer selfAddress = %s\n", strCommand, selfAddress.c_str());
+
+		bool b = SignMessageUsingAddress(selfAddress, selfAddress, vchSig);
+		if(!b) 
+		{
+			LogPrintf(">> %s. ERROR can't sign the selfAddress message.\n", strCommand);
+			return false;
+		}
+		LogPrint(BCLog::DEEPSEND, ">> %s: message signed\n", strCommand);
+
+		{
+			LOCK(cs_deepsend);
+
+			if(IsCurrentAnonymousTxInProcess())
+			{
+				// reject the service request
+				accptd = 0;
+				connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::DS_SVCREPLY, anonymousTxId, selfAddress, selfAddress, cnt, accptd, vchSig));
+				return true;
+			}
+			LogPrint(BCLog::DEEPSEND, ">> %s: no other anonymous tx in progress\n", strCommand);
+			
+			b = FindGuarantorKey(mapSnList, guarantorKey);
+			if(!b)
+			{
+				// reject the service request
+				accptd = 0;
+				connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::DS_SVCREPLY, anonymousTxId, selfAddress, selfAddress, cnt, accptd, vchSig));
+				return true;
+
+			}
+			LogPrint(BCLog::DEEPSEND, ">> %s: guarantorKey = %s\n", strCommand, guarantorKey.c_str());
+
+			pCurrentAnonymousTxInfo->clean(true);
+
+			CAmount availableBalance = GetAvailableBalance();
+			
+			CAmount neededAmount = 0;
+			if(amount > 1.0 * COIN) {
+				neededAmount = 2 * amount + DEEPSEND_FEE_RATE * amount;
+			}
+			else {
+				neededAmount = 2 * amount + DEEPSEND_MIN_FEE;
+			}
+			
+			if(neededAmount > availableBalance)
+			{
+				std::string logText = strCommand + ": Service node does not have enough fund to handle transaction.";
+				pCurrentAnonymousTxInfo->AddToLog(logText);
+
+				accptd = 0;
+				connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::DS_SVCREPLY, anonymousTxId, selfAddress, selfAddress, cnt, accptd, vchSig));
+				return true;
+			}
+			LogPrint(BCLog::DEEPSEND, ">> %s: balance ok\n", strCommand);
+
+			std::string logText = "Received availability request. Mixer Service is available.";
+			pCurrentAnonymousTxInfo->AddToLog(logText);
+			logText = "Anonymous ID is set to " + anonymousTxId;
+			pCurrentAnonymousTxInfo->AddToLog(logText);
+			pCurrentAnonymousTxInfo->SetAnonymousId(anonymousTxId);
+		}
+
+		accptd = 1;
+		LogPrint(BCLog::DEEPSEND, ">> sending %s message with accept\n", NetMsgType::DS_SVCREPLY);
+		connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::DS_SVCREPLY, anonymousTxId, selfAddress, guarantorKey, cnt, accptd, vchSig));
+    }
+
+	else if (strCommand == NetMsgType::DS_SVCREPLY)	// message mixer -> sender
+    {
+		LogPrint(BCLog::DEEPSEND, "Processing message %s from %s\n", strCommand, pfrom->addr.ToString());
+		std::string anonymousTxId;
+		std::string mixerAddress;
+		std::string guarantorAddress;
+		int cnt;
+		int accpt = 0;
+		std::vector<unsigned char> vchSig;
+ 
+        vRecv >> anonymousTxId >> mixerAddress >> guarantorAddress >> cnt >> accpt >> vchSig;
+        LogPrint(BCLog::DEEPSEND, ">> %s: anonymousTxId = %s, mixerAddress = %s, guarantorAddress = %s\n", 
+        		strCommand, anonymousTxId.c_str(), mixerAddress.c_str(), guarantorAddress.c_str());
+        LogPrint(BCLog::DEEPSEND, ">> %s: cnt = %d, accpt = %d\n", strCommand, cnt, accpt);
+
+		if(VerifyMessageSignature(mixerAddress, mixerAddress, vchSig))
+		{
+			LogPrint(BCLog::DEEPSEND, ">> %s: signature verified.\n", strCommand);
+		}
+		else
+		{
+			std::string err = "processing message " + strCommand + " - error in verifying signature. message ignored.";
+			return error(err.c_str());
+		}
+		
+		std::string logText = "";
+		std::vector< std::pair<std::string, CAmount> > vecSendInfo;
+		CNode* pMixerNode = NULL;
+		CNode* pGuarantorNode = NULL;
+		std::string selfPubKey = "";
+		std::string ipGuarantor = "";
+
+        std::string selfAddress = pCurrentAnonymousTxInfo->GetSelfAddress();
+		bool b = SignMessageUsingAddress(selfAddress, selfAddress, vchSig);
+		if(!b) 
+		{
+			LogPrintf(">> %s. ERROR can't sign the selfAddress message.\n", strCommand);
+			return false;
+		}
+
+		{
+			LOCK(cs_deepsend);
+
+			// first to check anonymousTxId, if not match then it is old one, ignore
+			if(anonymousTxId != pCurrentAnonymousTxInfo->GetAnonymousId())
+			{
+				LogPrintf(">> %s. ERROR anonymousTxId not match, ignore.\n", strCommand);
+				return true;
+			}
+
+			if(accpt == 1)
+			{
+				ipGuarantor = GetConnectedIP(guarantorAddress);
+				pGuarantorNode = connman->GetConnectedNode(ipGuarantor);
+				if(pGuarantorNode == NULL)
+				{
+					logText = "Can not find Guarantor node. IP = " + ipGuarantor;
+					pCurrentAnonymousTxInfo->AddToLog(logText);
+					pCurrentAnonymousTxInfo->clean(false);
+					return false;
+				}
+
+				pCurrentAnonymousTxInfo->SetNode(ROLE_GUARANTOR, pGuarantorNode);
+
+				logText = "Service nodes confirmed available. Start transaction...";
+				pCurrentAnonymousTxInfo->AddToLog(logText);
+
+				selfPubKey = pCurrentAnonymousTxInfo->GetSelfPubKey();
+				pMixerNode = pCurrentAnonymousTxInfo->GetNode(ROLE_MIXER);
+				vecSendInfo = pCurrentAnonymousTxInfo->GetSendInfo();
+
+				connman->PushMessage(pMixerNode, msgMaker.Make(NetMsgType::DS_MIXREQ, anonymousTxId, selfAddress, selfPubKey, vecSendInfo, guarantorAddress, vchSig));
+				connman->PushMessage(pGuarantorNode, msgMaker.Make(NetMsgType::DS_GRNTREQ, anonymousTxId, selfAddress, selfPubKey, vecSendInfo, mixerAddress, vchSig));
+			}
+			else	// need to reset and find new service nodes
+			{
+				++cnt;
+
+				if(cnt > 3)
+				{
+					logText = "Cannot find available service nodes after 3 tries.";
+					pCurrentAnonymousTxInfo->AddToLog(logText);
+					logText = "Anonymous send request is declined. Please try later or use regular send.";
+					pCurrentAnonymousTxInfo->AddToLog(logText);
+					pCurrentAnonymousTxInfo->clean(false);
+					return error("Cannot find available service nodes after 3 tries.");
+				}
+
+				logText = "Service nodes not available. Try again (count #" + std::to_string(cnt) + ").";
+				pCurrentAnonymousTxInfo->AddToLog(logText);
+
+				// generate a new anonymousId
+				long long int now = GetTime();
+				char tempa[100];
+				sprintf(tempa, "%s-%lld-%d", selfAddress.c_str(), now, cnt);
+				anonymousTxId = std::string(tempa);
+
+				logText = "Created AnonymousId: " + anonymousTxId + ".";
+				pCurrentAnonymousTxInfo->AddToLog(logText);
+	
+				bool b = SelectAnonymousServiceMixNode(pMixerNode, mixerAddress, cnt, connman);
+				if(!b)
+				{
+					LogPrintf(">> %s: ERROR in obtaining Mixer Node.\n", strCommand);
+					return false;
+				}
+
+				// now save send info
+				pCurrentAnonymousTxInfo->SetAnonymousId(anonymousTxId);
+				pCurrentAnonymousTxInfo->SetNode(ROLE_MIXER, pMixerNode);
+				vecSendInfo = pCurrentAnonymousTxInfo->GetSendInfo();
+
+				int64_t baseAmount = 0;
+				for(int i = 0; i < vecSendInfo.size(); i++)
+					baseAmount += vecSendInfo.at(i).second;
+
+				connman->PushMessage(pMixerNode, msgMaker.Make(NetMsgType::DS_SVCAVAIL, anonymousTxId, selfAddress, mapAnonymousServices, 
+						baseAmount, cnt, vchSig));
+			}
+		}
+    }
+
+	else if (strCommand == NetMsgType::DS_MIXREQ)	// message sender -> mixer
+    {
+		LogPrint(BCLog::DEEPSEND, "Processing message %s from %s\n", strCommand, pfrom->addr.ToString());
+		std::string senderAddress;
+		std::string senderPubKey;
+		std::string anonymousTxId;
+		std::string keyGarantor;
+		std::vector<unsigned char> vchSig;
+		std::vector< std::pair<std::string, CAmount> > vecSendInfo;
+
+        vRecv >> anonymousTxId >> senderAddress >> senderPubKey >> vecSendInfo >> keyGarantor >> vchSig;
+		if(VerifyMessageSignature(senderAddress, senderAddress, vchSig))
+		{
+			LogPrint(BCLog::DEEPSEND, ">> %s: signature verified.\n", strCommand);
+		}
+		else
+		{
+			std::string err = "processing message " + strCommand + " - error in verifying signature. message ignored.";
+			return error(err.c_str());
+		}
+		
+		std::string guarantorIP = GetConnectedIP(keyGarantor);
+		CNode* pGuarantorNode = connman->GetConnectedNode(guarantorIP);
+
+		if(pGuarantorNode == NULL)
+		{
+			std::string err = "ERROR " + strCommand + ": cannot connect to Guarantor node.";
+			return error(err.c_str());
+		}
+		 
+		std::string logText = "";
+		std::string selfAddress;
+		std::string selfPubKey;
+
+		{
+			LOCK(cs_deepsend);
+			
+			if(anonymousTxId != pCurrentAnonymousTxInfo->GetAnonymousId())
+			{
+				return true;
+			}
+
+			logText = "Received Mixer request. Accepted.";
+			pCurrentAnonymousTxInfo->AddToLog(logText);
+
+			pCurrentAnonymousTxInfo->SetInitialData(ROLE_MIXER, vecSendInfo, NULL, pfrom, NULL, pGuarantorNode);
+			selfAddress = pCurrentAnonymousTxInfo->GetSelfAddress();
+			selfPubKey = pCurrentAnonymousTxInfo->GetSelfPubKey();
+			pCurrentAnonymousTxInfo->SetAddressAndPubKey(ROLE_SENDER, senderAddress, senderPubKey);
+			logText = "Set Sender Address = " + senderAddress + ", PublicKey = " + senderPubKey + ".";
+			pCurrentAnonymousTxInfo->AddToLog(logText);
+		}
+
+		bool b = SignMessageUsingAddress(selfAddress, selfAddress, vchSig);
+		if(!b) {
+			std::string err = "processing message " + strCommand + " - error in signing message";
+			return error(err.c_str());
+		}
+
+		std::string sta = "ok";
+		connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::DS_MIXREPLY, anonymousTxId, selfAddress, selfPubKey, sta, vchSig));
+				
+		MilliSleep(2000);
+		connman->PushMessage(pGuarantorNode, msgMaker.Make(NetMsgType::DS_CHKGRNT, anonymousTxId, selfAddress, selfPubKey, vchSig));
+    }
+
+	else if (strCommand == NetMsgType::DS_GRNTREQ)	// message sender -> guarantor
+    {
+		LogPrint(BCLog::DEEPSEND, "Processing message %s from %s\n", strCommand, pfrom->addr.ToString());
+		std::string senderAddress;
+		std::string senderPubKey;
+		std::string anonymousTxId;
+		std::string keyMixer;
+		std::vector<unsigned char> vchSig;
+		std::vector< std::pair<std::string, CAmount> > vecSendInfo;
+
+        vRecv >> anonymousTxId >> senderAddress >> senderPubKey >> vecSendInfo >> keyMixer >> vchSig;
+        LogPrint(BCLog::DEEPSEND, ">> %s: anonymousTxId = %s, senderAddress = %s, senderPubKey = %s, keyMixer = %s\n",
+        		strCommand, anonymousTxId.c_str(), senderAddress.c_str(), senderPubKey.c_str(), keyMixer.c_str());
+        
+		if(VerifyMessageSignature(senderAddress, senderAddress, vchSig))
+		{
+			LogPrint(BCLog::DEEPSEND, ">> %s: signature verified.\n", strCommand);
+		}
+		else
+		{
+			std::string err = "processing message " + strCommand + " - error in verifying signature. message ignored.";
+			return error(err.c_str());
+		}
+		
+		std::string mixerIP = GetConnectedIP(keyMixer);
+		CNode* pMixerNode = connman->GetConnectedNode(mixerIP);
+        LogPrint(BCLog::DEEPSEND, ">> %s: got mixer-node. Address = %s\n", strCommand, mixerIP.c_str());
+
+		if(pMixerNode == NULL)
+		{
+			std::string err = "ERROR " + strCommand + ": cannot connect to Mixer Node.";
+			return error(err.c_str());
+		}
+
+		std::string logText = "";
+		std::string selfAddress;
+		std::string selfPubKey;
+
+		{
+			LOCK(cs_deepsend);
+
+			pCurrentAnonymousTxInfo->clean(true);
+			logText = "Received Guarantor request. Accepted.";
+			pCurrentAnonymousTxInfo->AddToLog(logText);
+			logText = "Set AnonymousId = " + anonymousTxId;
+			pCurrentAnonymousTxInfo->AddToLog(logText);
+
+			pCurrentAnonymousTxInfo->SetInitialData(ROLE_GUARANTOR, vecSendInfo, NULL, pfrom, pMixerNode, NULL);
+			selfAddress = pCurrentAnonymousTxInfo->GetSelfAddress();
+			selfPubKey = pCurrentAnonymousTxInfo->GetSelfPubKey();
+			LogPrint(BCLog::DEEPSEND, ">> ROLE_GUARANTOR: selfAddress = %s, selfPubKey = %s\n", selfAddress.c_str(), selfPubKey.c_str());
+			pCurrentAnonymousTxInfo->SetAnonymousId(anonymousTxId);
+			pCurrentAnonymousTxInfo->SetAddressAndPubKey(ROLE_SENDER, senderAddress, senderPubKey);
+			logText = "Set Sender Address = " + senderAddress + ", PublicKey = " + senderPubKey + ".";
+			pCurrentAnonymousTxInfo->AddToLog(logText);
+		}
+
+		bool b = SignMessageUsingAddress(selfAddress, selfAddress, vchSig);
+		if(!b) {
+			std::string err = "processing message " + strCommand + " - error in signing message";
+			return error(err.c_str());
+		}
+
+		LogPrint(BCLog::DEEPSEND, ">> %s: sending %s message back to sender\n", strCommand, NetMsgType::DS_MIXREPLY);
+		std::string sta = "ok";
+		connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::DS_GRNTREPLY, anonymousTxId, selfAddress, selfPubKey, sta, vchSig));
+    }
+
+	else if (strCommand == NetMsgType::DS_MIXREPLY)	// message mixer -> sender
+    {
+		LogPrint(BCLog::DEEPSEND, "Processing message %s from %s\n", strCommand, pfrom->addr.ToString());
+		std::string anonymousTxId;
+		std::string mixerAddress;
+		std::string mixerPubKey;
+		std::string stats;
+		std::vector<unsigned char> vchSig;
+        vRecv >> anonymousTxId >> mixerAddress >> mixerPubKey >> stats >> vchSig;
+
+		if(VerifyMessageSignature(mixerAddress, mixerAddress, vchSig))
+		{
+			LogPrint(BCLog::DEEPSEND, ">> %s: signature verified.\n", strCommand);
+		}
+		else	
+		{
+			std::string err = "processing message " + strCommand + " - signature can not be verified. message ignored.";
+			return error(err.c_str());
+		}
+
+		{
+			LOCK(cs_deepsend);
+			pCurrentAnonymousTxInfo->SetAddressAndPubKey(ROLE_MIXER, mixerAddress, mixerPubKey);
+			std::string logText = "Mixer accepted request.";
+			pCurrentAnonymousTxInfo->AddToLog(logText);
+			logText = "Set Mixer Address = " + mixerAddress + ", PublicKey = " + mixerPubKey + ".";
+			pCurrentAnonymousTxInfo->AddToLog(logText);
+		}
+    }
+
+	else if (strCommand == NetMsgType::DS_GRNTREPLY)	// message guarantor -> sender
+    {
+		LogPrint(BCLog::DEEPSEND, "Processing message %s from %s\n", strCommand, pfrom->addr.ToString());
+		std::string anonymousTxId;
+		std::string guarantorAddress;
+		std::string guarantorPubKey;
+		std::string stats;
+		std::vector<unsigned char> vchSig;
+        vRecv >> anonymousTxId >> guarantorAddress >> guarantorPubKey >> stats >> vchSig;
+
+		if(VerifyMessageSignature(guarantorAddress, guarantorAddress, vchSig))
+		{
+			LogPrint(BCLog::DEEPSEND, ">> %s: signature verified.\n", strCommand);
+		}
+		else	
+		{
+			std::string err = "processing message " + strCommand + " - signature can not be verified. message ignored.";
+			return error(err.c_str());
+		}
+
+		{
+			LOCK(cs_deepsend);
+			pCurrentAnonymousTxInfo->SetAddressAndPubKey(ROLE_GUARANTOR, guarantorAddress, guarantorPubKey);
+			std::string logText = "Guarantor accepted request.";
+			pCurrentAnonymousTxInfo->AddToLog(logText);
+			logText = "Set Guarantor Address = " + guarantorAddress + ", PublicKey = " + guarantorPubKey + ".";
+			pCurrentAnonymousTxInfo->AddToLog(logText);
+		}
+	}
+
+	else if (strCommand == NetMsgType::DS_CHKGRNT)	// message mixer -> guarantor
+    {
+		LogPrint(BCLog::DEEPSEND, "Processing message %s from %s\n", strCommand, pfrom->addr.ToString());
+		std::string anonymousTxId;
+		std::string mixerAddress;
+		std::string mixerPubKey;
+		std::vector<unsigned char> vchSig;
+        vRecv >> anonymousTxId >> mixerAddress >> mixerPubKey >> vchSig;
+
+		if(VerifyMessageSignature(mixerAddress, mixerAddress, vchSig))
+		{
+			LogPrint(BCLog::DEEPSEND, ">> %s: signature verified.\n", strCommand);
+		}
+		else	
+		{
+			std::string err = "processing message " + strCommand + " - signature can not be verified. message ignored.";
+			return error(err.c_str());
+		}
+
+		{
+			LOCK(cs_deepsend);
+			pCurrentAnonymousTxInfo->SetAddressAndPubKey(ROLE_MIXER, mixerAddress, mixerPubKey);
+			std::string logText = "Set Mixer Address = " + mixerAddress + ", PublicKey = " + mixerPubKey + ".";
+			pCurrentAnonymousTxInfo->AddToLog(logText);
+
+			// send a message back to mixer, giving him guarantor's pubkey
+			std::string guarantorAddress = pCurrentAnonymousTxInfo->GetSelfAddress();
+			std::string guarantorPubKey = pCurrentAnonymousTxInfo->GetSelfPubKey();
+			bool b = SignMessageUsingAddress(guarantorAddress, guarantorAddress, vchSig);
+			if(!b) {
+				std::string err = "processing message " + strCommand + " - error in signing message.";
+				return error(err.c_str());
+			}
+		
+			connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::DS_CHKGRNTRPLY, anonymousTxId, guarantorAddress, guarantorPubKey, vchSig));
+			logText = "All 3 public keys received, creating 2-of-3 multisig address.";
+			pCurrentAnonymousTxInfo->AddToLog(logText);
+
+			// now create 2-of-3 address, and send to sender/mixer
+			if(pCurrentAnonymousTxInfo->GetAtxStatus() == ATX_STATUS_PUBKEY)
+			{
+				b = CreateMultiSigAddress();
+				if(!b) {
+					std::string err = "processing message " + strCommand + " - error in creating multisig address.";
+					return error(err.c_str());
+				}
+
+				std::string multiSigAddress = pCurrentAnonymousTxInfo->GetMultiSigAddress();
+				std::string redeemScript = pCurrentAnonymousTxInfo->GetRedeemScript();
+
+				logText = "2-of-3 Multisig Address created. Address = " + multiSigAddress + ".";
+				pCurrentAnonymousTxInfo->AddToLog(logText);
+				logText = "Redeem Script = " + redeemScript + ".";
+				pCurrentAnonymousTxInfo->AddToLog(logText);
+
+				b = SignMessageUsingAddress(multiSigAddress, guarantorAddress, vchSig);
+				if(!b) {
+					std::string err = "processing message " + strCommand + " - error in signing message with multisig.";
+					return error(err.c_str());
+				}
+		
+				connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::DS_MSIGADDR, anonymousTxId, multiSigAddress, redeemScript, vchSig));
+				CNode* pSender = pCurrentAnonymousTxInfo->GetNode(ROLE_SENDER);
+				connman->PushMessage(pSender, msgMaker.Make(NetMsgType::DS_MSIGADDR, anonymousTxId, multiSigAddress, redeemScript, vchSig));
+			}
+		}
+    }
+
+	else if (strCommand == NetMsgType::DS_CHKGRNTRPLY)	// message guarantor -> mixer
+    {
+		LogPrint(BCLog::DEEPSEND, "Processing message %s from %s\n", strCommand, pfrom->addr.ToString());
+		std::string anonymousTxId;
+		std::string guarantorAddress;
+		std::string guarantorPubKey;
+		std::vector<unsigned char> vchSig;
+        vRecv >> anonymousTxId >> guarantorAddress >> guarantorPubKey >> vchSig;
+
+		if(VerifyMessageSignature(guarantorAddress, guarantorAddress, vchSig))
+		{
+			LogPrint(BCLog::DEEPSEND, ">> %s: signature verified.\n", strCommand);
+		}
+		else	
+		{
+			std::string err = "processing message " + strCommand + " - signature can not be verified. message ignored.";
+			return error(err.c_str());
+		}
+
+		{
+			LOCK(cs_deepsend);
+			pCurrentAnonymousTxInfo->SetAddressAndPubKey(ROLE_GUARANTOR, guarantorAddress, guarantorPubKey);
+			std::string logText = "Guarantor accepted request.";
+			pCurrentAnonymousTxInfo->AddToLog(logText);
+			logText = "Set Guarantor Address = " + guarantorAddress + ", PublicKey = " + guarantorPubKey + ".";
+			pCurrentAnonymousTxInfo->AddToLog(logText);
+		}
+    }
+
+	else if (strCommand == NetMsgType::DS_MSIGADDR)	// message guarantor -> sender and mixer.
+    {
+		LogPrint(BCLog::DEEPSEND, "Processing message %s from %s\n", strCommand, pfrom->addr.ToString());
+		std::string anonymousTxId;
+		std::string multiSigAddress;
+		std::string redeemScript;
+		std::vector<unsigned char> vchSig;
+		std::string txid;
+		CNode* pNode = NULL;
+
+        vRecv >> anonymousTxId >> multiSigAddress >> redeemScript >> vchSig;
+
+		{
+			LOCK(cs_deepsend);
+			std::string guarantorAddress = pCurrentAnonymousTxInfo->GetAddress(ROLE_GUARANTOR);
+
+			if(VerifyMessageSignature(multiSigAddress, guarantorAddress, vchSig))
+			{
+				LogPrint(BCLog::DEEPSEND, ">> %s: signature verified.\n", strCommand);
+			}
+			else	
+			{
+				std::string err = "processing message " + strCommand + " - signature can not be verified. message ignored.";
+				return error(err.c_str());
+			}
+
+			pCurrentAnonymousTxInfo->SetMultiSigAddress(multiSigAddress, redeemScript);
+			std::string logText = "Received 2-of-3 Multisig Address. Address = " + multiSigAddress + ".";
+			pCurrentAnonymousTxInfo->AddToLog(logText);
+			logText = "Received Redeem Script = " + redeemScript + ".";
+			pCurrentAnonymousTxInfo->AddToLog(logText);
+
+			// sender will deposit to multisig address first, mixer will record info but don't deposit until sender deposited
+			// same for guarantor. This is a security measure to avoid sender scam.
+			if(pCurrentAnonymousTxInfo->GetRole() == ROLE_MIXER)
+				return true;
+			
+			bool b = DepositToMultisig(txid, connman);
+			
+			if(!b)
+			{
+				LogPrintf("ERROR. Error to deposit money to escrow.\n");
+				std::string err = "processing message " + strCommand + " - error to deposit money to escrow.";
+				return error(err.c_str());
+			}	
+			pCurrentAnonymousTxInfo->SetTxid(pCurrentAnonymousTxInfo->GetRole(), txid);
+
+			logText = "Deposited to Multisig address. TxID = " + txid + ".";
+			pCurrentAnonymousTxInfo->AddToLog(logText);
+
+			// send tx to both guarantor and mixer
+			std::string selfAddress = pCurrentAnonymousTxInfo->GetSelfAddress();
+
+			b = SignMessageUsingAddress(txid, selfAddress, vchSig);
+			if(!b) {
+				std::string err = "processing message " + strCommand + " - error in signing message with txid.";
+				return error(err.c_str());
+			}
+		
+			AnonymousTxRole tag = ROLE_MIXER;
+			pNode = pCurrentAnonymousTxInfo->GetNode(tag);
+		}
+
+		connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::DS_MSIGADDRRPLY, anonymousTxId, txid, vchSig));
+		connman->PushMessage(pNode, msgMaker.Make(NetMsgType::DS_MSIGADDRRPLY, anonymousTxId, txid, vchSig));
+    }
+
+	else if (strCommand == NetMsgType::DS_MSIGADDRRPLY)	// message sender -> mixer and guarantor
+    {
+		LogPrint(BCLog::DEEPSEND, "Processing message %s from %s\n", strCommand, pfrom->addr.ToString());
+		std::string anonymousTxId;
+		std::string txid;
+		std::vector<unsigned char> vchSig;
+        vRecv >> anonymousTxId >> txid >> vchSig;
+
+		{
+			LOCK(cs_deepsend);
+			AnonymousTxRole sourceRole = ROLE_SENDER;
+			std::string sourceAddress = pCurrentAnonymousTxInfo->GetAddress(sourceRole);
+			if(VerifyMessageSignature(txid, sourceAddress, vchSig))
+			{
+				LogPrint(BCLog::DEEPSEND, ">> %s: signature verified.\n", strCommand);
+			}
+			else	
+			{
+				std::string err = "processing message " + strCommand + " - signature can not be verified. message ignored.";
+				return error(err.c_str());
+			}
+
+			// record the txid received
+			pCurrentAnonymousTxInfo->SetTxid(sourceRole, txid);
+			std::string logText = "Received deposit TxID from sender. TxID = " + txid + ".";
+			pCurrentAnonymousTxInfo->AddToLog(logText);
+
+			// mixer to verify sender's tx, relay
+			if(pCurrentAnonymousTxInfo->GetRole() == ROLE_MIXER)
+			{
+				std::string selfAddress = pCurrentAnonymousTxInfo->GetSelfAddress();
+				bool b = SignMessageUsingAddress(txid, selfAddress, vchSig);
+				if(!b) {
+					std::string err = "processing message " + strCommand + " - error in signing message with selfAddress.";
+					return error(err.c_str());
+				}
+			
+				int cnt = 0;
+				AnonymousTxRole tag = ROLE_GUARANTOR;
+				CNode* pNode = pCurrentAnonymousTxInfo->GetNode(tag);
+				connman->PushMessage(pNode, msgMaker.Make(NetMsgType::DS_CHKSDRELAY, anonymousTxId, txid, cnt, vchSig));
+			}
+		}
+    }
+    
+	else if (strCommand == NetMsgType::DS_CHKSDRELAY)	// message mixer -> guarantor
+    {
+		LogPrint(BCLog::DEEPSEND, "Processing message %s from %s\n", strCommand, pfrom->addr.ToString());
+		std::string anonymousTxId;
+		std::string txid;
+		int cnt;
+		std::vector<unsigned char> vchSig;
+        vRecv >> anonymousTxId >> txid >> cnt >> vchSig;
+        
+        AnonymousTxRole sourceRole = ROLE_MIXER;
+		std::string sourceAddress = pCurrentAnonymousTxInfo->GetAddress(sourceRole);
+		if(VerifyMessageSignature(txid, sourceAddress, vchSig))
+		{
+			LogPrint(BCLog::DEEPSEND, ">> %s: signature verified.\n", strCommand);
+		}
+		else	
+		{
+			std::string err = "processing message " + strCommand + " - signature can not be verified. message ignored.";
+			return error(err.c_str());
+		}
+
+		MilliSleep(5000);
+
+		std::string selfAddress = pCurrentAnonymousTxInfo->GetSelfAddress();
+
+		bool b = SignMessageUsingAddress(txid, selfAddress, vchSig);
+		if(!b) {
+			std::string err = "processing message " + strCommand + " - error in signing message with selfAddress.";
+			return error(err.c_str());
+		}
+
+		++cnt;
+		connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::DS_CHKSENDERTX, anonymousTxId, txid, cnt, vchSig));
+    }
+
+	else if (strCommand == NetMsgType::DS_CHKSENDERTX)	// message guarantor -> mixer
+    {
+		LogPrint(BCLog::DEEPSEND, "Processing message %s from %s\n", strCommand, pfrom->addr.ToString());
+		std::string anonymousTxId;
+		std::string txid;
+		int cnt;
+		std::vector<unsigned char> vchSig;
+        vRecv >> anonymousTxId >> txid >> cnt >> vchSig;
+
+        AnonymousTxRole sourceRole = ROLE_GUARANTOR;
+		std::string sourceAddress = pCurrentAnonymousTxInfo->GetAddress(sourceRole);
+		if(VerifyMessageSignature(txid, sourceAddress, vchSig))
+		{
+			LogPrint(BCLog::DEEPSEND, ">> %s: signature verified.\n", strCommand);
+		}
+		else	
+		{
+			std::string err = "processing message " + strCommand + " - signature can not be verified. message ignored.";
+			return error(err.c_str());
+		}
+
+		{
+			LOCK(cs_deepsend);
+			std::string logText = "Verifying sender's deposit to multisig address. This is check No." + std::to_string(cnt) + ".";
+			pCurrentAnonymousTxInfo->AddToLog(logText);
+
+			bool successful = pCurrentAnonymousTxInfo->CheckSenderDepositTx();
+			if(successful) 
+			{
+				std::string logText = "Successfully verified sender's deposit to multisig address.";
+				pCurrentAnonymousTxInfo->AddToLog(logText);
+
+				std::string txid0;
+				bool b = DepositToMultisig(txid0, connman);
+				if(!b)
+				{
+					LogPrintf("ERROR. Error for mixer to deposit money to escrow.\n");
+					std::string err = "processing message " + strCommand + " - error for mixer to deposit money to escrow.";
+					return error(err.c_str());
+				}
+
+				pCurrentAnonymousTxInfo->SetTxid(ROLE_MIXER, txid0);
+				logText = "Mixer deposited to Multisig address. TxID = " + txid0 + ".";
+				pCurrentAnonymousTxInfo->AddToLog(logText);
+
+				// send tx to both other parties
+				std::string selfAddress = pCurrentAnonymousTxInfo->GetSelfAddress();
+
+				b = SignMessageUsingAddress(txid0, selfAddress, vchSig);
+				if(!b) {
+					std::string err = "processing message " + strCommand + " - error in signing message with txid.";
+					return error(err.c_str());
+				}
+			
+				AnonymousTxRole tag = ROLE_SENDER;
+				CNode* pNode = pCurrentAnonymousTxInfo->GetNode(tag);
+				connman->PushMessage(pNode, msgMaker.Make(NetMsgType::DS_MSIGMIXSENT, anonymousTxId, txid0, vchSig));
+
+				tag = ROLE_GUARANTOR;
+				pNode = pCurrentAnonymousTxInfo->GetNode(tag);
+				connman->PushMessage(pNode, msgMaker.Make(NetMsgType::DS_MSIGMIXSENT, anonymousTxId, txid0, vchSig));
+			}
+			else
+			{
+				if(cnt > 10)
+				{
+					logText = "Unable to verify sender's deposit to multisig after 10 tries. Abort.";
+					pCurrentAnonymousTxInfo->AddToLog(logText);
+					std::string err = "processing message " + strCommand + " - error can't verify sender's deposit after 10 tries.";
+					return error(err.c_str());
+				}
+				else
+				{
+					logText = "Unable to verify sender's deposit to multisig... will try later.";
+					pCurrentAnonymousTxInfo->AddToLog(logText);
+					
+					std::string selfAddress = pCurrentAnonymousTxInfo->GetSelfAddress();
+					bool b = SignMessageUsingAddress(txid, selfAddress, vchSig);
+					if(!b) {
+						std::string err = "processing message " + strCommand + " - error in signing message with selfAddress.";
+						return error(err.c_str());
+					}
+		
+					cnt++;
+					AnonymousTxRole tag = ROLE_GUARANTOR;
+					CNode* pNode = pCurrentAnonymousTxInfo->GetNode(tag);
+					connman->PushMessage(pNode, msgMaker.Make(NetMsgType::DS_CHKSDRELAY, anonymousTxId, txid, cnt, vchSig));
+				}
+			}
+		}
+    }
+    
+	else if (strCommand == NetMsgType::DS_MSIGMIXSENT)	// message mixer -> sender and guarantor
+    {
+		LogPrint(BCLog::DEEPSEND, "Processing message %s from %s\n", strCommand, pfrom->addr.ToString());
+		std::string anonymousTxId;
+		std::string txid;
+		std::vector<unsigned char> vchSig;
+        vRecv >> anonymousTxId >> txid >> vchSig;
+
+        AnonymousTxRole sourceRole = ROLE_MIXER;
+		std::string sourceAddress = pCurrentAnonymousTxInfo->GetAddress(sourceRole);
+		if(VerifyMessageSignature(txid, sourceAddress, vchSig))
+		{
+			LogPrint(BCLog::DEEPSEND, ">> %s: signature verified.\n", strCommand);
+		}
+		else	
+		{
+			std::string err = "processing message " + strCommand + " - signature can not be verified. message ignored.";
+			return error(err.c_str());
+		}
+
+		{
+			LOCK(cs_deepsend);
+			
+			// record the txid received
+			pCurrentAnonymousTxInfo->SetTxid(sourceRole, txid);
+			std::string logText = "Received deposit TxID from mixer. TxID = " + txid + ".";
+			pCurrentAnonymousTxInfo->AddToLog(logText);
+
+			if(pCurrentAnonymousTxInfo->GetRole() == ROLE_SENDER)
+				return true;
+
+			// guarantor deposit
+			std::string txid0;
+			bool b = DepositToMultisig(txid0, connman);
+			if(!b)
+			{
+				LogPrintf("ERROR. Error for guarantor to deposit money to escrow.\n");
+				std::string err = "processing message " + strCommand + " - error for guarantor to deposit money to escrow.";
+				return error(err.c_str());
+			}
+
+			pCurrentAnonymousTxInfo->SetTxid(ROLE_GUARANTOR, txid0);
+			logText = "Guarantor deposited to Multisig address. TxID = " + txid0 + ".";
+			pCurrentAnonymousTxInfo->AddToLog(logText);
+
+			// send tx to both other parties
+			std::string selfAddress = pCurrentAnonymousTxInfo->GetSelfAddress();
+
+			b = SignMessageUsingAddress(txid0, selfAddress, vchSig);
+			if(!b) {
+				std::string err = "processing message " + strCommand + " - error in signing message with txid.";
+				return error(err.c_str());
+			}
+				
+			AnonymousTxRole tag = ROLE_SENDER;
+			CNode* pNode = pCurrentAnonymousTxInfo->GetNode(tag);
+			connman->PushMessage(pNode, msgMaker.Make(NetMsgType::DS_MSIGGRTSENT, anonymousTxId, txid0, vchSig));
+			connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::DS_MSIGGRTSENT, anonymousTxId, txid0, vchSig));
+		}
+    }
+    
+	else if (strCommand == NetMsgType::DS_MSIGGRTSENT)	// message guarantor -> sender and mixer
+    {
+		LogPrint(BCLog::DEEPSEND, "Processing message %s from %s\n", strCommand, pfrom->addr.ToString());
+		std::string anonymousTxId;
+		std::string txid;
+		std::vector<unsigned char> vchSig;
+        vRecv >> anonymousTxId >> txid >> vchSig;
+
+        AnonymousTxRole sourceRole = ROLE_GUARANTOR;
+		std::string sourceAddress = pCurrentAnonymousTxInfo->GetAddress(sourceRole);
+		if(VerifyMessageSignature(txid, sourceAddress, vchSig))
+		{
+			LogPrint(BCLog::DEEPSEND, ">> %s: signature verified.\n", strCommand);
+		}
+		else	
+		{
+			std::string err = "processing message " + strCommand + " - signature can not be verified. message ignored.";
+			return error(err.c_str());
+		}
+
+		{
+			LOCK(cs_deepsend);
+			
+			// record the txid received
+			pCurrentAnonymousTxInfo->SetTxid(sourceRole, txid);
+			std::string logText = "Received deposit TxID from guarantor. TxID = " + txid + ".";
+			pCurrentAnonymousTxInfo->AddToLog(logText);
+
+			if(pCurrentAnonymousTxInfo->GetRole() == ROLE_MIXER)
+				return true;
+
+			// relay between sender and guarantor
+			std::string selfAddress = pCurrentAnonymousTxInfo->GetSelfAddress();
+			int cnt = 0;
+			bool b = SignMessageUsingAddress(selfAddress, selfAddress, vchSig);
+			if(!b) {
+				std::string err = "processing message " + strCommand + " - error in signing message with txid.";
+				return error(err.c_str());
+			}
+	
+			connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::DS_MSTXRELAY, anonymousTxId, cnt, vchSig));
+		}
+    }
+
+	else if (strCommand == NetMsgType::DS_MSTXRELAY)	// message sender -> guarantor
+    {
+		LogPrint(BCLog::DEEPSEND, "Processing message %s from %s\n", strCommand, pfrom->addr.ToString());
+		std::string anonymousTxId;
+		int cnt;
+		std::vector<unsigned char> vchSig;
+        vRecv >> anonymousTxId >> cnt >> vchSig;
+
+        AnonymousTxRole sourceRole = ROLE_SENDER;
+		std::string sourceAddress = pCurrentAnonymousTxInfo->GetAddress(sourceRole);
+		if(VerifyMessageSignature(sourceAddress, sourceAddress, vchSig))
+		{
+			LogPrint(BCLog::DEEPSEND, ">> %s: signature verified.\n", strCommand);
+		}
+		else	
+		{
+			std::string err = "processing message " + strCommand + " - signature can not be verified. message ignored.";
+			return error(err.c_str());
+		}
+
+		MilliSleep(5000);
+		std::string selfAddress = pCurrentAnonymousTxInfo->GetSelfAddress();
+		++cnt;
+		bool b = SignMessageUsingAddress(selfAddress, selfAddress, vchSig);
+		if(!b) {
+			std::string err = "processing message " + strCommand + " - error in signing message with selfAddress.";
+			return error(err.c_str());
+		}
+
+		connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::DS_CHKMSTX, anonymousTxId, cnt, vchSig));
+    }
+
+	else if (strCommand == NetMsgType::DS_CHKMSTX)	// message guarantor -> sender
+    {
+		LogPrint(BCLog::DEEPSEND, "Processing message %s from %s\n", strCommand, pfrom->addr.ToString());
+		std::string anonymousTxId;
+		int cnt;
+		std::vector<unsigned char> vchSig;
+        vRecv >> anonymousTxId >> cnt >> vchSig;
+
+        AnonymousTxRole sourceRole = ROLE_GUARANTOR;
+		std::string sourceAddress = pCurrentAnonymousTxInfo->GetAddress(sourceRole);
+		if(VerifyMessageSignature(sourceAddress, sourceAddress, vchSig))
+		{
+			LogPrint(BCLog::DEEPSEND, ">> %s: signature verified.\n", strCommand);
+		}
+		else	
+		{
+			std::string err = "processing message " + strCommand + " - signature can not be verified. message ignored.";
+			return error(err.c_str());
+		}
+
+		{
+			LOCK(cs_deepsend);
+			std::string logText = "Verifying deposits to multisig address. This is check No." + std::to_string(cnt) + ".";
+			pCurrentAnonymousTxInfo->AddToLog(logText);
+
+			bool successful = pCurrentAnonymousTxInfo->CheckDepositTxes();
+			if(successful)	
+			{
+				logText = "All deposits to multisig address are verified.";
+				pCurrentAnonymousTxInfo->AddToLog(logText);
+
+				// prepare multisig tx
+				std::string multisigtx = CreateMultiSigDistributionTx();
+				logText = "Multisig distribution transaction is created. TxID = " + multisigtx + ".";
+				pCurrentAnonymousTxInfo->AddToLog(logText);
+
+				std::string selfAddress = pCurrentAnonymousTxInfo->GetSelfAddress();
+				bool b = SignMessageUsingAddress(multisigtx, selfAddress, vchSig);
+				if(!b) {
+					std::string err = "processing message " + strCommand + " - error in signing message with multisigtx.";
+					return error(err.c_str());
+				}
+
+				// send tx to both mixer and guarantor
+				std::string txid;
+				int voutnSender;
+				std::string pkSender;
+				CAmount amountSender;
+				pCurrentAnonymousTxInfo->GetMultisigTxOutInfo(ROLE_SENDER, txid, voutnSender, pkSender, amountSender);
+
+				int voutnMixer;
+				std::string pkMixer;
+				CAmount amountMixer;
+				pCurrentAnonymousTxInfo->GetMultisigTxOutInfo(ROLE_MIXER, txid, voutnMixer, pkMixer, amountMixer);
+
+				int voutnGuarantor;
+				std::string pkGuarantor;
+				CAmount amountGuarantor;
+				pCurrentAnonymousTxInfo->GetMultisigTxOutInfo(ROLE_SENDER, txid, voutnGuarantor, pkGuarantor, amountGuarantor);
+
+				connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::DS_MSDISTTX, anonymousTxId, multisigtx, voutnSender, pkSender, amountSender,
+						voutnMixer, pkMixer, amountMixer, voutnGuarantor, pkGuarantor, amountGuarantor, vchSig));
+				CNode* pNode = pCurrentAnonymousTxInfo->GetNode(ROLE_MIXER);
+				connman->PushMessage(pNode, msgMaker.Make(NetMsgType::DS_MSDISTTX, anonymousTxId, multisigtx, voutnSender, pkSender, amountSender,
+						voutnMixer, pkMixer, amountMixer, voutnGuarantor, pkGuarantor, amountGuarantor, vchSig));
+
+				logText = "Multisig distribution transaction and TxIns are sent to Mixer and Guarantor.";
+				pCurrentAnonymousTxInfo->AddToLog(logText);
+			}
+			else
+			{
+				if(cnt > 10)
+				{
+					logText = "Unable to verify all deposits to multisig after 10 tries. Abort.";
+					pCurrentAnonymousTxInfo->AddToLog(logText);
+					std::string err = "processing message " + strCommand + " - error can't check all txids in 10 tries.";
+					return error(err.c_str());
+				}
+				else
+				{
+					logText = "Unable to verify all deposits to multisig... will try later.";
+					pCurrentAnonymousTxInfo->AddToLog(logText);
+
+					// send a mstxrelay message
+					std::string selfAddress = pCurrentAnonymousTxInfo->GetSelfAddress();
+
+					bool b = SignMessageUsingAddress(selfAddress, selfAddress, vchSig);
+					if(!b) {
+						std::string err = "processing message " + strCommand + " - error in signing message with selfAddress.";
+						return error(err.c_str());
+					}
+					connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::DS_MSTXRELAY, anonymousTxId, cnt, vchSig));
+				}
+			}
+		}
+    }
+
+	else if (strCommand == NetMsgType::DS_MSDISTTX)	// message sender -> mixer and guarantor
+    {
+		LogPrint(BCLog::DEEPSEND, "Processing message %s from %s\n", strCommand, pfrom->addr.ToString());
+		std::string anonymousTxId;
+		std::string multisigtx;
+		int voutnSender;
+		std::string pkSender;
+		CAmount amountSender;
+		int voutnMixer;
+		std::string pkMixer;
+		CAmount amountMixer;
+		int voutnGuarantor;
+		std::string pkGuarantor;
+		CAmount amountGuarantor;
+		std::vector<unsigned char> vchSig;
+
+        vRecv >> anonymousTxId >> multisigtx >> voutnSender >> pkSender >> amountSender
+			>> voutnMixer >> pkMixer >> amountMixer >> voutnGuarantor >> pkGuarantor >> amountGuarantor >> vchSig;
+
+		{
+			LOCK(cs_deepsend);
+			
+			std::string sourceAddress = pCurrentAnonymousTxInfo->GetAddress(ROLE_SENDER);
+			if(VerifyMessageSignature(multisigtx, sourceAddress, vchSig))
+			{
+				LogPrint(BCLog::DEEPSEND, ">> %s: signature verified.\n", strCommand);
+			}
+			else	
+			{
+				std::string err = "processing message " + strCommand + " - signature can not be verified. message ignored.";
+				return error(err.c_str());
+			}
+
+			pCurrentAnonymousTxInfo->SetTx(multisigtx, 0);
+			pCurrentAnonymousTxInfo->SetVoutAndScriptPubKey(ROLE_SENDER, voutnSender, pkSender, amountSender);
+			pCurrentAnonymousTxInfo->SetVoutAndScriptPubKey(ROLE_MIXER, voutnMixer, pkMixer, amountMixer);
+			pCurrentAnonymousTxInfo->SetVoutAndScriptPubKey(ROLE_GUARANTOR, voutnGuarantor, pkGuarantor, amountGuarantor);
+
+			std::string logText = "Received multisig distribution transaction. TxID = " + multisigtx + ".";
+			pCurrentAnonymousTxInfo->AddToLog(logText);
+			logText = "Received TxIns information.";
+			pCurrentAnonymousTxInfo->AddToLog(logText);
+
+			// mixer will send the coins to destination, sign multisig tx, then send to sender/guarantor
+			if(pCurrentAnonymousTxInfo->GetRole() == ROLE_MIXER)
+			{
+				std::string sendtxid;
+				bool b = SendCoinsToDestination(sendtxid, connman);
+				if(!b)
+				{
+					LogPrintf("ERROR. Can't send coins to destination.\n");
+					std::string err = "processing message " + strCommand + " - Can't send coins to destination.";
+					return error(err.c_str());
+				}
+				logText = "Required amount is sent to final destination. TxID = " + sendtxid + ".";
+				pCurrentAnonymousTxInfo->AddToLog(logText);
+
+				b = SignMultiSigDistributionTx();
+				if(!b)
+				{
+					LogPrintf("ERROR. Mixer can't sign multisig distribution tx.\n");
+					std::string selfAddress = pCurrentAnonymousTxInfo->GetSelfAddress();
+
+		            b = SignMessageUsingAddress(selfAddress, selfAddress, vchSig);
+		            if(!b) {
+						std::string err = "processing message " + strCommand + " - error in signing message with selfAddress.";
+						return error(err.c_str());
+		            }
+
+		            int cnt = 0;
+		            CNode* pNode = pCurrentAnonymousTxInfo->GetNode(ROLE_GUARANTOR);
+	                connman->PushMessage(pNode, msgMaker.Make(NetMsgType::DS_MSDISTRELAY, anonymousTxId, selfAddress, cnt, vchSig));
+				} else {
+                    std::string disttx = pCurrentAnonymousTxInfo->GetTx();
+                    logText = "Mixer successfully signed the distribution tx. TxID = " + disttx + ".";
+                    pCurrentAnonymousTxInfo->AddToLog(logText);
+
+                    std::string selfAddress = pCurrentAnonymousTxInfo->GetSelfAddress();
+                    b = SignMessageUsingAddress(sendtxid, selfAddress, vchSig);
+                    if(!b) {
+						std::string err = "processing message " + strCommand + " - error in signing message with sendtxid.";
+						return error(err.c_str());
+                    }
+
+                    connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::DS_DSTTXCMPLT, anonymousTxId, sendtxid, disttx, vchSig));
+                    CNode* pNode = pCurrentAnonymousTxInfo->GetNode(ROLE_GUARANTOR);
+                    connman->PushMessage(pNode, msgMaker.Make(NetMsgType::DS_DSTTXCMPLT, anonymousTxId, sendtxid, disttx, vchSig));
+				}
+			}
+		}
+    }
+    
+    
+	else if (strCommand == NetMsgType::DS_DSTTXCMPLT)	// message mixer -> sender, guarantor
+    {
+		LogPrint(BCLog::DEEPSEND, "Processing message %s ... \n", strCommand);
+		std::string anonymousTxId;
+		std::string sendtxid;
+		std::string disttx;
+		std::vector<unsigned char> vchSig;
+        vRecv >> anonymousTxId >> sendtxid >> disttx >> vchSig;
+
+		std::string mixerAddress = pCurrentAnonymousTxInfo->GetAddress(ROLE_MIXER);
+
+		if(VerifyMessageSignature(sendtxid, mixerAddress, vchSig))
+		{
+			LogPrint(BCLog::DEEPSEND, ">> %s: signature verified.\n", strCommand);
+		}
+		else	
+		{
+			std::string err = "processing message " + strCommand + " - signature can not be verified. message ignored.";
+			return error(err.c_str());
+		}
+
+		{
+			LOCK(cs_deepsend);
+			pCurrentAnonymousTxInfo->SetTx(disttx, 1);
+			pCurrentAnonymousTxInfo->SetSendTx(sendtxid);
+		}
+
+		std::string logText = "Received Mixer send coin TxID. TxID = " + sendtxid + ".";
+		pCurrentAnonymousTxInfo->AddToLog(logText);
+		logText = "Received multisig distribution TxID after Mixer signed. TxID = " + disttx + ".";
+		pCurrentAnonymousTxInfo->AddToLog(logText);
+
+		// only sender needs to check and sign/post tx - sender relay and check the send tx first
+		if(pCurrentAnonymousTxInfo->GetRole() == ROLE_SENDER)
+		{
+			logText = "Sending relay message to mixer for verifying mixer tx.";
+			pCurrentAnonymousTxInfo->AddToLog(logText);
+
+			std::string selfAddress = pCurrentAnonymousTxInfo->GetSelfAddress();
+			bool b = SignMessageUsingAddress(sendtxid, selfAddress, vchSig);
+			if(!b) {
+				std::string err = "processing message " + strCommand + " - error in signing message with selfAddress.";
+				return error(err.c_str());
+			}
+		
+			int cnt = 0;
+			CNode* pNode = pCurrentAnonymousTxInfo->GetNode(ROLE_GUARANTOR);
+			LogPrint(BCLog::DEEPSEND, "sending message %s to %s\n", NetMsgType::DS_CHKDTXRLAY, pNode->addr.ToString());
+            connman->PushMessage(pNode, msgMaker.Make(NetMsgType::DS_CHKDTXRLAY, anonymousTxId, sendtxid, cnt, vchSig));
+		}
+    }
+
+	else if (strCommand == NetMsgType::DS_CHKDTXRLAY)	// message sender -> guarantor
+    {
+		LogPrint(BCLog::DEEPSEND, "Processing message %s from %s\n", strCommand, pfrom->addr.ToString());
+		std::string anonymousTxId;
+		std::string sendtxid;
+		int cnt;
+		std::vector<unsigned char> vchSig;
+        vRecv >> anonymousTxId >> sendtxid >> cnt >> vchSig;
+
+		std::string sourceAddress = pCurrentAnonymousTxInfo->GetAddress(ROLE_SENDER);
+		if(VerifyMessageSignature(sendtxid, sourceAddress, vchSig))
+		{
+			LogPrint(BCLog::DEEPSEND, ">> %s: signature verified.\n", strCommand);
+		}
+		else	
+		{
+			std::string err = "processing message " + strCommand + " - signature can not be verified. message ignored.";
+			return error(err.c_str());
+		}
+
+		MilliSleep(5000);
+		std::string selfAddress = pCurrentAnonymousTxInfo->GetSelfAddress();
+		bool b = SignMessageUsingAddress(sendtxid, selfAddress, vchSig);
+		if(!b) {
+			std::string err = "processing message " + strCommand + " - error in signing message with selfAddress.";
+			return error(err.c_str());
+		}
+		
+		++cnt;
+		connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::DS_CHKDSTTXREQ, anonymousTxId, sendtxid, cnt, vchSig));
+    }
+
+	else if (strCommand == NetMsgType::DS_CHKDSTTXREQ)	// message guarantor -> sender
+    {
+		LogPrint(BCLog::DEEPSEND, "Processing message %s from %s\n", strCommand, pfrom->addr.ToString());
+		std::string anonymousTxId;
+		std::string sendtxid;
+		int cnt;
+		std::vector<unsigned char> vchSig;
+        vRecv >> anonymousTxId >> sendtxid >> cnt >> vchSig;
+
+		std::string sourceAddress = pCurrentAnonymousTxInfo->GetAddress(ROLE_GUARANTOR);
+		if(VerifyMessageSignature(sendtxid, sourceAddress, vchSig))
+		{
+			LogPrint(BCLog::DEEPSEND, ">> %s: signature verified.\n", strCommand);
+		}
+		else	
+		{
+			std::string err = "processing message " + strCommand + " - signature can not be verified. message ignored.";
+			return error(err.c_str());
+		}
+
+		{
+			LOCK(cs_deepsend);
+			std::string logText = "Verify Mixer's sendcoin TxID. This is verification No." + std::to_string(cnt) + ".";
+			pCurrentAnonymousTxInfo->AddToLog(logText);
+
+            bool successful = pCurrentAnonymousTxInfo->CheckSendTx();
+			if(successful)	
+			{
+				logText = "Mixer's sendcoin transaction is verified.";
+				pCurrentAnonymousTxInfo->AddToLog(logText);
+
+				// sign mutlsig tx
+				bool b = SignMultiSigDistributionTx();
+				if(!b)
+				{
+					LogPrintf("ERROR. Sender can't sign multisig distribution tx.\n");
+					std::string err = "processing message " + strCommand + " - can't sign multisig distribution tx.";
+					return error(err.c_str());
+				}
+				std::string disttx = pCurrentAnonymousTxInfo->GetTx();
+				pCurrentAnonymousTxInfo->SetTx(disttx, 2);
+
+				logText = "Sender successfully signed the multisig distribution transaction. TxID = " + disttx + ".";
+				pCurrentAnonymousTxInfo->AddToLog(logText);
+				logText = "Multisig distribution transaction is fully signed.";
+				pCurrentAnonymousTxInfo->AddToLog(logText);
+
+				// now send the signed tx
+				b = SendMultiSigDistributionTx(connman);
+				if(!b)
+				{
+					LogPrintf("ERROR. Sender can't send multisig distribution tx.\n");
+					std::string err = "processing message " + strCommand + " - can't send multisig distribution tx.";
+					return error(err.c_str());
+				}
+				std::string selfAddress = pCurrentAnonymousTxInfo->GetSelfAddress();
+				std::string committedTx = pCurrentAnonymousTxInfo->GetCommittedMsTx();
+
+				logText = "Multisig distribution transaction is successfully posted to the network. TxID = " + committedTx + ".";
+				pCurrentAnonymousTxInfo->AddToLog(logText);
+				logText = "Escrow's fund is refunded to each parties.";
+				pCurrentAnonymousTxInfo->AddToLog(logText);
+				logText = "Anonymous Send is successful.";
+				pCurrentAnonymousTxInfo->AddToLog(logText);
+
+				b = SignMessageUsingAddress(committedTx, selfAddress, vchSig);
+				if(!b) {
+					std::string err = "processing message " + strCommand + " - error in signing message with multisigtx.";
+					return error(err.c_str());
+				}
+
+				// send tx to both mixer and guarantor
+				connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::DS_SENDCMPLT, anonymousTxId, committedTx, vchSig));
+				CNode* pNode = pCurrentAnonymousTxInfo->GetNode(ROLE_MIXER);
+				connman->PushMessage(pNode, msgMaker.Make(NetMsgType::DS_SENDCMPLT, anonymousTxId, committedTx, vchSig));
+			}
+			else
+			{
+				if(cnt > 10)
+				{
+					logText = "Unable to verify Mixer's sendcoin transaction after 10 tries. Abort.";
+					pCurrentAnonymousTxInfo->AddToLog(logText);
+
+					std::string cancelTx = CreateCancelDistributionTx(false);
+					// Distribution TX is now the cancel varient.
+					if(!SignMultiSigDistributionTx()) {
+						std::string err = "processing message " + strCommand + " - couldn't sign cancellation tx.";
+						return error(err.c_str());
+					}
+					std::string pSelfAddress = pCurrentAnonymousTxInfo->GetSelfAddress();
+
+					cancelTx = pCurrentAnonymousTxInfo->GetTx();
+					bool b = SignMessageUsingAddress(cancelTx, pSelfAddress, vchSig);
+					if(!b) {
+						std::string err = "processing message " + strCommand + " - error in signing message with cancelTx.";
+						return error(err.c_str());
+					}
+
+			        std::string source = "sender";
+					CNode* pNode = pCurrentAnonymousTxInfo->GetNode(ROLE_GUARANTOR);
+
+	                // send tx to both sender and mixer
+	                std::string txid;
+	                int voutnSender;
+	                std::string pkSender;
+	                CAmount amountSender;
+	                pCurrentAnonymousTxInfo->GetMultisigTxOutInfo(ROLE_SENDER, txid, voutnSender, pkSender, amountSender);
+
+	                int voutnMixer;
+	                std::string pkMixer;
+	                CAmount amountMixer;
+	                pCurrentAnonymousTxInfo->GetMultisigTxOutInfo(ROLE_MIXER, txid, voutnMixer, pkMixer, amountMixer);
+
+	                int voutnGuarantor;
+	                std::string pkGuarantor;
+	                CAmount amountGuarantor;
+	                pCurrentAnonymousTxInfo->GetMultisigTxOutInfo(ROLE_GUARANTOR, txid, voutnGuarantor, pkGuarantor, amountGuarantor);
+
+					connman->PushMessage(pNode, msgMaker.Make(NetMsgType::DS_CANCEL, anonymousTxId, cancelTx, pSelfAddress, source, voutnSender, pkSender, amountSender,
+                            voutnMixer, pkMixer, amountMixer, voutnGuarantor, pkGuarantor, amountGuarantor, vchSig));
+
+                    pCurrentAnonymousTxInfo->SetCancelled(true);
+				}
+				else
+				{
+					logText = "Unable to verify Mixer's sendcoin transaction... will try later.";
+					pCurrentAnonymousTxInfo->AddToLog(logText);
+
+					std::string selfAddress = pCurrentAnonymousTxInfo->GetSelfAddress();
+					bool b = SignMessageUsingAddress(sendtxid, selfAddress, vchSig);
+					if(!b) {
+						std::string err = "processing message " + strCommand + " - error in signing message with selfAddress.";
+						return error(err.c_str());
+					}
+		
+					connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::DS_CHKDTXRLAY, anonymousTxId, sendtxid, cnt, vchSig));
+				}
+			}
+		}
+    }
+    
+    else if (strCommand == NetMsgType::DS_MSDISTRELAY)    // message mixer -> guarantor || gaurantor -> mixer
+    {
+        LogPrint(BCLog::DEEPSEND, "Processing message %s from %s\n", strCommand, pfrom->addr.ToString());
+        std::string anonymousTxId;
+        std::string selfAddress;
+        int cnt;
+        std::vector<unsigned char> vchSig;
+        vRecv >> anonymousTxId >> selfAddress >> cnt >> vchSig;
+        bool b = true;
+
+        if(VerifyMessageSignature(selfAddress, selfAddress, vchSig))
+        {
+            LogPrint(BCLog::DEEPSEND, ">> %s: signature verified.\n", strCommand);
+        }
+        else
+        {
+			std::string err = "processing message " + strCommand + " - signature can not be verified. message ignored.";
+			return error(err.c_str());
+        }
+
+        if(pCurrentAnonymousTxInfo->GetRole() == ROLE_MIXER)
+        {
+            // Try and sign distribtion TX again.
+            b = SignMultiSigDistributionTx();
+            if(!b)
+            {
+                LogPrintf("ERROR. Mixer can't sign multisig distribution tx count: %d.\n", cnt);
+                selfAddress = pCurrentAnonymousTxInfo->GetSelfAddress();
+
+                if(cnt > 9) {
+        			std::string err = "processing message " + strCommand + " - too many attempts to sign.";
+        			return error(err.c_str());
+                }
+
+                b = SignMessageUsingAddress(selfAddress, selfAddress, vchSig);
+                if(!b) {
+        			std::string err = "processing message " + strCommand + " - error in signing message with selfAddress.";
+        			return error(err.c_str());
+                }
+
+                connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::DS_MSDISTRELAY, anonymousTxId, selfAddress, cnt, vchSig));
+            }  else {
+                std::string disttx = pCurrentAnonymousTxInfo->GetTx();
+                std::string logText = "Mixer successfully signed the distribution tx. TxID = " + disttx + ".";
+                pCurrentAnonymousTxInfo->AddToLog(logText);
+
+                std::string selfAddress = pCurrentAnonymousTxInfo->GetSelfAddress();
+                b = SignMessageUsingAddress(pCurrentAnonymousTxInfo->GetSendTx(), selfAddress, vchSig);
+                if(!b) {
+        			std::string err = "processing message " + strCommand + " - error in signing message with sendtxid.";
+        			return error(err.c_str());
+                }
+
+                connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::DS_DSTTXCMPLT, anonymousTxId, pCurrentAnonymousTxInfo->GetSendTx(), disttx, vchSig));
+                CNode* pNode = pCurrentAnonymousTxInfo->GetNode(ROLE_SENDER);
+                connman->PushMessage(pNode, msgMaker.Make(NetMsgType::DS_DSTTXCMPLT, anonymousTxId, pCurrentAnonymousTxInfo->GetSendTx(), disttx, vchSig));
+            }
+        }
+        else
+        {
+            if(cnt > 9) {
+    			std::string err = "processing message " + strCommand + " - too many attempts to sign.";
+    			return error(err.c_str());
+            }
+
+            MilliSleep(5000);
+            selfAddress = pCurrentAnonymousTxInfo->GetSelfAddress();
+
+            b = SignMessageUsingAddress(selfAddress, selfAddress, vchSig);
+            if(!b) {
+    			std::string err = "processing message " + strCommand + " - error in signing message with selfAddress.";
+    			return error(err.c_str());
+            }
+
+            ++cnt;
+            connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::DS_MSDISTRELAY, anonymousTxId, selfAddress, cnt, vchSig));
+        }
+    }
+
+	else if (strCommand == NetMsgType::DS_CANCEL)		// message any -> any
+    {
+		LogPrint(BCLog::DEEPSEND, "Processing message %s from %s\n", strCommand, pfrom->addr.ToString());
+        std::string anonymousTxId;
+		std::string cancelTx;
+		std::string pSelfAddress;
+        std::string source;
+        int voutnSender;
+        std::string pkSender;
+        CAmount amountSender;
+        int voutnMixer;
+        std::string pkMixer;
+        CAmount amountMixer;
+        int voutnGuarantor;
+        std::string pkGuarantor;
+        CAmount amountGuarantor;
+        std::vector<unsigned char> vchSig;
+
+        vRecv >> anonymousTxId >> cancelTx >> pSelfAddress >> source >> voutnSender >> pkSender >> amountSender
+                >> voutnMixer >> pkMixer >> amountMixer >> voutnGuarantor >> pkGuarantor >> amountGuarantor >> vchSig;
+
+		{
+			LOCK(cs_deepsend);
+
+	        AnonymousTxRole sourceRole = ROLE_SENDER;
+	        if(source == "mixer")
+	            sourceRole = ROLE_MIXER;
+	        else if(source == "guarantor")
+	            sourceRole = ROLE_GUARANTOR;
+
+			std::string senderAddress = pCurrentAnonymousTxInfo->GetAddress(sourceRole);
+
+			if(VerifyMessageSignature(cancelTx, senderAddress, vchSig))
+			{
+				LogPrint(BCLog::DEEPSEND, ">> %s: signature verified.\n", strCommand);
+			}
+			else
+			{
+				std::string err = "processing message " + strCommand + " - signature can not be verified. message ignored.";
+				return error(err.c_str());
+			}
+
+			// We've got a cancel message, check that cancelation is valid
+			int isCanceled = 1;
+			bool successful = pCurrentAnonymousTxInfo->CheckSendTx();
+			std::string logText = "Request to cancel received.";
+            pCurrentAnonymousTxInfo->AddToLog(logText);
+			if (!successful) {
+				// Overwrite the distribution
+				pCurrentAnonymousTxInfo->SetTx(cancelTx, 1);
+		        pCurrentAnonymousTxInfo->SetVoutAndScriptPubKey(ROLE_SENDER, voutnSender, pkSender, amountSender);
+		        pCurrentAnonymousTxInfo->SetVoutAndScriptPubKey(ROLE_MIXER, voutnMixer, pkMixer, amountMixer);
+		        pCurrentAnonymousTxInfo->SetVoutAndScriptPubKey(ROLE_GUARANTOR, voutnGuarantor, pkGuarantor, amountGuarantor);
+                logText = "Changed to cancel distribution.";
+			} else {
+			    logText = "Mixer has already sent funds, signing and distributing as normal.";
+			    isCanceled = 0;
+			}
+            pCurrentAnonymousTxInfo->AddToLog(logText);
+
+            // We have either a signed by 1 normal distribution or cancel distribution, so should be able to sign and broadcast.
+			bool b = SignMultiSigDistributionTx();
+			if(!b) {
+			    // If there is a problem with the original distribution TX we may have just been sent a new one to sign.
+			    if(isCanceled == 0) {
+	                // Overwrite the distribution
+	                pCurrentAnonymousTxInfo->SetTx(cancelTx, 1);
+	                pCurrentAnonymousTxInfo->SetVoutAndScriptPubKey(ROLE_SENDER, voutnSender, pkSender, amountSender);
+	                pCurrentAnonymousTxInfo->SetVoutAndScriptPubKey(ROLE_MIXER, voutnMixer, pkMixer, amountMixer);
+	                pCurrentAnonymousTxInfo->SetVoutAndScriptPubKey(ROLE_GUARANTOR, voutnGuarantor, pkGuarantor, amountGuarantor);
+	                logText = "Unable to sign original distribution, changed to use new distribution TX.";
+
+	                b = SignMultiSigDistributionTx();
+	                if(!b) {
+	                    std::string err = "processing message " + strCommand + " - couldn't sign new redistribution tx.";
+	                    return error(err.c_str());
+	                }
+			    } else {
+                    std::string err = "processing message " + strCommand + " - couldn't sign cancel tx.";
+                    return error(err.c_str());
+			    }
+			}
+			b = SendMultiSigDistributionTx(connman);
+			if(!b) {
+                // If there is a problem with the original distribution TX we may have just been sent a new one to sign.
+                if(isCanceled == 0) {
+                    // Overwrite the distribution
+                    pCurrentAnonymousTxInfo->SetTx(cancelTx, 1);
+                    pCurrentAnonymousTxInfo->SetVoutAndScriptPubKey(ROLE_SENDER, voutnSender, pkSender, amountSender);
+                    pCurrentAnonymousTxInfo->SetVoutAndScriptPubKey(ROLE_MIXER, voutnMixer, pkMixer, amountMixer);
+                    pCurrentAnonymousTxInfo->SetVoutAndScriptPubKey(ROLE_GUARANTOR, voutnGuarantor, pkGuarantor, amountGuarantor);
+                    logText = "Unable to send original distribution, changed to use new distribution TX.";
+
+                    b = SignMultiSigDistributionTx();
+                    if(!b) {
+                        std::string err = "processing message " + strCommand + " - couldn't sign new redistribution tx.";
+                        return error(err.c_str());
+                    }
+                    b = SendMultiSigDistributionTx(connman);
+                    if(!b) {
+                        std::string err = "processing message " + strCommand + " - couldn't send new redistribution tx.";
+                        return error(err.c_str());
+                    }
+                } else {
+                    std::string err = "processing message " + strCommand + " - couldn't send cancel tx.";
+                    return error(err.c_str());
+                }
+			}
+
+			std::string selfAddress = pCurrentAnonymousTxInfo->GetSelfAddress();
+			std::string committedTx = pCurrentAnonymousTxInfo->GetCommittedMsTx();
+
+			logText = "Multisig distribution transaction is successfully posted to the network. TxID = " + committedTx + ".";
+			pCurrentAnonymousTxInfo->AddToLog(logText);
+			logText = "Escrow's fund is refunded to each parties.";
+			pCurrentAnonymousTxInfo->AddToLog(logText);
+			logText = "Anonymous Send is successful.";
+			pCurrentAnonymousTxInfo->AddToLog(logText);
+
+			b = SignMessageUsingAddress(committedTx, selfAddress, vchSig);
+			if(!b) {
+				std::string err = "processing message " + strCommand + " - error in signing message with committedTx.";
+				return error(err.c_str());
+			}
+
+			// Send the complete message to other parties.
+			CNode* pNode;
+			if( (sourceRole == ROLE_SENDER && pCurrentAnonymousTxInfo->GetRole() == ROLE_MIXER) ||
+			        (sourceRole == ROLE_MIXER && pCurrentAnonymousTxInfo->GetRole() == ROLE_SENDER) ) {
+			    pNode = pCurrentAnonymousTxInfo->GetNode(ROLE_GUARANTOR);
+			} else if((sourceRole == ROLE_GUARANTOR && pCurrentAnonymousTxInfo->GetRole() == ROLE_MIXER) ||
+                    (sourceRole == ROLE_MIXER && pCurrentAnonymousTxInfo->GetRole() == ROLE_GUARANTOR)) {
+			    pNode = pCurrentAnonymousTxInfo->GetNode(ROLE_SENDER);
+			} else {
+			    pNode = pCurrentAnonymousTxInfo->GetNode(ROLE_MIXER);
+			}
+            std::string source = "sender";
+            AnonymousTxRole role = pCurrentAnonymousTxInfo->GetRole();
+            switch(role) {
+            case ROLE_SENDER:
+                source = "sender";
+                break;
+            case ROLE_MIXER:
+                source = "mixer";
+                break;
+            case ROLE_GUARANTOR:
+                source = "guarantor";
+                break;
+            default:
+				std::string err = "processing message " + strCommand + " - invalid role.";
+				return error(err.c_str());
+            }
+            connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::DS_CANCELCMPLT, anonymousTxId, committedTx, isCanceled, source, vchSig));
+			connman->PushMessage(pNode, msgMaker.Make(NetMsgType::DS_CANCELCMPLT, anonymousTxId, committedTx, isCanceled, source, vchSig));
+		}
+
+    }
+	else if (strCommand == NetMsgType::DS_SENDCMPLT)		// message sender -> guarantor, mixer
+    {
+		LogPrint(BCLog::DEEPSEND, "Processing message %s from %s\n", strCommand, pfrom->addr.ToString());
+		std::string anonymousTxId;
+		std::string committedTx;
+		std::vector<unsigned char> vchSig;
+        vRecv >> anonymousTxId >> committedTx >> vchSig;
+				
+		{
+			LOCK(cs_deepsend);
+
+			std::string senderAddress = pCurrentAnonymousTxInfo->GetAddress(ROLE_SENDER);
+
+			if(VerifyMessageSignature(committedTx, senderAddress, vchSig))
+			{
+				LogPrint(BCLog::DEEPSEND, ">> %s: signature verified.\n", strCommand);
+			}
+			else	
+			{
+				std::string err = "processing message " + strCommand + " - signature can not be verified. message ignored.";
+				return error(err.c_str());
+			}
+
+			pCurrentAnonymousTxInfo->SetCommittedMsTx(committedTx);
+			std::string logText = "Received multisig distribution tx execution. TxID = " + committedTx + ".";
+			pCurrentAnonymousTxInfo->AddToLog(logText);
+			logText = "Escrow's fund is refunded to each parties.";
+			pCurrentAnonymousTxInfo->AddToLog(logText);
+			logText = "Anonymous Send is successful and completed.";
+			pCurrentAnonymousTxInfo->AddToLog(logText);
+
+			// cleanup 
+			pCurrentAnonymousTxInfo->clean(false);
+		}
+	}
+    else if (strCommand == NetMsgType::DS_CANCELCMPLT)        // message any -> any
+    {
+        LogPrint(BCLog::DEEPSEND, "Processing message %s from %s\n", strCommand, pfrom->addr.ToString());
+        std::string anonymousTxId;
+        std::string committedTx;
+        int isCanceled;
+        std::string source;
+        std::vector<unsigned char> vchSig;
+        vRecv >> anonymousTxId >> committedTx >> isCanceled >> source >> vchSig;
+
+        {
+            LOCK(cs_deepsend);
+
+            AnonymousTxRole sourceRole = ROLE_SENDER;
+            if(source == "mixer")
+                sourceRole = ROLE_MIXER;
+            else if(source == "guarantor")
+                sourceRole = ROLE_GUARANTOR;
+
+            std::string senderAddress = pCurrentAnonymousTxInfo->GetAddress(sourceRole);
+
+            if(VerifyMessageSignature(committedTx, senderAddress, vchSig))
+            {
+                LogPrint(BCLog::DEEPSEND, ">> %s: signature verified.\n", strCommand);
+            }
+            else
+            {
+				std::string err = "processing message " + strCommand + " - signature can not be verified. message ignored.";
+				return error(err.c_str());
+            }
+
+            pCurrentAnonymousTxInfo->SetCommittedMsTx(committedTx);
+            std::string logText = "Received multisig distribution from " + source + " tx execution. TxID = " + committedTx + ".";
+            pCurrentAnonymousTxInfo->AddToLog(logText);
+            logText = "Escrow's fund is refunded to each parties.";
+            pCurrentAnonymousTxInfo->AddToLog(logText);
+            if(isCanceled)
+            	logText = "Anonymous Send is successfully cancelled.";
+            else
+            	logText = "Anonymous Send is successful and completed.";
+            pCurrentAnonymousTxInfo->AddToLog(logText);
+
+            // cleanup
+            pCurrentAnonymousTxInfo->clean(false);
+        }
+    }
+
+	else if (strCommand == NetMsgType::DS_SERVICEANN)
+    {
+		std::string status;
+		std::string keyAddress;
+        vRecv >> keyAddress >> status;
+		UpdateAnonymousServiceList(pfrom, keyAddress, status, connman);
+	}
 
     else if (strCommand == NetMsgType::NOTFOUND) {
         // We do not care about the NOTFOUND message, but logging an Unknown Command
@@ -2892,10 +4646,9 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
         LogPrint(BCLog::NET, "Unknown command \"%s\" from peer=%d\n", SanitizeString(strCommand), pfrom->GetId());
     }
 
-
-
     return true;
 }
+
 
 static bool SendRejectsAndCheckIfBanned(CNode* pnode, CConnman* connman)
 {

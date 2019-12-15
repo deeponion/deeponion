@@ -86,6 +86,7 @@ CCriticalSection cs_mapLocalHost;
 std::map<CNetAddr, LocalServiceInfo> mapLocalHost;
 static bool vfLimited[NET_MAX] = {};
 std::string strSubVersion;
+extern CCriticalSection cs_servicelist;
 
 limitedmap<uint256, int64_t> mapAlreadyAskedFor(MAX_INV_SZ);
 
@@ -659,7 +660,7 @@ std::string CNode::GetAddrName() const {
 
 void CNode::MaybeSetAddrName(const std::string& addrNameIn) {
     LOCK(cs_addrName);
-    if (addrName.empty()) {
+    if (addrName.empty() || ( addrName.find("onion") == std::string::npos && addrNameIn.find("onion") != std::string::npos) ) {
         addrName = addrNameIn;
     }
 }
@@ -1202,6 +1203,7 @@ void CConnman::ThreadSocketHandler()
                     if (fDelete) {
                         vNodesDisconnected.remove(pnode);
                         DeleteNode(pnode);
+                        GetUpdatedServiceListCount();
                     }
                 }
             }
@@ -1456,6 +1458,26 @@ void CConnman::WakeMessageHandler()
     condMsgProc.notify_one();
 }
 
+
+CNode* CConnman::GetConnectedNode(std::string ipAddress)
+{
+	CNode* pNodeFound = NULL;
+	{
+		LOCK(cs_vNodes);
+		for(CNode* pnode: vNodes)
+		{
+			std::string nodeAddr = pnode->GetAddrName();
+			nodeAddr = nodeAddr.substr(0, nodeAddr.find(":"));
+			if(ipAddress == nodeAddr)
+			{
+				pNodeFound = pnode;
+				break;
+			}
+		}
+	}
+
+	return pNodeFound;
+}
 
 
 
@@ -2865,3 +2887,51 @@ uint64_t CConnman::CalculateKeyedNetGroup(const CAddress& ad) const
 
     return GetDeterministicRandomizer(RANDOMIZER_ID_NETGROUP).Write(vchNetGroup.data(), vchNetGroup.size()).Finalize();
 }
+
+int CConnman::GetUpdatedServiceListCount()
+{
+	int sz = mapAnonymousServices.size();
+	// LogPrint(BCLog::DEEPSEND, ">> GetUpdatedServiceListCount: init sz = %d\n", sz);
+
+	std::map<std::string, std::string> mapNew;
+	{
+		LOCK2(cs_servicelist, cs_vNodes);
+		bool exist = false;
+		for(std::map<std::string, std::string>::iterator it = mapAnonymousServices.begin(); it != mapAnonymousServices.end(); it++)
+		{
+			std::string ip = it->second;
+			exist = false;
+
+			for(CNode* pnode: vNodes)
+			{
+				std::string nodeAddr = pnode->addrName;
+				nodeAddr = nodeAddr.substr(0, nodeAddr.find(":"));
+				if(ip == nodeAddr)
+				{
+					exist = true;
+					break;
+				}
+			}
+			
+			if(exist == true)
+			{
+				mapNew.insert(make_pair(it->first, it->second));
+			}
+		}
+	}
+
+	mapAnonymousServices = mapNew;
+	sz = mapAnonymousServices.size();
+	// LogPrint(BCLog::DEEPSEND, ">> GetUpdatedServiceListCount: after sz = %d\n", sz);
+
+	return sz;
+}
+
+
+void CConnman::AddToVNodes(CNode* pNode)
+{
+	LOCK(cs_vNodes);
+	vNodes.push_back(pNode);
+}
+
+

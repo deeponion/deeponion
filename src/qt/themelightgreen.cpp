@@ -24,6 +24,8 @@ void ThemeLightGreen::init()
 	mainMenuLockWalletNormalBtnIco = ":/icons/lock_closed";
     mainMenuDeepVaultNormalBtnIco = ":/icons/deepvault";
     
+    sendDeepSendIco = ":/icons/deepsendGreenLight";
+
     aboutImg = ":/images/about_light_green";
     deepOnionLogo = ":/icons/DeepOnionLogoGreen";
     

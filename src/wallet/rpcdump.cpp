@@ -151,7 +151,9 @@ UniValue importprivkey(const JSONRPCRequest& request)
         
         if (fWalletUnlockStakingOnly)
             throw JSONRPCError(RPC_WALLET_UNLOCK_NEEDED, "Wallet is unlocked for staking only.");
-        
+        if (fWalletUnlockDeepSendOnly)
+            throw JSONRPCError(RPC_WALLET_UNLOCK_NEEDED, "Wallet is unlocked for DeepSend only.");
+
         CKey key = vchSecret.GetKey();
         if (!key.IsValid()) throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Private key outside allowed range");
 
@@ -652,6 +654,9 @@ UniValue dumpprivkey(const JSONRPCRequest& request)
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid DeepOnion address");
     if (fWalletUnlockStakingOnly)
         throw JSONRPCError(RPC_WALLET_UNLOCK_NEEDED, "Wallet is unlocked for staking only.");
+    if (fWalletUnlockDeepSendOnly)
+        throw JSONRPCError(RPC_WALLET_UNLOCK_NEEDED, "Wallet is unlocked for DeepSend only.");
+
     auto keyid = GetKeyForDestination(*pwallet, dest);
     if (keyid.IsNull()) {
         throw JSONRPCError(RPC_TYPE_ERROR, "Address does not refer to a key");

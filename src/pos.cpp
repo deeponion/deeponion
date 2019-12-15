@@ -437,7 +437,7 @@ unsigned int GetStakeModifierChecksum(const CBlockIndex* pindex)
 // Check stake modifier hard checkpoints
 bool CheckStakeModifierCheckpoints(int nHeight, unsigned int nStakeModifierChecksum)
 {
-//	 LogPrintf(">> Height = %d, nStakeModifierChecksum = %x\n", nHeight, nStakeModifierChecksum);
+	LogPrint(BCLog::CHECKPOINT, ">> Height = %d, nStakeModifierChecksum = %x\n", nHeight, nStakeModifierChecksum);
 	const std::map<int, unsigned int>& checkpoints = Params().GetMapStakeModifierCheckpoints();
 
     if (checkpoints.count(nHeight))

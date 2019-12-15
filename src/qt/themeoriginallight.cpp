@@ -26,6 +26,7 @@ void ThemeOriginalLight::init()
     
     aboutImg = ":/images/about_light";
     deepOnionLogo = ":/icons/DeepOnionLogo";
+    sendDeepSendIco = ":/icons/deepsendBlueLight";
     
     ThemeLight::init();
 }

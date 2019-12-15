@@ -107,6 +107,7 @@ private:
     QLabel *progressBarLabel;
     QLabel *versionAlert;
     QLabel *labelStakingIcon;
+    QLabel *labelMixerIcon;
     QLabel *labelOnionIcon;    
     QProgressBar *progressBar;
     QProgressDialog *progressDialog;
@@ -279,6 +280,7 @@ private Q_SLOTS:
     void updateStakingIcon();
     /** Update TOR icon **/
     void updateOnionIcon();
+	void updateMixerIcon();
     
     void showModalOverlay();
     

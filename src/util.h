@@ -20,6 +20,7 @@
 #include <sync.h>
 #include <tinyformat.h>
 #include <utiltime.h>
+#include <amount.h>
 
 #ifndef WIN32
 #include <sys/resource.h>
@@ -125,6 +126,8 @@ namespace BCLog {
         STEALTH     = (1 << 23),
         WALLET      = (1 << 24),
         DEEPVAULT   = (1 << 25),
+        DEEPSEND    = (1 << 26),
+		CHECKPOINT  = (1 << 27),
         ALL         = ~(uint32_t)0,
     };
 }
@@ -398,5 +401,7 @@ inline uint32_t ByteReverse(uint32_t value)
     value = ((value & 0xFF00FF00) >> 8) | ((value & 0x00FF00FF) << 8);
     return (value<<16) | (value>>16);
 }
+
+const std::string currentDateTime();
 
 #endif // BITCOIN_UTIL_H
