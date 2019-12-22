@@ -141,9 +141,9 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
     CBlockIndex* pindexPrev = chainActive.Tip();
     assert(pindexPrev != nullptr);
     nHeight = pindexPrev->nHeight + 1;
-    
+
     // pblock->nVersion = ComputeBlockVersion(pindexPrev, chainparams.GetConsensus());
-    
+
     // -regtest only: allow overriding block.nVersion with
     // -blockversion=N to test forking scenarios
     if (chainparams.MineBlocksOnDemand())
@@ -397,11 +397,6 @@ void BlockAssembler::addPackageTxs(int &nPackagesSelected, int &nDescendantsUpda
             }
         }
 
-        // DeepOnion: Don't add a TX that's time is in the future.
-        if(pblock->nTime < iter->GetSharedTx()->nTime) {
-            continue;
-        }
-
         // We skip mapTx entries that are inBlock, and mapModifiedTx shouldn't
         // contain anything that is inBlock.
         assert(!inBlock.count(iter));
@@ -489,7 +484,7 @@ void IncrementExtraNonce(CBlock* pblock, const CBlockIndex* pindexPrev, unsigned
     int nHeight = pindexPrev->nHeight+1; // Height first in coinbase required for block.version=2
     CMutableTransaction txCoinbase(*pblock->vtx[0]);
     LogPrint(BCLog::RPC, ">> nHeight next = %ld, nExtraNonce = %u\n", (int64_t)nHeight, nExtraNonce);
-    
+
     txCoinbase.vin[0].scriptSig = (CScript() << nHeight << CScriptNum(nExtraNonce)) + COINBASE_FLAGS;
     assert(txCoinbase.vin[0].scriptSig.size() <= 100);
 
@@ -781,4 +776,3 @@ void StopThreadStake()
 	}
 	LogPrint(BCLog::POS, "StopThreadStake(): Stopped Stake .\n");
 }
-
