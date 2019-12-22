@@ -397,12 +397,6 @@ void BlockAssembler::addPackageTxs(int &nPackagesSelected, int &nDescendantsUpda
             }
         }
 
-        // DeepOnion: Don't add a TX that's time is in the future.
-        if(pblock->nTime < iter->GetSharedTx()->nTime) {
-            ++mi;
-            continue;
-        }
-
         // We skip mapTx entries that are inBlock, and mapModifiedTx shouldn't
         // contain anything that is inBlock.
         assert(!inBlock.count(iter));
