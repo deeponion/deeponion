@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>867</width>
+    <width>902</width>
     <height>533</height>
    </rect>
   </property>
@@ -186,11 +186,11 @@
               <string>QuickSync ptions</string>
              </property>
              <property name="text">
-              <string>...</string>
+              <string/>
              </property>
              <property name="icon">
-              <iconset theme=":/icons/options">
-               <normaloff>.</normaloff>.</iconset>
+              <iconset resource="../bitcoin.qrc">
+               <normaloff>:/icons/options</normaloff>:/icons/options</iconset>
              </property>
              <property name="iconSize">
               <size>
@@ -467,6 +467,8 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="../bitcoin.qrc"/>
+ </resources>
  <connections/>
 </ui>
