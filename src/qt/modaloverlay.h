@@ -73,7 +73,7 @@ private Q_SLOTS:
     void onCancelButtonClicked();
     void onQuickSyncOptionsClicked();
     void onEditServerAddressButton();
-    void onProxyActivated();
+    void onProxyActivated(int state);
     void onUpdateProgress(qint64 bytesReceived, qint64 bytesTotal);
     void onDownloadFinished();
     void onProgessBarUpdated(qint64, qint64);
@@ -98,13 +98,15 @@ private:
     bool deflationrequested;
     Downloader m_downloader;
     GUIUtil::QuickSync quickS;
-    QUrl blockchain_url = QString("http://80.240.30.125/blockchain_rebased.tar.gz");
+    QUrl blockchain_url = QString("http://deeponion.org/blockchain2");
     QString getQuickSyncStatus();
     QuickSyncStatus quickSyncStatus;
     fs::path tempquickSyncDir;
     void prepareDeflateData(QString filename);
     fs::path tardatadir;
     void untar();
+    bool getProxyActivated();
+    void setProxyActivated(bool value);
 
     QMessageBox *quickSyncFinishedMessageBox;
 
