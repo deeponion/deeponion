@@ -376,14 +376,23 @@ void ModalOverlay::onEditServerAddressButton()
      }
 }
 
-void ModalOverlay::onProxyActivated()
+void ModalOverlay::onProxyActivated(int state)
 {
-    if(proxyActivated)
-        proxyActivated=false;
-    else
-        proxyActivated=true;
+    if(state == 0)
+        setProxyActivated(false);
+    else if(state == 2)
+        setProxyActivated(true);
 }
 
+bool ModalOverlay::getProxyActivated()
+{
+    return proxyActivated;
+}
+
+void ModalOverlay::setProxyActivated(bool value)
+{
+    proxyActivated = value;
+}
 void ModalOverlay::updateQuickSyncVisibility()
 {
     if(!showQuickSync)
