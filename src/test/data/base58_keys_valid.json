@@ -1,39 +1,31 @@
 [
     [
-        "LbRY3MfWxhv1W88P3DcH94WLpDGZ3qV8aP",
-        "76a914b1b2c8ecd1a48ef911bd5e6385a8950d3255937588ac",
+        "DkTKWaqfsr5cMnyRBjvAQQ2r3KPYwaSn9c",
+        "76a914af3f387bb286d23caf83d9c36df62bf9ac93ab5188ac",
         {
             "isPrivkey": false,
             "chain": "main"
         }
     ],
     [
-        "MDpbgJxvdDJk7YH5BVzsUfsKse3N9YCE3o",
-        "a91440f3ea941f260592f9c9433f0250dfe7e5fb128e87",
-        {
-            "isPrivkey": false,
-            "chain": "main"
-        }
-    ],
-    [
-        "mphsD9aLCQ9kpysu4ecCwAvHWYcsbt31u9",
-        "76a91464c97697289c7f654ceeab26066537489238d32788ac",
+        "muCEujhfxN8rD28XrLVShWCYNaSNY7Z9Ay",
+        "76a9149607ba3638fb7422129003029226a88dcd8f614088ac",
         {
             "isPrivkey": false,
             "chain": "test"
         }
     ],
     [
-        "mphsD9aLCQ9kpysu4ecCwAvHWYcsbt31u9",
-        "76a91464c97697289c7f654ceeab26066537489238d32788ac",
+        "muCEujhfxN8rD28XrLVShWCYNaSNY7Z9Ay",
+        "76a9149607ba3638fb7422129003029226a88dcd8f614088ac",
         {
             "isPrivkey": false,
             "chain": "regtest"
         }
     ],
     [
-        "Qg23fQdzYjbW3mo4MtJDMkZsWQgm3kVemM",
-        "a914d4f756e1a19ede4011f5839e309da0c43fbee4e887",
+        "n3m1wtH8k2BixNnofp8vCQq8yGLXHNUHa6",
+        "76a914f3fba3b390ddb79c89818ff237d7fa8b15af30d488ac",
         {
             "isPrivkey": false,
             "chain": "test"
