@@ -132,8 +132,6 @@ QString Downloader::getDataName()
 
 void Downloader::Finished()
 {
-    int statusCode = m_currentReply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
-    printf("\n",statusCode);
     QUrl redirect = m_currentReply->attribute(QNetworkRequest::RedirectionTargetAttribute).toUrl();
     if(redirect.isValid() && m_currentReply->url() != redirect)
     {
@@ -167,8 +165,3 @@ void Downloader::Finished()
    //m_manager = 0;
 }
 
-void Downloader::Redirected(const QUrl &url)
-{
-   // get(m_file, url, m_proxy);
-    printf("\n",url.toString());
-}
