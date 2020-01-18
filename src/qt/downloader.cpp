@@ -81,7 +81,6 @@ bool Downloader::get(const QString& targetFolder, QUrl& url, bool& proxy)
     connect(m_currentReply, &QNetworkReply::downloadProgress, this, &Downloader::updateDownloadProgress);
     connect(m_currentReply, &QNetworkReply::finished, this, &Downloader::onFinished);
     connect(m_currentReply, &QNetworkReply::finished, this, &Downloader::Finished);
-    connect(m_currentReply, &QNetworkReply::redirected, this, &Downloader::Redirected);
 
     return true;
 }
