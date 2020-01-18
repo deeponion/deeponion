@@ -1,8 +1,14 @@
 #include "qt/downloader.h"
+#include <univalue.h>
+#include <rpc/net.cpp>
+#include <netaddress.h>
+#include <netaddress.cpp>
+
 
 #include <QNetworkProxy>
 #include <QNetworkReply>
 #include <QNetworkRequest>
+#include <QMessageBox>
 #include <QFile>
 #include <QDir>
 
@@ -15,13 +21,16 @@ Downloader::Downloader(QObject* parent) :
 Downloader::~Downloader(){}
 
 
-bool Downloader::get(const QString& targetFolder, const QUrl& url, bool& proxy)
-{
+bool Downloader::get(const QString& targetFolder, QUrl& url, bool& proxy)
+{    
     if (targetFolder.isEmpty() || url.isEmpty())
     {
         return false;
     }
+    m_targetfolder = targetFolder;
+    m_proxy = proxy;
 
+    m_url = url;
     m_file = new QFile(targetFolder + QDir::separator() + url.fileName());
     if (!m_file->open(QIODevice::WriteOnly))
     {
@@ -30,25 +39,50 @@ bool Downloader::get(const QString& targetFolder, const QUrl& url, bool& proxy)
         return false;
     }
 
+
+    requestAborted = false;
+
     //Set Proxy
     //TODO: Merge with init and version check proxy in clientmodel
     if(proxy)
     {
+
         QNetworkProxy proxy;
         proxy.setType(QNetworkProxy::Socks5Proxy);
-        proxy.setHostName("127.0.0.1");
-        proxy.setPort(9081);
+
+        for(int n=0; n<NET_MAX; ++n)
+        {
+            enum Network network = static_cast<enum Network>(n);
+            if(network == NET_UNROUTABLE || network == NET_INTERNAL)
+                continue;
+            proxyType _proxy;
+            GetProxy(network, _proxy);
+            std::string hostname;
+            std::string port;
+            if (_proxy.IsValid())
+            {
+                hostname = _proxy.proxy.ToStringIP();
+                port = _proxy.proxy.ToStringPort();
+            }
+            proxy.setHostName(QString::fromStdString(hostname));
+            proxy.setPort(QString::fromStdString(port).toShort());
+        }
+
         m_manager.setProxy(proxy);
      }
 
     QNetworkRequest request(url);
     request.setAttribute(QNetworkRequest::FollowRedirectsAttribute, true);
+
     m_currentReply = m_manager.get(request);
     SetDataName(url.fileName());
 
     connect(m_currentReply, &QNetworkReply::readyRead, this, &Downloader::onReadyRead);
     connect(m_currentReply, &QNetworkReply::downloadProgress, this, &Downloader::updateDownloadProgress);
     connect(m_currentReply, &QNetworkReply::finished, this, &Downloader::onFinished);
+    connect(m_currentReply, &QNetworkReply::finished, this, &Downloader::Finished);
+    connect(m_currentReply, &QNetworkReply::redirected, this, &Downloader::Redirected);
+
     return true;
 }
 
@@ -62,6 +96,7 @@ void Downloader::onReadyRead()
 
 void Downloader::cancelDownload()
 {
+    requestAborted = true;
     if (m_currentReply)
     {
         m_currentReply->abort();
@@ -93,4 +128,47 @@ void Downloader::SetDataName(QString name)
 QString Downloader::getDataName()
 {
     return fileName;
+}
+
+void Downloader::Finished()
+{
+    int statusCode = m_currentReply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+    printf("\n",statusCode);
+    QUrl redirect = m_currentReply->attribute(QNetworkRequest::RedirectionTargetAttribute).toUrl();
+    if(redirect.isValid() && m_currentReply->url() != redirect)
+    {
+        if(redirect.isRelative())
+            redirect = m_currentReply->url().resolved(redirect);
+   get(m_targetfolder, redirect, m_proxy);
+   }
+    // when canceled
+   if (requestAborted) {
+       if (m_file) {
+           m_file->close();
+           m_file->remove();
+           delete m_file;
+           m_file = 0;
+       }
+       m_currentReply->deleteLater();
+       return;
+   }
+
+   // download finished normally
+   if(m_file)
+   {
+       m_file->flush();
+       m_file->close();
+    }
+
+   m_currentReply->deleteLater();
+   m_currentReply = 0;
+   delete m_file;
+   m_file = 0;
+   //m_manager = 0;
+}
+
+void Downloader::Redirected(const QUrl &url)
+{
+   // get(m_file, url, m_proxy);
+    printf("\n",url.toString());
 }
