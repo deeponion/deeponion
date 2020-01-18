@@ -15,7 +15,7 @@ public:
     explicit Downloader(QObject* parent = nullptr);
     virtual ~Downloader();
 
-    bool get(const QString& targetFolder, const QUrl& url, bool &proxy);
+    bool get(const QString& targetFolder, QUrl& url, bool &proxy);
     QString getDataName();
 
 
@@ -27,16 +27,23 @@ Q_SIGNALS:
     void onFinished();
 
 
+
 private Q_SLOTS:
     void onReadyRead();
     void onReply(QNetworkReply* reply);
+    void Finished();
+    void Redirected(const QUrl &url);
 
 private:
     QNetworkReply* m_currentReply {nullptr};
     QFile* m_file                 {nullptr};
+    QUrl m_url;
     QNetworkAccessManager m_manager;
     void SetDataName(QString name);
     QString fileName;
+    bool requestAborted;
+    bool m_proxy;
+    QString m_targetfolder;
 };
 
 #endif // BITCOIN_QT_DOWNLOADER_H
