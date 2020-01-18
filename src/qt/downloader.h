@@ -32,7 +32,6 @@ private Q_SLOTS:
     void onReadyRead();
     void onReply(QNetworkReply* reply);
     void Finished();
-    void Redirected(const QUrl &url);
 
 private:
     QNetworkReply* m_currentReply {nullptr};
