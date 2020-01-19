@@ -15,7 +15,7 @@
 Downloader::Downloader(QObject* parent) :
     BaseClass(parent)
 {
-    connect(&m_manager, &QNetworkAccessManager::finished, this, &Downloader::onReply);
+    connect(m_manager, &QNetworkAccessManager::finished, this, &Downloader::onReply);
 }
 
 Downloader::~Downloader(){}
@@ -29,24 +29,22 @@ bool Downloader::get(const QString& targetFolder, QUrl& url, bool& proxy)
     }
     m_targetfolder = targetFolder;
     m_proxy = proxy;
-
+    m_manager = new QNetworkAccessManager();
     m_url = url;
+
     m_file = new QFile(targetFolder + QDir::separator() + url.fileName());
     if (!m_file->open(QIODevice::WriteOnly))
     {
         delete m_file;
         m_file = nullptr;
         return false;
-    }
-
-
+    }  
     requestAborted = false;
 
     //Set Proxy
     //TODO: Merge with init and version check proxy in clientmodel
     if(proxy)
     {
-
         QNetworkProxy proxy;
         proxy.setType(QNetworkProxy::Socks5Proxy);
 
@@ -68,13 +66,13 @@ bool Downloader::get(const QString& targetFolder, QUrl& url, bool& proxy)
             proxy.setPort(QString::fromStdString(port).toShort());
         }
 
-        m_manager.setProxy(proxy);
+        m_manager->setProxy(proxy);
      }
 
     QNetworkRequest request(url);
     request.setAttribute(QNetworkRequest::FollowRedirectsAttribute, true);
 
-    m_currentReply = m_manager.get(request);
+    m_currentReply = m_manager->get(request);
     SetDataName(url.fileName());
 
     connect(m_currentReply, &QNetworkReply::readyRead, this, &Downloader::onReadyRead);
@@ -131,36 +129,29 @@ QString Downloader::getDataName()
 
 void Downloader::Finished()
 {
-    QUrl redirect = m_currentReply->attribute(QNetworkRequest::RedirectionTargetAttribute).toUrl();
-    if(redirect.isValid() && m_currentReply->url() != redirect)
-    {
-        if(redirect.isRelative())
-            redirect = m_currentReply->url().resolved(redirect);
-   get(m_targetfolder, redirect, m_proxy);
-   }
     // when canceled
-   if (requestAborted) {
-       if (m_file) {
-           m_file->close();
-           m_file->remove();
-           delete m_file;
-           m_file = 0;
-       }
-       m_currentReply->deleteLater();
-       return;
-   }
-
-   // download finished normally
-   if(m_file)
-   {
-       m_file->flush();
-       m_file->close();
+    if (requestAborted) {
+        if (m_file) {
+            m_file->close();
+            m_file->remove();
+            delete m_file;
+            m_file = 0;
+        }
+        m_currentReply->deleteLater();
+        return;
     }
 
-   m_currentReply->deleteLater();
-   m_currentReply = 0;
-   delete m_file;
-   m_file = 0;
-   //m_manager = 0;
+    // download finished normally
+    if(m_file)
+    {
+        m_file->flush();
+        m_file->close();
+    }
+
+    m_currentReply->deleteLater();
+    m_currentReply = 0;
+    delete m_file;
+    m_file = 0;
+    m_manager = 0;
 }
 

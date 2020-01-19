@@ -37,7 +37,7 @@ private:
     QNetworkReply* m_currentReply {nullptr};
     QFile* m_file                 {nullptr};
     QUrl m_url;
-    QNetworkAccessManager m_manager;
+    QNetworkAccessManager* m_manager {nullptr};
     void SetDataName(QString name);
     QString fileName;
     bool requestAborted;
