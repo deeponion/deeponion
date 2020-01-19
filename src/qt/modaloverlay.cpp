@@ -46,7 +46,7 @@ platformStyle(_platformStyle)
     ui->bootstrapServerAddressEdit->setText(blockchain_url.toString());
     ui->proxycheckBox->setChecked(true);
     blockProcessTime.clear();
-    deflationrequested = false;
+    deflationrequested = true;
     setVisible(false);
 
     //QuickSync Configuration
@@ -282,17 +282,17 @@ void ModalOverlay::onUpdateProgress(qint64 bytesReceived, qint64 bytesTotal)
 
 void ModalOverlay::onDownloadFinished()
 {
-    if(!deflationrequested)
+    if(deflationrequested)
     {
-        quickSyncStatus = QuickSyncStatus::DECODING;
         ui->downloadProgressBar->setFormat(getQuickSyncStatus());
-        deflationrequested = true;
+        deflationrequested = false;
         prepareDeflateData(m_downloader.getDataName());
     }
 }
 
 void ModalOverlay::prepareDeflateData(QString file)
 {
+      quickSyncStatus = QuickSyncStatus::DECODING;
       std::string filename = file.toStdString();
       fs::path datadir2= tempquickSyncDir / fs::path(filename);
 
