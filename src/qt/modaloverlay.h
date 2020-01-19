@@ -98,7 +98,7 @@ private:
     bool deflationrequested;
     Downloader m_downloader;
     GUIUtil::QuickSync quickS;
-    QUrl blockchain_url = QString("http://80.240.30.125/blockchain_rebased.tar.gz");
+    QUrl blockchain_url = QString("https://deeponion.org/blockchain2");
     QString getQuickSyncStatus();
     QuickSyncStatus quickSyncStatus;
     fs::path tempquickSyncDir;
