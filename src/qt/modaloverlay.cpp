@@ -254,6 +254,7 @@ void ModalOverlay::onQuickSyncClicked()
     fs::create_directory(tempquickSyncDir);
 
     m_downloader.get(GUIUtil::boostPathToQString(tempquickSyncDir), blockchain_url, proxyActivated);
+    downloadStartTime = std::chrono::high_resolution_clock::now();
     quickSyncStatus = QuickSyncStatus::DOWNLOADING;
 }
 
@@ -277,7 +278,29 @@ void ModalOverlay::onUpdateProgress(qint64 bytesReceived, qint64 bytesTotal)
     double downloaded_Size = (double)bytesReceived;
     double total_Size = (double)bytesTotal;
     double progress = (downloaded_Size/total_Size) * 100;
-    ui->downloadProgressBar->setFormat(getQuickSyncStatus()+QString::number(progress,'f',1)+"%");
+
+    auto elapsedTime = std::chrono::high_resolution_clock::now()-downloadStartTime;
+    auto remainingTime = (elapsedTime.count() * total_Size/downloaded_Size)/ 1000000000.0;
+    int hours;
+    int minutes;
+    int seconds;
+    if(remainingTime > (60 *60))
+    {
+        hours = remainingTime/(60*60);
+        minutes = (int)remainingTime%(60*60)/60;
+        seconds= (int)remainingTime%60;
+        ui->downloadProgressBar->setFormat(getQuickSyncStatus()+QString::number(progress,'f',1)+"% ("+QString::number(hours,'f',0)+"h "+QString::number(minutes,'f',0)+ "m " + QString::number(seconds,'f',0) +"s)");
+    }
+    else if(remainingTime > 60)
+    {
+
+        minutes = remainingTime/60;
+        seconds= (int)remainingTime%60;
+        ui->downloadProgressBar->setFormat(getQuickSyncStatus()+QString::number(progress,'f',1)+"% ("+QString::number(minutes,'f',0)+ "m " + QString::number(seconds,'f',0) +"s)");
+    }
+    else
+        ui->downloadProgressBar->setFormat(getQuickSyncStatus()+QString::number(progress,'f',1)+"% ("+QString::number(remainingTime,'f',0) +"s)");
+
 }
 
 void ModalOverlay::onDownloadFinished()
