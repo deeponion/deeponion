@@ -280,7 +280,8 @@ void ModalOverlay::onUpdateProgress(qint64 bytesReceived, qint64 bytesTotal)
     double progress = (downloaded_Size/total_Size) * 100;
 
     auto elapsedTime = std::chrono::high_resolution_clock::now()-downloadStartTime;
-    auto remainingTime = (elapsedTime.count() * total_Size/downloaded_Size)/ 1000000000.0;
+    auto allTimeForDownloading = (elapsedTime.count() * total_Size/downloaded_Size);
+    auto remainingTime = (allTimeForDownloading - elapsedTime.count())/ 1000000000.0;
     int hours;
     int minutes;
     int seconds;
