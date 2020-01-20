@@ -115,6 +115,9 @@ private:
     bool showQuickSync;
     bool proxyActivated;
 
+    std::chrono::high_resolution_clock::time_point downloadStartTime;
+    std::chrono::high_resolution_clock::time_point allTimeForDownloading;
+
 };
 
 #endif // BITCOIN_QT_MODALOVERLAY_H
