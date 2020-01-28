@@ -96,7 +96,7 @@ BITCOIN_TESTS += \
   wallet/test/crypto_tests.cpp
 endif
 
-test_test_DeepOnion_SOURCES = $(BITCOIN_TESTS) $(JSON_TEST_FILES) $(RAW_TEST_FILES)
+test_test_DeepOnion_SOURCES = $(BITCOIN_TESTS) $(crypto_libbitcoin_crypto_a_SOURCES) $(JSON_TEST_FILES) $(RAW_TEST_FILES)
 test_test_DeepOnion_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES) $(TESTDEFS) $(EVENT_CFLAGS)
 test_test_DeepOnion_LDADD =
 if ENABLE_WALLET
