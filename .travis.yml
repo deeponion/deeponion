@@ -109,10 +109,10 @@ jobs:
 #      env: >-
 #        FILE_ENV="./ci/test/00_setup_env_native_centos.sh"
 
-    - stage: test
-      name: 'x86_64 Linux  [GOAL: install]  [bionic]  [uses qt5 dev package instead of depends Qt to speed up build and avoid timeout] [unsigned char]'
-      env: >-
-        FILE_ENV="./ci/test/00_setup_env_native_qt5.sh"
+#    - stage: test
+#      name: 'x86_64 Linux  [GOAL: install]  [bionic]  [uses qt5 dev package instead of depends Qt to speed up build and avoid timeout] [unsigned char]'
+#      env: >-
+#        FILE_ENV="./ci/test/00_setup_env_native_qt5.sh"
 
 #    - stage: test
 #      name: 'x86_64 Linux  [GOAL: install]  [xenial]  [no depends, only system libs, sanitizers: thread (TSan), no wallet]'
@@ -140,12 +140,12 @@ jobs:
 #      env: >-
 #        FILE_ENV="./ci/test/00_setup_env_mac.sh"
 
-#    - stage: test
-#      name: 'macOS 10.14 native [GOAL: install] [GUI] [no depends]'
-#      os: osx
+    - stage: test
+      name: 'macOS 10.14 native [GOAL: install] [GUI] [no depends]'
+      os: osx
       # Use the most recent version:
       # Xcode 11.2.1, macOS 10.14, JDK 13.0.1, SDK 10.15
       # https://docs.travis-ci.com/user/reference/osx/#macos-version
-#      osx_image: xcode11.2
-#      env: >-
-#        FILE_ENV="./ci/test/00_setup_env_mac_host.sh"
+      osx_image: xcode11.2
+      env: >-
+        FILE_ENV="./ci/test/00_setup_env_mac_host.sh"

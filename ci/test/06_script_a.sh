@@ -22,8 +22,9 @@ END_FOLD
 DOCKER_EXEC mkdir -p build
 export P_CI_DIR="$P_CI_DIR/build"
 
+# Removed config.cache due to issues with building tor TODO: Find out to use the cache
 BEGIN_FOLD configure
-DOCKER_EXEC ../configure --cache-file=config.cache $BITCOIN_CONFIG_ALL $BITCOIN_CONFIG || ( (DOCKER_EXEC cat config.log) && false)
+DOCKER_EXEC ../configure $BITCOIN_CONFIG_ALL $BITCOIN_CONFIG || ( (DOCKER_EXEC cat config.log) && false)
 END_FOLD
 
 BEGIN_FOLD distdir
@@ -37,7 +38,7 @@ export P_CI_DIR="$P_CI_DIR/deeponion-$HOST"
 BEGIN_FOLD configure
 DOCKER_EXEC echo "BITCOIN_CONFIG $BITCOIN_CONFIG"
 DOCKER_EXEC echo "BITCOIN_CONFIG_ALL $BITCOIN_CONFIG_ALL"
-DOCKER_EXEC ./configure --cache-file=../config.cache $BITCOIN_CONFIG_ALL $BITCOIN_CONFIG || ( (DOCKER_EXEC cat config.log) && false)
+DOCKER_EXEC ./configure $BITCOIN_CONFIG_ALL $BITCOIN_CONFIG || ( (DOCKER_EXEC cat config.log) && false)
 #DOCKER_EXEC ./configure --cache-file=../config.cache || ( (DOCKER_EXEC cat config.log) && false)
 END_FOLD
 
