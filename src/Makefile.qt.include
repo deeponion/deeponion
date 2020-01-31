@@ -194,7 +194,8 @@ QT_MOC_CPP = \
 
 BITCOIN_MM = \
   qt/macdockiconhandler.mm \
-  qt/macnotificationhandler.mm
+  qt/macnotificationhandler.mm \
+  qt/macos_appnap.mm
 
 QT_MOC = \
   qt/bitcoin.moc \
@@ -234,6 +235,7 @@ BITCOIN_QT_H = \
   qt/intro.h \
   qt/macdockiconhandler.h \
   qt/macnotificationhandler.h \
+  qt/macos_appnap.h \
   qt/modaloverlay.h \
   qt/networkstyle.h \
   qt/notificator.h \
@@ -320,6 +322,12 @@ RES_ICONS = \
   qt/res/icons/deepOnionLogo-Green.png \
   qt/res/icons/deepOnionLogo.png \
   qt/res/icons/deepOnionLogoWithTextWhite.png \
+  qt/res/icons/deepsend-blue-dark-theme.png \
+  qt/res/icons/deepsend-blue-light-theme.png \
+  qt/res/icons/deepsend-green-dark-theme.png \
+  qt/res/icons/deepsend-green-light-theme.png \
+  qt/res/icons/deepsend-purple-dark-theme.png \
+  qt/res/icons/deepsend-purple-light-theme.png \
   qt/res/icons/deepvault.png \
   qt/res/icons/deepvault_b.png \
   qt/res/icons/deepvault_s.png \
@@ -352,6 +360,9 @@ RES_ICONS = \
   qt/res/icons/lock_open2.png \
   qt/res/icons/lock_open_s.png \
   qt/res/icons/messages_s.png \
+  qt/res/icons/mixer_off.png \
+  qt/res/icons/mixer_on.png \
+  qt/res/icons/mixer_process.png \
   qt/res/icons/network_disabled.png \
   qt/res/icons/notsynced.png \
   qt/res/icons/open.png \
@@ -500,7 +511,9 @@ RES_IMAGES = \
 RES_CSS = \
   qt/res/css/default.css
   
-RES_MOVIES = $(wildcard $(srcdir)/qt/res/movies/spinner-*.png)
+RES_MOVIES = $(wildcard $(srcdir)/qt/res/movies/spinner*.png)
+
+RES_FONTS = qt/res/fonts/HelveticaNeue.ttf
 
 BITCOIN_RC = qt/res/bitcoin-qt-res.rc
 
@@ -512,7 +525,8 @@ qt_libbitcoinqt_a_CXXFLAGS = $(AM_CXXFLAGS) $(QT_PIE_FLAGS)
 qt_libbitcoinqt_a_OBJCXXFLAGS = $(AM_OBJCXXFLAGS) $(QT_PIE_FLAGS)
 
 qt_libbitcoinqt_a_SOURCES = $(BITCOIN_QT_CPP) $(BITCOIN_QT_H) $(QT_FORMS_UI) \
-  $(QT_QRC) $(QT_QRC_LOCALE) $(QT_TS) $(PROTOBUF_PROTO) $(RES_ICONS) $(RES_IMAGES) $(RES_MOVIES)
+  $(QT_QRC) $(QT_QRC_LOCALE) $(QT_TS) $(PROTOBUF_PROTO) $(RES_ICONS) $(RES_IMAGES) \
+  $(RES_MOVIES) $(RES_CSS) $(RES_FONTS)
 
 nodist_qt_libbitcoinqt_a_SOURCES = $(QT_MOC_CPP) $(QT_MOC) $(PROTOBUF_CC) \
   $(PROTOBUF_H) $(QT_QRC_CPP) $(QT_QRC_LOCALE_CPP)
@@ -576,7 +590,7 @@ $(QT_QRC_LOCALE_CPP): $(QT_QRC_LOCALE) $(QT_QM)
 	  $(SED) -e '/^\*\*.*Created:/d' -e '/^\*\*.*by:/d' > $@
 	@rm $(@D)/temp_$(<F)
 
-$(QT_QRC_CPP): $(QT_QRC) $(QT_FORMS_H) $(RES_ICONS) $(RES_IMAGES) $(RES_MOVIES) $(PROTOBUF_H)
+$(QT_QRC_CPP): $(QT_QRC) $(QT_FORMS_H) $(RES_ICONS) $(RES_IMAGES) $(RES_MOVIES) $(RES_FONTS) $(RES_CSS) $(PROTOBUF_H)
 	@test -f $(RCC)
 	$(AM_V_GEN) QT_SELECT=$(QT_SELECT) $(RCC) -name bitcoin $< | \
 	  $(SED) -e '/^\*\*.*Created:/d' -e '/^\*\*.*by:/d' > $@

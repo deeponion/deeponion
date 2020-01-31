@@ -514,7 +514,7 @@ UniValue getwork(const JSONRPCRequest& request)
         
         bool fBlockPresent = false;
         {
-            LOCK(cs_main);
+            // LOCK(cs_main); TODO: CHECK - Is this error valid Already obtained lock at line 396
             BlockMap::iterator mi = mapBlockIndex.find(hash);
             if (mi != mapBlockIndex.end()) {
                 CBlockIndex *pindex = mi->second;
@@ -530,7 +530,7 @@ UniValue getwork(const JSONRPCRequest& request)
         }
 
         {
-            LOCK(cs_main);
+            // LOCK(cs_main);  TODO: CHECK - Is this error valid Already obtained lock at line 396
             BlockMap::iterator mi = mapBlockIndex.find(pblock->hashPrevBlock);
             if (mi != mapBlockIndex.end()) {
                 UpdateUncommittedBlockStructures(*pblock, mi->second, Params().GetConsensus());
