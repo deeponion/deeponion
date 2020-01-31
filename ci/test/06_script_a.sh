@@ -29,11 +29,11 @@ END_FOLD
 
 BEGIN_FOLD distdir
 # Create folder on host and docker, so that `cd` works
-mkdir -p "deeponion-$HOST"
+mkdir -p "DeepOnion-$HOST"
 DOCKER_EXEC make distdir VERSION=$HOST
 END_FOLD
 
-export P_CI_DIR="$P_CI_DIR/deeponion-$HOST"
+export P_CI_DIR="$P_CI_DIR/DeepOnion-$HOST"
 
 BEGIN_FOLD configure
 DOCKER_EXEC echo "BITCOIN_CONFIG $BITCOIN_CONFIG"
