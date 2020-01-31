@@ -1139,7 +1139,6 @@ void QuickSync::untar(FILE *a, const char *path, std::string targetpath)
     size_t bytes_read;
     int filesize;
 
-    printf("Extracting from %s\n", path);
     for (;;) {
         char char_array[512];
         // copying the contents of the
@@ -1185,7 +1184,6 @@ void QuickSync::untar(FILE *a, const char *path, std::string targetpath)
             printf(" Ignoring FIFO %s\n", buff);
             break;
         default:
-            //printf(" Extracting file %s\n", buff);
             strcat(char_array,buff);
             f = create_file(char_array, parseoct(char_array + 100, 8));
             break;
