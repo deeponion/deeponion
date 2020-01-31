@@ -246,6 +246,7 @@ void ModalOverlay::refreshStyle()
 void ModalOverlay::onQuickSyncClicked()
 {
     setNetworkStatus(false);
+    deflationrequested = true;
     quickSyncStatus = QuickSyncStatus::PREPARING;
     ui->downloadProgressBar->setFormat(getQuickSyncStatus());
 
