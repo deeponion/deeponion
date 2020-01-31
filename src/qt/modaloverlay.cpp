@@ -260,13 +260,13 @@ void ModalOverlay::onQuickSyncClicked()
 
 void ModalOverlay::onCancelButtonClicked()
 {
+    deflationrequested = false;
     m_downloader.cancelDownload();
     fs::remove_all(tempquickSyncDir);
     ui->downloadProgressBar->setMaximum(100);
     ui->downloadProgressBar->setValue(0);
     quickSyncStatus = QuickSyncStatus::CANCELED;
     ui->downloadProgressBar->setFormat(getQuickSyncStatus());
-    deflationrequested = false;
     //Free Network
     setNetworkStatus(true);
 }
