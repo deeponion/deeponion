@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.com/deeponion/deeponion.svg?branch=master)](https://travis-ci.com/deeponion/deeponion)
+
 ![alt text](https://image.ibb.co/mfR4R6/DO.png "DeepOnion")
 =====================================
 
