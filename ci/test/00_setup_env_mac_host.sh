@@ -13,7 +13,7 @@ export RUN_CI_ON_HOST=true
 export RUN_UNIT_TESTS=false
 export RUN_FUNCTIONAL_TESTS=false
 export GOAL="install"
-export BITCOIN_CONFIG="--enable-gui --enable-reduce-exports --enable-werror"
+export BITCOIN_CONFIG="--enable-gui --enable-reduce-exports --enable-werror --disable-zstd"
 # Run without depends
 export NO_DEPENDS=1
 export OSX_SDK=""
