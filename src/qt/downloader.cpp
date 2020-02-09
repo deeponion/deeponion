@@ -94,7 +94,7 @@ void Downloader::onReadyRead()
 void Downloader::cancelDownload()
 {
     requestAborted = true;
-    if (m_currentReply)
+    if (m_currentReply->isRunning())
     {
         m_currentReply->abort();
     }
@@ -137,7 +137,7 @@ void Downloader::Finished()
             delete m_file;
             m_file = 0;
         }
-        m_currentReply->deleteLater();
+        m_currentReply->abort();
         return;
     }
 
@@ -148,10 +148,7 @@ void Downloader::Finished()
         m_file->close();
     }
 
-    m_currentReply->deleteLater();
-    m_currentReply = 0;
+    m_currentReply->abort();
     delete m_file;
-    m_file = 0;
-    m_manager = 0;
 }
 
