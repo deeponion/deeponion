@@ -15,14 +15,16 @@
 #include <QResizeEvent>
 #include <QPropertyAnimation>
 
+const double QUICKSYNC_THRESH = 0.7;
+
 ModalOverlay::ModalOverlay(const PlatformStyle *_platformStyle, QWidget *parent) :
-QWidget(parent),
-ui(new Ui::ModalOverlay),
-bestHeaderHeight(0),
-bestHeaderDate(QDateTime()),
-layerIsVisible(false),
-userClosed(false),
-platformStyle(_platformStyle)
+    QWidget(parent),
+    ui(new Ui::ModalOverlay),
+    bestHeaderHeight(0),
+    bestHeaderDate(QDateTime()),
+    layerIsVisible(false),
+    userClosed(false),
+    platformStyle(_platformStyle)
 {
     ui->setupUi(this);
     connect(ui->quickSyncButton, &QPushButton::clicked, this, &ModalOverlay::onQuickSyncClicked);
@@ -104,7 +106,7 @@ void ModalOverlay::setKnownBestHeight(int count, const QDateTime& blockDate)
 
 void ModalOverlay::tipUpdate(int count, const QDateTime& blockDate, double nVerificationProgress)
 {
-    if(nVerificationProgress > 0.7)
+    if(nVerificationProgress > QUICKSYNC_THRESH)
         showQuickSync = false;
     else
         showQuickSync = true;
@@ -139,7 +141,7 @@ void ModalOverlay::tipUpdate(int count, const QDateTime& blockDate, double nVeri
         ui->progressIncreasePerH->setText(QString::number(progressPerHour * 100, 'f', 2)+"%");
 
         // show expected remaining time
-        if(remainingMSecs >= 0) {	
+        if(remainingMSecs >= 0) {
             ui->expectedTimeLeft->setText(GUIUtil::formatNiceTimeOffset(remainingMSecs / 1000.0));
         } else {
             ui->expectedTimeLeft->setText(QObject::tr("unknown"));
@@ -180,26 +182,26 @@ QString ModalOverlay::getQuickSyncStatus()
 {
     switch(quickSyncStatus){
 
-        case QuickSyncStatus::CANCELED:
-            return QString("Canceled");
+    case QuickSyncStatus::CANCELED:
+        return QString("Canceled");
 
-        case QuickSyncStatus::DOWNLOADING:
-            return QString("Downloading...");
+    case QuickSyncStatus::DOWNLOADING:
+        return QString("Downloading...");
 
-        case QuickSyncStatus::DECODING:
-            return QString("Decoding...");
+    case QuickSyncStatus::DECODING:
+        return QString("Decoding...");
 
-        case QuickSyncStatus::EXTRACTING:
-            return QString("Extracting...");
+    case QuickSyncStatus::EXTRACTING:
+        return QString("Extracting...");
 
-        case QuickSyncStatus::PREPARING:
-            return QString("Preparing...");
+    case QuickSyncStatus::PREPARING:
+        return QString("Preparing...");
 
-        case QuickSyncStatus::TIMEOUT:
-            return QString("Timout...");
+    case QuickSyncStatus::TIMEOUT:
+        return QString("Timout...");
 
-        default:
-            return QString("");
+    default:
+        return QString("");
     }
 }
 
@@ -295,7 +297,6 @@ void ModalOverlay::onUpdateProgress(qint64 bytesReceived, qint64 bytesTotal)
     }
     else if(remainingTime > 60)
     {
-
         minutes = remainingTime/60;
         seconds= (int)remainingTime%60;
         ui->downloadProgressBar->setFormat(getQuickSyncStatus()+QString::number(progress,'f',1)+"% ("+QString::number(minutes,'f',0)+ "m " + QString::number(seconds,'f',0) +"s)");
@@ -317,16 +318,16 @@ void ModalOverlay::onDownloadFinished()
 
 void ModalOverlay::prepareDeflateData(QString file)
 {
-      quickSyncStatus = QuickSyncStatus::DECODING;
-      std::string filename = file.toStdString();
-      fs::path datadir2= tempquickSyncDir / fs::path(filename);
+    quickSyncStatus = QuickSyncStatus::DECODING;
+    std::string filename = file.toStdString();
+    fs::path datadir2= tempquickSyncDir / fs::path(filename);
 
-      size_t lastindex = filename.find_last_of(".");
-      std::string rawname = filename.substr(0, lastindex);
-      tardatadir= tempquickSyncDir / fs::path(rawname);
+    size_t lastindex = filename.find_last_of(".");
+    std::string rawname = filename.substr(0, lastindex);
+    tardatadir= tempquickSyncDir / fs::path(rawname);
 
-      //Deflate in seperate thread to obtain UI responsive
-      new std::thread(&GUIUtil::QuickSync::deflate,&quickS,datadir2,tardatadir);
+    //Deflate in seperate thread to obtain UI responsive
+    new std::thread(&GUIUtil::QuickSync::deflate,&quickS,datadir2,tardatadir);
 }
 
 void ModalOverlay::untar()
@@ -392,13 +393,13 @@ void ModalOverlay::onEditServerAddressButton()
 {
     bool ok;
     QString text = QInputDialog::getText(this, tr("Set Address"),
-                                            tr("Address name:"), QLineEdit::Normal,
-                                            blockchain_url.toString(), &ok);
+                                         tr("Address name:"), QLineEdit::Normal,
+                                         blockchain_url.toString(), &ok);
     if (ok && !text.isEmpty())
     {
         ui->bootstrapServerAddressEdit->setText(text);
         blockchain_url = text;
-     }
+    }
 }
 
 void ModalOverlay::onProxyActivated(int state)
@@ -451,5 +452,4 @@ void ModalOverlay::updateQuickSyncVisibility()
             ui->editServerAddressButton->hide();
         }
     }
-
 }
