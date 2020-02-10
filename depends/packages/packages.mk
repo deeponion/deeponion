@@ -1,4 +1,4 @@
-packages:=boost libevent
+packages:=boost libevent libseccomp
 
 qt_packages = zlib
 
