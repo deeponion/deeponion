@@ -14,6 +14,7 @@
 #include <config/bitcoin-config.h>
 #endif
 
+#include <string.h>
 #include <compat.h>
 #include <fs.h>
 #include <sync.h>
@@ -31,6 +32,18 @@
 #include <stdint.h>
 #include <string>
 #include <vector>
+
+#include <zlib.h>
+#include <boost/scoped_array.hpp>
+
+
+/* These are all highly standard and portable headers. */
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+/* This is for mkdir(); this may need to be changed for some platforms. */
+#include <sys/stat.h>  /* For mkdir() */
 
 #include <boost/signals2/signal.hpp>
 #include <boost/thread/condition_variable.hpp> // for boost::thread_interrupted
