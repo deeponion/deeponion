@@ -54,8 +54,6 @@ ModalOverlay::ModalOverlay(const PlatformStyle *_platformStyle, QWidget *parent)
     //QuickSync Configuration
     showQuickSyncOptions = false;
 
-
-
     // DeepOnion: Theme
     ui->contentWidget->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getStyleSheet());
     ui->warningIcon->setIcon(platformStyle->SingleColorIcon(platformStyle->getThemeManager()->getCurrent()->getWarningIco()));
