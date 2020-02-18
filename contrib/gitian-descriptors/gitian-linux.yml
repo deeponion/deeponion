@@ -32,6 +32,7 @@ packages:
 - "bsdmainutils"
 - "ca-certificates"
 - "python3"
+- "gettext"
 remotes:
 - "url": "https://github.com/deeponion/deeponion.git"
   "dir": "deeponion"
