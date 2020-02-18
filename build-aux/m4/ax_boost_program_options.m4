@@ -50,7 +50,6 @@ AC_DEFUN([AX_BOOST_PROGRAM_OPTIONS],
         ],
         [want_boost="yes"]
 	)
-
 	if test "x$want_boost" = "xyes"; then
         AC_REQUIRE([AC_PROG_CC])
 	    export want_boost

@@ -403,5 +403,4 @@ inline uint32_t ByteReverse(uint32_t value)
 }
 
 const std::string currentDateTime();
-
 #endif // BITCOIN_UTIL_H
