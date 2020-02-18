@@ -126,6 +126,9 @@ Q_SIGNALS:
     // Show progress dialog e.g. for verifychain
     void showProgress(const QString &title, int nProgress);
 
+
+
+
 public Q_SLOTS:
     void updateTimer();
     void updateNumConnections(int numConnections);
@@ -133,6 +136,8 @@ public Q_SLOTS:
     void updateAlert();
     void updateBanlist();
     void updateBlockchainStatus(int status);
+    void updateNetwork(bool active);
+
 };
 
 #endif // BITCOIN_QT_CLIENTMODEL_H

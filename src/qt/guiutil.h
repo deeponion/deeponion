@@ -17,6 +17,8 @@
 #include <QTableView>
 #include <QLabel>
 
+#include <zlib.h>
+
 class QValidatedLineEdit;
 class SendCoinsRecipient;
 
@@ -33,6 +35,29 @@ QT_END_NAMESPACE
  */
 namespace GUIUtil
 {
+    //QuickSync data handling
+    class QuickSync : public QObject
+    {
+        Q_OBJECT
+
+    public:
+    bool deflate(fs::path Input_filename, fs::path Output_filename);
+    /* Extract a tar archive. */
+    void untar(FILE *a, const char *path, std::string targetpath);
+
+    private:
+    int parseoct(const char *p, size_t n);
+    int is_end_of_archive(const char *p);
+    void create_dir(char *pathname, int mode);
+    FILE *create_file(char *pathname, int mode);
+    int verify_checksum(const char *p);
+
+    Q_SIGNALS:
+        void updateDeflateProgress(qint64, qint64);
+        void deflateFinished();
+        void untarFinished();
+    };
+
     // Create human-readable string from date
     QString dateTimeStr(const QDateTime &datetime);
     QString dateTimeStr(qint64 nTime);
@@ -173,7 +198,7 @@ namespace GUIUtil
 
         private Q_SLOTS:
             void on_sectionResized(int logicalIndex, int oldSize, int newSize);
-            void on_geometriesChanged();
+            void on_geometriesChanged();     
     };
 
     bool GetStartOnSystemStartup();

@@ -16,16 +16,16 @@
 
 #include <boost/test/unit_test.hpp>
 
-static const std::string strSecret1 = "6uGFQ4DSW7zh1viHZi6iiVT17CncvoaV4MHvGvJKPDaLCdymj87";
-static const std::string strSecret2 = "6vVo7sPkeLTwVdAntrv4Gbnsyr75H8ChD3P5iyHziwaqe8mCYR5";
-static const std::string strSecret1C = "T3gJYmBuZXsdd65E7NQF88ZmUP2MaUanqnZg9GFS94W7kND4Ebjq";
-static const std::string strSecret2C = "T986ZKRRdnuuXLeDZuKBRrZW1ujotAncU9WTrFU1n7vMgRW75ZtF";
-static const std::string addr1 = "LiUo6Zn39joYJBzPUhssbDwAywhjFcoHE3";
-static const std::string addr2 = "LZJvLSP5SGKcFS13MHgdrVhpFUbEMB5XVC";
-static const std::string addr1C = "Lh2G82Bi33RNuzz4UfSMZbh54jnWHVnmw8";
-static const std::string addr2C = "LWegHWHB5rmaF5rgWYt1YN3StapRdnGJfU";
+static const std::string strSecret1 = "6Mm9MHYs9tbkr1wFuPpgBqLETFQc7auGWPUcpratnXUEsVYr1eN";
+static const std::string strSecret2 = "6MmkCxXoEjnCJq7i4rQQDXxdMusY1XDjHNqPhx6xPAjGF5PYFiM";
+static const std::string strSecret1C = "QedqrY3eNEkQXM8UnFjRxpKtNrbBz4dhSiCu8DrbZwVEDqzPUr2k";
+static const std::string strSecret2C = "QegVhn6w5dpUuhNcG14HUKeXVJN3sJPBdHNbDkDHSqwYH6wf7QgH";
+static const std::string addr1 = "DZzFv79t5RsiyBwFwSLvTZuZsecJMwJF1P";
+static const std::string addr2 = "Ddk8HQub6QSxPoAGr36sThD1VHwmHdrygw";
+static const std::string addr1C = "DhgXx1Q2GoWRnLTDoTDFnzNdHKZ8U1oNn9";
+static const std::string addr2C = "DjDEr7Ufczat7Fi5umf2pkgSB6NXTz5uvT";
 
-static const std::string strAddressBad = "Lbi6bpMhSwp2CXkivEeUK9wzyQEFzHDfSr";
+static const std::string strAddressBad = "Dbi6bpMhSwp2CXkivEeUK9wzyQEFzHDfSr";
 
 
 BOOST_FIXTURE_TEST_SUITE(key_tests, BasicTestingSetup)
@@ -143,6 +143,7 @@ BOOST_AUTO_TEST_CASE(key_test1)
     BOOST_CHECK(key1C.Sign(hashMsg, detsigc));
     BOOST_CHECK(detsig == detsigc);
     BOOST_CHECK(detsig == ParseHex("304402205dbbddda71772d95ce91cd2d14b592cfbc1dd0aabd6a394b6c2d377bbe59d31d022014ddda21494a4e221f0824f0b8b924c43fa43c0ad57dccdaa11f81a6bd4582f6"));
+    
     BOOST_CHECK(key2.Sign(hashMsg, detsig));
     BOOST_CHECK(key2C.Sign(hashMsg, detsigc));
     BOOST_CHECK(detsig == detsigc);
