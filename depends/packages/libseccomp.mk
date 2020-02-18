@@ -1,12 +1,12 @@
 package=libseccomp
 $(package)_version=2.4.2
-$(package)_download_path=https://github.com/seccomp/libseccomp/releases/download/v$(_version)/
-$(package)_file_name=$(package)-$(_version).tar.gz
+$(package)_download_path=https://github.com/seccomp/libseccomp/releases/download/v2.4.2/
+$(package)_file_name=$(package)-$($(package)_version).tar.gz
 $(package)_sha256_hash=b54f27b53884caacc932e75e6b44304ac83586e2abe7a83eca6daecc5440585b
 
-define $(package)_preprocess_cmds
-  ./autogen.sh
-endef
+#define $(package)_preprocess_cmds
+#  ./autogen.sh
+#endef
 
 define $(package)_set_vars
   $(package)_config_opts=--disable-shared --disable-openssl --disable-libseccomp-regress --disable-samples
