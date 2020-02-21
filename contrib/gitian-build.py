@@ -62,21 +62,21 @@ def build():
         print('\nCompiling ' + args.version + ' Linux')
         subprocess.check_call(['bin/gbuild', '-j', args.jobs, '-m', args.memory, '--commit', 'deeponion='+args.commit, '--url', 'deeponion='+args.url, '../deeponion/contrib/gitian-descriptors/gitian-linux.yml'])
         subprocess.check_call(['bin/gsign', '-p', args.sign_prog, '--signer', args.signer, '--release', args.version+'-linux', '--destination', '../gitian.sigs/', '../deeponion/contrib/gitian-descriptors/gitian-linux.yml'])
-        subprocess.check_call('mv build/out/deeponion-*.tar.gz build/out/src/deeponion-*.tar.gz ../deeponion-binaries/'+args.version, shell=True)
+        subprocess.check_call('mv build/out/DeepOnion-*.tar.gz build/out/src/DeepOnion-*.tar.gz ../deeponion-binaries/'+args.version, shell=True)
 
     if args.windows:
         print('\nCompiling ' + args.version + ' Windows')
         subprocess.check_call(['bin/gbuild', '-j', args.jobs, '-m', args.memory, '--commit', 'deeponion='+args.commit, '--url', 'deeponion='+args.url, '../deeponion/contrib/gitian-descriptors/gitian-win.yml'])
         subprocess.check_call(['bin/gsign', '-p', args.sign_prog, '--signer', args.signer, '--release', args.version+'-win-unsigned', '--destination', '../gitian.sigs/', '../deeponion/contrib/gitian-descriptors/gitian-win.yml'])
-        subprocess.check_call('mv build/out/deeponion-*-win-unsigned.tar.gz inputs/', shell=True)
-        subprocess.check_call('mv build/out/deeponion-*.zip build/out/deeponion-*.exe build/out/src/deeponion-*.tar.gz ../deeponion-binaries/'+args.version, shell=True)
+        subprocess.check_call('mv build/out/DeepOnion-*-win-unsigned.tar.gz inputs/', shell=True)
+        subprocess.check_call('mv build/out/DeepOnion-*.zip build/out/DeepOnion-*.exe build/out/src/DeepOnion-*.tar.gz ../deeponion-binaries/'+args.version, shell=True)
 
     if args.macos:
         print('\nCompiling ' + args.version + ' MacOS')
         subprocess.check_call(['bin/gbuild', '-j', args.jobs, '-m', args.memory, '--commit', 'deeponion='+args.commit, '--url', 'deeponion='+args.url, '../deeponion/contrib/gitian-descriptors/gitian-osx.yml'])
         subprocess.check_call(['bin/gsign', '-p', args.sign_prog, '--signer', args.signer, '--release', args.version+'-osx-unsigned', '--destination', '../gitian.sigs/', '../deeponion/contrib/gitian-descriptors/gitian-osx.yml'])
-        subprocess.check_call('mv build/out/deeponion-*-osx-unsigned.tar.gz inputs/', shell=True)
-        subprocess.check_call('mv build/out/deeponion-*.tar.gz build/out/deeponion-*.dmg build/out/src/deeponion-*.tar.gz ../deeponion-binaries/'+args.version, shell=True)
+        subprocess.check_call('mv build/out/DeepOnion-*-osx-unsigned.tar.gz inputs/', shell=True)
+        subprocess.check_call('mv build/out/DeepOnion-*.tar.gz build/out/DeepOnion-*.dmg build/out/src/DeepOnion-*.tar.gz ../deeponion-binaries/'+args.version, shell=True)
 
     os.chdir(workdir)
 
@@ -95,17 +95,17 @@ def sign():
 
     if args.windows:
         print('\nSigning ' + args.version + ' Windows')
-        subprocess.check_call('cp inputs/deeponion-' + args.version + '-win-unsigned.tar.gz inputs/deeponion-win-unsigned.tar.gz', shell=True)
+        subprocess.check_call('cp inputs/DeepOnion-' + args.version + '-win-unsigned.tar.gz inputs/DeepOnion-win-unsigned.tar.gz', shell=True)
         subprocess.check_call(['bin/gbuild', '--skip-image', '--upgrade', '--commit', 'signature='+args.commit, '../deeponion/contrib/gitian-descriptors/gitian-win-signer.yml'])
         subprocess.check_call(['bin/gsign', '-p', args.sign_prog, '--signer', args.signer, '--release', args.version+'-win-signed', '--destination', '../gitian.sigs/', '../deeponion/contrib/gitian-descriptors/gitian-win-signer.yml'])
-        subprocess.check_call('mv build/out/deeponion-*win64-setup.exe ../deeponion-binaries/'+args.version, shell=True)
+        subprocess.check_call('mv build/out/DeepOnion-*win64-setup.exe ../deeponion-binaries/'+args.version, shell=True)
 
     if args.macos:
         print('\nSigning ' + args.version + ' MacOS')
-        subprocess.check_call('cp inputs/deeponion-' + args.version + '-osx-unsigned.tar.gz inputs/deeponion-osx-unsigned.tar.gz', shell=True)
+        subprocess.check_call('cp inputs/DeepOnion-' + args.version + '-osx-unsigned.tar.gz inputs/DeepOnion-osx-unsigned.tar.gz', shell=True)
         subprocess.check_call(['bin/gbuild', '--skip-image', '--upgrade', '--commit', 'signature='+args.commit, '../deeponion/contrib/gitian-descriptors/gitian-osx-signer.yml'])
         subprocess.check_call(['bin/gsign', '-p', args.sign_prog, '--signer', args.signer, '--release', args.version+'-osx-signed', '--destination', '../gitian.sigs/', '../deeponion/contrib/gitian-descriptors/gitian-osx-signer.yml'])
-        subprocess.check_call('mv build/out/deeponion-osx-signed.dmg ../deeponion-binaries/'+args.version+'/deeponion-'+args.version+'-osx.dmg', shell=True)
+        subprocess.check_call('mv build/out/DeepOnion-osx-signed.dmg ../deeponion-binaries/'+args.version+'/deeponion-'+args.version+'-osx.dmg', shell=True)
 
     os.chdir(workdir)
 
