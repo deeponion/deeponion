@@ -94,10 +94,10 @@ jobs:
 #      env: >-
 #        FILE_ENV="./ci/test/00_setup_env_s390x.sh"
 
-    - stage: test
-      name: 'Win64  [GOAL: deploy]  [no unit tests, no gui, no functional tests]'
-      env: >-
-        FILE_ENV="./ci/test/00_setup_env_win64.sh"
+#    - stage: test
+#      name: 'Win64  [GOAL: deploy]  [no unit tests, no gui, no functional tests]'
+#      env: >-
+#        FILE_ENV="./ci/test/00_setup_env_win64.sh"
 
 #    - stage: test
 #      name: '32-bit + dash  [GOAL: install]  [gui]'
