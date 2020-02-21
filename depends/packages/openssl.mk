@@ -44,7 +44,7 @@ $(package)_config_opts_mips_linux=linux-generic32
 $(package)_config_opts_powerpc_linux=linux-generic32
 $(package)_config_opts_x86_64_darwin=darwin64-x86_64-cc
 $(package)_config_opts_x86_64_mingw32=mingw64
-$(package)_config_env_x86_64_mingw32+=RCFLAGS="-I/usr/share/mingw-w64/include/ -D_WIN32=1"
+$(package)_config_env_x86_64_mingw32+=RC=x86_64-w64-mingw32-windres RCFLAGS="-I/usr/share/mingw-w64/include/ -D_WIN32=1"
 $(package)_config_opts_i686_mingw32=mingw
 endef
 
