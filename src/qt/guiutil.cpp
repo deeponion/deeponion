@@ -1020,9 +1020,13 @@ void ClickableProgressBar::mouseReleaseEvent(QMouseEvent *event)
     Q_EMIT clicked(event->pos());
 }
 
-bool QuickSync::deflate(fs::path filename, fs::path output)
+bool QuickSync::deflate(const fs::path &filename, const fs::path &output)
 {    
+#ifdef WIN32
+    gzFile inFileZ = gzopen_w(filename.c_str(), "rb");
+#elif
     gzFile inFileZ = gzopen(filename.c_str(), "rb");
+#endif
     if (inFileZ == NULL) {
         return 0;
     }
@@ -1053,6 +1057,26 @@ bool QuickSync::deflate(fs::path filename, fs::path output)
 }
 
 /* Parse an octal number, ignoring leading and trailing nonsense. */
+#ifdef WIN32
+ int
+QuickSync::w_parseoct(const wchar_t *p, size_t n)
+{
+    int i = 0;
+
+    while ((*p < '0' || *p > '7') && n > 0) {
+        ++p;
+        --n;
+    }
+    while (*p >= '0' && *p <= '7' && n > 0) {
+        i *= 8;
+        i += *p - '0';
+        ++p;
+        --n;
+    }
+    return (i);
+}
+#endif
+
  int
 QuickSync::parseoct(const char *p, size_t n)
 {
@@ -1072,6 +1096,18 @@ QuickSync::parseoct(const char *p, size_t n)
 }
 
 /* Returns true if this is 512 zero bytes. */
+#ifdef WIN32
+int
+QuickSync::w_is_end_of_archive(const wchar_t *p)
+{
+    int n;
+    for (n = 511; n >= 0; --n)
+        if (p[n] != '\0')
+            return (0);
+    return (1);
+}
+#endif
+
 int
 QuickSync::is_end_of_archive(const char *p)
 {
@@ -1081,6 +1117,28 @@ QuickSync::is_end_of_archive(const char *p)
             return (0);
     return (1);
 }
+
+#ifdef WIN32
+void
+QuickSync::w_create_dir(wchar_t *pathname, int mode)
+{
+    bool r;
+
+    /* Strip trailing '/' */
+    if (pathname[wcslen(pathname) - 1] == '/')
+        pathname[wcslen(pathname) - 1] = '\0';
+
+    fs::file_status s = fs::status(pathname);
+    printf("%X\n",s.permissions());
+    if(fs::exists(pathname))
+            fs::remove_all(pathname);
+    /* Try creating the directory. */
+    r = fs::create_directory(pathname);
+    fs::permissions(pathname, fs::add_perms|fs::owner_write|fs::others_write);
+    if (!r)
+        fprintf(stderr, "Could not create directory %s\n", pathname);
+}
+#endif
 
 /* Create a directory, including parent directories as necessary. */
 void
@@ -1103,6 +1161,20 @@ QuickSync::create_dir(char *pathname, int mode)
         fprintf(stderr, "Could not create directory %s\n", pathname);
 }
 
+#ifdef WIN32
+/* Create a file, including parent directory as necessary. */
+FILE *
+QuickSync::w_create_file(wchar_t *pathname, int mode)
+{
+    FILE *f;
+    f = fsbridge::fopen(pathname, "wb+");
+    if (f == NULL) {
+        perror("Error");
+    }
+    return (f);
+}
+#endif
+
 /* Create a file, including parent directory as necessary. */
 FILE *
 QuickSync::create_file(char *pathname, int mode)
@@ -1115,6 +1187,23 @@ QuickSync::create_file(char *pathname, int mode)
     return (f);
 }
 
+#ifdef WIN32
+/* Verify the tar checksum. */
+int
+QuickSync::w_verify_checksum(const wchar_t *p)
+{
+    int n, u = 0;
+    for (n = 0; n < 512; ++n) {
+        if (n < 148 || n > 155)
+            /* Standard tar checksum adds unsigned bytes. */
+            u += ((unsigned char *)p)[n];
+        else
+            u += 0x20;
+
+    }
+    return (u == w_parseoct(p + 148, 8));
+}
+#endif
 /* Verify the tar checksum. */
 int
 QuickSync::verify_checksum(const char *p)
@@ -1132,18 +1221,27 @@ QuickSync::verify_checksum(const char *p)
 }
 
 /* Extract a tar archive. */
-void QuickSync::untar(FILE *a, const char *path, std::string targetpath)
+void QuickSync::untar(FILE *a, const fs::path &path, const fs::path &targetpath)
 {
+#ifdef WIN32
+    wchar_t buff[512];
+#else
     char buff[512];
+#endif
     FILE *f = NULL;
     size_t bytes_read;
     int filesize;
 
     for (;;) {
-        char char_array[512];
         // copying the contents of the
         // string to char array
+#ifdef WIN32
+        wchar_t char_array[512];
+        wcscpy(char_array, targetpath.c_str());
+#else
+        char char_array[512];
         strcpy(char_array, targetpath.c_str());
+#endif
         bytes_read = fread(buff, 1, 512, a);
         if (bytes_read < 512) {
             fprintf(stderr,
@@ -1151,16 +1249,30 @@ void QuickSync::untar(FILE *a, const char *path, std::string targetpath)
                 path, (int)bytes_read);
             return;
         }
-        if (is_end_of_archive(buff)) {
+#ifdef WIN32
+        bool end = w_is_end_of_archive(buff);
+#else
+        bool end = is_end_of_archive(buff);
+#endif
+        if (end) {
             printf("End of %s\n", path);
             Q_EMIT untarFinished();
             return;
         }
-        if (!verify_checksum(buff)) {
+#ifdef WIN32
+        bool verified = w_verify_checksum(buff);
+#else
+        bool verified = verify_checksum(buff);
+#endif
+        if (!verified) {
             fprintf(stderr, "Checksum failure\n");
             return;
         }
+#ifdef WIN32
+        filesize = w_parseoct(buff + 124, 12);
+#else
         filesize = parseoct(buff + 124, 12);
+#endif
         switch (buff[156]) {
         case '1':
             printf(" Ignoring hardlink %s\n", buff);
@@ -1176,16 +1288,26 @@ void QuickSync::untar(FILE *a, const char *path, std::string targetpath)
             break;
         case '5':
             printf(" Extracting dir %s\n", buff);
+#ifdef WIN32
+            wcscat(char_array,buff);
+            w_create_dir(char_array, w_parseoct(char_array+ 100, 8));
+#else
             strcat(char_array,buff);
             create_dir(char_array, parseoct(char_array+ 100, 8));
+#endif
             filesize = 0;
             break;
         case '6':
             printf(" Ignoring FIFO %s\n", buff);
             break;
         default:
+#ifdef WIN32
+            wcscat(char_array,buff);
+            f = w_create_file(char_array, w_parseoct(char_array+ 100, 8));
+#else
             strcat(char_array,buff);
-            f = create_file(char_array, parseoct(char_array + 100, 8));
+            f = create_file(char_array, parseoct(char_array+ 100, 8));
+#endif
             break;
         }
         while (filesize > 0) {

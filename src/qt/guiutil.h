@@ -41,11 +41,18 @@ namespace GUIUtil
         Q_OBJECT
 
     public:
-    bool deflate(fs::path Input_filename, fs::path Output_filename);
+    bool deflate(const fs::path &Input_filename, const fs::path &Output_filename);
     /* Extract a tar archive. */
-    void untar(FILE *a, const char *path, std::string targetpath);
+    void untar(FILE *a, const fs::path &path, const fs::path &targetpath);
 
     private:
+#ifdef WIN32
+    int w_parseoct(const wchar_t *p, size_t n);
+    int w_is_end_of_archive(const wchar_t *p);
+    void w_create_dir(wchar_t *pathname, int mode);
+    FILE *w_create_file(wchar_t *pathname, int mode);
+    int w_verify_checksum(const wchar_t *p);
+#endif
     int parseoct(const char *p, size_t n);
     int is_end_of_archive(const char *p);
     void create_dir(char *pathname, int mode);
