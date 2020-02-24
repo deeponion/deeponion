@@ -1246,7 +1246,7 @@ void QuickSync::untar(FILE *a, const fs::path &path, const fs::path &targetpath)
         if (bytes_read < 512) {
             fprintf(stderr,
                 "Short read on %s: expected 512, got %d\n",
-                path, (int)bytes_read);
+                path.c_str(), (int)bytes_read);
             return;
         }
 #ifdef WIN32
@@ -1255,7 +1255,7 @@ void QuickSync::untar(FILE *a, const fs::path &path, const fs::path &targetpath)
         bool end = is_end_of_archive(buff);
 #endif
         if (end) {
-            printf("End of %s\n", path);
+            printf("End of %s\n", path.c_str());
             Q_EMIT untarFinished();
             return;
         }
@@ -1315,7 +1315,7 @@ void QuickSync::untar(FILE *a, const fs::path &path, const fs::path &targetpath)
             if (bytes_read < 512) {
                 fprintf(stderr,
                     "Short read on %s: Expected 512, got %d\n",
-                    path, (int)bytes_read);
+                    path.c_str(), (int)bytes_read);
                 return;
             }
             if (filesize < 512)
