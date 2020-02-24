@@ -1024,7 +1024,7 @@ bool QuickSync::deflate(const fs::path &filename, const fs::path &output)
 {    
 #ifdef WIN32
     gzFile inFileZ = gzopen_w(filename.c_str(), "rb");
-#elif
+#else
     gzFile inFileZ = gzopen(filename.c_str(), "rb");
 #endif
     if (inFileZ == NULL) {
