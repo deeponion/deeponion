@@ -325,20 +325,20 @@ void ModalOverlay::prepareDeflateData(QString file)
 {
     quickSyncStatus = QuickSyncStatus::DECODING;
     std::string filename = file.toStdString();
-    fs::path datadir2= tempquickSyncDir / fs::path(filename);
+    fs::path datadir2 = tempquickSyncDir / fs::path(filename);
 
     size_t lastindex = filename.find_last_of(".");
     std::string rawname = filename.substr(0, lastindex);
-    tardatadir= tempquickSyncDir / fs::path(rawname);
+    tardatadir = tempquickSyncDir / fs::path(rawname);
 
     //Deflate in seperate thread to obtain UI responsive
-    new std::thread(&GUIUtil::QuickSync::deflate,&quickS,datadir2,tardatadir);
+    new std::thread(&GUIUtil::QuickSync::deflate, &quickS, datadir2, tardatadir);
 }
 
 void ModalOverlay::untar()
 {
     FILE * pFile;
-    pFile = fopen (tardatadir.c_str() ,"rb");
+    pFile = fsbridge::fopen (tardatadir.c_str() ,"rb");
     std::string targetpath = GetDataDir().string() + "/";
     //Untar in seperate thread to obtain UI responsive
     new std::thread(&GUIUtil::QuickSync::untar,&quickS,pFile, tardatadir.c_str(),targetpath);
