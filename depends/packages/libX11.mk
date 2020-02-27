@@ -1,11 +1,12 @@
-package=qrencode
-$(package)_version=3.4.4
-$(package)_download_path=https://fukuchi.org/works/qrencode/
+package=libX11
+$(package)_version=1.6.2
+$(package)_download_path=https://xorg.freedesktop.org/releases/individual/lib/
 $(package)_file_name=$(package)-$($(package)_version).tar.bz2
-$(package)_sha256_hash=efe5188b1ddbcbf98763b819b146be6a90481aac30cfc8d858ab78a19cde1fa5
+$(package)_sha256_hash=2aa027e837231d2eeea90f3a4afe19948a6eb4c8b2bec0241eba7dbc8106bd16
+$(package)_dependencies=libxcb xtrans xextproto xproto
 
 define $(package)_set_vars
-$(package)_config_opts=--disable-shared -without-tools --disable-sdltest
+$(package)_config_opts=--disable-xkb --disable-static
 $(package)_config_opts_linux=--with-pic
 endef
 
