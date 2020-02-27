@@ -2,6 +2,7 @@
 #define BITCOIN_QT_DOWNLOADER_H
 
 #include <QNetworkAccessManager>
+#include <QUrl>
 
 class QNetworkReply;
 class QFile;
