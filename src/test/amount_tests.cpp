@@ -30,37 +30,37 @@ BOOST_AUTO_TEST_CASE(GetFeeTest)
 
     feeRate = CFeeRate(1000);
     // Must always just return the arg
-    BOOST_CHECK_EQUAL(feeRate.GetFee(0), CAmount(0));
+    BOOST_CHECK_EQUAL(feeRate.GetFee(0), CAmount(1000));
     BOOST_CHECK_EQUAL(feeRate.GetFee(1), CAmount(1000));
     BOOST_CHECK_EQUAL(feeRate.GetFee(121), CAmount(1000));
     BOOST_CHECK_EQUAL(feeRate.GetFee(999), CAmount(1000));
-    BOOST_CHECK_EQUAL(feeRate.GetFee(1e3), CAmount(2000));
-    BOOST_CHECK_EQUAL(feeRate.GetFee(9e3), CAmount(10000));
+    BOOST_CHECK_EQUAL(feeRate.GetFee(1e3), CAmount(1000));
+    BOOST_CHECK_EQUAL(feeRate.GetFee(9e3), CAmount(9000));
 
     feeRate = CFeeRate(-1000);
     // Must always just return -1 * arg
-    BOOST_CHECK_EQUAL(feeRate.GetFee(0), CAmount(0));
+    BOOST_CHECK_EQUAL(feeRate.GetFee(0), CAmount(-1000));
     BOOST_CHECK_EQUAL(feeRate.GetFee(1), CAmount(-1000));
     BOOST_CHECK_EQUAL(feeRate.GetFee(121), CAmount(-1000));
     BOOST_CHECK_EQUAL(feeRate.GetFee(999), CAmount(-1000));
-    BOOST_CHECK_EQUAL(feeRate.GetFee(1e3), CAmount(-2000));
-    BOOST_CHECK_EQUAL(feeRate.GetFee(9e3), CAmount(-10000));
+    BOOST_CHECK_EQUAL(feeRate.GetFee(1e3), CAmount(-1000));
+    BOOST_CHECK_EQUAL(feeRate.GetFee(9e3), CAmount(-9000));
 
     feeRate = CFeeRate(123);
     // Truncates the result, if not integer
-    BOOST_CHECK_EQUAL(feeRate.GetFee(0), CAmount(0));
-    BOOST_CHECK_EQUAL(feeRate.GetFee(8), CAmount(123)); // Special case: returns 1 instead of 0
+    BOOST_CHECK_EQUAL(feeRate.GetFee(0), CAmount(123));
+    BOOST_CHECK_EQUAL(feeRate.GetFee(8), CAmount(123));
     BOOST_CHECK_EQUAL(feeRate.GetFee(9), CAmount(123));
     BOOST_CHECK_EQUAL(feeRate.GetFee(121), CAmount(123));
     BOOST_CHECK_EQUAL(feeRate.GetFee(122), CAmount(123));
     BOOST_CHECK_EQUAL(feeRate.GetFee(999), CAmount(123));
-    BOOST_CHECK_EQUAL(feeRate.GetFee(1e3), CAmount(246));
-    BOOST_CHECK_EQUAL(feeRate.GetFee(9e3), CAmount(1230));
+    BOOST_CHECK_EQUAL(feeRate.GetFee(1e3), CAmount(123));
+    BOOST_CHECK_EQUAL(feeRate.GetFee(9e3), CAmount(1107));
 
     feeRate = CFeeRate(-123);
     // Truncates the result, if not integer
-    BOOST_CHECK_EQUAL(feeRate.GetFee(0), CAmount(0));
-    BOOST_CHECK_EQUAL(feeRate.GetFee(8), CAmount(-123)); // Special case: returns -1 instead of 0
+    BOOST_CHECK_EQUAL(feeRate.GetFee(0), CAmount(-123));
+    BOOST_CHECK_EQUAL(feeRate.GetFee(8), CAmount(-123));
     BOOST_CHECK_EQUAL(feeRate.GetFee(9), CAmount(-123));
 
     // check alternate constructor
