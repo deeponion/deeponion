@@ -71,6 +71,7 @@ bool Downloader::get(const QString& targetFolder, QUrl& url, bool& proxy)
 
     QNetworkRequest request(url);
     request.setAttribute(QNetworkRequest::FollowRedirectsAttribute, true);
+    LogPrint(BCLog::QUICKSYNC, "QuickSync Blockchain Download Requested: Url: %s, Proxy: %s\n", url.toString().toStdString(), proxy ? "true" : "false");
 
     m_currentReply = m_manager->get(request);
     SetDataName(url.fileName());

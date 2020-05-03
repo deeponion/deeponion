@@ -3,6 +3,7 @@
 
 #include <QNetworkAccessManager>
 #include <QUrl>
+#include <util.h>
 
 class QNetworkReply;
 class QFile;

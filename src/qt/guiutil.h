@@ -8,6 +8,7 @@
 #include <amount.h>
 #include <fs.h>
 
+
 #include <QEvent>
 #include <QHeaderView>
 #include <QMessageBox>

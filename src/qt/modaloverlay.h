@@ -15,6 +15,8 @@
 #include <QThread>
 #include <QMessageBox>
 #include <QInputDialog>
+#include <QElapsedTimer>
+
 
 #include <thread>
 
@@ -115,8 +117,7 @@ private:
     bool showQuickSync;
     bool proxyActivated;
 
-    std::chrono::high_resolution_clock::time_point downloadStartTime;
-    std::chrono::high_resolution_clock::time_point allTimeForDownloading;
+    QElapsedTimer downloadStartTime;
 
 };
 

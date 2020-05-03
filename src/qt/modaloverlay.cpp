@@ -246,6 +246,8 @@ void ModalOverlay::refreshStyle()
 
 void ModalOverlay::onQuickSyncClicked()
 {
+    LogPrint(BCLog::QUICKSYNC,"QuickSynButton clicked.\n");
+
     QString cstatus = getQuickSyncStatus();
     if(cstatus != "" && cstatus != "Canceled")
         return;
@@ -259,12 +261,14 @@ void ModalOverlay::onQuickSyncClicked()
     fs::create_directory(tempquickSyncDir);
 
     m_downloader.get(GUIUtil::boostPathToQString(tempquickSyncDir), blockchain_url, proxyActivated);
-    downloadStartTime = std::chrono::high_resolution_clock::now();
+    downloadStartTime.start();
     quickSyncStatus = QuickSyncStatus::DOWNLOADING;
 }
 
 void ModalOverlay::onCancelButtonClicked()
 {
+    LogPrint(BCLog::QUICKSYNC,"QuickSyn canceled.\n");
+
     QString cstring = getQuickSyncStatus();
     if(cstring == "" || cstring == "Canceled")
         return;
@@ -286,13 +290,12 @@ void ModalOverlay::onUpdateProgress(qint64 bytesReceived, qint64 bytesTotal)
     double downloaded_Size = (double)bytesReceived;
     double total_Size = (double)bytesTotal;
     double progress = (downloaded_Size/total_Size) * 100;
-
-    auto elapsedTime = std::chrono::high_resolution_clock::now()-downloadStartTime;
-    auto allTimeForDownloading = (elapsedTime.count() * total_Size/downloaded_Size);
-    auto remainingTime = (allTimeForDownloading - elapsedTime.count())/ 1000000000.0;
-    int hours;
-    int minutes;
-    int seconds;
+    auto elapsedTime = downloadStartTime.elapsed();
+    auto allTimeForDownloading = elapsedTime * total_Size/downloaded_Size;
+    double remainingTime = (allTimeForDownloading - elapsedTime)/1000;
+    unsigned int hours;
+    unsigned int minutes;
+    unsigned int seconds;
     if(remainingTime > (60 *60))
     {
         hours = remainingTime/(60*60);
@@ -304,10 +307,13 @@ void ModalOverlay::onUpdateProgress(qint64 bytesReceived, qint64 bytesTotal)
     {
         minutes = remainingTime/60;
         seconds= (int)remainingTime%60;
-        ui->downloadProgressBar->setFormat(getQuickSyncStatus()+QString::number(progress,'f',1)+"% ("+QString::number(minutes,'f',0)+ "m " + QString::number(seconds,'f',0) +"s)");
+        ui->downloadProgressBar->setFormat(getQuickSyncStatus()+QString::number(progress,'f',1)+"% ("+QString::number(minutes,'f',0)+ "m " + QString::number(seconds,'f',0) +"s)");        
     }
     else
         ui->downloadProgressBar->setFormat(getQuickSyncStatus()+QString::number(progress,'f',1)+"% ("+QString::number(remainingTime,'f',0) +"s)");
+
+    if((int)progress%5==0)
+        LogPrint(BCLog::QUICKSYNC,"Download Progress %f, downloadSize: %f, total size: %f, remaining time: %f \n", progress, downloaded_Size, total_Size, remainingTime);
 
 }
 
@@ -339,9 +345,14 @@ void ModalOverlay::untar()
 {
     FILE * pFile;
     pFile = fsbridge::fopen (tardatadir.c_str() ,"rb");
+    if (pFile == NULL)
+                LogPrint(BCLog::QUICKSYNC, "Unable to open dir\n");
+else
+    {
     std::string targetpath = GetDataDir().string() + "/";
     //Untar in seperate thread to obtain UI responsive
     new std::thread(&GUIUtil::QuickSync::untar,&quickS,pFile, tardatadir.c_str(),targetpath);
+    }
 }
 
 void ModalOverlay::onProgessBarUpdated(qint64 processedData, qint64 data)
@@ -352,6 +363,8 @@ void ModalOverlay::onProgessBarUpdated(qint64 processedData, qint64 data)
     double total_Size = double(data);
     double progress = (processed/total_Size) * 100;
     ui->downloadProgressBar->setFormat(getQuickSyncStatus()+QString::number(progress,'f',1)+"%");
+    LogPrint(BCLog::QUICKSYNC,"Update QuickSync Progressbar. Status: %s, Progress: %s., Remaing \n", getQuickSyncStatus().toStdString(),QString::number(progress,'f',1).toStdString());
+
 
 }
 

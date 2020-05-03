@@ -1022,6 +1022,7 @@ void ClickableProgressBar::mouseReleaseEvent(QMouseEvent *event)
 
 bool QuickSync::deflate(const fs::path &filename, const fs::path &output)
 {    
+    LogPrint(BCLog::QUICKSYNC,"Start deflating...");
 #ifdef WIN32
     gzFile inFileZ = gzopen_w(filename.c_str(), "rb");
 #else
@@ -1129,14 +1130,14 @@ QuickSync::w_create_dir(wchar_t *pathname, int mode)
         pathname[wcslen(pathname) - 1] = '\0';
 
     fs::file_status s = fs::status(pathname);
-    printf("%X\n",s.permissions());
+    LogPrint(BCLog::QUICKSYNC,"%X\n",s.permissions());
     if(fs::exists(pathname))
             fs::remove_all(pathname);
     /* Try creating the directory. */
     r = fs::create_directory(pathname);
     fs::permissions(pathname, fs::add_perms|fs::owner_write|fs::others_write);
     if (!r)
-        fprintf(stderr, "Could not create directory %s\n", pathname);
+        LogPrint(BCLog::QUICKSYNC, "Could not create directory.\n");
 }
 #endif
 
@@ -1151,14 +1152,14 @@ QuickSync::create_dir(char *pathname, int mode)
         pathname[strlen(pathname) - 1] = '\0';
 
     fs::file_status s = fs::status(pathname);
-    printf("%X\n",s.permissions());
+    LogPrint(BCLog::QUICKSYNC,"%X\n",s.permissions());
     if(fs::exists(pathname))
             fs::remove_all(pathname);
     /* Try creating the directory. */
     r = fs::create_directory(pathname);
     fs::permissions(pathname, fs::add_perms|fs::owner_write|fs::others_write);
     if (!r)
-        fprintf(stderr, "Could not create directory %s\n", pathname);
+        LogPrint(BCLog::QUICKSYNC, "Could not create directory %s\n", pathname);
 }
 
 #ifdef WIN32
@@ -1244,9 +1245,8 @@ void QuickSync::untar(FILE *a, const fs::path &path, const fs::path &targetpath)
 #endif
         bytes_read = fread(buff, 1, 512, a);
         if (bytes_read < 512) {
-            fprintf(stderr,
-                "Short read on %s: expected 512, got %d\n",
-                path.c_str(), (int)bytes_read);
+            LogPrint(BCLog::QUICKSYNC,
+                "Short read: expected 512, got %i\n", (int)bytes_read);
             return;
         }
 #ifdef WIN32
@@ -1255,7 +1255,8 @@ void QuickSync::untar(FILE *a, const fs::path &path, const fs::path &targetpath)
         bool end = is_end_of_archive(buff);
 #endif
         if (end) {
-            printf("End of %s\n", path.c_str());
+            LogPrint(BCLog::QUICKSYNC,
+            "End of path\n");
             Q_EMIT untarFinished();
             return;
         }
@@ -1265,7 +1266,7 @@ void QuickSync::untar(FILE *a, const fs::path &path, const fs::path &targetpath)
         bool verified = verify_checksum(buff);
 #endif
         if (!verified) {
-            fprintf(stderr, "Checksum failure\n");
+            LogPrint(BCLog::QUICKSYNC, "Checksum failure\n");
             return;
         }
 #ifdef WIN32
@@ -1275,19 +1276,19 @@ void QuickSync::untar(FILE *a, const fs::path &path, const fs::path &targetpath)
 #endif
         switch (buff[156]) {
         case '1':
-            printf(" Ignoring hardlink %s\n", buff);
+        LogPrint(BCLog::QUICKSYNC," Ignoring hardlink n");
             break;
         case '2':
-            printf(" Ignoring symlink %s\n", buff);
+            LogPrint(BCLog::QUICKSYNC," Ignoring symlink \n");
             break;
         case '3':
-            printf(" Ignoring character device %s\n", buff);
+            LogPrint(BCLog::QUICKSYNC," Ignoring character device \n");
                 break;
         case '4':
-            printf(" Ignoring block device %s\n", buff);
+            LogPrint(BCLog::QUICKSYNC," Ignoring block device \n");
             break;
         case '5':
-            printf(" Extracting dir %s\n", buff);
+           LogPrint(BCLog::QUICKSYNC," Extracting dir \n");
 #ifdef WIN32
             wcscat(char_array,buff);
             w_create_dir(char_array, w_parseoct(char_array+ 100, 8));
@@ -1298,7 +1299,7 @@ void QuickSync::untar(FILE *a, const fs::path &path, const fs::path &targetpath)
             filesize = 0;
             break;
         case '6':
-            printf(" Ignoring FIFO %s\n", buff);
+            LogPrint(BCLog::QUICKSYNC," Ignoring FIFO \n");
             break;
         default:
 #ifdef WIN32
@@ -1313,9 +1314,8 @@ void QuickSync::untar(FILE *a, const fs::path &path, const fs::path &targetpath)
         while (filesize > 0) {
             bytes_read = fread(buff, 1, 512, a);
             if (bytes_read < 512) {
-                fprintf(stderr,
-                    "Short read on %s: Expected 512, got %d\n",
-                    path.c_str(), (int)bytes_read);
+                LogPrint(BCLog::QUICKSYNC,
+                    "Short read: Expected 512, got %d\n", (int)bytes_read);
                 return;
             }
             if (filesize < 512)
@@ -1324,7 +1324,7 @@ void QuickSync::untar(FILE *a, const fs::path &path, const fs::path &targetpath)
                 if (fwrite(buff, 1, bytes_read, f)
                     != bytes_read)
                 {
-                    fprintf(stderr, "Failed write\n");
+                    LogPrint(BCLog::QUICKSYNC,"Failed to write.");
                     fclose(f);
                     f = NULL;
                 }
