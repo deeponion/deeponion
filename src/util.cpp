@@ -258,7 +258,7 @@ const CLogCategoryDesc LogCategories[] =
     {BCLog::DEEPVAULT, "deepvault"},
     {BCLog::DEEPSEND, "deepsend"},
     {BCLog::CHECKPOINT, "checkpoint"},
-    {BCLog::QUICKSYNC, "quicksync"},
+    {BCLog::DEEPSYNC, "deepsync"},
     {BCLog::ALL, "1"},
     {BCLog::ALL, "all"},
 };
