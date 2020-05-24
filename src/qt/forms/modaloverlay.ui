@@ -81,7 +81,7 @@
                 <bool>false</bool>
                </property>
                <property name="text">
-               
+                <string/>
                </property>
                <property name="iconSize">
                 <size>
@@ -175,7 +175,7 @@
             <number>10</number>
            </property>
            <item row="1" column="2">
-            <widget class="QToolButton" name="quicksyncoptionsButton">
+            <widget class="QToolButton" name="deepsyncoptionsButton">
              <property name="minimumSize">
               <size>
                <width>20</width>
@@ -183,7 +183,7 @@
               </size>
              </property>
              <property name="toolTip">
-              <string>QuickSync Options</string>
+              <string>DeepSync Options</string>
              </property>
              <property name="text">
               <string/>
@@ -214,6 +214,14 @@
                <height>0</height>
               </size>
              </property>
+             <property name="font">
+              <font>
+               <family>Ubuntu</family>
+               <weight>75</weight>
+               <italic>false</italic>
+               <bold>true</bold>
+              </font>
+             </property>
              <property name="value">
               <number>24</number>
              </property>
@@ -237,7 +245,7 @@
             </layout>
            </item>
            <item row="1" column="0">
-            <widget class="QPushButton" name="quickSyncButton">
+            <widget class="QPushButton" name="deepSyncButton">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
                <horstretch>0</horstretch>
@@ -245,7 +253,7 @@
               </sizepolicy>
              </property>
              <property name="text">
-              <string>Start QuickSync</string>
+              <string>Start DeepSync</string>
              </property>
             </widget>
            </item>
