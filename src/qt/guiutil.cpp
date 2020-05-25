@@ -1026,6 +1026,19 @@ void ClickableProgressBar::mouseReleaseEvent(QMouseEvent *event)
     Q_EMIT clicked(event->pos());
 }
 
+int DeepSync::inf(const fs::path &filename, const fs::path &output)
+{
+fs::ifstream file(filename, std::ios_base::in | std::ios_base::binary);
+fs::ofstream out(output, std::ios_base::out | std::ios_base::binary);
+
+boost::iostreams::filtering_streambuf<boost::iostreams::input> in;
+in.push(boost::iostreams::gzip_decompressor());
+in.push(file);
+boost::iostreams::copy(in, out);
+Q_EMIT inflateFinished();
+return true;
+}
+
 int
 is_end_of_archive(const char *p)
 {
@@ -1051,22 +1064,24 @@ void dropFilenameFromPathKeepFinalFileSep(char *path) {
         path[dirPath - path +1] = 0; //
 }
 
-#ifdef WIN32
-bool is_fileexistsWin(const char * filename) {
-    FILE * fp = NULL;
-    if ((fp = fopen(filename, "r"))) {
-        fclose(fp);
-        return true;
-    }
-    return false;
-}
-
-int mkdirWin(char *pathname)
+/* Parse an octal number, ignoring leading and trailing nonsense. */
+static int
+parseoct(const char *p, size_t n)
 {
-    if (is_fileexistsWin(pathname)) return 0;
-    return mkdir(pathname);
+    int i = 0;
+
+    while (*p < '0' || *p > '7') {
+        ++p;
+        --n;
+    }
+    while (*p >= '0' && *p <= '7' && n > 0) {
+        i *= 8;
+        i += *p - '0';
+        ++p;
+        --n;
+    }
+    return (i);
 }
-#endif
 
 static void create_dir(char *pathname, int mode)
 {
