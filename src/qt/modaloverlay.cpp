@@ -15,7 +15,8 @@
 #include <QResizeEvent>
 #include <QPropertyAnimation>
 
-const double QUICKSYNC_THRESH = 0.7;
+//Threshold for enabling deepsync
+const double DEEPSYNC_THRESH = 0.7;
 
 ModalOverlay::ModalOverlay(const PlatformStyle *_platformStyle, QWidget *parent) :
     QWidget(parent),
@@ -27,32 +28,36 @@ ModalOverlay::ModalOverlay(const PlatformStyle *_platformStyle, QWidget *parent)
     platformStyle(_platformStyle)
 {
     ui->setupUi(this);
-    connect(ui->quickSyncButton, &QPushButton::clicked, this, &ModalOverlay::onQuickSyncClicked);
+    connect(ui->deepSyncButton, &QPushButton::clicked, this, &ModalOverlay::onDeepSyncClicked);
     connect(ui->cancelPushButton, &QPushButton::clicked, this, &ModalOverlay::onCancelButtonClicked);
     connect(ui->closeButton, SIGNAL(clicked()), this, SLOT(closeClicked()));
-    connect(ui->quicksyncoptionsButton, &QPushButton::clicked,this,&ModalOverlay::onQuickSyncOptionsClicked);
+    connect(ui->deepsyncoptionsButton, &QPushButton::clicked,this,&ModalOverlay::onDeepSyncOptionsClicked);
     connect(ui->editServerAddressButton,&QPushButton::clicked, this, &ModalOverlay::onEditServerAddressButton);
     connect(ui->proxycheckBox, &QCheckBox::stateChanged, this, &ModalOverlay::onProxyActivated);
     connect(&m_downloader, &Downloader::updateDownloadProgress, this, &ModalOverlay::onUpdateProgress);
     connect(&m_downloader, &Downloader::onFinished, this, &ModalOverlay::onDownloadFinished);
-    connect(&quickS, &GUIUtil::QuickSync::updateDeflateProgress, this, &ModalOverlay::onProgessBarUpdated,Qt::QueuedConnection);
-    connect(&quickS, &GUIUtil::QuickSync::deflateFinished, this, &ModalOverlay::onDeflateFinished,Qt::QueuedConnection);
-    connect(&quickS, &GUIUtil::QuickSync::untarFinished, this, &ModalOverlay::onUntarFinished, Qt::QueuedConnection);
+    //connect(&deepS, &GUIUtil::DeepSync::updateInflateProgress, this, &ModalOverlay::onProgessBarUpdated,Qt::QueuedConnection);
+    connect(&deepS, &GUIUtil::DeepSync::inflateFinished, this, &ModalOverlay::onInflateFinished,Qt::QueuedConnection);
+    connect(&deepS, &GUIUtil::DeepSync::untarFinished, this, &ModalOverlay::onUntarFinished, Qt::QueuedConnection);
 
     if (parent) {
         parent->installEventFilter(this);
         raise();
     }
+    refreshStyle();
     ui->downloadProgressBar->setAlignment(Qt::AlignCenter);
     ui->downloadProgressBar->setValue(0);
+    ui->downloadProgressBar->setTextVisible(true);
+    ui->downloadProgressBar->show();
+
     ui->bootstrapServerAddressEdit->setText(blockchain_url.toString());
     ui->proxycheckBox->setChecked(true);
     blockProcessTime.clear();
     deflationrequested = true;
     setVisible(false);
 
-    //QuickSync Configuration
-    showQuickSyncOptions = false;
+    //DeepSync Configuration
+    showDeepSyncOptions = false;
 
     // DeepOnion: Theme
     ui->contentWidget->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getStyleSheet());
@@ -105,11 +110,12 @@ void ModalOverlay::setKnownBestHeight(int count, const QDateTime& blockDate)
 
 void ModalOverlay::tipUpdate(int count, const QDateTime& blockDate, double nVerificationProgress)
 {
-    if(nVerificationProgress > QUICKSYNC_THRESH)
-        showQuickSync = false;
+    if(nVerificationProgress > DEEPSYNC_THRESH)
+        showDeepSync = false;
     else
-        showQuickSync = true;
-    updateQuickSyncVisibility();
+        showDeepSync = true;
+
+    updateDeepSyncVisibility();
 
 
     QDateTime currentDate = QDateTime::currentDateTime();
@@ -177,26 +183,26 @@ void ModalOverlay::tipUpdate(int count, const QDateTime& blockDate, double nVeri
     }
 }
 
-QString ModalOverlay::getQuickSyncStatus()
+QString ModalOverlay::getDeepSyncStatus()
 {
-    switch(quickSyncStatus){
+    switch(deepSyncStatus){
 
-    case QuickSyncStatus::CANCELED:
+    case DeepSyncStatus::CANCELED:
         return QString("Canceled");
 
-    case QuickSyncStatus::DOWNLOADING:
+    case DeepSyncStatus::DOWNLOADING:
         return QString("Downloading...");
 
-    case QuickSyncStatus::DECODING:
+    case DeepSyncStatus::DECODING:
         return QString("Decoding...");
 
-    case QuickSyncStatus::EXTRACTING:
+    case DeepSyncStatus::EXTRACTING:
         return QString("Extracting...");
 
-    case QuickSyncStatus::PREPARING:
+    case DeepSyncStatus::PREPARING:
         return QString("Preparing...");
 
-    case QuickSyncStatus::TIMEOUT:
+    case DeepSyncStatus::TIMEOUT:
         return QString("Timout...");
 
     default:
@@ -242,39 +248,46 @@ void ModalOverlay::refreshStyle()
     ui->contentWidget->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getStyleSheet());
     ui->warningIcon->setIcon(platformStyle->SingleColorIcon(platformStyle->getThemeManager()->getCurrent()->getWarningIco()));
     ui->warningIcon->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getQFrameGeneralStyle());
+    ui->downloadProgressBar->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getStatusBarBackgroundColor());
 }
 
-void ModalOverlay::onQuickSyncClicked()
+void ModalOverlay::onDeepSyncClicked()
 {
-    QString cstatus = getQuickSyncStatus();
+    QString cstatus = getDeepSyncStatus();
     if(cstatus != "" && cstatus != "Canceled")
         return;
     setNetworkStatus(false);
     deflationrequested = true;
-    quickSyncStatus = QuickSyncStatus::PREPARING;
-    ui->downloadProgressBar->setFormat(getQuickSyncStatus());
+    deepSyncStatus = DeepSyncStatus::PREPARING;
+    ui->downloadProgressBar->setFormat(getDeepSyncStatus());
 
     //Create temp folder for downloading
-    tempquickSyncDir= GetDataDir() / fs::unique_path();
-    fs::create_directory(tempquickSyncDir);
+    tempdeepSyncDir= GetDataDir() / fs::unique_path();
+    fs::create_directory(tempdeepSyncDir);
 
-    m_downloader.get(GUIUtil::boostPathToQString(tempquickSyncDir), blockchain_url, proxyActivated);
-    downloadStartTime = std::chrono::high_resolution_clock::now();
-    quickSyncStatus = QuickSyncStatus::DOWNLOADING;
+    LogPrint(BCLog::DEEPSYNC,"Starting deepsync download thread\n");
+    m_downloader.get(GUIUtil::boostPathToQString(tempdeepSyncDir), blockchain_url, proxyActivated);
+    downloadStartTime.start();
+    deepSyncStatus = DeepSyncStatus::DOWNLOADING;
 }
 
 void ModalOverlay::onCancelButtonClicked()
 {
-    QString cstring = getQuickSyncStatus();
-    if(cstring == "" || cstring == "Canceled")
+    LogPrint(BCLog::DEEPSYNC,"DeepSync canceled.\n");
+
+    QString cstring = getDeepSyncStatus();
+    if(deepSyncStatus == DeepSyncStatus::CANCELED || cstring == "")
         return;
     deflationrequested = false;
-    m_downloader.cancelDownload();
-    fs::remove_all(tempquickSyncDir);
-    ui->downloadProgressBar->setMaximum(100);
+    if(deepSyncStatus != DeepSyncStatus::PREPARING)
+        m_downloader.cancelDownload();
+    if(fs::is_directory(tempdeepSyncDir))
+        fs::remove_all(tempdeepSyncDir);
     ui->downloadProgressBar->setValue(0);
-    quickSyncStatus = QuickSyncStatus::CANCELED;
-    ui->downloadProgressBar->setFormat(getQuickSyncStatus());
+    deepSyncStatus = DeepSyncStatus::CANCELED;
+    ui->downloadProgressBar->setFormat(getDeepSyncStatus());
+
+
     //Free Network
     setNetworkStatus(true);
 }
@@ -286,93 +299,102 @@ void ModalOverlay::onUpdateProgress(qint64 bytesReceived, qint64 bytesTotal)
     double downloaded_Size = (double)bytesReceived;
     double total_Size = (double)bytesTotal;
     double progress = (downloaded_Size/total_Size) * 100;
+    auto elapsedTime = downloadStartTime.elapsed();
+    auto allTimeForDownloading = elapsedTime * total_Size/downloaded_Size;
+    double remainingTime = (allTimeForDownloading - elapsedTime)/1000;
+    unsigned int hours;
+    unsigned int minutes;
+    unsigned int seconds;
 
-    auto elapsedTime = std::chrono::high_resolution_clock::now()-downloadStartTime;
-    auto allTimeForDownloading = (elapsedTime.count() * total_Size/downloaded_Size);
-    auto remainingTime = (allTimeForDownloading - elapsedTime.count())/ 1000000000.0;
-    int hours;
-    int minutes;
-    int seconds;
+    ui->downloadProgressBar->setTextVisible(true);
     if(remainingTime > (60 *60))
     {
         hours = remainingTime/(60*60);
         minutes = (int)remainingTime%(60*60)/60;
         seconds= (int)remainingTime%60;
-        ui->downloadProgressBar->setFormat(getQuickSyncStatus()+QString::number(progress,'f',1)+"% ("+QString::number(hours,'f',0)+"h "+QString::number(minutes,'f',0)+ "m " + QString::number(seconds,'f',0) +"s)");
+        ui->downloadProgressBar->setFormat(getDeepSyncStatus()+QString::number(progress,'f',1)+"% ("+QString::number(hours,'f',0)+"h "+QString::number(minutes,'f',0)+ "m " + QString::number(seconds,'f',0) +"s)");
     }
     else if(remainingTime > 60)
     {
         minutes = remainingTime/60;
         seconds= (int)remainingTime%60;
-        ui->downloadProgressBar->setFormat(getQuickSyncStatus()+QString::number(progress,'f',1)+"% ("+QString::number(minutes,'f',0)+ "m " + QString::number(seconds,'f',0) +"s)");
+        ui->downloadProgressBar->setFormat(getDeepSyncStatus()+QString::number(progress,'f',1)+"% ("+QString::number(minutes,'f',0)+ "m " + QString::number(seconds,'f',0) +"s)");
     }
     else
-        ui->downloadProgressBar->setFormat(getQuickSyncStatus()+QString::number(progress,'f',1)+"% ("+QString::number(remainingTime,'f',0) +"s)");
-
+        ui->downloadProgressBar->setFormat(getDeepSyncStatus()+QString::number(progress,'f',1)+"% ("+QString::number(remainingTime,'f',0) +"s)");
 }
 
 void ModalOverlay::onDownloadFinished()
 {
     if(deflationrequested)
     {
-        ui->downloadProgressBar->setFormat(getQuickSyncStatus());
+        ui->downloadProgressBar->setFormat(getDeepSyncStatus());
         deflationrequested = false;
-        prepareDeflateData(m_downloader.getDataName());
+        prepareInflateData(m_downloader.getDataName());
     }
 }
 
-void ModalOverlay::prepareDeflateData(QString file)
+void ModalOverlay::prepareInflateData(QString file)
 {
-    quickSyncStatus = QuickSyncStatus::DECODING;
+    deepSyncStatus = DeepSyncStatus::DECODING;
+    ui->downloadProgressBar->setFormat(getDeepSyncStatus());
     std::string filename = file.toStdString();
-    fs::path datadir2 = tempquickSyncDir / fs::path(filename);
+    fs::path datadir2 = tempdeepSyncDir / fs::path(filename);
 
     size_t lastindex = filename.find_last_of(".");
     std::string rawname = filename.substr(0, lastindex);
-    tardatadir = tempquickSyncDir / fs::path(rawname);
+    tardatadir = tempdeepSyncDir / fs::path(rawname);
 
-    //Deflate in seperate thread to obtain UI responsive
-    new std::thread(&GUIUtil::QuickSync::deflate, &quickS, datadir2, tardatadir);
+    //inflate in seperate thread to obtain UI responsive
+    new std::thread(&GUIUtil::DeepSync::inf, &deepS, datadir2, tardatadir);
 }
 
 void ModalOverlay::untar()
 {
     FILE * pFile;
-    pFile = fsbridge::fopen (tardatadir.c_str() ,"rb");
-    std::string targetpath = GetDataDir().string() + "/";
+    pFile = fsbridge::fopen(tardatadir.c_str() ,"rb");
+    if (pFile == NULL)
+        LogPrint(BCLog::DEEPSYNC, "Unable to open dir\n");
+#ifdef WIN32
+    std::string tpath = GetDataDir().string() + "\\";
+#else
+    std::string tpath = GetDataDir().string() + "/";
+#endif
     //Untar in seperate thread to obtain UI responsive
-    new std::thread(&GUIUtil::QuickSync::untar,&quickS,pFile, tardatadir.c_str(),targetpath);
+    new std::thread(&GUIUtil::DeepSync::untar,&deepS,pFile,tardatadir.c_str(), tpath);
 }
 
+/* Update Progressbar for inflating
 void ModalOverlay::onProgessBarUpdated(qint64 processedData, qint64 data)
 {
     ui->downloadProgressBar->setMaximum(data);
     ui->downloadProgressBar->setValue(processedData);
     double processed = double(processedData);
     double total_Size = double(data);
+    if(total_Size < 0)
+        total_Size = (double)m_downloader.getSize();
     double progress = (processed/total_Size) * 100;
-    ui->downloadProgressBar->setFormat(getQuickSyncStatus()+QString::number(progress,'f',1)+"%");
+    ui->downloadProgressBar->setFormat(getDeepSyncStatus()+QString::number(progress,'f',1)+"%");
+}*/
 
-}
-
-void ModalOverlay::onDeflateFinished()
+void ModalOverlay::onInflateFinished()
 {
-    quickSyncStatus = QuickSyncStatus::EXTRACTING;
-    ui->downloadProgressBar->setFormat(getQuickSyncStatus());
+    deepSyncStatus = DeepSyncStatus::EXTRACTING;
+    ui->downloadProgressBar->setFormat(getDeepSyncStatus());
     untar();
 }
 
 void ModalOverlay::onUntarFinished()
 {
-    fs::remove_all(tempquickSyncDir);
+    fs::remove_all(tempdeepSyncDir);
     //Quicksync data is downloaded and untard
     //Announce it and prepare for closing wallet for restart
-    quickSyncFinishedMessageBox = new QMessageBox;
-    quickSyncFinishedMessageBox->setWindowTitle("QuickSync is prepared for wallet restart");
-    quickSyncFinishedMessageBox->setText("The wallet will close now. Restart the wallet to initialize the blockchain!");
-    quickSyncFinishedMessageBox->setStandardButtons(QMessageBox::Yes);
+    deepSyncFinishedMessageBox = new QMessageBox;
+    deepSyncFinishedMessageBox->setWindowTitle("DeepSync is prepared for wallet restart");
+    deepSyncFinishedMessageBox->setText("The wallet will close now. Restart the wallet to initialize the blockchain!");
+    deepSyncFinishedMessageBox->setStandardButtons(QMessageBox::Yes);
 
-    if(quickSyncFinishedMessageBox->exec() == QMessageBox::Yes)
+    if(deepSyncFinishedMessageBox->exec() == QMessageBox::Yes)
     {
         StartShutdown();
     }
@@ -384,14 +406,14 @@ void ModalOverlay::setClientModel(ClientModel *clientmodel)
     connect(this,SIGNAL(setNetworkStatus(bool)), clientmodel, SLOT(updateNetwork(bool)));
 }
 
-void ModalOverlay::onQuickSyncOptionsClicked()
+void ModalOverlay::onDeepSyncOptionsClicked()
 {
-    if(showQuickSyncOptions)
-        showQuickSyncOptions = false;
+    if(showDeepSyncOptions)
+        showDeepSyncOptions = false;
     else
-        showQuickSyncOptions = true;
+        showDeepSyncOptions = true;
 
-    updateQuickSyncVisibility();
+    updateDeepSyncVisibility();
 }
 
 void ModalOverlay::onEditServerAddressButton()
@@ -424,13 +446,13 @@ void ModalOverlay::setProxyActivated(bool value)
 {
     proxyActivated = value;
 }
-void ModalOverlay::updateQuickSyncVisibility()
+void ModalOverlay::updateDeepSyncVisibility()
 {
-    if(!showQuickSync)
+    if(!showDeepSync)
     {
-        ui->quickSyncButton->hide();
+        ui->deepSyncButton->hide();
         ui->downloadProgressBar->hide();
-        ui->quicksyncoptionsButton->hide();
+        ui->deepsyncoptionsButton->hide();
         ui->cancelPushButton->hide();
 
         ui->bootstrapServerAddressEdit->hide();
@@ -439,12 +461,12 @@ void ModalOverlay::updateQuickSyncVisibility()
     }
     else
     {
-        ui->quickSyncButton->show();
+        ui->deepSyncButton->show();
         ui->downloadProgressBar->show();
-        ui->quicksyncoptionsButton->show();
+        ui->deepsyncoptionsButton->show();
         ui->cancelPushButton->show();
 
-        if(showQuickSyncOptions)
+        if(showDeepSyncOptions)
         {
             ui->bootstrapServerAddressEdit->show();
             ui->proxycheckBox->show();

@@ -11,6 +11,8 @@
 #include <QMessageBox>
 #include <QFile>
 #include <QDir>
+#include <QDebug>
+
 
 Downloader::Downloader(QObject* parent) :
     BaseClass(parent)
@@ -42,7 +44,6 @@ bool Downloader::get(const QString& targetFolder, QUrl& url, bool& proxy)
     requestAborted = false;
 
     //Set Proxy
-    //TODO: Merge with init and version check proxy in clientmodel
     if(proxy)
     {
         QNetworkProxy proxy;
@@ -71,16 +72,24 @@ bool Downloader::get(const QString& targetFolder, QUrl& url, bool& proxy)
 
     QNetworkRequest request(url);
     request.setAttribute(QNetworkRequest::FollowRedirectsAttribute, true);
+    request.setRawHeader("Accept-Encoding", "gzip");
+
+    LogPrint(BCLog::DEEPSYNC, "DeepSync Blockchain Download Requested: Url: %s, Proxy: %s\n", url.toString().toStdString(), proxy ? "true" : "false");
 
     m_currentReply = m_manager->get(request);
     SetDataName(url.fileName());
 
+    connect(m_currentReply, &QNetworkReply::metaDataChanged, this, &Downloader::replyMetaDataChanged);
     connect(m_currentReply, &QNetworkReply::readyRead, this, &Downloader::onReadyRead);
     connect(m_currentReply, &QNetworkReply::downloadProgress, this, &Downloader::updateDownloadProgress);
     connect(m_currentReply, &QNetworkReply::finished, this, &Downloader::onFinished);
     connect(m_currentReply, &QNetworkReply::finished, this, &Downloader::Finished);
 
     return true;
+}
+
+void Downloader::replyMetaDataChanged() {
+    size = m_currentReply->header(QNetworkRequest::ContentLengthHeader).toLongLong();
 }
 
 void Downloader::onReadyRead()
@@ -125,6 +134,11 @@ void Downloader::SetDataName(QString name)
 QString Downloader::getDataName()
 {
     return fileName;
+}
+
+qint64 Downloader::getSize()
+{
+    return size;
 }
 
 void Downloader::Finished()
