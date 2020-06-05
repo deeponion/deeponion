@@ -691,6 +691,27 @@ UniValue getblockhash(const JSONRPCRequest& request)
     return pblockindex->GetBlockHash().GetHex();
 }
 
+UniValue getstakemodifiercheckpoints(const JSONRPCRequest& request)
+{
+    LOCK(cs_main);
+
+    int nHeight = 0;
+    UniValue result(UniValue::VOBJ);
+    while (nHeight < chainActive.Height()) {
+        CBlockIndex* pblockindex = chainActive[nHeight];
+        int i = 0;
+        while(!pblockindex->IsProofOfWork()) {
+            i++;
+            pblockindex = chainActive[nHeight+i];
+        }
+        result.push_back(Pair(strprintf("%d", nHeight+i), strprintf("%08x hash: %s", pblockindex->nStakeModifierChecksum, pblockindex->GetBlockHash().GetHex())));
+        nHeight += 50000;
+    }
+
+    return result;
+}
+
+
 UniValue getblockheader(const JSONRPCRequest& request)
 {
     if (request.fHelp || request.params.size() < 1 || request.params.size() > 2)
@@ -1719,6 +1740,7 @@ static const CRPCCommand commands[] =
     { "hidden",             "waitforblock",           &waitforblock,           {"blockhash","timeout"} },
     { "hidden",             "waitforblockheight",     &waitforblockheight,     {"height","timeout"} },
     { "hidden",             "syncwithvalidationinterfacequeue", &syncwithvalidationinterfacequeue, {} },
+    { "hidden",             "getstakemodifiercheckpoints",        &getstakemodifiercheckpoints,        {} },
 };
 
 void RegisterBlockchainRPCCommands(CRPCTable &t)
