@@ -704,7 +704,7 @@ UniValue getstakemodifiercheckpoints(const JSONRPCRequest& request)
             i++;
             pblockindex = chainActive[nHeight+i];
         }
-        result.push_back(Pair(strprintf("%d", nHeight+i), strprintf("%08x hash: %s", pblockindex->nStakeModifierChecksum, pblockindex->GetBlockHash().GetHex())));
+        result.push_back(Pair(strprintf("%d", nHeight+i), strprintf("%08x hash: %s PoWHieght: %d", pblockindex->nStakeModifierChecksum, pblockindex->GetBlockHash().GetHex(), GetPowHeight(pblockindex)-1)));
         nHeight += 50000;
     }
 
