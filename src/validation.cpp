@@ -114,12 +114,18 @@ int LAST_REGISTERED_BTC_BLOCK_HEIGHT = 607134;
 std::string LAST_REGISTERED_BLOCKCHAIN_HASH = "b02e922ab5fec2bd99156baa2debee708fadb0e8ba8f727844abe0e5c6c74d97";
 std::string LAST_REGISTERED_BTC_TX = "40bd84e8661e7e8788892e2271ea16af1882359671d5778b4763e3521808cea4";
 
+# BTC checkpoint #8
+int LAST_REGISTERED_BLOCK_HEIGHT = 1939000;
+int LAST_REGISTERED_BTC_BLOCK_HEIGHT = 633679;
+std::string LAST_REGISTERED_BLOCKCHAIN_HASH = "858463dcf3e5d944209453632ca0c9890be1603cd8dae4978fcaab8bba0829e9";
+std::string LAST_REGISTERED_BTC_TX = "11107b9660bdc369c12f23fd4be8c9c63855c35ca8b88cd72db19d9a8e2fe8df";
+
 */
 
-int LAST_REGISTERED_BLOCK_HEIGHT = 1614800;
-int LAST_REGISTERED_BTC_BLOCK_HEIGHT = 607134;
-std::string LAST_REGISTERED_BLOCKCHAIN_HASH = "b02e922ab5fec2bd99156baa2debee708fadb0e8ba8f727844abe0e5c6c74d97";
-std::string LAST_REGISTERED_BTC_TX = "40bd84e8661e7e8788892e2271ea16af1882359671d5778b4763e3521808cea4";
+int LAST_REGISTERED_BLOCK_HEIGHT = 1939000;
+int LAST_REGISTERED_BTC_BLOCK_HEIGHT = 633679;
+std::string LAST_REGISTERED_BLOCKCHAIN_HASH = "858463dcf3e5d944209453632ca0c9890be1603cd8dae4978fcaab8bba0829e9";
+std::string LAST_REGISTERED_BTC_TX = "11107b9660bdc369c12f23fd4be8c9c63855c35ca8b88cd72db19d9a8e2fe8df";
 
 static const int NUM_OF_POW_CHECKPOINT = 41;
 static const int checkpointPoWHeight[NUM_OF_POW_CHECKPOINT][2] =
@@ -5296,7 +5302,7 @@ void ScanBlockchainForHash(bool bSplashDisplay)
         ss << std::hex << std::setw(2) << std::setfill('0') << (int)blockchainhash[i];
     }
     std::string hash0 = ss.str();
-    LogPrintf(">> hash0 = %s\n", hash0.c_str());
+    LogPrint(BCLog::CHECKPOINT, ">> hash0 = %s\n", hash0.c_str());
 
     if (fAbortScanForHash)
         blockchainStatus = -2;
