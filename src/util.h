@@ -128,6 +128,7 @@ namespace BCLog {
         DEEPVAULT   = (1 << 25),
         DEEPSEND    = (1 << 26),
 		CHECKPOINT  = (1 << 27),
+        DEEPSYNC   = (1 << 28),
         ALL         = ~(uint32_t)0,
     };
 }

@@ -16,8 +16,14 @@
 #include <script/script.h>
 #include <script/standard.h>
 #include <util.h>
+#include <boost/iostreams/device/array.hpp>
+#include <boost/iostreams/filtering_stream.hpp>
+#include <boost/iostreams/filter/gzip.hpp>
+#include <boost/iostreams/copy.hpp>
+#include <boost/iostreams/filter/zlib.hpp>
 
 #ifdef WIN32
+
 #ifdef _WIN32_WINNT
 #undef _WIN32_WINNT
 #endif
@@ -1020,69 +1026,51 @@ void ClickableProgressBar::mouseReleaseEvent(QMouseEvent *event)
     Q_EMIT clicked(event->pos());
 }
 
-bool QuickSync::deflate(const fs::path &filename, const fs::path &output)
-{    
+int DeepSync::inf(const fs::path &filename, const fs::path &output)
+{
+fs::ifstream file(filename, std::ios_base::in | std::ios_base::binary);
+fs::ofstream out(output, std::ios_base::out | std::ios_base::binary);
+
+boost::iostreams::filtering_streambuf<boost::iostreams::input> in;
+in.push(boost::iostreams::gzip_decompressor());
+in.push(file);
+boost::iostreams::copy(in, out);
+Q_EMIT inflateFinished();
+return true;
+}
+
+int
+is_end_of_archive(const char *p)
+{
+    int n;
+    for (n = 511; n >= 0; --n)
+        if (p[n] != '\0')
+            return (0);
+    return (1);
+}
+
 #ifdef WIN32
-    gzFile inFileZ = gzopen_w(filename.c_str(), "rb");
+const char kPathSeparator ='\\';
 #else
-    gzFile inFileZ = gzopen(filename.c_str(), "rb");
+const char kPathSeparator ='/';
 #endif
-    if (inFileZ == NULL) {
-        return 0;
-    }
-    unsigned char unzipBuffer[8192];
-    unsigned int unzippedBytes;
-    std::vector<unsigned char> unzippedData;
-    while (true) { //TODO: Support more than 4 GB
-        unzippedBytes = gzread(inFileZ, unzipBuffer, 8192);
-        if (unzippedBytes > 0) {
-            unzippedData.insert(unzippedData.end(), unzipBuffer, unzipBuffer + unzippedBytes);
-        } else {
-            break;
-        }
-    }
-    qint64 data = unzippedData.size();
-    std::ofstream f(output.string());
-    for(std::vector<unsigned char>::const_iterator i = unzippedData.begin(); i != unzippedData.end(); ++i) {
-        f << *i;
-        if((i - unzippedData.begin())%1000000==0 && (i - unzippedData.begin())!=0)
-        {
-            qint64 unzipped = i-unzippedData.begin();
-            Q_EMIT updateDeflateProgress(unzipped,data);
-        }
-    }
-    gzclose(inFileZ);
-    Q_EMIT deflateFinished();
-    return true;
+
+void dropFilenameFromPathKeepFinalFileSep(char *path) {
+    const char *dirPath = strrchr(path, kPathSeparator);
+    if (dirPath == NULL) {
+        LogPrint(BCLog::DEEPSYNC, "DirPath NULL: ", dirPath);
+        strcpy(path,"");
+    } else
+        path[dirPath - path +1] = 0; //
 }
 
 /* Parse an octal number, ignoring leading and trailing nonsense. */
-#ifdef WIN32
- int
-QuickSync::w_parseoct(const wchar_t *p, size_t n)
+static int
+parseoct(const char *p, size_t n)
 {
     int i = 0;
 
-    while ((*p < '0' || *p > '7') && n > 0) {
-        ++p;
-        --n;
-    }
-    while (*p >= '0' && *p <= '7' && n > 0) {
-        i *= 8;
-        i += *p - '0';
-        ++p;
-        --n;
-    }
-    return (i);
-}
-#endif
-
- int
-QuickSync::parseoct(const char *p, size_t n)
-{
-    int i = 0;
-
-    while ((*p < '0' || *p > '7') && n > 0) {
+    while (*p < '0' || *p > '7') {
         ++p;
         --n;
     }
@@ -1095,118 +1083,54 @@ QuickSync::parseoct(const char *p, size_t n)
     return (i);
 }
 
-/* Returns true if this is 512 zero bytes. */
-#ifdef WIN32
-int
-QuickSync::w_is_end_of_archive(const wchar_t *p)
+static void create_dir(char *pathname, int mode)
 {
-    int n;
-    for (n = 511; n >= 0; --n)
-        if (p[n] != '\0')
-            return (0);
-    return (1);
-}
-#endif
-
-int
-QuickSync::is_end_of_archive(const char *p)
-{
-    int n;
-    for (n = 511; n >= 0; --n)
-        if (p[n] != '\0')
-            return (0);
-    return (1);
-}
-
-#ifdef WIN32
-void
-QuickSync::w_create_dir(wchar_t *pathname, int mode)
-{
-    bool r;
-
-    /* Strip trailing '/' */
-    if (pathname[wcslen(pathname) - 1] == '/')
-        pathname[wcslen(pathname) - 1] = '\0';
-
-    fs::file_status s = fs::status(pathname);
-    printf("%X\n",s.permissions());
-    if(fs::exists(pathname))
-            fs::remove_all(pathname);
-    /* Try creating the directory. */
-    r = fs::create_directory(pathname);
-    fs::permissions(pathname, fs::add_perms|fs::owner_write|fs::others_write);
-    if (!r)
-        fprintf(stderr, "Could not create directory %s\n", pathname);
-}
-#endif
-
-/* Create a directory, including parent directories as necessary. */
-void
-QuickSync::create_dir(char *pathname, int mode)
-{
+    LogPrint(BCLog::DEEPSYNC, "trying to create dir %s\n", pathname);
     bool r;
 
     /* Strip trailing '/' */
     if (pathname[strlen(pathname) - 1] == '/')
-        pathname[strlen(pathname) - 1] = '\0';
+    {
+            pathname[strlen(pathname) - 1] = '\0';
+    }
 
-    fs::file_status s = fs::status(pathname);
-    printf("%X\n",s.permissions());
+#ifdef WIN32
+    fs::permissions(pathname, fs::add_perms|fs::owner_write|fs::others_write);
+#endif
     if(fs::exists(pathname))
+    {
+        try{
             fs::remove_all(pathname);
+        }
+        catch(std::exception const& e) {
+            LogPrint(BCLog::DEEPSYNC, "error:  %c", e.what());
+        }
+    }
+
     /* Try creating the directory. */
     r = fs::create_directory(pathname);
     fs::permissions(pathname, fs::add_perms|fs::owner_write|fs::others_write);
     if (!r)
-        fprintf(stderr, "Could not create directory %s\n", pathname);
+        LogPrint(BCLog::DEEPSYNC, "Could not create directory %s\n", pathname);
+    else
+        LogPrint(BCLog::DEEPSYNC, "New directory created: %s\n", pathname);
 }
 
-#ifdef WIN32
-/* Create a file, including parent directory as necessary. */
-FILE *
-QuickSync::w_create_file(wchar_t *pathname, int mode)
-{
-    FILE *f;
-    f = fsbridge::fopen(pathname, "wb+");
-    if (f == NULL) {
-        perror("Error");
-    }
-    return (f);
-}
-#endif
 
 /* Create a file, including parent directory as necessary. */
 FILE *
-QuickSync::create_file(char *pathname, int mode)
+create_file(char *pathname, int mode)
 {
     FILE *f;
-    f = fsbridge::fopen(pathname, "wb+");
+    f = fopen(pathname, "wb+");
     if (f == NULL) {
-        perror("Error");
+        LogPrint(BCLog::DEEPSYNC, "Coud not create extract file");
     }
     return (f);
 }
 
-#ifdef WIN32
-/* Verify the tar checksum. */
 int
-QuickSync::w_verify_checksum(const wchar_t *p)
-{
-    int n, u = 0;
-    for (n = 0; n < 512; ++n) {
-        if (n < 148 || n > 155)
-            /* Standard tar checksum adds unsigned bytes. */
-            u += ((unsigned char *)p)[n];
-        else
-            u += 0x20;
-
-    }
-    return (u == w_parseoct(p + 148, 8));
-}
-#endif
-/* Verify the tar checksum. */
-int
-QuickSync::verify_checksum(const char *p)
+verify_checksum(const char *p)
 {
     int n, u = 0;
     for (n = 0; n < 512; ++n) {
@@ -1220,111 +1144,87 @@ QuickSync::verify_checksum(const char *p)
     return (u == parseoct(p + 148, 8));
 }
 
+
 /* Extract a tar archive. */
-void QuickSync::untar(FILE *a, const fs::path &path, const fs::path &targetpath)
+void DeepSync::untar(FILE *a, const fs::path &path, const fs::path &targetdir)
 {
-#ifdef WIN32
-    wchar_t buff[512];
-#else
-    char buff[512];
-#endif
+    LogPrint(BCLog::DEEPSYNC, "Extracting %c to %s\n", a, targetdir.string());
+    char buff[1024];
     FILE *f = NULL;
     size_t bytes_read;
     int filesize;
+    char pathDir[512];
 
-    for (;;) {
-        // copying the contents of the
-        // string to char array
 #ifdef WIN32
-        wchar_t char_array[512];
-        wcscpy(char_array, targetpath.c_str());
+ std::wcstombs(pathDir, targetdir.c_str(), 512);
 #else
-        char char_array[512];
-        strcpy(char_array, targetpath.c_str());
+   strcpy(pathDir,targetdir.c_str());
 #endif
+
+    dropFilenameFromPathKeepFinalFileSep(pathDir);
+    char newFile[512] = {""};
+    for (;;) {
         bytes_read = fread(buff, 1, 512, a);
         if (bytes_read < 512) {
-            fprintf(stderr,
-                "Short read on %s: expected 512, got %d\n",
-                path.c_str(), (int)bytes_read);
+            LogPrint(BCLog::DEEPSYNC,
+                     "Short read on %c: expected 512, got %d\n",path, (int)bytes_read);
             return;
         }
-#ifdef WIN32
-        bool end = w_is_end_of_archive(buff);
-#else
-        bool end = is_end_of_archive(buff);
-#endif
-        if (end) {
-            printf("End of %s\n", path.c_str());
+        if (is_end_of_archive(buff)) {
+            LogPrint(BCLog::DEEPSYNC,"End of %s\n", path);
+            fclose(a);
             Q_EMIT untarFinished();
             return;
         }
-#ifdef WIN32
-        bool verified = w_verify_checksum(buff);
-#else
-        bool verified = verify_checksum(buff);
-#endif
-        if (!verified) {
-            fprintf(stderr, "Checksum failure\n");
+        if (!verify_checksum(buff)) {
+            LogPrint(BCLog::DEEPSYNC, "Checksum failure\n");
             return;
         }
-#ifdef WIN32
-        filesize = w_parseoct(buff + 124, 12);
-#else
         filesize = parseoct(buff + 124, 12);
-#endif
         switch (buff[156]) {
         case '1':
-            printf(" Ignoring hardlink %s\n", buff);
+            LogPrint(BCLog::DEEPSYNC," Ignoring hardlink %c\n", buff);
             break;
         case '2':
-            printf(" Ignoring symlink %s\n", buff);
+            LogPrint(BCLog::DEEPSYNC," Ignoring symlink %c\n", buff);
             break;
         case '3':
-            printf(" Ignoring character device %s\n", buff);
-                break;
+            LogPrint(BCLog::DEEPSYNC," Ignoring character device %c\n", buff);
+            break;
         case '4':
-            printf(" Ignoring block device %s\n", buff);
+            LogPrint(BCLog::DEEPSYNC," Ignoring block device %c\n", buff);
             break;
         case '5':
-            printf(" Extracting dir %s\n", buff);
-#ifdef WIN32
-            wcscat(char_array,buff);
-            w_create_dir(char_array, w_parseoct(char_array+ 100, 8));
-#else
-            strcat(char_array,buff);
-            create_dir(char_array, parseoct(char_array+ 100, 8));
-#endif
+            strcpy (newFile,pathDir);
+            strcat (newFile,buff);
+            LogPrint(BCLog::DEEPSYNC," Extracting dir %c\n", newFile);
+            create_dir(newFile, parseoct(newFile + 100, 8));
             filesize = 0;
             break;
         case '6':
-            printf(" Ignoring FIFO %s\n", buff);
+            LogPrint(BCLog::DEEPSYNC," Ignoring FIFO %c\n", buff);
             break;
         default:
-#ifdef WIN32
-            wcscat(char_array,buff);
-            f = w_create_file(char_array, w_parseoct(char_array+ 100, 8));
-#else
-            strcat(char_array,buff);
-            f = create_file(char_array, parseoct(char_array+ 100, 8));
-#endif
+            strcpy (newFile,pathDir);
+            strcat (newFile,buff);
+            LogPrint(BCLog::DEEPSYNC," Extracting file %c\n", newFile);
+            f = create_file(newFile, parseoct(newFile + 100, 8));
             break;
         }
         while (filesize > 0) {
             bytes_read = fread(buff, 1, 512, a);
             if (bytes_read < 512) {
-                fprintf(stderr,
-                    "Short read on %s: Expected 512, got %d\n",
-                    path.c_str(), (int)bytes_read);
+                LogPrint(BCLog::DEEPSYNC,
+                         "Short read on %s: Expected 512, got %d\n",path, (int)bytes_read);
                 return;
             }
             if (filesize < 512)
                 bytes_read = filesize;
             if (f != NULL) {
                 if (fwrite(buff, 1, bytes_read, f)
-                    != bytes_read)
+                        != bytes_read)
                 {
-                    fprintf(stderr, "Failed write\n");
+                    LogPrint(BCLog::DEEPSYNC, "Failed write\n");
                     fclose(f);
                     f = NULL;
                 }

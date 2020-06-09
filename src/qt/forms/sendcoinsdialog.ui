@@ -773,7 +773,7 @@
              <item>
               <widget class="QLabel" name="label_3">
                <property name="text">
-                <string>(DeepSend - each send is limited to maximum 5 ONION (minimum 0.05 ONION). 1% fee (min 0.01 ONION) will be added to the tx)</string>
+                <string>(DeepSend - each send is limited to maximum 1000 ONION (minimum 0.1 ONION). 1% fee (min 0.01 ONION) will be added to the tx)</string>
                </property>
                <property name="margin">
                 <number>2</number>

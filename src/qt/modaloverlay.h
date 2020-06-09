@@ -15,6 +15,8 @@
 #include <QThread>
 #include <QMessageBox>
 #include <QInputDialog>
+#include <QElapsedTimer>
+
 
 #include <thread>
 
@@ -34,7 +36,7 @@ class ModalOverlay : public QWidget
 {
     Q_OBJECT
 
-    enum QuickSyncStatus
+    enum DeepSyncStatus
     {
         PREPARING=0,
         DOWNLOADING=1,
@@ -69,15 +71,15 @@ protected:
     bool event(QEvent* ev);
 
 private Q_SLOTS:
-    void onQuickSyncClicked();
+    void onDeepSyncClicked();
     void onCancelButtonClicked();
-    void onQuickSyncOptionsClicked();
+    void onDeepSyncOptionsClicked();
     void onEditServerAddressButton();
     void onProxyActivated(int state);
     void onUpdateProgress(qint64 bytesReceived, qint64 bytesTotal);
     void onDownloadFinished();
-    void onProgessBarUpdated(qint64, qint64);
-    void onDeflateFinished();
+    //void onProgessBarUpdated(qint64, qint64);
+    void onInflateFinished();
     void onUntarFinished();
 
 public:
@@ -92,31 +94,30 @@ private:
     bool userClosed;
     const PlatformStyle *platformStyle;
     ClientModel *clientmodel;
-    void updateQuickSyncVisibility();
+    void updateDeepSyncVisibility();
 
-    //QuickSync
+    //DeepSync
     bool deflationrequested;
     Downloader m_downloader;
-    GUIUtil::QuickSync quickS;
-    QUrl blockchain_url = QString("https://deeponion.org/blockchain2");
-    QString getQuickSyncStatus();
-    QuickSyncStatus quickSyncStatus;
-    fs::path tempquickSyncDir;
-    void prepareDeflateData(QString filename);
+    GUIUtil::DeepSync deepS;
+    QUrl blockchain_url = QString("https://deepnode.ml/blockchain_rebased.tar.gz");
+    QString getDeepSyncStatus();
+    DeepSyncStatus deepSyncStatus;
+    fs::path tempdeepSyncDir;
+    void prepareInflateData(QString filename);
     fs::path tardatadir;
     void untar();
     bool getProxyActivated();
     void setProxyActivated(bool value);
 
-    QMessageBox *quickSyncFinishedMessageBox;
+    QMessageBox *deepSyncFinishedMessageBox;
 
-    //QuickSync options
-    bool showQuickSyncOptions;
-    bool showQuickSync;
+    //DeepSync options
+    bool showDeepSyncOptions;
+    bool showDeepSync;
     bool proxyActivated;
 
-    std::chrono::high_resolution_clock::time_point downloadStartTime;
-    std::chrono::high_resolution_clock::time_point allTimeForDownloading;
+    QElapsedTimer downloadStartTime;
 
 };
 
