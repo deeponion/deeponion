@@ -1,7 +1,7 @@
 <RCC>
   <qresource prefix="/icons">
     <file alias="deeponion">res/icons/DeepOnion.png</file>
-	<file alias="deponion_testnet">res/icons/DeepOnion_testnet.png</file>
+	<file alias="deeponion_testnet">res/icons/DeepOnion_testnet.png</file>
     <file alias="address-book">res/icons/address-book.png</file>
 	<file alias="deeponion_splash">res/icons/DeepOnion_splash.png</file>
     <file alias="quit">res/icons/quit.png</file>
