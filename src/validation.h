@@ -1134,7 +1134,7 @@ bool SendMultiSigDistributionTx(CConnman *connman);
 bool SignMessageUsingAddress(std::string message, std::string address, std::vector<unsigned char>& vchSig);
 bool SignMultiSigDistributionTx();
 bool StartP2pMixerSendProcess(std::vector< std::pair<std::string, CAmount> > vecSendInfo, const CCoinControl *coinControl);
-void UpdateAnonymousServiceList(CNode* pNode, std::string keyAddress, std::string status, CConnman *connman);
+void UpdateAnonymousServiceList(CNode* pNode, std::string keyAddress, int serviceVersion, std::string status, CConnman *connman);
 bool VerifyMessageSignature(std::string message, std::string address, std::vector<unsigned char> vchSig);
 
 #endif // BITCOIN_VALIDATION_H

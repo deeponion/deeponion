@@ -1629,7 +1629,7 @@ static void broadcastServiceAnnounceMessage(CNode* pfrom, CConnman* connman)
         if(b && selfAddress != "")
              status = "true";
 
-        connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::DS_SERVICEANN, selfAddress, status));
+        connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::DS_SERVICEANN, selfAddress, PROTOCOL_VERSION, status));
     }
 }
 
@@ -4632,8 +4632,9 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
     {
 		std::string status;
 		std::string keyAddress;
-        vRecv >> keyAddress >> status;
-		UpdateAnonymousServiceList(pfrom, keyAddress, status, connman);
+		int serviceVersion;
+        vRecv >> keyAddress >> serviceVersion >> status;
+		UpdateAnonymousServiceList(pfrom, keyAddress, serviceVersion, status, connman);
 	}
 
     else if (strCommand == NetMsgType::NOTFOUND) {

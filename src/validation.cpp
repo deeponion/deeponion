@@ -6847,9 +6847,10 @@ bool AddPrevTxOut(AnonymousTxRole role, CBasicKeyStore& tempKeystore, CCoinsView
 }
 
 
-void UpdateAnonymousServiceList(CNode* pNode, std::string keyAddress, std::string status, CConnman *connman)
+void UpdateAnonymousServiceList(CNode* pNode, std::string keyAddress, int serviceVersion, std::string status, CConnman *connman)
 {
-
+	// later may need to check service version, for now it is not used.
+	
     if (IsInitialBlockDownload2()){
 		LogPrint(BCLog::DEEPSEND, ">> UpdateAnonymousServiceList. Wallet not synced\n");
 		return;
@@ -6918,7 +6919,7 @@ void UpdateAnonymousServiceList(CNode* pNode, std::string keyAddress, std::strin
 					if(b1 && selfAddress != "")
 					{
 						const CNetMsgMaker msgMaker(pNode->GetSendVersion());
-						connman->PushMessage(pNode, msgMaker.Make(NetMsgType::DS_SERVICEANN, selfAddress, std::string("true")));
+						connman->PushMessage(pNode, msgMaker.Make(NetMsgType::DS_SERVICEANN, selfAddress, PROTOCOL_VERSION, std::string("true")));
 					}
 				}
 				
