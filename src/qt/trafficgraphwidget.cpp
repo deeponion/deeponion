@@ -8,6 +8,9 @@
 #include <QPainter>
 #include <QColor>
 #include <QTimer>
+#if QT_VERSION >= 0x050E00
+#include <QPainterPath>
+#endif
 
 #include <cmath>
 
