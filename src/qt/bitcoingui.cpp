@@ -751,12 +751,13 @@ void BitcoinGUI::createTrayIcon(const NetworkStyle *networkStyle)
 
 void BitcoinGUI::createTrayIconMenu()
 {
+    trayIconMenu = new QMenu(this);
+
 #ifndef Q_OS_MAC
     // return if trayIcon is unset (only on non-Mac OSes)
     if (!trayIcon)
         return;
 
-    trayIconMenu = new QMenu(this);
     trayIcon->setContextMenu(trayIconMenu);
 
     connect(trayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)),
