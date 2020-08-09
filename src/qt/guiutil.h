@@ -36,6 +36,10 @@ QT_END_NAMESPACE
  */
 namespace GUIUtil
 {
+
+        /* Extract a tar archive. */
+    void untar(FILE *a, const fs::path &path, const fs::path &targetpath);
+    
     //DeepSync data handling
     class DeepSync : public QObject
     {
@@ -44,8 +48,7 @@ namespace GUIUtil
     public:
     int inf(const fs::path &filename, const fs::path &output);
 
-    /* Extract a tar archive. */
-    void untar(FILE *a, const fs::path &path, const fs::path &targetpath);
+
 
     Q_SIGNALS:
         void updateInflateProgress(qint64, qint64);

@@ -18,6 +18,7 @@
 #include <QNetworkProxy>
 
 #include <atomic>
+#include <boost/filesystem.hpp>
 
 class BanTableModel;
 class OptionsModel;
@@ -77,6 +78,13 @@ public:
     QString VersionStatus();
     bool VersionOutDated();
 
+    bool isDSUntaringRequested();
+    void setDSUntaringRequested(bool b);
+
+    void setDeepSyncUntarInfo(boost::filesystem::path tarDir, boost::filesystem::path targetDir, boost::filesystem::path tempDir);
+    void getDeepSyncUntarInfo(boost::filesystem::path &tarDir, boost::filesystem::path &targetDir,  boost::filesystem::path &tempDir);
+
+
     //! Return true if core is doing initial block download
     bool inInitialBlockDownload() const;
     //! Returns enum BlockSource of the current importing/syncing state
@@ -110,6 +118,11 @@ private:
 
     QString versionStatus;
     bool versionOutDated;
+
+    bool isDSUntaringRequested_;
+    boost::filesystem::path tarDir_; 
+    boost::filesystem::path targetDir_;
+    boost::filesystem::path deepSyncTempDir_;
 
 Q_SIGNALS:
     void numConnectionsChanged(int count);
