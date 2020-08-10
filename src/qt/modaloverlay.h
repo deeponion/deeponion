@@ -78,9 +78,7 @@ private Q_SLOTS:
     void onProxyActivated(int state);
     void onUpdateProgress(qint64 bytesReceived, qint64 bytesTotal);
     void onDownloadFinished();
-    //void onProgessBarUpdated(qint64, qint64);
     void onInflateFinished();
-    void onUntarFinished();
 
 public:
     void setClientModel(ClientModel*);
@@ -106,7 +104,6 @@ private:
     fs::path tempdeepSyncDir;
     void prepareInflateData(QString filename);
     fs::path tardatadir;
-    void untar();
     bool getProxyActivated();
     void setProxyActivated(bool value);
 

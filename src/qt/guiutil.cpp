@@ -1094,22 +1094,24 @@ static void create_dir(char *pathname, int mode)
             pathname[strlen(pathname) - 1] = '\0';
     }
 
-#ifdef WIN32
-    fs::permissions(pathname, fs::add_perms|fs::owner_write|fs::others_write);
-#endif
     if(fs::exists(pathname))
     {
+        #ifdef WIN32
+    fs::permissions(pathname, fs::add_perms|fs::owner_write|fs::others_write);
+#endif
+        LogPrint(BCLog::DEEPSYNC, "Path already exists...");
         try{
             fs::remove_all(pathname);
         }
         catch(std::exception const& e) {
             LogPrint(BCLog::DEEPSYNC, "error:  %c", e.what());
-        }
+       }
+        LogPrint(BCLog::DEEPSYNC, "removed \n");
     }
+    LogPrint(BCLog::DEEPSYNC, "Recreating: ");
 
     /* Try creating the directory. */
     r = fs::create_directory(pathname);
-    fs::permissions(pathname, fs::add_perms|fs::owner_write|fs::others_write);
     if (!r)
         LogPrint(BCLog::DEEPSYNC, "Could not create directory %s\n", pathname);
     else
@@ -1146,7 +1148,7 @@ verify_checksum(const char *p)
 
 
 /* Extract a tar archive. */
-void DeepSync::untar(FILE *a, const fs::path &path, const fs::path &targetdir)
+void untar(FILE *a, const fs::path &path, const fs::path &targetdir)
 {
     LogPrint(BCLog::DEEPSYNC, "Extracting %c to %s\n", a, targetdir.string());
     char buff[1024];
@@ -1173,7 +1175,6 @@ void DeepSync::untar(FILE *a, const fs::path &path, const fs::path &targetdir)
         if (is_end_of_archive(buff)) {
             LogPrint(BCLog::DEEPSYNC,"End of %s\n", path);
             fclose(a);
-            Q_EMIT untarFinished();
             return;
         }
         if (!verify_checksum(buff)) {
