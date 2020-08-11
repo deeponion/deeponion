@@ -6208,6 +6208,12 @@ bool DepositToMultisig(std::string& txid, CConnman *connman)
 		return false;
 	}
 
+    if(pCurrentAnonymousTxInfo->GetTxid(pCurrentAnonymousTxInfo->GetRole()).size() > 0) 
+    {
+    	LogPrintf("DepositToMultisig(): Already deposited to multisig (%s)\n", pCurrentAnonymousTxInfo->GetTxid(pCurrentAnonymousTxInfo->GetRole()).c_str());
+        return false;        
+    }
+
 	CAmount nBalance = pwallet->GetBalance();
     CAmount requiredAmount = pCurrentAnonymousTxInfo->GetTotalRequiredCoinsToSend();
 	std::string multisigAddress = pCurrentAnonymousTxInfo->GetMultiSigAddress();
