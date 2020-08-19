@@ -320,10 +320,10 @@ public:
         nDefaultPort = 26550;
         nPruneAfterHeight = 1000;
 
-        genesis = CreateGenesisBlock(1597817015, 1249377, 0x1e0fffff, 1, 0 * COIN);
+        genesis = CreateGenesisBlock(1597854998, 461649, 0x1e0fffff, 1, 0 * COIN);
         consensus.hashGenesisBlock = genesis.GetHash();
-        assert(consensus.hashGenesisBlock == uint256S("0x0000045eea7d9a4337a90e48d6269cc97b01874deac2aaf5a3e89c543329ab03"));
-        assert(genesis.hashMerkleRoot == uint256S("0xcc3337810d74da69570c3f2778cb2bc7ad78d51d8791b13a6f8d9ee9e8457727"));
+        assert(consensus.hashGenesisBlock == uint256S("0x00000947cc6fce9aa27b57a78b9d9567ea76e9bb2bc53c6936e5f0e1bd93e7cf"));
+        assert(genesis.hashMerkleRoot == uint256S("0xb083b26a6970dd977982a61ee98e93998382d307802ad6e00e7c491fa3441b84"));
 
         vFixedSeeds.clear();
         vSeeds.clear();
@@ -355,7 +355,7 @@ public:
 
         chainTxData = ChainTxData{
             // Data as of block a0afbded94d4be233e191525dc2d467af5c7eab3143c852c3cd549831022aad6 (height 343833)
-            1516406749,
+        	1597854998,
             794057,
             0.01
         };
