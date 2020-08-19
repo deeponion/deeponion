@@ -291,8 +291,8 @@ public:
         consensus.nStakeMaxAge = 60 * 60 * 24 * 30;	        // stake age of full weight: 30d
         consensus.nModifierInterval = 60;					// time to elapse before new modifier is computed
         consensus.nCoinbaseMaturity = 10;					// Blocks maturity
-        consensus.nRuleChangeActivationThreshold = 45; // 75% for testchains
-        consensus.nMinerConfirmationWindow = 60; // nPowTargetTimespan / nPowTargetSpacing
+        consensus.nRuleChangeActivationThreshold = 45; 		// 75% for testchains
+        consensus.nMinerConfirmationWindow = 60; 			// nPowTargetTimespan / nPowTargetSpacing
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].bit = 28;
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nStartTime = 1199145601; // January 1, 2008
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nTimeout = 1230767999; // December 31, 2008
@@ -313,14 +313,14 @@ public:
         // By default assume that the signatures in ancestors of this block are valid.
         consensus.defaultAssumeValid = uint256S("0xa0afbded94d4be233e191525dc2d467af5c7eab3143c852c3cd549831022aad6"); //343833
 
-		pchMessageStart[0] = 0xa2;
+		pchMessageStart[0] = 0xa3;
 		pchMessageStart[1] = 0xa1;
 		pchMessageStart[2] = 0xa0;
-		pchMessageStart[3] = 0xf2;
+		pchMessageStart[3] = 0xf1;
         nDefaultPort = 26550;
         nPruneAfterHeight = 1000;
 
-        genesis = CreateGenesisBlock(1546281565, 1249377, 0x1e0fffff, 1, 0 * COIN);
+        genesis = CreateGenesisBlock(1597817015, 1249377, 0x1e0fffff, 1, 0 * COIN);
         consensus.hashGenesisBlock = genesis.GetHash();
         assert(consensus.hashGenesisBlock == uint256S("0x0000045eea7d9a4337a90e48d6269cc97b01874deac2aaf5a3e89c543329ab03"));
         assert(genesis.hashMerkleRoot == uint256S("0xcc3337810d74da69570c3f2778cb2bc7ad78d51d8791b13a6f8d9ee9e8457727"));
@@ -349,7 +349,7 @@ public:
 
         checkpointData = (CCheckpointData) {
             {
-            	{  1000000, uint256S("d6ee31197c5d271cf4cd16f15c6ae35ed2e6e545ba78407c559f6c746143eb9c")}
+            	// {  1000000, uint256S("d6ee31197c5d271cf4cd16f15c6ae35ed2e6e545ba78407c559f6c746143eb9c")}
             }
         };
 
