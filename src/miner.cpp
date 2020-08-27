@@ -192,8 +192,10 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
 	}
 
 	pblock->vtx[0] = MakeTransactionRef(std::move(coinbaseTx));
-	// DeepOnion: This is for SEGWIT and should be put back in.
-	pblocktemplate->vchCoinbaseCommitment = GenerateCoinbaseCommitment(*pblock, pindexPrev, chainparams.GetConsensus());
+	// DeepOnion: This is for SEGWIT and will activate a week before segwit - This requires all nodes to have been upgraded by then or they will fork.
+    if((chainparams.GetConsensus().vDeployments[Consensus::DEPLOYMENT_SEGWIT].nStartTime - 604800) < GetAdjustedTime()) {
+	    pblocktemplate->vchCoinbaseCommitment = GenerateCoinbaseCommitment(*pblock, pindexPrev, chainparams.GetConsensus());
+    }
 
     if(!fProofOfStake) {
     	pblocktemplate->vTxFees[0] = -nFees;
