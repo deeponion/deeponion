@@ -3402,11 +3402,13 @@ bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::P
     // special check for pos blocks
     if (block.IsProofOfStake())
     {
-        // Coinbase output should be empty if proof-of-stake block
-    	// TODO: DeepOnion: segwit creates more outputs for coinbase, this needs
-    	// TODO: DeepOnion: handling here after the segwit softfork
-		if (block.vtx[0]->vout.size() != 1 || !block.vtx[0]->vout[0].IsEmpty())
-			return state.DoS(100, false, REJECT_INVALID, "pos-blk-wrong", false, "coinbase output not empty for pos block");
+        // Coinbase output should not generate any coins if proof-of-stake block
+        if(!block.vtx.empty()) {
+            for(int i = 0; i < block.vtx[0]->vout.size(); i++) {
+                if(block.vtx[0]->vout[i].nValue != 0)
+                    return state.DoS(100, false, REJECT_INVALID, "pos-blk-wrong", false, "coinbase output not empty for pos block");
+            }
+        }
 
         // Second transaction must be coinstake, the rest must not be
         if (block.vtx.empty() || !block.vtx[1]->IsCoinStake())

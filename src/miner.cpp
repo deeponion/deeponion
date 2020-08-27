@@ -192,8 +192,8 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
 	}
 
 	pblock->vtx[0] = MakeTransactionRef(std::move(coinbaseTx));
-	// FIXME: DeepOnion: This is for SEGWIT and should be put back in.
-	// pblocktemplate->vchCoinbaseCommitment = GenerateCoinbaseCommitment(*pblock, pindexPrev, chainparams.GetConsensus());
+	// DeepOnion: This is for SEGWIT and should be put back in.
+	pblocktemplate->vchCoinbaseCommitment = GenerateCoinbaseCommitment(*pblock, pindexPrev, chainparams.GetConsensus());
 
     if(!fProofOfStake) {
     	pblocktemplate->vTxFees[0] = -nFees;
