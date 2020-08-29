@@ -5463,9 +5463,9 @@ std::vector<CTxDestination> GetAllDestinationsForKey(const CPubKey& key)
         CTxDestination segwit = WitnessV0KeyHash(keyid);
         CTxDestination p2sh = CScriptID(GetScriptForDestination(segwit));
         // for now return only legacy address, we'll need to enable p2sh and segwit later
-        LogPrint(BCLog::WALLET, "P2SH address and Segwit address are not added to receiving address for now... will need to add back later");
-        return std::vector<CTxDestination>{std::move(keyid)};        
-        // return std::vector<CTxDestination>{std::move(keyid), std::move(p2sh), std::move(segwit)};
+        // LogPrint(BCLog::WALLET, "P2SH address and Segwit address are not added to receiving address for now... will need to add back later");
+        // return std::vector<CTxDestination>{std::move(keyid)};        
+        return std::vector<CTxDestination>{std::move(keyid), std::move(p2sh), std::move(segwit)};
     } else {
         return std::vector<CTxDestination>{std::move(keyid)};
     }
