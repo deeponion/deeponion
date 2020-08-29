@@ -693,7 +693,7 @@ void Stake()
             	    });
 
                 fTryToSync = false;
-                if (g_connman->GetNodeCount(CConnman::CONNECTIONS_ALL) < 3 || chainActive.Height() < std::max(cPeerBlockCounts.median(), Params().Checkpoints().mapCheckpoints.rbegin()->first))
+                if (g_connman->GetNodeCount(CConnman::CONNECTIONS_ALL) < 3 || chainActive.Height() < std::max(cPeerBlockCounts.median(), (!Params().Checkpoints().mapCheckpoints.empty() ? Params().Checkpoints().mapCheckpoints.rbegin()->first : 0)))
                 {
                     MilliSleep(60000);
                     continue;
