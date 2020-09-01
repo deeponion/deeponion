@@ -9,12 +9,11 @@
 #include <qt/guiutil.h>
 #include <qt/peertablemodel.h>
 
-#include <netbase.h>
 #include <chain.h>
 #include <chainparams.h>
 #include <checkpoints.h>
 #include <clientversion.h>
-#include <netaddress.h>
+#include <netbase.h>
 #include <txmempool.h>
 #include <ui_interface.h>
 #include <util.h>
