@@ -231,7 +231,7 @@ static bool GetKernelStakeModifier(CBlockIndex* pindexFrom, uint64_t& nStakeModi
             }
         }
         if(fDebugLog)
-        	LogPrintf(">> h = %d, nStakeModifier = 0x%016x\n", pindex->nHeight, pindex->nStakeModifier);
+        	//LogPrintf(">> h = %d, nStakeModifier = 0x%016x\n", pindex->nHeight, pindex->nStakeModifier);
         
         pindex = pindex->pnext;
         if (pindex->GeneratedStakeModifier())
@@ -240,14 +240,14 @@ static bool GetKernelStakeModifier(CBlockIndex* pindexFrom, uint64_t& nStakeModi
             nStakeModifierTime = pindex->nTime;
             if(fDebugLog)
             {
-            	LogPrintf(">> nStakeModifierHeight = %d, nStakeModifierTime = %ld\n", nStakeModifierHeight, nStakeModifierTime);
-            	LogPrintf(">> nStakeModifier = 0x%016x\n", pindex->nStakeModifier);
+            	//LogPrintf(">> nStakeModifierHeight = %d, nStakeModifierTime = %ld\n", nStakeModifierHeight, nStakeModifierTime);
+            	//LogPrintf(">> nStakeModifier = 0x%016x\n", pindex->nStakeModifier);
             }
         }
     }
     
     if(fDebugLog)
-    	LogPrintf(">> at height = %d, nStakeModifier = 0x%016x\n", pindex->nHeight, pindex->nStakeModifier);
+    	//LogPrintf(">> at height = %d, nStakeModifier = 0x%016x\n", pindex->nHeight, pindex->nStakeModifier);
     
     nStakeModifier = pindex->nStakeModifier;
     return true;
