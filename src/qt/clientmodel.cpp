@@ -9,11 +9,12 @@
 #include <qt/guiutil.h>
 #include <qt/peertablemodel.h>
 
+#include <netbase.h>
 #include <chain.h>
 #include <chainparams.h>
 #include <checkpoints.h>
 #include <clientversion.h>
-#include <net.h>
+#include <netaddress.h>
 #include <txmempool.h>
 #include <ui_interface.h>
 #include <util.h>
@@ -336,9 +337,24 @@ bool ClientModel::isNewVersionAvailable()
 {
     //Connect to default tor node
     QNetworkProxy proxy;
+    //Set Proxy
     proxy.setType(QNetworkProxy::Socks5Proxy);
-    proxy.setHostName("127.0.0.1");
-    proxy.setPort(9081);
+
+    for (int n = 0; n < NET_MAX; ++n) {
+        enum Network network = static_cast<enum Network>(n);
+        if (network == NET_UNROUTABLE || network == NET_INTERNAL)
+            continue;
+        proxyType _proxy;
+        GetProxy(network, _proxy);
+        std::string hostname;
+        std::string port;
+        if (_proxy.IsValid()) {
+            hostname = _proxy.proxy.ToStringIP();
+            port = _proxy.proxy.ToStringPort();
+        }
+        proxy.setHostName(QString::fromStdString(hostname));
+        proxy.setPort(QString::fromStdString(port).toShort());
+    }
 
     QUrl url("https://deeponion.org/latestversion.txt");
     qInfo() << url.toString();
@@ -411,14 +427,14 @@ void ClientModel::setDSUntaringRequested(bool b)
     isDSUntaringRequested_ = b;
 }
 
-void ClientModel::setDeepSyncUntarInfo(boost::filesystem::path tarDir, boost::filesystem::path targetDir,  boost::filesystem::path tempDir)
+void ClientModel::setDeepSyncUntarInfo(boost::filesystem::path tarDir, boost::filesystem::path targetDir, boost::filesystem::path tempDir)
 {
     tarDir_ = tarDir;
     targetDir_ = targetDir;
     deepSyncTempDir_ = tempDir;
 }
 
-void ClientModel::getDeepSyncUntarInfo(boost::filesystem::path &tarDir, boost::filesystem::path &targetDir,  boost::filesystem::path &tempDir)
+void ClientModel::getDeepSyncUntarInfo(boost::filesystem::path& tarDir, boost::filesystem::path& targetDir, boost::filesystem::path& tempDir)
 {
     tarDir = tarDir_;
     targetDir = targetDir_;
