@@ -1,8 +1,6 @@
 #include "qt/downloader.h"
 #include <univalue.h>
-#include <rpc/net.cpp>
-#include <netaddress.h>
-#include <netaddress.cpp>
+#include <netbase.h>
 
 
 #include <QNetworkProxy>
