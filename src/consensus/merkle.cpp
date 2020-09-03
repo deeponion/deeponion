@@ -168,9 +168,17 @@ uint256 BlockMerkleRoot(const CBlock& block, bool* mutated)
 uint256 BlockWitnessMerkleRoot(const CBlock& block, bool* mutated)
 {
     std::vector<uint256> leaves;
+    size_t s_ = 1;
     leaves.resize(block.vtx.size());
     leaves[0].SetNull(); // The witness hash of the coinbase is 0.
-    for (size_t s = 1; s < block.vtx.size(); s++) {
+     
+    if(block.IsProofOfStake())
+        {
+            leaves[1].SetNull(); // The witness hash of the coinbase is 0.
+            s_++;
+        }
+
+    for (size_t s = s_; s < block.vtx.size(); s++) {
         leaves[s] = block.vtx[s]->GetWitnessHash();
     }
     return ComputeMerkleRoot(leaves, mutated);
