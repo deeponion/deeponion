@@ -1830,12 +1830,6 @@ bool AppInitMain()
         return false;
     }
 
-    // Mine proof-of-stake blocks in the background
-    if (!gArgs.GetArg("-staking", true))
-        LogPrintf("Staking disabled\n");
-    else {
-    	StartThreadStake();
-    }
     // ********************************************************* Step 12: finished
     // Mine proof-of-stake blocks in the background
     if (!gArgs.GetArg("-staking", true))
