@@ -169,17 +169,22 @@ uint256 BlockWitnessMerkleRoot(const CBlock& block, bool* mutated)
 {
     std::vector<uint256> leaves;
     size_t s_ = 1;
-    leaves.resize(block.vtx.size());
-    leaves[0].SetNull(); // The witness hash of the coinbase is 0.
-     
+    size_t s_pos = 1;
+    
+    // When a block is created with a WitnessMerkleRoot it is niether PoW or PoS.
+    // However in validation it could be PoS so we should skip the PoS TX.
     if(block.IsProofOfStake())
-        {
-            leaves[1].SetNull(); // The witness hash of the coinbase is 0.
-            s_++;
-        }
+    {
+        // Ignore the PoS generated TX.
+        s_++;
+        leaves.resize(block.vtx.size()-1);
+    } else {
+        leaves.resize(block.vtx.size());
+    }
+    leaves[0].SetNull(); // The witness hash of the coinbase is 0.
 
     for (size_t s = s_; s < block.vtx.size(); s++) {
-        leaves[s] = block.vtx[s]->GetWitnessHash();
+        leaves[s_pos++] = block.vtx[s]->GetWitnessHash();
     }
     return ComputeMerkleRoot(leaves, mutated);
 }
