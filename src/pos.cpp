@@ -220,18 +220,20 @@ static bool GetKernelStakeModifier(CBlockIndex* pindexFrom, uint64_t& nStakeModi
     {    	
         if (pindex->pnext == nullptr)
         {   // reached best block; may happen if node is behind on block chain
-        	if(fDebugLog)
+        	if(fDebugLog) {
         		LogPrintf(">> in pindex->pnext == nullptr\n");
+            }
         	
-            if (pindex->GetBlockTime() + Params().GetConsensus().nStakeMinAge - nStakeModifierSelectionInterval > GetAdjustedTime())
+            if (pindex->GetBlockTime() + Params().GetConsensus().nStakeMinAge - nStakeModifierSelectionInterval > GetAdjustedTime()) {
                 return error("GetKernelStakeModifier() : reached best block %s at height %d from block %s",
                     pindex->GetBlockHash().ToString().c_str(), pindex->nHeight, pindexFrom->GetBlockHash().ToString().c_str());
-            else {
+            } else {
                 return false;
             }
         }
-        if(fDebugLog)
+        if(fDebugLog) {
         	//LogPrintf(">> h = %d, nStakeModifier = 0x%016x\n", pindex->nHeight, pindex->nStakeModifier);
+        }
         
         pindex = pindex->pnext;
         if (pindex->GeneratedStakeModifier())
@@ -246,8 +248,9 @@ static bool GetKernelStakeModifier(CBlockIndex* pindexFrom, uint64_t& nStakeModi
         }
     }
     
-    if(fDebugLog)
+    if(fDebugLog) {
     	//LogPrintf(">> at height = %d, nStakeModifier = 0x%016x\n", pindex->nHeight, pindex->nStakeModifier);
+    }
     
     nStakeModifier = pindex->nStakeModifier;
     return true;
