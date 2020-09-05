@@ -372,7 +372,7 @@ QString AddressTableModel::addRow(const QString &type, const QString &label, con
 
     if(type == Send)
     {
-        if (strAddress.length() > STEALTH_LENGTH_TRESHOLD && IsStealthAddress(strAddress))
+        if(IsStealthAddress(strAddress))
         {
             CStealthAddress sxAddr;
             if (!sxAddr.SetEncoded(strAddress))

@@ -216,7 +216,7 @@ SendCoinsRecipient SendCoinsEntry::getValue()
     recipient.message = ui->messageTextLabel->text();
     recipient.fSubtractFeeFromAmount = (ui->checkboxSubtractFeeFromAmount->checkState() == Qt::Checked);
 
-    if (recipient.address.length() > STEALTH_LENGTH_TRESHOLD && IsStealthAddress(recipient.address.toStdString()))
+    if (IsStealthAddress(recipient.address.toStdString()))
     {
         recipient.narration = ui->addAsNarration->text();
         // limit max MAX_STEALTH_NARRATION_SIZE_PLAINTEXT characters only, this as a safety measure
