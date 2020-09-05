@@ -19,6 +19,8 @@
 const int32_t MAX_STEALTH_NARRATION_SIZE_PLAINTEXT = 24;
 const int32_t MAX_STEALTH_NARRATION_SIZE_ENCRYPTED = 48;
 
+static const int STEALTH_LENGTH_TRESHOLD = 75;
+
 typedef std::vector<uint8_t> data_chunk;
 
 const size_t ec_secret_size = 32;

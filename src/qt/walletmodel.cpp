@@ -207,7 +207,7 @@ bool WalletModel::validateAddress(const QString &address)
 {
     std::string sAddr = address.toStdString();
 
-    if ( sAddr.length() > STEALTH_LENGTH_TRESHOLD && IsStealthAddress(sAddr) )
+    if (IsStealthAddress(sAddr))
         return true;
 
     return IsValidDestinationString(address.toStdString());
@@ -273,7 +273,7 @@ WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransact
 
             std::string sAddr = rcp.address.toStdString();
 
-            if (IsStealthAddress(sAddr)){
+            if(IsStealthAddress(sAddr)){
 
                 if(fStealthAddressAdded) {
                     //Q_EMIT message(tr("Send Coins"), QString::fromStdString("Invalid stealth address"),CClientUIInterface::MSG_ERROR);

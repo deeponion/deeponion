@@ -36,7 +36,6 @@ QT_BEGIN_NAMESPACE
 class QTimer;
 QT_END_NAMESPACE
 
-static const int STEALTH_LENGTH_TRESHOLD = 75;
 
 class SendCoinsRecipient
 {

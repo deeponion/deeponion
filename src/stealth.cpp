@@ -654,6 +654,9 @@ int StealthSharedToSecretSpend(ec_secret& sharedS, ec_secret& spendSecret, ec_se
 
 bool IsStealthAddress(const std::string& encodedAddress)
 {
+	if(encodedAddress.length() < STEALTH_LENGTH_TRESHOLD)
+		return false;
+	
     data_chunk raw;
     
     if (!DecodeBase58(encodedAddress, raw))
@@ -668,7 +671,7 @@ bool IsStealthAddress(const std::string& encodedAddress)
         return false;
     };
     
-    if (raw.size() < 1 + 1 + 33 + 1 + 33 + 1 + 1 + 4)
+    if (raw.size() < STEALTH_LENGTH_TRESHOLD)
     {
         LogPrint(BCLog::STEALTH,"IsStealthAddress too few bytes provided.\n");
         return false;
