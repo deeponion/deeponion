@@ -658,19 +658,19 @@ bool IsStealthAddress(const std::string& encodedAddress)
     
     if (!DecodeBase58(encodedAddress, raw))
     {
-        //LogPrint(BCLog::STEALTH,"IsStealthAddress DecodeBase58 failed.\n");
+        LogPrint(BCLog::STEALTH,"IsStealthAddress DecodeBase58 failed.\n");
         return false;
     };
     
     if (!VerifyChecksum(raw))
     {
-        //LogPrint(BCLog::STEALTH,"IsStealthAddress verify_checksum failed.\n");
+        LogPrint(BCLog::STEALTH,"IsStealthAddress verify_checksum failed.\n");
         return false;
     };
     
     if (raw.size() < 1 + 1 + 33 + 1 + 33 + 1 + 1 + 4)
     {
-        //LogPrint(BCLog::STEALTH,"IsStealthAddress too few bytes provided.\n");
+        LogPrint(BCLog::STEALTH,"IsStealthAddress too few bytes provided.\n");
         return false;
     };
     
@@ -680,7 +680,7 @@ bool IsStealthAddress(const std::string& encodedAddress)
     
     if (version != stealth_version_byte)
     {
-        //LogPrint(BCLog::STEALTH,"IsStealthAddress version mismatch 0x%x != 0x%x.\n", version, stealth_version_byte);
+        LogPrint(BCLog::STEALTH,"IsStealthAddress version mismatch 0x%x != 0x%x.\n", version, stealth_version_byte);
         return false;
     };
     
