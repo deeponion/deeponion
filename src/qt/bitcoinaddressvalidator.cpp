@@ -3,7 +3,6 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <qt/bitcoinaddressvalidator.h>
-
 #include <base58.h>
 
 /* Base58 characters are:
@@ -88,7 +87,11 @@ BitcoinAddressCheckValidator::BitcoinAddressCheckValidator(QObject *parent) :
 QValidator::State BitcoinAddressCheckValidator::validate(QString &input, int &pos) const
 {
     Q_UNUSED(pos);
+    
     // Validate the passed Bitcoin address
+    if (IsStealthAddress(input.toStdString()))
+        return true;
+
     if (IsValidDestinationString(input.toStdString())) {
         return QValidator::Acceptable;
     }
