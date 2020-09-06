@@ -90,7 +90,7 @@ QValidator::State BitcoinAddressCheckValidator::validate(QString &input, int &po
     
     // Validate the passed Bitcoin address
     if (IsStealthAddress(input.toStdString()))
-        return true;
+        return QValidator::Acceptable;
 
     if (IsValidDestinationString(input.toStdString())) {
         return QValidator::Acceptable;
