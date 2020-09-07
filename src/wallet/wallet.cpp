@@ -3553,13 +3553,13 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
                     break;
                 }
                 LogPrint(BCLog::POS, "CreateCoinStake : parsed kernel type=%d\n", whichType);
-                if (whichType != TX_PUBKEY && whichType != TX_PUBKEYHASH && whichType != TX_WITNESS_V0_KEYHASH) 
+                if (whichType != TX_PUBKEY && whichType != TX_PUBKEYHASH && whichType != TX_WITNESS_V0_KEYHASH && whichType != TX_SCRIPTHASH) 
                 {
                 	LogPrint(BCLog::POS, "CreateCoinStake : no support for kernel type=%d\n", whichType);
-                    break;  // only support pay to public key and pay to address
+                    break; 
                 }
-                if (whichType == TX_PUBKEYHASH || whichType == TX_WITNESS_V0_KEYHASH) // pay to address type
-                {
+                if (whichType == TX_PUBKEYHASH || whichType == TX_WITNESS_V0_KEYHASH)  // pay to address type 
+                { 
                     uint160 u160(vSolutions[0]);
                     CKeyID keyId(u160);
 
@@ -3591,6 +3591,19 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
                     }
 
                     scriptPubKeyOut = scriptPubKeyKernel;
+                }
+                if(whichType == TX_SCRIPTHASH)
+                {
+                    LogPrint(BCLog::POS, "CreateCoinStake : whichType == TX_SCRIPTHASH type=%d\n", whichType);
+                   
+                    CScriptID scriptID = CScriptID(uint160(vSolutions[0]));
+                    CScript subscript;
+                    if(!keystore.GetCScript(scriptID, subscript))
+                    {
+                        LogPrint(BCLog::POS, "CreateCoinStake : failed to get cscript for kernel type=%d\n", whichType);
+                        break;
+                    }
+                    scriptPubKeyOut << std::vector<unsigned char>(subscript.begin(), subscript.end()) << OP_CHECKSIG;
                 }
 
                 txNew.nTime -= n;
