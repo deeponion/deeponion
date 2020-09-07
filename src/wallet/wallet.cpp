@@ -3603,7 +3603,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
                         LogPrint(BCLog::POS, "CreateCoinStake : failed to get cscript for kernel type=%d\n", whichType);
                         break;
                     }
-                    scriptPubKeyOut << std::vector<unsigned char>(subscript.begin(), subscript.end()) << OP_CHECKSIG;
+                    scriptPubKeyOut << std::vector<unsigned char>(subscript.begin(), subscript.end()) << OP_EQUAL;
                 }
 
                 txNew.nTime -= n;
