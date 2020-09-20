@@ -95,7 +95,7 @@ bool EditAddressDialog::saveCurrentRow()
         else if (ui->bech32CB->isChecked())
             type = OUTPUT_TYPE_BECH32;
         else
-            type = g_address_type;
+            type = OUTPUT_TYPE_DEFAULT;
 
         address = model->addRow(
             mode == NewSendingAddress ? AddressTableModel::Send : AddressTableModel::Receive,
