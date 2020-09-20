@@ -3556,10 +3556,11 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
                 if (whichType != TX_PUBKEY && whichType != TX_PUBKEYHASH && whichType != TX_WITNESS_V0_KEYHASH) 
                 {
                 	LogPrint(BCLog::POS, "CreateCoinStake : no support for kernel type=%d\n", whichType);
-                    break;  // only support pay to public key and pay to address
+                    break; 
                 }
-                if (whichType == TX_PUBKEYHASH || whichType == TX_WITNESS_V0_KEYHASH) // pay to address type
-                {
+                if (whichType == TX_PUBKEYHASH || whichType == TX_WITNESS_V0_KEYHASH)  // pay to address type 
+                { 
+                    // convert to pay to public key type
                     uint160 u160(vSolutions[0]);
                     CKeyID keyId(u160);
 
@@ -3591,6 +3592,22 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
                     }
 
                     scriptPubKeyOut = scriptPubKeyKernel;
+                }
+                if(whichType == TX_SCRIPTHASH)
+                {
+                    LogPrint(BCLog::POS, "CreateCoinStake : whichType == TX_SCRIPTHASH type=%d\n", whichType);
+                   
+                    CScriptID scriptID = CScriptID(uint160(vSolutions[0]));
+                    CKeyID keyId = GetKeyForDestination(keystore, scriptID);
+
+                    if (!keystore.GetKey(keyId, key))
+                    {
+                    	LogPrint(BCLog::POS, "CreateCoinStake : failed to get key for kernel type=%d\n", whichType);
+                        break;  // unable to find corresponding public key
+                    }
+
+                    CPubKey pubKey = key.GetPubKey();
+                    scriptPubKeyOut << std::vector<unsigned char>(pubKey.begin(), pubKey.end()) << OP_CHECKSIG;
                 }
 
                 txNew.nTime -= n;
