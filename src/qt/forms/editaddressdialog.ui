@@ -62,6 +62,13 @@
      </property>
     </widget>
    </item>
+   <item row="3" column="0" colspan="2">
+    <widget class="QCheckBox" name="bech32CB">
+     <property name="text">
+      <string>&amp;Bech32 Address</string>
+     </property>
+    </widget>
+   </item>
    <item>
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="orientation">

@@ -15,19 +15,17 @@
 
 extern OutputType g_address_type;
 
-EditAddressDialog::EditAddressDialog(Mode _mode, QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::EditAddressDialog),
-    mapper(0),
-    mode(_mode),
-    model(0)
+EditAddressDialog::EditAddressDialog(Mode _mode, QWidget* parent) : QDialog(parent),
+                                                                    ui(new Ui::EditAddressDialog),
+                                                                    mapper(0),
+                                                                    mode(_mode),
+                                                                    model(0)
 {
     ui->setupUi(this);
 
     GUIUtil::setupAddressWidget(ui->addressEdit, this);
 
-    switch(mode)
-    {
+    switch (mode) {
     case NewReceivingAddress:
         setWindowTitle(tr("New receiving address"));
         ui->addressEdit->setEnabled(false);
@@ -35,20 +33,24 @@ EditAddressDialog::EditAddressDialog(Mode _mode, QWidget *parent) :
         ui->label_2->setVisible(false);
         ui->stealthCB->setEnabled(true);
         ui->stealthCB->setVisible(true);
+        ui->bech32CB->setEnabled(true);
+        ui->bech32CB->setVisible(true);
         break;
     case NewSendingAddress:
         setWindowTitle(tr("New sending address"));
         ui->stealthCB->setVisible(false);
+        ui->bech32CB->setVisible(false);
         break;
     case EditReceivingAddress:
         setWindowTitle(tr("Edit receiving address"));
         ui->addressEdit->setEnabled(false);
-        ui->stealthCB->setEnabled(false);
-        ui->stealthCB->setVisible(true);
+        ui->stealthCB->setVisible(false);
+        ui->bech32CB->setVisible(false);
         break;
     case EditSendingAddress:
         setWindowTitle(tr("Edit sending address"));
         ui->stealthCB->setVisible(false);
+        ui->bech32CB->setVisible(false);
         break;
     }
 
@@ -61,10 +63,10 @@ EditAddressDialog::~EditAddressDialog()
     delete ui;
 }
 
-void EditAddressDialog::setModel(AddressTableModel *_model)
+void EditAddressDialog::setModel(AddressTableModel* _model)
 {
     this->model = _model;
-    if(!_model)
+    if (!_model)
         return;
 
     mapper->setModel(_model);
@@ -79,23 +81,31 @@ void EditAddressDialog::loadRow(int row)
 
 bool EditAddressDialog::saveCurrentRow()
 {
-    if(!model)
+    if (!model)
         return false;
 
-    switch(mode)
-    {
+    switch (mode) {
     case NewReceivingAddress:
     case NewSendingAddress:
+        OutputType type;
+        if (ui->stealthCB->isChecked() && ui->bech32CB->isChecked())
+            return false;
+        else if (ui->stealthCB->isChecked())
+            type = OUTPUT_TYPE_STEALTH;
+        else if (ui->bech32CB->isChecked())
+            type = OUTPUT_TYPE_BECH32;
+        else
+            type = g_address_type;
+
         address = model->addRow(
-                mode == NewSendingAddress ? AddressTableModel::Send : AddressTableModel::Receive,
-                ui->labelEdit->text(),
-                ui->addressEdit->text(),
-                ui->stealthCB->isChecked() ? OUTPUT_TYPE_STEALTH : g_address_type);
+            mode == NewSendingAddress ? AddressTableModel::Send : AddressTableModel::Receive,
+            ui->labelEdit->text(),
+            ui->addressEdit->text(),
+            type);
         break;
     case EditReceivingAddress:
     case EditSendingAddress:
-        if(mapper->submit())
-        {
+        if (mapper->submit()) {
             address = ui->addressEdit->text();
         }
         break;
@@ -105,13 +115,11 @@ bool EditAddressDialog::saveCurrentRow()
 
 void EditAddressDialog::accept()
 {
-    if(!model)
+    if (!model)
         return;
 
-    if(!saveCurrentRow())
-    {
-        switch(model->getEditStatus())
-        {
+    if (!saveCurrentRow()) {
+        switch (model->getEditStatus()) {
         case AddressTableModel::OK:
             // Failed with unknown reason. Just reject.
             break;
@@ -138,7 +146,6 @@ void EditAddressDialog::accept()
                 tr("New key generation failed."),
                 QMessageBox::Ok, QMessageBox::Ok);
             break;
-
         }
         return;
     }
@@ -150,7 +157,7 @@ QString EditAddressDialog::getAddress() const
     return address;
 }
 
-void EditAddressDialog::setAddress(const QString &_address)
+void EditAddressDialog::setAddress(const QString& _address)
 {
     this->address = _address;
     ui->addressEdit->setText(_address);
