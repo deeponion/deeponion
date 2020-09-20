@@ -3553,7 +3553,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
                     break;
                 }
                 LogPrint(BCLog::POS, "CreateCoinStake : parsed kernel type=%d\n", whichType);
-                if (whichType != TX_PUBKEY && whichType != TX_PUBKEYHASH && whichType != TX_WITNESS_V0_KEYHASH && whichType != TX_SCRIPTHASH) 
+                if (whichType != TX_PUBKEY && whichType != TX_PUBKEYHASH && whichType != TX_WITNESS_V0_KEYHASH) 
                 {
                 	LogPrint(BCLog::POS, "CreateCoinStake : no support for kernel type=%d\n", whichType);
                     break; 
