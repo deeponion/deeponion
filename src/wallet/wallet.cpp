@@ -3497,17 +3497,6 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
     	else
     		continue;
 
-//
-//		  OLD CODE <<<<<<<<
-//        CTxIndex txindex;
-//        {
-//            LOCK2(cs_main, cs_wallet);
-//            if (!txdb.ReadTxIndex(pcoin.first->GetHash(), txindex))
-//                continue;
-//        }
-
-        // >>>>>>>> NEW CODE <<<<<<<<<<
-
         // Read block header
         CBlock block;
         CBlockIndex* pblockindex = mapBlockIndex[*pBlockFrom->phashBlock];
@@ -3516,14 +3505,6 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
             if (!ReadBlockFromDisk(block, pblockindex, Params().GetConsensus()))
                 continue;
         }
-//
-//        OLD CODE <<<<<<<<
-//        CBlock block;
-//        {
-//            LOCK2(cs_main, cs_wallet);
-//            if (!block.ReadFromDisk(txindex.pos.nFile, txindex.pos.nBlockPos, false))
-//                continue;
-//        }
 
         static int nMaxStakeSearchInterval = 60;
         if (block.GetBlockTime() + Params().GetConsensus().nStakeMinAge > txNew.nTime - nMaxStakeSearchInterval)
@@ -3553,62 +3534,81 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
                     break;
                 }
                 LogPrint(BCLog::POS, "CreateCoinStake : parsed kernel type=%d\n", whichType);
-                if (whichType != TX_PUBKEY && whichType != TX_PUBKEYHASH && whichType != TX_WITNESS_V0_KEYHASH) 
-                {
-                	LogPrint(BCLog::POS, "CreateCoinStake : no support for kernel type=%d\n", whichType);
-                    break; 
+                
+                bool toExit = false;
+                
+                switch (whichType) {
+                	case TX_PUBKEY:
+                		{
+                        	LogPrint(BCLog::POS, "CreateCoinStake : whichType == TX_PUBKEY type=%d\n", whichType);
+                            uint160 hash160(Hash160(vSolutions[0]));
+                            CKeyID keyId(hash160);
+
+                            if (!keystore.GetKey(keyId, key))
+                            {
+                            	LogPrint(BCLog::POS, "CreateCoinStake : failed to get key for kernel type=%d\n", whichType);
+                            	toExit = true;
+                                break;  // unable to find corresponding public key
+                            }
+
+        					if (key.GetPubKey() != vSolutions[0])
+        					{
+                            	LogPrint(BCLog::POS, "CreateCoinStake : invalid key for kernel type=%d\n", whichType);
+                            	toExit = true;
+                                break; // keys mismatch
+                            }
+
+                            scriptPubKeyOut = scriptPubKeyKernel;
+                		}
+                		break;
+                		
+                	case TX_SCRIPTHASH:
+                		{
+                            LogPrint(BCLog::POS, "CreateCoinStake : whichType == TX_SCRIPTHASH type=%d\n", whichType);
+                           
+                            CScriptID scriptID = CScriptID(uint160(vSolutions[0]));
+                            CKeyID keyId = GetKeyForDestination(keystore, scriptID);
+
+                            if (!keystore.GetKey(keyId, key))
+                            {
+                            	LogPrint(BCLog::POS, "CreateCoinStake : failed to get key for kernel type=%d\n", whichType);
+                            	toExit = true;
+                                break;  // unable to find corresponding public key
+                            }
+
+                            CPubKey pubKey = key.GetPubKey();
+                            scriptPubKeyOut << std::vector<unsigned char>(pubKey.begin(), pubKey.end()) << OP_CHECKSIG;
+                		}
+                		break;
+                		
+                	case TX_PUBKEYHASH:
+                	case TX_WITNESS_V0_KEYHASH:
+                		{
+                        	// convert to pay to public key type
+                            uint160 u160(vSolutions[0]);
+                            CKeyID keyId(u160);
+
+                        	// convert to pay to public key type
+                            if (!keystore.GetKey(keyId, key))
+                            {
+                            	LogPrint(BCLog::POS, "CreateCoinStake : failed to get key for kernel type=%d\n", whichType);
+                            	toExit = true;
+                                break;  // unable to find corresponding public key
+                            }
+                            CPubKey pubKey = key.GetPubKey();
+                            scriptPubKeyOut << std::vector<unsigned char>(pubKey.begin(), pubKey.end()) << OP_CHECKSIG;
+                		}
+                		break;
+                		
+                	default:
+                		{
+                			LogPrint(BCLog::POS, "CreateCoinStake : no support for kernel type=%d\n", whichType);
+                			toExit = true;
+                		}
                 }
-                if (whichType == TX_PUBKEYHASH || whichType == TX_WITNESS_V0_KEYHASH)  // pay to address type 
-                { 
-                    // convert to pay to public key type
-                    uint160 u160(vSolutions[0]);
-                    CKeyID keyId(u160);
-
-                	// convert to pay to public key type
-                    if (!keystore.GetKey(keyId, key))
-                    {
-                    	LogPrint(BCLog::POS, "CreateCoinStake : failed to get key for kernel type=%d\n", whichType);
-                        break;  // unable to find corresponding public key
-                    }
-                    CPubKey pubKey = key.GetPubKey();
-                    scriptPubKeyOut << std::vector<unsigned char>(pubKey.begin(), pubKey.end()) << OP_CHECKSIG;
-                }
-                if (whichType == TX_PUBKEY)
-                {
-                	LogPrint(BCLog::POS, "CreateCoinStake : whichType == TX_PUBKEY type=%d\n", whichType);
-                    uint160 hash160(Hash160(vSolutions[0]));
-                    CKeyID keyId(hash160);
-
-                    if (!keystore.GetKey(keyId, key))
-                    {
-                    	LogPrint(BCLog::POS, "CreateCoinStake : failed to get key for kernel type=%d\n", whichType);
-                        break;  // unable to find corresponding public key
-                    }
-
-					if (key.GetPubKey() != vSolutions[0])
-					{
-                    	LogPrint(BCLog::POS, "CreateCoinStake : invalid key for kernel type=%d\n", whichType);
-                        break; // keys mismatch
-                    }
-
-                    scriptPubKeyOut = scriptPubKeyKernel;
-                }
-                if(whichType == TX_SCRIPTHASH)
-                {
-                    LogPrint(BCLog::POS, "CreateCoinStake : whichType == TX_SCRIPTHASH type=%d\n", whichType);
-                   
-                    CScriptID scriptID = CScriptID(uint160(vSolutions[0]));
-                    CKeyID keyId = GetKeyForDestination(keystore, scriptID);
-
-                    if (!keystore.GetKey(keyId, key))
-                    {
-                    	LogPrint(BCLog::POS, "CreateCoinStake : failed to get key for kernel type=%d\n", whichType);
-                        break;  // unable to find corresponding public key
-                    }
-
-                    CPubKey pubKey = key.GetPubKey();
-                    scriptPubKeyOut << std::vector<unsigned char>(pubKey.begin(), pubKey.end()) << OP_CHECKSIG;
-                }
+                
+                if(toExit)
+                	break;
 
                 txNew.nTime -= n;
                 txNew.vin.push_back(CTxIn(pcoin.first->GetHash(), pcoin.second));
