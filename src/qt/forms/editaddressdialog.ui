@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>457</width>
-    <height>126</height>
+    <height>245</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -55,11 +55,72 @@
      </item>
     </layout>
    </item>
-   <item row="2" column="0" colspan="2">
-    <widget class="QCheckBox" name="stealthCB">
-     <property name="text">
-      <string>&amp;Stealth Address</string>
+   <item>
+    <widget class="QGroupBox" name="addressType">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
      </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
+     </property>
+     <property name="title">
+      <string>Address Type</string>
+     </property>
+     <widget class="QRadioButton" name="legacyRB">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>25</y>
+        <width>150</width>
+        <height>25</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Legacy</string>
+      </property>
+     </widget>
+     <widget class="QRadioButton" name="segwitRB">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>50</y>
+        <width>150</width>
+        <height>25</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Segwit</string>
+      </property>
+     </widget>
+     <widget class="QRadioButton" name="bech32RB">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>75</y>
+        <width>150</width>
+        <height>25</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Bech32</string>
+      </property>
+     </widget>
+     <widget class="QRadioButton" name="stealthRB">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>100</y>
+        <width>150</width>
+        <height>25</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Stealth</string>
+      </property>
+     </widget>
     </widget>
    </item>
    <item>
