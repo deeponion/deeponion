@@ -6,6 +6,7 @@
 #define BITCOIN_QT_EDITADDRESSDIALOG_H
 
 #include <QDialog>
+#include <QRadioButton>
 
 class AddressTableModel;
 
@@ -45,6 +46,9 @@ public Q_SLOTS:
 
 private:
     bool saveCurrentRow();
+    QRadioButton* getDefaultAddressButton();
+    void addDefaultInfoText(QRadioButton* button){button->setText(button->text().append(" (default)"));
+}
 
     Ui::EditAddressDialog *ui;
     QDataWidgetMapper *mapper;

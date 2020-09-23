@@ -31,26 +31,23 @@ EditAddressDialog::EditAddressDialog(Mode _mode, QWidget* parent) : QDialog(pare
         ui->addressEdit->setEnabled(false);
         ui->addressEdit->setVisible(false);
         ui->label_2->setVisible(false);
-        ui->stealthCB->setEnabled(true);
-        ui->stealthCB->setVisible(true);
-        ui->bech32CB->setEnabled(true);
-        ui->bech32CB->setVisible(true);
+        ui->addressType->setVisible(true);
+
+        //Check default addresstype
+        getDefaultAddressButton()->setChecked(true);
         break;
     case NewSendingAddress:
         setWindowTitle(tr("New sending address"));
-        ui->stealthCB->setVisible(false);
-        ui->bech32CB->setVisible(false);
+        ui->addressType->hide();
         break;
     case EditReceivingAddress:
         setWindowTitle(tr("Edit receiving address"));
         ui->addressEdit->setEnabled(false);
-        ui->stealthCB->setVisible(false);
-        ui->bech32CB->setVisible(false);
+        ui->addressType->hide();
         break;
     case EditSendingAddress:
         setWindowTitle(tr("Edit sending address"));
-        ui->stealthCB->setVisible(false);
-        ui->bech32CB->setVisible(false);
+        ui->addressType->hide();
         break;
     }
 
@@ -88,15 +85,14 @@ bool EditAddressDialog::saveCurrentRow()
     case NewReceivingAddress:
     case NewSendingAddress:
         OutputType type;
-        if (ui->stealthCB->isChecked() && ui->bech32CB->isChecked())
-            return false;
-        else if (ui->stealthCB->isChecked())
+        if (ui->legacyRB->isChecked())
+            type = OUTPUT_TYPE_LEGACY;
+        else if (ui->stealthRB->isChecked())
             type = OUTPUT_TYPE_STEALTH;
-        else if (ui->bech32CB->isChecked())
+        else if (ui->bech32RB->isChecked())
             type = OUTPUT_TYPE_BECH32;
-        else
-            type = OUTPUT_TYPE_DEFAULT;
-
+        else if (ui->segwitRB->isChecked())
+            type = OUTPUT_TYPE_P2SH_SEGWIT;
         address = model->addRow(
             mode == NewSendingAddress ? AddressTableModel::Send : AddressTableModel::Receive,
             ui->labelEdit->text(),
@@ -162,3 +158,27 @@ void EditAddressDialog::setAddress(const QString& _address)
     this->address = _address;
     ui->addressEdit->setText(_address);
 }
+
+QRadioButton* EditAddressDialog::getDefaultAddressButton()
+{
+   // QString defaultInfo = <span style=" font-size:8pt; font-weight:600; color:#aa0000;">TextLabel</span>;
+   QString labelText = " (default)";
+    switch(OUTPUT_TYPE_DEFAULT)
+    {
+        case OUTPUT_TYPE_LEGACY:
+        addDefaultInfoText(ui->legacyRB);
+        return ui->legacyRB;
+        case  OUTPUT_TYPE_P2SH_SEGWIT:
+        addDefaultInfoText(ui->segwitRB);
+        return ui->segwitRB;
+        case OUTPUT_TYPE_BECH32:
+        addDefaultInfoText(ui->bech32RB);
+        return ui->bech32RB;
+        case OUTPUT_TYPE_STEALTH:
+        addDefaultInfoText(ui->stealthRB);
+        return ui->stealthRB;
+    }
+}
+
+
+
