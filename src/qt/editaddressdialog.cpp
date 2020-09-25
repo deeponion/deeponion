@@ -11,6 +11,9 @@
 #include <QDataWidgetMapper>
 #include <QMessageBox>
 
+#include <chainparams.h>
+#include <validation.h>
+#include <versionbits.h>
 #include <wallet/wallet.h>
 
 extern OutputType g_address_type;
@@ -83,22 +86,31 @@ bool EditAddressDialog::saveCurrentRow()
 
     switch (mode) {
     case NewReceivingAddress:
-    case NewSendingAddress:
+    case NewSendingAddress: {
         OutputType type;
-        if (ui->legacyRB->isChecked())
-            type = OUTPUT_TYPE_LEGACY;
-        else if (ui->stealthRB->isChecked())
-            type = OUTPUT_TYPE_STEALTH;
-        else if (ui->bech32RB->isChecked())
-            type = OUTPUT_TYPE_BECH32;
-        else if (ui->segwitRB->isChecked())
-            type = OUTPUT_TYPE_P2SH_SEGWIT;
+        const Consensus::Params& consensusParams = Params().GetConsensus();
+        const ThresholdState thresholdState = VersionBitsTipState(consensusParams, Consensus::DEPLOYMENT_SEGWIT);
+        if (thresholdState == THRESHOLD_ACTIVE) {
+            if (ui->legacyRB->isChecked())
+                type = OUTPUT_TYPE_LEGACY;
+            else if (ui->stealthRB->isChecked())
+                type = OUTPUT_TYPE_STEALTH;
+            else if (ui->bech32RB->isChecked())
+                type = OUTPUT_TYPE_BECH32;
+            else if (ui->segwitRB->isChecked())
+                type = OUTPUT_TYPE_P2SH_SEGWIT;
+        } else {
+            if (ui->stealthRB->isChecked())
+                type = OUTPUT_TYPE_STEALTH;
+            else
+                type = OUTPUT_TYPE_LEGACY;
+        }
         address = model->addRow(
             mode == NewSendingAddress ? AddressTableModel::Send : AddressTableModel::Receive,
             ui->labelEdit->text(),
             ui->addressEdit->text(),
             type);
-        break;
+    } break;
     case EditReceivingAddress:
     case EditSendingAddress:
         if (mapper->submit()) {
@@ -161,24 +173,20 @@ void EditAddressDialog::setAddress(const QString& _address)
 
 QRadioButton* EditAddressDialog::getDefaultAddressButton()
 {
-   // QString defaultInfo = <span style=" font-size:8pt; font-weight:600; color:#aa0000;">TextLabel</span>;
-   QString labelText = " (default)";
-    switch(OUTPUT_TYPE_DEFAULT)
-    {
-        case OUTPUT_TYPE_LEGACY:
+    // QString defaultInfo = <span style=" font-size:8pt; font-weight:600; color:#aa0000;">TextLabel</span>;
+    QString labelText = " (default)";
+    switch (OUTPUT_TYPE_DEFAULT) {
+    case OUTPUT_TYPE_LEGACY:
         addDefaultInfoText(ui->legacyRB);
         return ui->legacyRB;
-        case  OUTPUT_TYPE_P2SH_SEGWIT:
+    case OUTPUT_TYPE_P2SH_SEGWIT:
         addDefaultInfoText(ui->segwitRB);
         return ui->segwitRB;
-        case OUTPUT_TYPE_BECH32:
+    case OUTPUT_TYPE_BECH32:
         addDefaultInfoText(ui->bech32RB);
         return ui->bech32RB;
-        case OUTPUT_TYPE_STEALTH:
+    case OUTPUT_TYPE_STEALTH:
         addDefaultInfoText(ui->stealthRB);
         return ui->stealthRB;
     }
 }
-
-
-
