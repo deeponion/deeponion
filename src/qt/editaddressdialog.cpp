@@ -35,7 +35,25 @@ EditAddressDialog::EditAddressDialog(Mode _mode, QWidget* parent) : QDialog(pare
         ui->addressEdit->setVisible(false);
         ui->label_2->setVisible(false);
         ui->addressType->setVisible(true);
-
+        {
+            const Consensus::Params& consensusParams = Params().GetConsensus();
+            const ThresholdState thresholdState = VersionBitsTipState(consensusParams, Consensus::DEPLOYMENT_SEGWIT);
+            if (thresholdState == THRESHOLD_ACTIVE) {
+                ui->bech32RB->setEnabled(true);
+                ui->stealthRB->setEnabled(true);
+                ui->segwitRB->setEnabled(true);
+                ui->legacyRB->setEnabled(true);
+            } else {
+                ui->bech32RB->setDisabled(true);
+                ui->bech32RB->setStyleSheet("color: gray");
+                ui->bech32RB->setToolTip("This type of address will be enabled with the activation of segwit.");
+                ui->stealthRB->setEnabled(true);
+                ui->segwitRB->setStyleSheet("color: gray");
+                ui->segwitRB->setToolTip("This type of address will be enabled with the activation of segwit.");
+                ui->segwitRB->setDisabled(true);
+                ui->legacyRB->setEnabled(true);
+            }
+        }
         //Check default addresstype
         getDefaultAddressButton()->setChecked(true);
         break;
@@ -88,23 +106,15 @@ bool EditAddressDialog::saveCurrentRow()
     case NewReceivingAddress:
     case NewSendingAddress: {
         OutputType type;
-        const Consensus::Params& consensusParams = Params().GetConsensus();
-        const ThresholdState thresholdState = VersionBitsTipState(consensusParams, Consensus::DEPLOYMENT_SEGWIT);
-        if (thresholdState == THRESHOLD_ACTIVE) {
-            if (ui->legacyRB->isChecked())
-                type = OUTPUT_TYPE_LEGACY;
-            else if (ui->stealthRB->isChecked())
-                type = OUTPUT_TYPE_STEALTH;
-            else if (ui->bech32RB->isChecked())
-                type = OUTPUT_TYPE_BECH32;
-            else if (ui->segwitRB->isChecked())
-                type = OUTPUT_TYPE_P2SH_SEGWIT;
-        } else {
-            if (ui->stealthRB->isChecked())
-                type = OUTPUT_TYPE_STEALTH;
-            else
-                type = OUTPUT_TYPE_LEGACY;
-        }
+        if (ui->legacyRB->isChecked())
+            type = OUTPUT_TYPE_LEGACY;
+        else if (ui->stealthRB->isChecked())
+            type = OUTPUT_TYPE_STEALTH;
+        else if (ui->bech32RB->isChecked())
+            type = OUTPUT_TYPE_BECH32;
+        else if (ui->segwitRB->isChecked())
+            type = OUTPUT_TYPE_P2SH_SEGWIT;
+
         address = model->addRow(
             mode == NewSendingAddress ? AddressTableModel::Send : AddressTableModel::Receive,
             ui->labelEdit->text(),
