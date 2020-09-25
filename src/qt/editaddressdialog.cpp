@@ -104,7 +104,7 @@ bool EditAddressDialog::saveCurrentRow()
 
     switch (mode) {
     case NewReceivingAddress:
-    case NewSendingAddress: {
+    case NewSendingAddress:
         OutputType type;
         if (ui->legacyRB->isChecked())
             type = OUTPUT_TYPE_LEGACY;
@@ -120,7 +120,7 @@ bool EditAddressDialog::saveCurrentRow()
             ui->labelEdit->text(),
             ui->addressEdit->text(),
             type);
-    } break;
+        break;
     case EditReceivingAddress:
     case EditSendingAddress:
         if (mapper->submit()) {
