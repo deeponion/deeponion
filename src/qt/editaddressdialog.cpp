@@ -173,7 +173,6 @@ void EditAddressDialog::setAddress(const QString& _address)
 
 QRadioButton* EditAddressDialog::getDefaultAddressButton()
 {
-    // QString defaultInfo = <span style=" font-size:8pt; font-weight:600; color:#aa0000;">TextLabel</span>;
     QString labelText = " (default)";
     switch (OUTPUT_TYPE_DEFAULT) {
     case OUTPUT_TYPE_LEGACY:
