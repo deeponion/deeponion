@@ -11,6 +11,9 @@
 #include <QDataWidgetMapper>
 #include <QMessageBox>
 
+#include <chainparams.h>
+#include <validation.h>
+#include <versionbits.h>
 #include <wallet/wallet.h>
 
 extern OutputType g_address_type;
@@ -32,7 +35,25 @@ EditAddressDialog::EditAddressDialog(Mode _mode, QWidget* parent) : QDialog(pare
         ui->addressEdit->setVisible(false);
         ui->label_2->setVisible(false);
         ui->addressType->setVisible(true);
-
+        {
+            const Consensus::Params& consensusParams = Params().GetConsensus();
+            const ThresholdState thresholdState = VersionBitsTipState(consensusParams, Consensus::DEPLOYMENT_SEGWIT);
+            if (thresholdState == THRESHOLD_ACTIVE) {
+                ui->bech32RB->setEnabled(true);
+                ui->stealthRB->setEnabled(true);
+                ui->segwitRB->setEnabled(true);
+                ui->legacyRB->setEnabled(true);
+            } else {
+                ui->bech32RB->setDisabled(true);
+                ui->bech32RB->setStyleSheet("color: gray");
+                ui->bech32RB->setToolTip("This type of address will be enabled with the activation of segwit.");
+                ui->stealthRB->setEnabled(true);
+                ui->segwitRB->setStyleSheet("color: gray");
+                ui->segwitRB->setToolTip("This type of address will be enabled with the activation of segwit.");
+                ui->segwitRB->setDisabled(true);
+                ui->legacyRB->setEnabled(true);
+            }
+        }
         //Check default addresstype
         getDefaultAddressButton()->setChecked(true);
         break;
@@ -93,6 +114,7 @@ bool EditAddressDialog::saveCurrentRow()
             type = OUTPUT_TYPE_BECH32;
         else if (ui->segwitRB->isChecked())
             type = OUTPUT_TYPE_P2SH_SEGWIT;
+
         address = model->addRow(
             mode == NewSendingAddress ? AddressTableModel::Send : AddressTableModel::Receive,
             ui->labelEdit->text(),
@@ -161,24 +183,19 @@ void EditAddressDialog::setAddress(const QString& _address)
 
 QRadioButton* EditAddressDialog::getDefaultAddressButton()
 {
-   // QString defaultInfo = <span style=" font-size:8pt; font-weight:600; color:#aa0000;">TextLabel</span>;
-   QString labelText = " (default)";
-    switch(OUTPUT_TYPE_DEFAULT)
-    {
-        case OUTPUT_TYPE_LEGACY:
+    QString labelText = " (default)";
+    switch (OUTPUT_TYPE_DEFAULT) {
+    case OUTPUT_TYPE_LEGACY:
         addDefaultInfoText(ui->legacyRB);
         return ui->legacyRB;
-        case  OUTPUT_TYPE_P2SH_SEGWIT:
+    case OUTPUT_TYPE_P2SH_SEGWIT:
         addDefaultInfoText(ui->segwitRB);
         return ui->segwitRB;
-        case OUTPUT_TYPE_BECH32:
+    case OUTPUT_TYPE_BECH32:
         addDefaultInfoText(ui->bech32RB);
         return ui->bech32RB;
-        case OUTPUT_TYPE_STEALTH:
+    case OUTPUT_TYPE_STEALTH:
         addDefaultInfoText(ui->stealthRB);
         return ui->stealthRB;
     }
 }
-
-
-
