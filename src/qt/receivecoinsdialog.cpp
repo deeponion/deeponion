@@ -3,6 +3,9 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <wallet/wallet.h>
+#include <chainparams.h>
+#include <validation.h>
+#include <versionbits.h>
 
 #include <qt/receivecoinsdialog.h>
 #include <qt/forms/ui_receivecoinsdialog.h>
@@ -110,13 +113,29 @@ void ReceiveCoinsDialog::setModel(WalletModel *_model)
         columnResizingFixer = new GUIUtil::TableViewLastColumnResizingFixer(tableView, AMOUNT_MINIMUM_COLUMN_WIDTH, DATE_COLUMN_WIDTH, this);
 
         // configure bech32 checkbox, disable if launched with legacy as default:
-        if (model->getDefaultAddressType() == OUTPUT_TYPE_BECH32) {
-            ui->useBech32->setCheckState(Qt::Checked);
-        } else {
-            ui->useBech32->setCheckState(Qt::Unchecked);
+        switch(model->getDefaultAddressType())
+        {
+            case OUTPUT_TYPE_BECH32:
+                ui->useBech32->setChecked(true);
+                break;
+            case OUTPUT_TYPE_LEGACY:
+                ui->useLegacy->setChecked(true);
+                break;
+            case OUTPUT_TYPE_P2SH_SEGWIT:
+                ui->useSegwit->setChecked(true);
+                break;
+            default:
+                ui->useLegacy->setChecked(true);    
+                break;
         }
 
-        ui->useBech32->setVisible(model->getDefaultAddressType() != OUTPUT_TYPE_LEGACY);
+        const Consensus::Params& consensusParams = Params().GetConsensus();
+        const ThresholdState thresholdState = VersionBitsTipState(consensusParams, Consensus::DEPLOYMENT_SEGWIT);
+        ui->useBech32->setVisible(thresholdState == THRESHOLD_ACTIVE);
+        ui->useLegacy->setVisible(thresholdState == THRESHOLD_ACTIVE);
+        ui->useStealth->setVisible(thresholdState == THRESHOLD_ACTIVE);
+        ui->useSegwit->setVisible(thresholdState == THRESHOLD_ACTIVE);
+
     }
 }
 
@@ -159,10 +178,25 @@ void ReceiveCoinsDialog::on_receiveButton_clicked()
     QString address;
     QString label = ui->reqLabel->text();
     /* Generate new receiving address */
-    OutputType address_type = model->getDefaultAddressType();
-    if (address_type != OUTPUT_TYPE_LEGACY) {
-        address_type = ui->useBech32->isChecked() ? OUTPUT_TYPE_BECH32 : OUTPUT_TYPE_P2SH_SEGWIT;
+    OutputType address_type;
+    if (ui->useBech32->isChecked()) {
+        address_type = OUTPUT_TYPE_BECH32;
     }
+    else if(ui->useSegwit->isChecked())
+    {
+        address_type = OUTPUT_TYPE_P2SH_SEGWIT;
+    }
+    else if(ui->useStealth->isChecked())
+    {
+        address_type = OUTPUT_TYPE_STEALTH;
+    }
+    else if(ui->useLegacy->isChecked())
+    {
+        address_type = OUTPUT_TYPE_LEGACY;
+    }
+    else 
+        address_type = OUTPUT_TYPE_LEGACY;
+        
     address = model->getAddressTableModel()->addRow(AddressTableModel::Receive, label, "", address_type);
     SendCoinsRecipient info(address, label,
         ui->reqAmount->value(), ui->reqMessage->text());
