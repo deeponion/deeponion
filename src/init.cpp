@@ -46,6 +46,7 @@
 #include <validationinterface.h>
 #ifdef ENABLE_WALLET
 #include <wallet/init.h>
+#include <wallet/wallet.h>
 #endif
 #include <warnings.h>
 #include <stdint.h>
@@ -164,6 +165,29 @@ static std::unique_ptr<ECCVerifyHandle> globalVerifyHandle;
 
 static boost::thread_group threadGroup;
 static CScheduler scheduler;
+
+void SegwitWatcher()
+{
+    const Consensus::Params& consensusParams = Params().GetConsensus();
+
+   // while(GetTime() < consensusParams.vDeployments[Consensus::DEPLOYMENT_SEGWIT].nTimeout)
+    while(true)
+    {
+       // if(GetTime() > consensusParams.vDeployments[Consensus::DEPLOYMENT_SEGWIT].nStartTime)
+        //{///This is for the time during the segwit transition
+            const ThresholdState thresholdState = VersionBitsTipState(consensusParams, Consensus::DEPLOYMENT_SEGWIT);
+            if (thresholdState == THRESHOLD_ACTIVE) {
+                g_address_type = OUTPUT_TYPE_P2SH_SEGWIT;
+                return;
+            }
+            else
+            {
+                g_address_type = OUTPUT_TYPE_LEGACY;
+            }
+        //}
+        boost::this_thread::sleep_for(boost::chrono::seconds{10});    
+    }
+}
 
 void Interrupt()
 {
@@ -1845,5 +1869,7 @@ bool AppInitMain()
     StartWallets(scheduler);
 #endif
 
+    boost::thread segwitWatcher(SegwitWatcher);
+  
     return true;
 }

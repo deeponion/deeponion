@@ -183,7 +183,7 @@ void EditAddressDialog::setAddress(const QString& _address)
 
 QRadioButton* EditAddressDialog::getDefaultAddressButton()
 {
-    switch (OUTPUT_TYPE_DEFAULT) {
+    switch (g_address_type) {
     case OUTPUT_TYPE_LEGACY:
         addDefaultInfoText(ui->legacyRB);
         return ui->legacyRB;

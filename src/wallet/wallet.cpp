@@ -5433,7 +5433,7 @@ const std::string& FormatOutputType(OutputType type)
     case OUTPUT_TYPE_LEGACY: return OUTPUT_TYPE_STRING_LEGACY;
     case OUTPUT_TYPE_P2SH_SEGWIT: return OUTPUT_TYPE_STRING_P2SH_SEGWIT;
     case OUTPUT_TYPE_BECH32: return OUTPUT_TYPE_STRING_BECH32;
-    default: assert(false);
+ //   default: assert(false);
     }
 }
 
