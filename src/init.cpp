@@ -185,8 +185,7 @@ void SegwitWatcher()
             }
         }
         boost::this_thread::sleep_for(boost::chrono::seconds{60});    
-    }
-    while(GetTime() < consensusParams.vDeployments[Consensus::DEPLOYMENT_SEGWIT].nTimeout)
+    } while(GetTime() < consensusParams.vDeployments[Consensus::DEPLOYMENT_SEGWIT].nTimeout);
 }
 
 void Interrupt()
