@@ -170,11 +170,10 @@ void SegwitWatcher()
 {
     const Consensus::Params& consensusParams = Params().GetConsensus();
 
-   // while(GetTime() < consensusParams.vDeployments[Consensus::DEPLOYMENT_SEGWIT].nTimeout)
-    while(true)
+    do
     {
-       // if(GetTime() > consensusParams.vDeployments[Consensus::DEPLOYMENT_SEGWIT].nStartTime)
-        //{///This is for the time during the segwit transition
+        if(GetTime() > consensusParams.vDeployments[Consensus::DEPLOYMENT_SEGWIT].nStartTime)
+        {
             const ThresholdState thresholdState = VersionBitsTipState(consensusParams, Consensus::DEPLOYMENT_SEGWIT);
             if (thresholdState == THRESHOLD_ACTIVE) {
                 g_address_type = OUTPUT_TYPE_P2SH_SEGWIT;
@@ -184,9 +183,10 @@ void SegwitWatcher()
             {
                 g_address_type = OUTPUT_TYPE_LEGACY;
             }
-        //}
-        boost::this_thread::sleep_for(boost::chrono::seconds{10});    
+        }
+        boost::this_thread::sleep_for(boost::chrono::seconds{60});    
     }
+    while(GetTime() < consensusParams.vDeployments[Consensus::DEPLOYMENT_SEGWIT].nTimeout)
 }
 
 void Interrupt()
