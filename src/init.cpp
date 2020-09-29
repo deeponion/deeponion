@@ -184,8 +184,9 @@ void SegwitWatcher()
                 g_address_type = OUTPUT_TYPE_LEGACY;
             }
         }
+        // Wait 60 secs for next check
         boost::this_thread::sleep_for(boost::chrono::seconds{60});    
-    } while(GetTime() < consensusParams.vDeployments[Consensus::DEPLOYMENT_SEGWIT].nTimeout);
+    }while(GetTime() < (consensusParams.vDeployments[Consensus::DEPLOYMENT_SEGWIT].nTimeout + consensusParams.nMinerConfirmationWindow));
 }
 
 void Interrupt()

@@ -188,6 +188,7 @@ void WalletView::gotoHistoryPage(QAction *exportAction)
 
 void WalletView::gotoReceiveCoinsPage()
 {
+    receiveCoinsPage->updateAddressTypes();
     setCurrentWidget(receiveCoinsPage);
 }
 
