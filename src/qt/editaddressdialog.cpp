@@ -11,9 +11,6 @@
 #include <QDataWidgetMapper>
 #include <QMessageBox>
 
-#include <chainparams.h>
-#include <validation.h>
-#include <versionbits.h>
 #include <wallet/wallet.h>
 
 extern OutputType g_address_type;
@@ -36,9 +33,7 @@ EditAddressDialog::EditAddressDialog(Mode _mode, QWidget* parent) : QDialog(pare
         ui->label_2->setVisible(false);
         ui->addressType->setVisible(true);
         {
-            const Consensus::Params& consensusParams = Params().GetConsensus();
-            const ThresholdState thresholdState = VersionBitsTipState(consensusParams, Consensus::DEPLOYMENT_SEGWIT);
-            if (thresholdState == THRESHOLD_ACTIVE) {
+            if (g_address_type == OUTPUT_TYPE_P2SH_SEGWIT) {
                 ui->bech32RB->setEnabled(true);
                 ui->stealthRB->setEnabled(true);
                 ui->segwitRB->setEnabled(true);

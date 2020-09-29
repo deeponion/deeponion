@@ -3,9 +3,6 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <wallet/wallet.h>
-#include <chainparams.h>
-#include <validation.h>
-#include <versionbits.h>
 
 #include <qt/receivecoinsdialog.h>
 #include <qt/forms/ui_receivecoinsdialog.h>
@@ -129,12 +126,10 @@ void ReceiveCoinsDialog::setModel(WalletModel *_model)
                 break;
         }
 
-        const Consensus::Params& consensusParams = Params().GetConsensus();
-        const ThresholdState thresholdState = VersionBitsTipState(consensusParams, Consensus::DEPLOYMENT_SEGWIT);
-        ui->useBech32->setVisible(thresholdState == THRESHOLD_ACTIVE);
-        ui->useLegacy->setVisible(thresholdState == THRESHOLD_ACTIVE);
-        ui->useStealth->setVisible(thresholdState == THRESHOLD_ACTIVE);
-        ui->useSegwit->setVisible(thresholdState == THRESHOLD_ACTIVE);
+        ui->useBech32->setVisible(g_address_type == OUTPUT_TYPE_P2SH_SEGWIT);
+        ui->useLegacy->setVisible(g_address_type == OUTPUT_TYPE_P2SH_SEGWIT);
+        ui->useStealth->setVisible(g_address_type == OUTPUT_TYPE_P2SH_SEGWIT);
+        ui->useSegwit->setVisible(g_address_type == OUTPUT_TYPE_P2SH_SEGWIT);
 
     }
 }
