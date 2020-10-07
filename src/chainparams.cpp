@@ -360,7 +360,7 @@ public:
             0.01
         };
 
-        mapStakeModifierCheckpoints.insert(std::pair<int, unsigned int>(0, 0xe00670bu));
+        mapStakeModifierCheckpoints.insert(std::pair<int, unsigned int>(0, 0xc94f34e1u));
     }
 };
 
