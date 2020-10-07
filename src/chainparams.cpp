@@ -304,8 +304,8 @@ public:
 
         // Deployment of SegWit (BIP141, BIP143, and BIP147)
         consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].bit = 1;
-        consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].nStartTime = 1598961600; // Tuesday, 01-Sep-20 12:00:00 UTC
-        consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].nTimeout = 1599220800; // Friday, 04-Sep-20 12:00:00 UTC
+        consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].nStartTime = 1602417600; // Sunday, 11-Oct-20 12:00:00 UTC
+        consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].nTimeout = 1602504000; // Monday, 12-Sep-20 12:00:00 UTC
 
         // The best chain should have at least this much work.
         consensus.nMinimumChainWork = uint256S("0x0000000000000000000000000000000000000000000000000000000000000000");
@@ -320,10 +320,10 @@ public:
         nDefaultPort = 26550;
         nPruneAfterHeight = 1000;
 
-        genesis = CreateGenesisBlock(1597854998, 461649, 0x1e0fffff, 1, 0 * COIN);
+        genesis = CreateGenesisBlock(1602028800, 461649, 0x1e0fffff, 1, 0 * COIN);
         consensus.hashGenesisBlock = genesis.GetHash();
-        assert(consensus.hashGenesisBlock == uint256S("0x00000947cc6fce9aa27b57a78b9d9567ea76e9bb2bc53c6936e5f0e1bd93e7cf"));
-        assert(genesis.hashMerkleRoot == uint256S("0xb083b26a6970dd977982a61ee98e93998382d307802ad6e00e7c491fa3441b84"));
+        assert(consensus.hashGenesisBlock == uint256S("0x99484407804ac533c450eb0b00528f2df3e41670a9aee7661349ea7518b82e52"));
+        assert(genesis.hashMerkleRoot == uint256S("0x556799b6a374efa4eb0b579cfaedd87c2834f397bf70802d724cbc7a8c1c4784"));
 
         vFixedSeeds.clear();
         vSeeds.clear();
