@@ -304,8 +304,8 @@ public:
 
         // Deployment of SegWit (BIP141, BIP143, and BIP147)
         consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].bit = 1;
-        consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].nStartTime = 1598961600; // Tuesday, 01-Sep-20 12:00:00 UTC
-        consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].nTimeout = 1599220800; // Friday, 04-Sep-20 12:00:00 UTC
+        consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].nStartTime = 1602417600; // Sunday, 11-Oct-20 12:00:00 UTC
+        consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].nTimeout = 1602504000; // Monday, 12-Sep-20 12:00:00 UTC
 
         // The best chain should have at least this much work.
         consensus.nMinimumChainWork = uint256S("0x0000000000000000000000000000000000000000000000000000000000000000");
