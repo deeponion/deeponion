@@ -2360,6 +2360,7 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
     	pindex->pnext = nullptr;
     }
     
+	LogPrint(BCLog::CHECKPOINT, ">> Connected Block at height = %d, block = %s\n", pindex->nHeight, block.GetHash().ToString().c_str());
     int64_t nTime5 = GetTimeMicros(); nTimeIndex += nTime5 - nTime4;
     LogPrint(BCLog::BENCH, "    - Index writing: %.2fms [%.2fs (%.2fms/blk)]\n", MILLI * (nTime5 - nTime4), nTimeIndex * MICRO, nTimeIndex * MILLI / nBlocksTotal);
 
