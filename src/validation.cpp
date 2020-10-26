@@ -127,7 +127,7 @@ int LAST_REGISTERED_BTC_BLOCK_HEIGHT = 633679;
 std::string LAST_REGISTERED_BLOCKCHAIN_HASH = "858463dcf3e5d944209453632ca0c9890be1603cd8dae4978fcaab8bba0829e9";
 std::string LAST_REGISTERED_BTC_TX = "11107b9660bdc369c12f23fd4be8c9c63855c35ca8b88cd72db19d9a8e2fe8df";
 
-static const int NUM_OF_POW_CHECKPOINT = 41;
+static const int NUM_OF_POW_CHECKPOINT = 47;
 static const int checkpointPoWHeight[NUM_OF_POW_CHECKPOINT][2] =
 {
 		{   9601,   4611},
@@ -170,7 +170,13 @@ static const int checkpointPoWHeight[NUM_OF_POW_CHECKPOINT][2] =
 		{1750036, 334225},	
 		{1800046, 343146},	
 		{1850000, 350865},	
-		{1900004, 360145},	
+		{1900004, 360145},
+		{1950010, 369933},
+		{2000006, 379547},
+		{2050031, 389240},
+		{2100009, 396884},
+		{2150009, 405342},
+		{2200004, 412489},
 };
 
 // deepsend info
