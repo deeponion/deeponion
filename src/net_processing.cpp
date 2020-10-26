@@ -1738,7 +1738,13 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
             }
         }
 
-        if (nVersion < MIN_PEER_PROTO_VERSION)
+        int minVersion = MIN_PEER_PROTO_VERSION;
+	    // DeepOnion: The code base will fork two weeks before segwit activates, until that point we will allow older versions to connect.
+        if((chainparams.GetConsensus().vDeployments[Consensus::DEPLOYMENT_SEGWIT].nStartTime - 604800) > GetAdjustedTime()) {
+            minVersion = GETHEADERS_VERSION; // The previous MIN_PEER_PROTO_VERSION.
+        }
+
+        if (nVersion < minVersion)
         {
             // disconnect from peers older than this proto version
             LogPrint(BCLog::NET, "peer=%d using obsolete version %i; disconnecting\n", pfrom->GetId(), nVersion);
