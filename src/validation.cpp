@@ -5994,14 +5994,19 @@ bool SignMessageUsingAddress(std::string message, std::string address, std::vect
 	CWallet* pwallet = vpwallets[0];
 	
 	{
-	    LOCK2(cs_main, pwallet->cs_wallet);
-		// LogPrint(BCLog::DEEPSEND, ">> SignMessageUsingAddress After lock\n");
+        LOCK(cs_main);
+        LogPrint(BCLog::DEEPSEND, ">> SignMessageUsingAddress Lock main\n");
+        TRY_LOCK(pwallet->cs_wallet, lockWallet);
+        if(!lockWallet) // TODO: Should we carry on or not?
+            LogPrint(BCLog::DEEPSEND, ">> SignMessageUsingAddress Could not lock wallet\n");
+
+		LogPrint(BCLog::DEEPSEND, ">> SignMessageUsingAddress After lock\n");
 	    
         //Make sure wallet is either unflagged unlocked or unlocked and flagged for deepsend only
         if((pwallet->IsLocked() || (!pwallet->IsLocked() && !fWalletUnlockDeepSendOnly && fWalletUnlockStakingOnly)))
             return "Unlock wallet for DeepSend";
 
-		// LogPrint(BCLog::DEEPSEND, ">> SignMessageUsingAddress: EnsureWalletIsUnlocked done\n");
+		LogPrint(BCLog::DEEPSEND, ">> SignMessageUsingAddress: EnsureWalletIsUnlocked done\n");
 		CTxDestination addr = DecodeDestination(address);
 
 	    if (!IsValidDestination(addr))
@@ -6035,7 +6040,7 @@ bool SignMessageUsingAddress(std::string message, std::string address, std::vect
 		}
 	}
 
-	// LogPrint(BCLog::DEEPSEND, ">> SignMessageUsingAddress: completed\n");
+	LogPrint(BCLog::DEEPSEND, ">> SignMessageUsingAddress: completed\n");
     return true;
 }
 
