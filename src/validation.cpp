@@ -5994,12 +5994,8 @@ bool SignMessageUsingAddress(std::string message, std::string address, std::vect
 	CWallet* pwallet = vpwallets[0];
 	
 	{
-        LOCK(cs_main);
-        LogPrint(BCLog::DEEPSEND, ">> SignMessageUsingAddress Lock main\n");
-        TRY_LOCK(pwallet->cs_wallet, lockWallet);
-        if(!lockWallet) // TODO: Should we carry on or not?
-            LogPrint(BCLog::DEEPSEND, ">> SignMessageUsingAddress Could not lock wallet\n");
-
+		LogPrint(BCLog::DEEPSEND, ">> SignMessageUsingAddress before lock\n");
+        LOCK2(cs_main, pwallet->cs_wallet);
 		LogPrint(BCLog::DEEPSEND, ">> SignMessageUsingAddress After lock\n");
 	    
         //Make sure wallet is either unflagged unlocked or unlocked and flagged for deepsend only
@@ -6926,8 +6922,8 @@ void UpdateAnonymousServiceList(CNode* pNode, std::string keyAddress, int servic
 		return;		
 	}
 
-	LogPrint(BCLog::DEEPSEND, ">> UpdateAnonymousServiceList. key = %s, addr = %s, status = %s\n", keyAddress.c_str(), addr.c_str(), status.c_str());
-	LogPrint(BCLog::DEEPSEND, ">> DeepSend List current size: %d\n", mapAnonymousServices.size());
+	//LogPrint(BCLog::DEEPSEND, ">> DeepSend List current size: %d\n", mapAnonymousServices.size());
+    size_t size = mapAnonymousServices.size();
 	{
 		LOCK(cs_servicelist);
 		std::map<std::string, std::string>::iterator it = mapAnonymousServices.find(keyAddress);
@@ -6978,7 +6974,10 @@ void UpdateAnonymousServiceList(CNode* pNode, std::string keyAddress, int servic
 		}
 	}
 	
-	LogPrint(BCLog::DEEPSEND, ">> DeepSend List size after update: %d\n", mapAnonymousServices.size());
+    if(size != mapAnonymousServices.size()) {
+        LogPrint(BCLog::DEEPSEND, ">> UpdateAnonymousServiceList. key = %s, addr = %s, status = %s\n", keyAddress.c_str(), addr.c_str(), status.c_str());
+	    LogPrint(BCLog::DEEPSEND, ">> DeepSend List size after update: %d\n", mapAnonymousServices.size());
+    }
 
 }
 

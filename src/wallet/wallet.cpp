@@ -5600,7 +5600,5 @@ int CWallet::GetSelfAddressCount()
         if (::IsMine(*this, entry.first)) 
         	count++;
     }
-
-    LogPrint(BCLog::DEEPSEND, ">> GetSelfAddressCount: count = %d\n", count);
 	return count;
 }

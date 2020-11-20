@@ -1624,7 +1624,7 @@ static void broadcastServiceAnnounceMessage(CNode* pfrom, CConnman* connman)
         bool b = CheckAnonymousServiceConditions();
         std::string selfAddress = pwallet->GetOneSelfAddress();
 
-        LogPrint(BCLog::DEEPSEND, ">> broadcasting mixservice messages with b = %d to %s\n", b, pfrom->addr.ToString());
+        // Too Much Debug LogPrint(BCLog::DEEPSEND, ">> broadcasting mixservice messages with b = %d to %s\n", b, pfrom->addr.ToString());
         std::string status = "false";
         if(b && selfAddress != "")
              status = "true";
@@ -4548,7 +4548,12 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 				return error(err.c_str());
             }
             connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::DS_CANCELCMPLT, anonymousTxId, committedTx, isCanceled, source, vchSig));
-			connman->PushMessage(pNode, msgMaker.Make(NetMsgType::DS_CANCELCMPLT, anonymousTxId, committedTx, isCanceled, source, vchSig));
+            try { // pNode may not exist any more an can throw an exception that crashed the application
+			    connman->PushMessage(pNode, msgMaker.Make(NetMsgType::DS_CANCELCMPLT, anonymousTxId, committedTx, isCanceled, source, vchSig));
+                // It is not clear why the thrown exception is not handled correctly in PeerLogicValidation::ProcessMessages
+            } catch (...) {
+                LogPrint(BCLog::DEEPSEND, "%s Node has been disconnected\n", source);
+            }
 		}
 
     }
