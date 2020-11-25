@@ -3396,7 +3396,9 @@ bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::P
                                  strprintf("Transaction check failed (tx hash %s) %s", tx->GetHash().ToString(), state.GetDebugMessage()));
 
         // DeepOnion: Reject blocks where TX time is in the future
-        if( block.nTime < tx->nTime) {
+        // fCheckPOW is false when creating new blocks, we don't care too much 
+        // about TX time, as this will get set to the same as the block when it is signed
+        if( fCheckPOW && block.nTime < tx->nTime) {
             return state.Invalid(false, REJECT_INVALID, "bad-txns-time-in-future");
         }
     }

@@ -1594,11 +1594,14 @@ static void processCancelRunawayProcess(CNode* pfrom, CConnman* connman)
                         LogPrint(BCLog::DEEPSEND, ">>  Should Cancel Failed - Invalid role\n");
             	}
             	if(pNode != nullptr && source.length() > 0) {
-
-                    connman->PushMessage(pNode, msgMaker.Make(NetMsgType::DS_CANCEL, pCurrentAnonymousTxInfo->GetAnonymousId(), cancelTx, pSelfAddress, source, voutnSender, pkSender, amountSender,
-                            voutnMixer, pkMixer, amountMixer, voutnGuarantor, pkGuarantor, amountGuarantor, vchSig));
-
-                	pCurrentAnonymousTxInfo->SetCancelled(true);
+                    try { // pNode may not exist any more an can throw an exception that crashed the application
+                        connman->PushMessage(pNode, msgMaker.Make(NetMsgType::DS_CANCEL, pCurrentAnonymousTxInfo->GetAnonymousId(), cancelTx, pSelfAddress, source, voutnSender, pkSender, amountSender,
+                                voutnMixer, pkMixer, amountMixer, voutnGuarantor, pkGuarantor, amountGuarantor, vchSig));
+                    	pCurrentAnonymousTxInfo->SetCancelled(true);
+                        // It is not clear why the thrown exception is not handled correctly in PeerLogicValidation::ProcessMessages
+                    } catch (...) {
+                        LogPrint(BCLog::DEEPSEND, "Node has been disconnected - Cancelling runaway process\n");
+                    }
              	}
          	} else {
          		LogPrint(BCLog::DEEPSEND, ">>  Should Cancel Failed - error in signing message with cancelTx\n");
@@ -3183,8 +3186,13 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 				pMixerNode = pCurrentAnonymousTxInfo->GetNode(ROLE_MIXER);
 				vecSendInfo = pCurrentAnonymousTxInfo->GetSendInfo();
 
-				connman->PushMessage(pMixerNode, msgMaker.Make(NetMsgType::DS_MIXREQ, anonymousTxId, selfAddress, selfPubKey, vecSendInfo, guarantorAddress, vchSig));
-				connman->PushMessage(pGuarantorNode, msgMaker.Make(NetMsgType::DS_GRNTREQ, anonymousTxId, selfAddress, selfPubKey, vecSendInfo, mixerAddress, vchSig));
+                try { // pNode may not exist any more an can throw an exception that crashed the application
+                    connman->PushMessage(pMixerNode, msgMaker.Make(NetMsgType::DS_MIXREQ, anonymousTxId, selfAddress, selfPubKey, vecSendInfo, guarantorAddress, vchSig));
+                    connman->PushMessage(pGuarantorNode, msgMaker.Make(NetMsgType::DS_GRNTREQ, anonymousTxId, selfAddress, selfPubKey, vecSendInfo, mixerAddress, vchSig));
+                    // It is not clear why the thrown exception is not handled correctly in PeerLogicValidation::ProcessMessages
+                } catch (...) {
+                    LogPrint(BCLog::DEEPSEND, "Node has been disconnected - %s\n", strCommand);
+                }
 			}
 			else	// need to reset and find new service nodes
 			{
@@ -3340,7 +3348,13 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 
 		{
 			LOCK(cs_deepsend);
-
+			// first to check anonymousTxId, if not match then it is old one, ignore
+			if(anonymousTxId != pCurrentAnonymousTxInfo->GetAnonymousId())
+			{
+				LogPrintf(">> %s. ERROR anonymousTxId not match, ignore.\n", strCommand);
+				return true;
+			}
+            
 			pCurrentAnonymousTxInfo->clean(true);
 			logText = "Received Guarantor request. Accepted.";
 			pCurrentAnonymousTxInfo->AddToLog(logText);
@@ -3390,7 +3404,13 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 
 		{
 			LOCK(cs_deepsend);
-			pCurrentAnonymousTxInfo->SetAddressAndPubKey(ROLE_MIXER, mixerAddress, mixerPubKey);
+			// first to check anonymousTxId, if not match then it is old one, ignore
+			if(anonymousTxId != pCurrentAnonymousTxInfo->GetAnonymousId())
+			{
+				LogPrintf(">> %s. ERROR anonymousTxId not match, ignore.\n", strCommand);
+				return true;
+			}
+            pCurrentAnonymousTxInfo->SetAddressAndPubKey(ROLE_MIXER, mixerAddress, mixerPubKey);
 			std::string logText = "Mixer accepted request.";
 			pCurrentAnonymousTxInfo->AddToLog(logText);
 			logText = "Set Mixer Address = " + mixerAddress + ", PublicKey = " + mixerPubKey + ".";
@@ -3420,7 +3440,13 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 
 		{
 			LOCK(cs_deepsend);
-			pCurrentAnonymousTxInfo->SetAddressAndPubKey(ROLE_GUARANTOR, guarantorAddress, guarantorPubKey);
+			// first to check anonymousTxId, if not match then it is old one, ignore
+			if(anonymousTxId != pCurrentAnonymousTxInfo->GetAnonymousId())
+			{
+				LogPrintf(">> %s. ERROR anonymousTxId not match, ignore.\n", strCommand);
+				return true;
+			}
+            pCurrentAnonymousTxInfo->SetAddressAndPubKey(ROLE_GUARANTOR, guarantorAddress, guarantorPubKey);
 			std::string logText = "Guarantor accepted request.";
 			pCurrentAnonymousTxInfo->AddToLog(logText);
 			logText = "Set Guarantor Address = " + guarantorAddress + ", PublicKey = " + guarantorPubKey + ".";
@@ -3449,7 +3475,13 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 
 		{
 			LOCK(cs_deepsend);
-			pCurrentAnonymousTxInfo->SetAddressAndPubKey(ROLE_MIXER, mixerAddress, mixerPubKey);
+			// first to check anonymousTxId, if not match then it is old one, ignore
+			if(anonymousTxId != pCurrentAnonymousTxInfo->GetAnonymousId())
+			{
+				LogPrintf(">> %s. ERROR anonymousTxId not match, ignore.\n", strCommand);
+				return true;
+			}
+            pCurrentAnonymousTxInfo->SetAddressAndPubKey(ROLE_MIXER, mixerAddress, mixerPubKey);
 			std::string logText = "Set Mixer Address = " + mixerAddress + ", PublicKey = " + mixerPubKey + ".";
 			pCurrentAnonymousTxInfo->AddToLog(logText);
 
@@ -3491,7 +3523,12 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 		
 				connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::DS_MSIGADDR, anonymousTxId, multiSigAddress, redeemScript, vchSig));
 				CNode* pSender = pCurrentAnonymousTxInfo->GetNode(ROLE_SENDER);
-				connman->PushMessage(pSender, msgMaker.Make(NetMsgType::DS_MSIGADDR, anonymousTxId, multiSigAddress, redeemScript, vchSig));
+                try { // pNode may not exist any more an can throw an exception that crashed the application
+    				connman->PushMessage(pSender, msgMaker.Make(NetMsgType::DS_MSIGADDR, anonymousTxId, multiSigAddress, redeemScript, vchSig));
+                    // It is not clear why the thrown exception is not handled correctly in PeerLogicValidation::ProcessMessages
+                } catch (...) {
+                    LogPrint(BCLog::DEEPSEND, "Node has been disconnected - %s\n", strCommand);
+                }
 			}
 		}
     }
@@ -3517,7 +3554,13 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 
 		{
 			LOCK(cs_deepsend);
-			pCurrentAnonymousTxInfo->SetAddressAndPubKey(ROLE_GUARANTOR, guarantorAddress, guarantorPubKey);
+			// first to check anonymousTxId, if not match then it is old one, ignore
+			if(anonymousTxId != pCurrentAnonymousTxInfo->GetAnonymousId())
+			{
+				LogPrintf(">> %s. ERROR anonymousTxId not match, ignore.\n", strCommand);
+				return true;
+			}
+            pCurrentAnonymousTxInfo->SetAddressAndPubKey(ROLE_GUARANTOR, guarantorAddress, guarantorPubKey);
 			std::string logText = "Guarantor accepted request.";
 			pCurrentAnonymousTxInfo->AddToLog(logText);
 			logText = "Set Guarantor Address = " + guarantorAddress + ", PublicKey = " + guarantorPubKey + ".";
@@ -3549,6 +3592,12 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 			{
 				std::string err = "processing message " + strCommand + " - signature can not be verified. message ignored.";
 				return error(err.c_str());
+			}
+			// first to check anonymousTxId, if not match then it is old one, ignore
+			if(anonymousTxId != pCurrentAnonymousTxInfo->GetAnonymousId())
+			{
+				LogPrintf(">> %s. ERROR anonymousTxId not match, ignore.\n", strCommand);
+				return true;
 			}
 
 			pCurrentAnonymousTxInfo->SetMultiSigAddress(multiSigAddress, redeemScript);
@@ -3589,7 +3638,12 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 		}
 
 		connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::DS_MSIGADDRRPLY, anonymousTxId, txid, vchSig));
-		connman->PushMessage(pNode, msgMaker.Make(NetMsgType::DS_MSIGADDRRPLY, anonymousTxId, txid, vchSig));
+        try { // pNode may not exist any more an can throw an exception that crashed the application
+            connman->PushMessage(pNode, msgMaker.Make(NetMsgType::DS_MSIGADDRRPLY, anonymousTxId, txid, vchSig));
+            // It is not clear why the thrown exception is not handled correctly in PeerLogicValidation::ProcessMessages
+        } catch (...) {
+            LogPrint(BCLog::DEEPSEND, "Node has been disconnected - %s\n", strCommand);
+        }
     }
 
 	else if (strCommand == NetMsgType::DS_MSIGADDRRPLY)	// message sender -> mixer and guarantor
@@ -3614,6 +3668,13 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 				return error(err.c_str());
 			}
 
+			// first to check anonymousTxId, if not match then it is old one, ignore
+			if(anonymousTxId != pCurrentAnonymousTxInfo->GetAnonymousId())
+			{
+				LogPrintf(">> %s. ERROR anonymousTxId not match, ignore.\n", strCommand);
+				return true;
+			}
+
 			// record the txid received
 			pCurrentAnonymousTxInfo->SetTxid(sourceRole, txid);
 			std::string logText = "Received deposit TxID from sender. TxID = " + txid + ".";
@@ -3632,7 +3693,13 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 				int cnt = 0;
 				AnonymousTxRole tag = ROLE_GUARANTOR;
 				CNode* pNode = pCurrentAnonymousTxInfo->GetNode(tag);
-				connman->PushMessage(pNode, msgMaker.Make(NetMsgType::DS_CHKSDRELAY, anonymousTxId, txid, cnt, vchSig));
+                try { // pNode may not exist any more an can throw an exception that crashed the application
+    				connman->PushMessage(pNode, msgMaker.Make(NetMsgType::DS_CHKSDRELAY, anonymousTxId, txid, cnt, vchSig));
+                    // It is not clear why the thrown exception is not handled correctly in PeerLogicValidation::ProcessMessages
+                } catch (...) {
+                    LogPrint(BCLog::DEEPSEND, "Node has been disconnected - %s\n", strCommand);
+                }
+
 			}
 		}
     }
@@ -3657,7 +3724,12 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 			std::string err = "processing message " + strCommand + " - signature can not be verified. message ignored.";
 			return error(err.c_str());
 		}
-
+        // first to check anonymousTxId, if not match then it is old one, ignore
+        if(anonymousTxId != pCurrentAnonymousTxInfo->GetAnonymousId())
+        {
+            LogPrintf(">> %s. ERROR anonymousTxId not match, ignore.\n", strCommand);
+            return true;
+        }
 		MilliSleep(5000);
 
 		std::string selfAddress = pCurrentAnonymousTxInfo->GetSelfAddress();
@@ -3695,7 +3767,13 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 
 		{
 			LOCK(cs_deepsend);
-			std::string logText = "Verifying sender's deposit to multisig address. This is check No." + std::to_string(cnt) + ".";
+			// first to check anonymousTxId, if not match then it is old one, ignore
+			if(anonymousTxId != pCurrentAnonymousTxInfo->GetAnonymousId())
+			{
+				LogPrintf(">> %s. ERROR anonymousTxId not match, ignore.\n", strCommand);
+				return true;
+			}
+            std::string logText = "Verifying sender's deposit to multisig address. This is check No." + std::to_string(cnt) + ".";
 			pCurrentAnonymousTxInfo->AddToLog(logText);
 
 			bool successful = pCurrentAnonymousTxInfo->CheckSenderDepositTx();
@@ -3728,11 +3806,21 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 			
 				AnonymousTxRole tag = ROLE_SENDER;
 				CNode* pNode = pCurrentAnonymousTxInfo->GetNode(tag);
-				connman->PushMessage(pNode, msgMaker.Make(NetMsgType::DS_MSIGMIXSENT, anonymousTxId, txid0, vchSig));
+                try { // pNode may not exist any more an can throw an exception that crashed the application
+    				connman->PushMessage(pNode, msgMaker.Make(NetMsgType::DS_MSIGMIXSENT, anonymousTxId, txid0, vchSig));
+                    // It is not clear why the thrown exception is not handled correctly in PeerLogicValidation::ProcessMessages
+                } catch (...) {
+                    LogPrint(BCLog::DEEPSEND, "Node has been disconnected - %s\n", strCommand);
+                }
 
 				tag = ROLE_GUARANTOR;
 				pNode = pCurrentAnonymousTxInfo->GetNode(tag);
-				connman->PushMessage(pNode, msgMaker.Make(NetMsgType::DS_MSIGMIXSENT, anonymousTxId, txid0, vchSig));
+                try { // pNode may not exist any more an can throw an exception that crashed the application
+    				connman->PushMessage(pNode, msgMaker.Make(NetMsgType::DS_MSIGMIXSENT, anonymousTxId, txid0, vchSig));
+                    // It is not clear why the thrown exception is not handled correctly in PeerLogicValidation::ProcessMessages
+                } catch (...) {
+                    LogPrint(BCLog::DEEPSEND, "Node has been disconnected - %s\n", strCommand);
+                }
 			}
 			else
 			{
@@ -3758,7 +3846,12 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 					cnt++;
 					AnonymousTxRole tag = ROLE_GUARANTOR;
 					CNode* pNode = pCurrentAnonymousTxInfo->GetNode(tag);
-					connman->PushMessage(pNode, msgMaker.Make(NetMsgType::DS_CHKSDRELAY, anonymousTxId, txid, cnt, vchSig));
+                    try { // pNode may not exist any more an can throw an exception that crashed the application
+    					connman->PushMessage(pNode, msgMaker.Make(NetMsgType::DS_CHKSDRELAY, anonymousTxId, txid, cnt, vchSig));
+                        // It is not clear why the thrown exception is not handled correctly in PeerLogicValidation::ProcessMessages
+                    } catch (...) {
+                        LogPrint(BCLog::DEEPSEND, "Node has been disconnected - %s\n", strCommand);
+                    }
 				}
 			}
 		}
@@ -3786,7 +3879,12 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 
 		{
 			LOCK(cs_deepsend);
-			
+			// first to check anonymousTxId, if not match then it is old one, ignore
+			if(anonymousTxId != pCurrentAnonymousTxInfo->GetAnonymousId())
+			{
+				LogPrintf(">> %s. ERROR anonymousTxId not match, ignore.\n", strCommand);
+				return true;
+			}
 			// record the txid received
 			pCurrentAnonymousTxInfo->SetTxid(sourceRole, txid);
 			std::string logText = "Received deposit TxID from mixer. TxID = " + txid + ".";
@@ -3820,7 +3918,12 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 				
 			AnonymousTxRole tag = ROLE_SENDER;
 			CNode* pNode = pCurrentAnonymousTxInfo->GetNode(tag);
-			connman->PushMessage(pNode, msgMaker.Make(NetMsgType::DS_MSIGGRTSENT, anonymousTxId, txid0, vchSig));
+            try { // pNode may not exist any more an can throw an exception that crashed the application
+    			connman->PushMessage(pNode, msgMaker.Make(NetMsgType::DS_MSIGGRTSENT, anonymousTxId, txid0, vchSig));
+                // It is not clear why the thrown exception is not handled correctly in PeerLogicValidation::ProcessMessages
+            } catch (...) {
+                LogPrint(BCLog::DEEPSEND, "Node has been disconnected - %s\n", strCommand);
+            }
 			connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::DS_MSIGGRTSENT, anonymousTxId, txid0, vchSig));
 		}
     }
@@ -3847,7 +3950,12 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 
 		{
 			LOCK(cs_deepsend);
-			
+			// first to check anonymousTxId, if not match then it is old one, ignore
+			if(anonymousTxId != pCurrentAnonymousTxInfo->GetAnonymousId())
+			{
+				LogPrintf(">> %s. ERROR anonymousTxId not match, ignore.\n", strCommand);
+				return true;
+			}			
 			// record the txid received
 			pCurrentAnonymousTxInfo->SetTxid(sourceRole, txid);
 			std::string logText = "Received deposit TxID from guarantor. TxID = " + txid + ".";
@@ -3888,7 +3996,12 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 			std::string err = "processing message " + strCommand + " - signature can not be verified. message ignored.";
 			return error(err.c_str());
 		}
-
+        // first to check anonymousTxId, if not match then it is old one, ignore
+        if(anonymousTxId != pCurrentAnonymousTxInfo->GetAnonymousId())
+        {
+            LogPrintf(">> %s. ERROR anonymousTxId not match, ignore.\n", strCommand);
+            return true;
+        }
 		MilliSleep(5000);
 		std::string selfAddress = pCurrentAnonymousTxInfo->GetSelfAddress();
 		++cnt;
@@ -3923,7 +4036,13 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 
 		{
 			LOCK(cs_deepsend);
-			std::string logText = "Verifying deposits to multisig address. This is check No." + std::to_string(cnt) + ".";
+			// first to check anonymousTxId, if not match then it is old one, ignore
+			if(anonymousTxId != pCurrentAnonymousTxInfo->GetAnonymousId())
+			{
+				LogPrintf(">> %s. ERROR anonymousTxId not match, ignore.\n", strCommand);
+				return true;
+			}
+            std::string logText = "Verifying deposits to multisig address. This is check No." + std::to_string(cnt) + ".";
 			pCurrentAnonymousTxInfo->AddToLog(logText);
 
 			bool successful = pCurrentAnonymousTxInfo->CheckDepositTxes();
@@ -3964,8 +4083,13 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 				connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::DS_MSDISTTX, anonymousTxId, multisigtx, voutnSender, pkSender, amountSender,
 						voutnMixer, pkMixer, amountMixer, voutnGuarantor, pkGuarantor, amountGuarantor, vchSig));
 				CNode* pNode = pCurrentAnonymousTxInfo->GetNode(ROLE_MIXER);
-				connman->PushMessage(pNode, msgMaker.Make(NetMsgType::DS_MSDISTTX, anonymousTxId, multisigtx, voutnSender, pkSender, amountSender,
-						voutnMixer, pkMixer, amountMixer, voutnGuarantor, pkGuarantor, amountGuarantor, vchSig));
+                try { // pNode may not exist any more an can throw an exception that crashed the application
+                    connman->PushMessage(pNode, msgMaker.Make(NetMsgType::DS_MSDISTTX, anonymousTxId, multisigtx, voutnSender, pkSender, amountSender,
+                            voutnMixer, pkMixer, amountMixer, voutnGuarantor, pkGuarantor, amountGuarantor, vchSig));
+                    // It is not clear why the thrown exception is not handled correctly in PeerLogicValidation::ProcessMessages
+                } catch (...) {
+                    LogPrint(BCLog::DEEPSEND, "Node has been disconnected - %s\n", strCommand);
+                }
 
 				logText = "Multisig distribution transaction and TxIns are sent to Mixer and Guarantor.";
 				pCurrentAnonymousTxInfo->AddToLog(logText);
@@ -4019,7 +4143,12 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 
 		{
 			LOCK(cs_deepsend);
-			
+			// first to check anonymousTxId, if not match then it is old one, ignore
+			if(anonymousTxId != pCurrentAnonymousTxInfo->GetAnonymousId())
+			{
+				LogPrintf(">> %s. ERROR anonymousTxId not match, ignore.\n", strCommand);
+				return true;
+			}
 			std::string sourceAddress = pCurrentAnonymousTxInfo->GetAddress(ROLE_SENDER);
 			if(VerifyMessageSignature(multisigtx, sourceAddress, vchSig))
 			{
@@ -4069,7 +4198,12 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 
 		            int cnt = 0;
 		            CNode* pNode = pCurrentAnonymousTxInfo->GetNode(ROLE_GUARANTOR);
-	                connman->PushMessage(pNode, msgMaker.Make(NetMsgType::DS_MSDISTRELAY, anonymousTxId, selfAddress, cnt, vchSig));
+                    try { // pNode may not exist any more an can throw an exception that crashed the application
+                        connman->PushMessage(pNode, msgMaker.Make(NetMsgType::DS_MSDISTRELAY, anonymousTxId, selfAddress, cnt, vchSig));
+                        // It is not clear why the thrown exception is not handled correctly in PeerLogicValidation::ProcessMessages
+                    } catch (...) {
+                        LogPrint(BCLog::DEEPSEND, "Node has been disconnected - %s\n", strCommand);
+                    }
 				} else {
                     std::string disttx = pCurrentAnonymousTxInfo->GetTx();
                     logText = "Mixer successfully signed the distribution tx. TxID = " + disttx + ".";
@@ -4084,7 +4218,12 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 
                     connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::DS_DSTTXCMPLT, anonymousTxId, sendtxid, disttx, vchSig));
                     CNode* pNode = pCurrentAnonymousTxInfo->GetNode(ROLE_GUARANTOR);
-                    connman->PushMessage(pNode, msgMaker.Make(NetMsgType::DS_DSTTXCMPLT, anonymousTxId, sendtxid, disttx, vchSig));
+                    try { // pNode may not exist any more an can throw an exception that crashed the application
+                        connman->PushMessage(pNode, msgMaker.Make(NetMsgType::DS_DSTTXCMPLT, anonymousTxId, sendtxid, disttx, vchSig));
+                        // It is not clear why the thrown exception is not handled correctly in PeerLogicValidation::ProcessMessages
+                    } catch (...) {
+                        LogPrint(BCLog::DEEPSEND, "Node has been disconnected - %s\n", strCommand);
+                    }
 				}
 			}
 		}
@@ -4114,7 +4253,13 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 
 		{
 			LOCK(cs_deepsend);
-			pCurrentAnonymousTxInfo->SetTx(disttx, 1);
+			// first to check anonymousTxId, if not match then it is old one, ignore
+			if(anonymousTxId != pCurrentAnonymousTxInfo->GetAnonymousId())
+			{
+				LogPrintf(">> %s. ERROR anonymousTxId not match, ignore.\n", strCommand);
+				return true;
+			}
+            pCurrentAnonymousTxInfo->SetTx(disttx, 1);
 			pCurrentAnonymousTxInfo->SetSendTx(sendtxid);
 		}
 
@@ -4139,7 +4284,13 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 			int cnt = 0;
 			CNode* pNode = pCurrentAnonymousTxInfo->GetNode(ROLE_GUARANTOR);
 			LogPrint(BCLog::DEEPSEND, "sending message %s to %s\n", NetMsgType::DS_CHKDTXRLAY, pNode->addr.ToString());
-            connman->PushMessage(pNode, msgMaker.Make(NetMsgType::DS_CHKDTXRLAY, anonymousTxId, sendtxid, cnt, vchSig));
+            try { // pNode may not exist any more an can throw an exception that crashed the application
+                connman->PushMessage(pNode, msgMaker.Make(NetMsgType::DS_CHKDTXRLAY, anonymousTxId, sendtxid, cnt, vchSig));
+                // It is not clear why the thrown exception is not handled correctly in PeerLogicValidation::ProcessMessages
+            } catch (...) {
+                LogPrint(BCLog::DEEPSEND, "Node has been disconnected - %s\n", strCommand);
+            }
+
 		}
     }
 
@@ -4162,8 +4313,12 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 			std::string err = "processing message " + strCommand + " - signature can not be verified. message ignored.";
 			return error(err.c_str());
 		}
-
-		MilliSleep(5000);
+        // first to check anonymousTxId, if not match then it is old one, ignore
+        if(anonymousTxId != pCurrentAnonymousTxInfo->GetAnonymousId())
+        {
+            LogPrintf(">> %s. ERROR anonymousTxId not match, ignore.\n", strCommand);
+            return true;
+        }		MilliSleep(5000);
 		std::string selfAddress = pCurrentAnonymousTxInfo->GetSelfAddress();
 		bool b = SignMessageUsingAddress(sendtxid, selfAddress, vchSig);
 		if(!b) {
@@ -4197,7 +4352,13 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 
 		{
 			LOCK(cs_deepsend);
-			std::string logText = "Verify Mixer's sendcoin TxID. This is verification No." + std::to_string(cnt) + ".";
+			// first to check anonymousTxId, if not match then it is old one, ignore
+			if(anonymousTxId != pCurrentAnonymousTxInfo->GetAnonymousId())
+			{
+				LogPrintf(">> %s. ERROR anonymousTxId not match, ignore.\n", strCommand);
+				return true;
+			}
+            std::string logText = "Verify Mixer's sendcoin TxID. This is verification No." + std::to_string(cnt) + ".";
 			pCurrentAnonymousTxInfo->AddToLog(logText);
 
             bool successful = pCurrentAnonymousTxInfo->CheckSendTx();
@@ -4249,7 +4410,12 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 				// send tx to both mixer and guarantor
 				connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::DS_SENDCMPLT, anonymousTxId, committedTx, vchSig));
 				CNode* pNode = pCurrentAnonymousTxInfo->GetNode(ROLE_MIXER);
-				connman->PushMessage(pNode, msgMaker.Make(NetMsgType::DS_SENDCMPLT, anonymousTxId, committedTx, vchSig));
+                try { // pNode may not exist any more an can throw an exception that crashed the application
+                    connman->PushMessage(pNode, msgMaker.Make(NetMsgType::DS_SENDCMPLT, anonymousTxId, committedTx, vchSig));
+                    // It is not clear why the thrown exception is not handled correctly in PeerLogicValidation::ProcessMessages
+                } catch (...) {
+                    LogPrint(BCLog::DEEPSEND, "Node has been disconnected - %s\n", strCommand);
+                }
 			}
 			else
 			{
@@ -4293,8 +4459,13 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 	                CAmount amountGuarantor;
 	                pCurrentAnonymousTxInfo->GetMultisigTxOutInfo(ROLE_GUARANTOR, txid, voutnGuarantor, pkGuarantor, amountGuarantor);
 
-					connman->PushMessage(pNode, msgMaker.Make(NetMsgType::DS_CANCEL, anonymousTxId, cancelTx, pSelfAddress, source, voutnSender, pkSender, amountSender,
-                            voutnMixer, pkMixer, amountMixer, voutnGuarantor, pkGuarantor, amountGuarantor, vchSig));
+                    try { // pNode may not exist any more an can throw an exception that crashed the application
+                        connman->PushMessage(pNode, msgMaker.Make(NetMsgType::DS_CANCEL, anonymousTxId, cancelTx, pSelfAddress, source, voutnSender, pkSender, amountSender,
+                                voutnMixer, pkMixer, amountMixer, voutnGuarantor, pkGuarantor, amountGuarantor, vchSig));
+                        // It is not clear why the thrown exception is not handled correctly in PeerLogicValidation::ProcessMessages
+                    } catch (...) {
+                        LogPrint(BCLog::DEEPSEND, "Node has been disconnected - %s\n", strCommand);
+                    }
 
                     pCurrentAnonymousTxInfo->SetCancelled(true);
 				}
@@ -4335,7 +4506,13 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 			std::string err = "processing message " + strCommand + " - signature can not be verified. message ignored.";
 			return error(err.c_str());
         }
-
+        // first to check anonymousTxId, if not match then it is old one, ignore
+        if(anonymousTxId != pCurrentAnonymousTxInfo->GetAnonymousId())
+        {
+            LogPrintf(">> %s. ERROR anonymousTxId not match, ignore.\n", strCommand);
+            return true;
+        }
+        
         if(pCurrentAnonymousTxInfo->GetRole() == ROLE_MIXER)
         {
             // Try and sign distribtion TX again.
@@ -4371,7 +4548,12 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 
                 connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::DS_DSTTXCMPLT, anonymousTxId, pCurrentAnonymousTxInfo->GetSendTx(), disttx, vchSig));
                 CNode* pNode = pCurrentAnonymousTxInfo->GetNode(ROLE_SENDER);
-                connman->PushMessage(pNode, msgMaker.Make(NetMsgType::DS_DSTTXCMPLT, anonymousTxId, pCurrentAnonymousTxInfo->GetSendTx(), disttx, vchSig));
+                try { // pNode may not exist any more an can throw an exception that crashed the application
+                    connman->PushMessage(pNode, msgMaker.Make(NetMsgType::DS_DSTTXCMPLT, anonymousTxId, pCurrentAnonymousTxInfo->GetSendTx(), disttx, vchSig));
+                    // It is not clear why the thrown exception is not handled correctly in PeerLogicValidation::ProcessMessages
+                } catch (...) {
+                    LogPrint(BCLog::DEEPSEND, "Node has been disconnected - %s\n", strCommand);
+                }
             }
         }
         else
@@ -4418,7 +4600,12 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 
 		{
 			LOCK(cs_deepsend);
-
+			// first to check anonymousTxId, if not match then it is old one, ignore
+			if(anonymousTxId != pCurrentAnonymousTxInfo->GetAnonymousId())
+			{
+				LogPrintf(">> %s. ERROR anonymousTxId not match, ignore.\n", strCommand);
+				return true;
+			}
 	        AnonymousTxRole sourceRole = ROLE_SENDER;
 	        if(source == "mixer")
 	            sourceRole = ROLE_MIXER;
@@ -4567,7 +4754,12 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 				
 		{
 			LOCK(cs_deepsend);
-
+			// first to check anonymousTxId, if not match then it is old one, ignore
+			if(anonymousTxId != pCurrentAnonymousTxInfo->GetAnonymousId())
+			{
+				LogPrintf(">> %s. ERROR anonymousTxId not match, ignore.\n", strCommand);
+				return true;
+			}
 			std::string senderAddress = pCurrentAnonymousTxInfo->GetAddress(ROLE_SENDER);
 
 			if(VerifyMessageSignature(committedTx, senderAddress, vchSig))
@@ -4604,7 +4796,13 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 
         {
             LOCK(cs_deepsend);
-
+			// first to check anonymousTxId, if not match then it is old one, ignore
+			if(anonymousTxId != pCurrentAnonymousTxInfo->GetAnonymousId())
+			{
+				LogPrintf(">> %s. ERROR anonymousTxId not match, ignore.\n", strCommand);
+				return true;
+			}
+            
             AnonymousTxRole sourceRole = ROLE_SENDER;
             if(source == "mixer")
                 sourceRole = ROLE_MIXER;
