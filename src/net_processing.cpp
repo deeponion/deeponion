@@ -1554,6 +1554,14 @@ static void processCancelRunawayProcess(CNode* pfrom, CConnman* connman)
                 CAmount amountGuarantor;
                 pCurrentAnonymousTxInfo->GetMultisigTxOutInfo(ROLE_SENDER, txid, voutnGuarantor, pkGuarantor, amountGuarantor);
 
+                if(amountSender == 0 && amountMixer == 0 && amountGuarantor == 0) {
+                    // No funds to return
+                    pCurrentAnonymousTxInfo->AddToLog("No knowledge of any funds to return, cancelling process.\n");
+                    LogPrint(BCLog::DEEPSEND, ">> No funds to return, cancelling process\n");
+                    pCurrentAnonymousTxInfo->clean(false);
+                    return;
+                }
+
 				AnonymousTxRole role = pCurrentAnonymousTxInfo->GetRole();
 				CNode* pNode = NULL;
 				switch(role) {
@@ -4802,7 +4810,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 				LogPrintf(">> %s. ERROR anonymousTxId not match, ignore.\n", strCommand);
 				return true;
 			}
-            
+
             AnonymousTxRole sourceRole = ROLE_SENDER;
             if(source == "mixer")
                 sourceRole = ROLE_MIXER;
