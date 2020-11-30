@@ -3169,7 +3169,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 			// first to check anonymousTxId, if not match then it is old one, ignore
 			if(anonymousTxId != pCurrentAnonymousTxInfo->GetAnonymousId())
 			{
-				LogPrintf(">> %s. ERROR anonymousTxId not match, ignore. msg aid: %s current aid:\n", strCommand, anonymousTxId, pCurrentAnonymousTxInfo->GetAnonymousId());
+				LogPrintf(">> %s. ERROR anonymousTxId not match, ignore. msg aid: %s current aid: %s\n", strCommand, anonymousTxId, pCurrentAnonymousTxInfo->GetAnonymousId());
 				return true;
 			}
 
@@ -3359,7 +3359,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 			// first to check anonymousTxId, if not match then it is old one, ignore
 			if(anonymousTxId != pCurrentAnonymousTxInfo->GetAnonymousId())
 			{
-				LogPrintf(">> %s. ERROR anonymousTxId not match, ignore. msg aid: %s current aid:\n", strCommand, anonymousTxId, pCurrentAnonymousTxInfo->GetAnonymousId());
+				LogPrintf(">> %s. ERROR anonymousTxId not match, ignore. msg aid: %s current aid: %s\n", strCommand, anonymousTxId, pCurrentAnonymousTxInfo->GetAnonymousId());
 				return true;
 			}
             
@@ -3415,7 +3415,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 			// first to check anonymousTxId, if not match then it is old one, ignore
 			if(anonymousTxId != pCurrentAnonymousTxInfo->GetAnonymousId())
 			{
-				LogPrintf(">> %s. ERROR anonymousTxId not match, ignore. msg aid: %s current aid:\n", strCommand, anonymousTxId, pCurrentAnonymousTxInfo->GetAnonymousId());
+				LogPrintf(">> %s. ERROR anonymousTxId not match, ignore. msg aid: %s current aid: %s\n", strCommand, anonymousTxId, pCurrentAnonymousTxInfo->GetAnonymousId());
 				return true;
 			}
             pCurrentAnonymousTxInfo->SetAddressAndPubKey(ROLE_MIXER, mixerAddress, mixerPubKey);
@@ -3451,7 +3451,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 			// first to check anonymousTxId, if not match then it is old one, ignore
 			if(anonymousTxId != pCurrentAnonymousTxInfo->GetAnonymousId())
 			{
-				LogPrintf(">> %s. ERROR anonymousTxId not match, ignore. msg aid: %s current aid:\n", strCommand, anonymousTxId, pCurrentAnonymousTxInfo->GetAnonymousId());
+				LogPrintf(">> %s. ERROR anonymousTxId not match, ignore. msg aid: %s current aid: %s\n", strCommand, anonymousTxId, pCurrentAnonymousTxInfo->GetAnonymousId());
 				return true;
 			}
             pCurrentAnonymousTxInfo->SetAddressAndPubKey(ROLE_GUARANTOR, guarantorAddress, guarantorPubKey);
@@ -3486,7 +3486,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 			// first to check anonymousTxId, if not match then it is old one, ignore
 			if(anonymousTxId != pCurrentAnonymousTxInfo->GetAnonymousId())
 			{
-				LogPrintf(">> %s. ERROR anonymousTxId not match, ignore. msg aid: %s current aid:\n", strCommand, anonymousTxId, pCurrentAnonymousTxInfo->GetAnonymousId());
+				LogPrintf(">> %s. ERROR anonymousTxId not match, ignore. msg aid: %s current aid: %s\n", strCommand, anonymousTxId, pCurrentAnonymousTxInfo->GetAnonymousId());
 				return true;
 			}
             pCurrentAnonymousTxInfo->SetAddressAndPubKey(ROLE_MIXER, mixerAddress, mixerPubKey);
@@ -3565,7 +3565,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 			// first to check anonymousTxId, if not match then it is old one, ignore
 			if(anonymousTxId != pCurrentAnonymousTxInfo->GetAnonymousId())
 			{
-				LogPrintf(">> %s. ERROR anonymousTxId not match, ignore. msg aid: %s current aid:\n", strCommand, anonymousTxId, pCurrentAnonymousTxInfo->GetAnonymousId());
+				LogPrintf(">> %s. ERROR anonymousTxId not match, ignore. msg aid: %s current aid: %s\n", strCommand, anonymousTxId, pCurrentAnonymousTxInfo->GetAnonymousId());
 				return true;
 			}
             pCurrentAnonymousTxInfo->SetAddressAndPubKey(ROLE_GUARANTOR, guarantorAddress, guarantorPubKey);
@@ -3604,7 +3604,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 			// first to check anonymousTxId, if not match then it is old one, ignore
 			if(anonymousTxId != pCurrentAnonymousTxInfo->GetAnonymousId())
 			{
-				LogPrintf(">> %s. ERROR anonymousTxId not match, ignore. msg aid: %s current aid:\n", strCommand, anonymousTxId, pCurrentAnonymousTxInfo->GetAnonymousId());
+				LogPrintf(">> %s. ERROR anonymousTxId not match, ignore. msg aid: %s current aid: %s\n", strCommand, anonymousTxId, pCurrentAnonymousTxInfo->GetAnonymousId());
 				return true;
 			}
 
@@ -3679,7 +3679,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 			// first to check anonymousTxId, if not match then it is old one, ignore
 			if(anonymousTxId != pCurrentAnonymousTxInfo->GetAnonymousId())
 			{
-				LogPrintf(">> %s. ERROR anonymousTxId not match, ignore. msg aid: %s current aid:\n", strCommand, anonymousTxId, pCurrentAnonymousTxInfo->GetAnonymousId());
+				LogPrintf(">> %s. ERROR anonymousTxId not match, ignore. msg aid: %s current aid: %s\n", strCommand, anonymousTxId, pCurrentAnonymousTxInfo->GetAnonymousId());
 				return true;
 			}
 
@@ -3735,7 +3735,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
         // first to check anonymousTxId, if not match then it is old one, ignore
         if(anonymousTxId != pCurrentAnonymousTxInfo->GetAnonymousId())
         {
-            LogPrintf(">> %s. ERROR anonymousTxId not match, ignore. msg aid: %s current aid:\n", strCommand, anonymousTxId, pCurrentAnonymousTxInfo->GetAnonymousId());
+            LogPrintf(">> %s. ERROR anonymousTxId not match, ignore. msg aid: %s current aid: %s\n", strCommand, anonymousTxId, pCurrentAnonymousTxInfo->GetAnonymousId());
             return true;
         }
 		MilliSleep(5000);
@@ -3778,7 +3778,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 			// first to check anonymousTxId, if not match then it is old one, ignore
 			if(anonymousTxId != pCurrentAnonymousTxInfo->GetAnonymousId())
 			{
-				LogPrintf(">> %s. ERROR anonymousTxId not match, ignore. msg aid: %s current aid:\n", strCommand, anonymousTxId, pCurrentAnonymousTxInfo->GetAnonymousId());
+				LogPrintf(">> %s. ERROR anonymousTxId not match, ignore. msg aid: %s current aid: %s\n", strCommand, anonymousTxId, pCurrentAnonymousTxInfo->GetAnonymousId());
 				return true;
 			}
             std::string logText = "Verifying sender's deposit to multisig address. This is check No." + std::to_string(cnt) + ".";
@@ -3890,7 +3890,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 			// first to check anonymousTxId, if not match then it is old one, ignore
 			if(anonymousTxId != pCurrentAnonymousTxInfo->GetAnonymousId())
 			{
-				LogPrintf(">> %s. ERROR anonymousTxId not match, ignore. msg aid: %s current aid:\n", strCommand, anonymousTxId, pCurrentAnonymousTxInfo->GetAnonymousId());
+				LogPrintf(">> %s. ERROR anonymousTxId not match, ignore. msg aid: %s current aid: %s\n", strCommand, anonymousTxId, pCurrentAnonymousTxInfo->GetAnonymousId());
 				return true;
 			}
 			// record the txid received
@@ -3961,7 +3961,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 			// first to check anonymousTxId, if not match then it is old one, ignore
 			if(anonymousTxId != pCurrentAnonymousTxInfo->GetAnonymousId())
 			{
-				LogPrintf(">> %s. ERROR anonymousTxId not match, ignore. msg aid: %s current aid:\n", strCommand, anonymousTxId, pCurrentAnonymousTxInfo->GetAnonymousId());
+				LogPrintf(">> %s. ERROR anonymousTxId not match, ignore. msg aid: %s current aid: %s\n", strCommand, anonymousTxId, pCurrentAnonymousTxInfo->GetAnonymousId());
 				return true;
 			}			
 			// record the txid received
@@ -4007,7 +4007,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
         // first to check anonymousTxId, if not match then it is old one, ignore
         if(anonymousTxId != pCurrentAnonymousTxInfo->GetAnonymousId())
         {
-            LogPrintf(">> %s. ERROR anonymousTxId not match, ignore. msg aid: %s current aid:\n", strCommand, anonymousTxId, pCurrentAnonymousTxInfo->GetAnonymousId());
+            LogPrintf(">> %s. ERROR anonymousTxId not match, ignore. msg aid: %s current aid: %s\n", strCommand, anonymousTxId, pCurrentAnonymousTxInfo->GetAnonymousId());
             return true;
         }
 		MilliSleep(5000);
@@ -4047,7 +4047,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 			// first to check anonymousTxId, if not match then it is old one, ignore
 			if(anonymousTxId != pCurrentAnonymousTxInfo->GetAnonymousId())
 			{
-				LogPrintf(">> %s. ERROR anonymousTxId not match, ignore. msg aid: %s current aid:\n", strCommand, anonymousTxId, pCurrentAnonymousTxInfo->GetAnonymousId());
+				LogPrintf(">> %s. ERROR anonymousTxId not match, ignore. msg aid: %s current aid: %s\n", strCommand, anonymousTxId, pCurrentAnonymousTxInfo->GetAnonymousId());
 				return true;
 			}
             std::string logText = "Verifying deposits to multisig address. This is check No." + std::to_string(cnt) + ".";
@@ -4154,7 +4154,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 			// first to check anonymousTxId, if not match then it is old one, ignore
 			if(anonymousTxId != pCurrentAnonymousTxInfo->GetAnonymousId())
 			{
-				LogPrintf(">> %s. ERROR anonymousTxId not match, ignore. msg aid: %s current aid:\n", strCommand, anonymousTxId, pCurrentAnonymousTxInfo->GetAnonymousId());
+				LogPrintf(">> %s. ERROR anonymousTxId not match, ignore. msg aid: %s current aid: %s\n", strCommand, anonymousTxId, pCurrentAnonymousTxInfo->GetAnonymousId());
 				return true;
 			}
 			std::string sourceAddress = pCurrentAnonymousTxInfo->GetAddress(ROLE_SENDER);
@@ -4264,7 +4264,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 			// first to check anonymousTxId, if not match then it is old one, ignore
 			if(anonymousTxId != pCurrentAnonymousTxInfo->GetAnonymousId())
 			{
-				LogPrintf(">> %s. ERROR anonymousTxId not match, ignore. msg aid: %s current aid:\n", strCommand, anonymousTxId, pCurrentAnonymousTxInfo->GetAnonymousId());
+				LogPrintf(">> %s. ERROR anonymousTxId not match, ignore. msg aid: %s current aid: %s\n", strCommand, anonymousTxId, pCurrentAnonymousTxInfo->GetAnonymousId());
 				return true;
 			}
             pCurrentAnonymousTxInfo->SetTx(disttx, 1);
@@ -4324,7 +4324,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
         // first to check anonymousTxId, if not match then it is old one, ignore
         if(anonymousTxId != pCurrentAnonymousTxInfo->GetAnonymousId())
         {
-            LogPrintf(">> %s. ERROR anonymousTxId not match, ignore. msg aid: %s current aid:\n", strCommand, anonymousTxId, pCurrentAnonymousTxInfo->GetAnonymousId());
+            LogPrintf(">> %s. ERROR anonymousTxId not match, ignore. msg aid: %s current aid: %s\n", strCommand, anonymousTxId, pCurrentAnonymousTxInfo->GetAnonymousId());
             return true;
         }		MilliSleep(5000);
 		std::string selfAddress = pCurrentAnonymousTxInfo->GetSelfAddress();
@@ -4363,7 +4363,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 			// first to check anonymousTxId, if not match then it is old one, ignore
 			if(anonymousTxId != pCurrentAnonymousTxInfo->GetAnonymousId())
 			{
-				LogPrintf(">> %s. ERROR anonymousTxId not match, ignore. msg aid: %s current aid:\n", strCommand, anonymousTxId, pCurrentAnonymousTxInfo->GetAnonymousId());
+				LogPrintf(">> %s. ERROR anonymousTxId not match, ignore. msg aid: %s current aid: %s\n", strCommand, anonymousTxId, pCurrentAnonymousTxInfo->GetAnonymousId());
 				return true;
 			}
             std::string logText = "Verify Mixer's sendcoin TxID. This is verification No." + std::to_string(cnt) + ".";
@@ -4517,7 +4517,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
         // first to check anonymousTxId, if not match then it is old one, ignore
         if(anonymousTxId != pCurrentAnonymousTxInfo->GetAnonymousId())
         {
-            LogPrintf(">> %s. ERROR anonymousTxId not match, ignore. msg aid: %s current aid:\n", strCommand, anonymousTxId, pCurrentAnonymousTxInfo->GetAnonymousId());
+            LogPrintf(">> %s. ERROR anonymousTxId not match, ignore. msg aid: %s current aid: %s\n", strCommand, anonymousTxId, pCurrentAnonymousTxInfo->GetAnonymousId());
             return true;
         }
         
@@ -4611,7 +4611,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 			// first to check anonymousTxId, if not match then it is old one, ignore
 			if(anonymousTxId != pCurrentAnonymousTxInfo->GetAnonymousId())
 			{
-				LogPrintf(">> %s. ERROR anonymousTxId not match, ignore. msg aid: %s current aid:\n", strCommand, anonymousTxId, pCurrentAnonymousTxInfo->GetAnonymousId());
+				LogPrintf(">> %s. ERROR anonymousTxId not match, ignore. msg aid: %s current aid: %s\n", strCommand, anonymousTxId, pCurrentAnonymousTxInfo->GetAnonymousId());
 				return true;
 			}
 	        AnonymousTxRole sourceRole = ROLE_SENDER;
@@ -4765,7 +4765,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 			// first to check anonymousTxId, if not match then it is old one, ignore
 			if(anonymousTxId != pCurrentAnonymousTxInfo->GetAnonymousId())
 			{
-				LogPrintf(">> %s. ERROR anonymousTxId not match, ignore. msg aid: %s current aid:\n", strCommand, anonymousTxId, pCurrentAnonymousTxInfo->GetAnonymousId());
+				LogPrintf(">> %s. ERROR anonymousTxId not match, ignore. msg aid: %s current aid: %s\n", strCommand, anonymousTxId, pCurrentAnonymousTxInfo->GetAnonymousId());
 				return true;
 			}
 			std::string senderAddress = pCurrentAnonymousTxInfo->GetAddress(ROLE_SENDER);
@@ -4807,7 +4807,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 			// first to check anonymousTxId, if not match then it is old one, ignore
 			if(anonymousTxId != pCurrentAnonymousTxInfo->GetAnonymousId())
 			{
-				LogPrintf(">> %s. ERROR anonymousTxId not match, ignore. msg aid: %s current aid:\n", strCommand, anonymousTxId, pCurrentAnonymousTxInfo->GetAnonymousId());
+				LogPrintf(">> %s. ERROR anonymousTxId not match, ignore. msg aid: %s current aid: %s\n", strCommand, anonymousTxId, pCurrentAnonymousTxInfo->GetAnonymousId());
 				return true;
 			}
 
