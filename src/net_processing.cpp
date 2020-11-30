@@ -3356,12 +3356,6 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 
 		{
 			LOCK(cs_deepsend);
-			// first to check anonymousTxId, if not match then it is old one, ignore
-			if(anonymousTxId != pCurrentAnonymousTxInfo->GetAnonymousId())
-			{
-				LogPrintf(">> %s. ERROR anonymousTxId not match, ignore. msg aid: %s current aid: %s\n", strCommand, anonymousTxId, pCurrentAnonymousTxInfo->GetAnonymousId());
-				return true;
-			}
             
 			pCurrentAnonymousTxInfo->clean(true);
 			logText = "Received Guarantor request. Accepted.";
