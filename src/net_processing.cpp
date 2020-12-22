@@ -1526,7 +1526,32 @@ static void processCancelRunawayProcess(CNode* pfrom, CConnman* connman)
 	const CNetMsgMaker msgMaker(pfrom->GetSendVersion());
 	std::string cancelTx = CreateCancelDistributionTx(true);
 	if(cancelTx.length() > 0) {
-            
+
+        // Get the details, of the outputs to decide who best to send the cancel to.
+        std::string txid;
+        int voutnSender;
+        std::string pkSender;
+        CAmount amountSender;
+        pCurrentAnonymousTxInfo->GetMultisigTxOutInfo(ROLE_SENDER, txid, voutnSender, pkSender, amountSender);
+
+        int voutnMixer;
+        std::string pkMixer;
+        CAmount amountMixer;
+        pCurrentAnonymousTxInfo->GetMultisigTxOutInfo(ROLE_MIXER, txid, voutnMixer, pkMixer, amountMixer);
+
+        int voutnGuarantor;
+        std::string pkGuarantor;
+        CAmount amountGuarantor;
+        pCurrentAnonymousTxInfo->GetMultisigTxOutInfo(ROLE_SENDER, txid, voutnGuarantor, pkGuarantor, amountGuarantor);
+
+        if(amountSender == 0 && amountMixer == 0 && amountGuarantor == 0) {
+            // No funds to return
+            pCurrentAnonymousTxInfo->AddToLog("No knowledge of any funds to return, cancelling process.\n");
+            LogPrint(BCLog::DEEPSEND, ">> No funds to return, cancelling process\n");
+            pCurrentAnonymousTxInfo->clean(false);
+            return;
+        }
+   
 		// Distribution TX is now the cancel varient.
 		if(SignMultiSigDistributionTx()) {
 			std::string pSelfAddress = pCurrentAnonymousTxInfo->GetSelfAddress();
@@ -1536,31 +1561,6 @@ static void processCancelRunawayProcess(CNode* pfrom, CConnman* connman)
 			bool b = SignMessageUsingAddress(cancelTx, pSelfAddress, vchSig);
 			if(b) {
 				std::string source = "";
-
-				// Get the details, of the outputs to decide who best to send the cancel to.
-				std::string txid;
-                int voutnSender;
-                std::string pkSender;
-                CAmount amountSender;
-                pCurrentAnonymousTxInfo->GetMultisigTxOutInfo(ROLE_SENDER, txid, voutnSender, pkSender, amountSender);
-
-                int voutnMixer;
-                std::string pkMixer;
-                CAmount amountMixer;
-                pCurrentAnonymousTxInfo->GetMultisigTxOutInfo(ROLE_MIXER, txid, voutnMixer, pkMixer, amountMixer);
-
-                int voutnGuarantor;
-                std::string pkGuarantor;
-                CAmount amountGuarantor;
-                pCurrentAnonymousTxInfo->GetMultisigTxOutInfo(ROLE_SENDER, txid, voutnGuarantor, pkGuarantor, amountGuarantor);
-
-                if(amountSender == 0 && amountMixer == 0 && amountGuarantor == 0) {
-                    // No funds to return
-                    pCurrentAnonymousTxInfo->AddToLog("No knowledge of any funds to return, cancelling process.\n");
-                    LogPrint(BCLog::DEEPSEND, ">> No funds to return, cancelling process\n");
-                    pCurrentAnonymousTxInfo->clean(false);
-                    return;
-                }
 
 				AnonymousTxRole role = pCurrentAnonymousTxInfo->GetRole();
 				CNode* pNode = NULL;
