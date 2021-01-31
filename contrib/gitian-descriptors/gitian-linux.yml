@@ -1,5 +1,5 @@
 ---
-name: "deeponion-core-linux-2.2.0"
+name: "deeponion-core-linux-2.2.2"
 enable_cache: true
 distro: "ubuntu"
 suites:
