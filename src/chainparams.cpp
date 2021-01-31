@@ -85,6 +85,7 @@ public:
         consensus.BIP34Hash = uint256S("000004e29458ef4f2e0abab544737b07344e6ff13718f7c2d12926166db07b5e");
         consensus.BIP65Height = 1000000; 
         consensus.BIP66Height = 1000000; 
+        consensus.SegwitHeight = 2335200; //f597f75df4f8582aca13bcd5c07a769410c5f828edcbfdedc4eefb1d9050abd0
         consensus.powLimit = uint256S("00000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"); 
         consensus.posLimit = uint256S("00000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"); 
         consensus.nPowTargetTimespan = 14400; 
@@ -108,11 +109,6 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_CSV].bit = 0;
         consensus.vDeployments[Consensus::DEPLOYMENT_CSV].nStartTime = 1548633600; // January 28, 2019
         consensus.vDeployments[Consensus::DEPLOYMENT_CSV].nTimeout = 1548979199; // January 31st, 2019
-
-        // Deployment of SegWit (BIP141, BIP143, and BIP147)
-        consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].bit = 1;
-        consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].nStartTime = 1609462800; // January 1, 2021
-        consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].nTimeout = 1612054800; // January 31st, 2021
 
         // The best chain should have at least this much work.
         consensus.nMinimumChainWork = uint256S("0x000000000000000000000000000000000000000000000000000a3935d31876de"); // Checkpoint 750001

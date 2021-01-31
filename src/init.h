@@ -16,9 +16,6 @@ namespace boost
 class thread_group;
 } // namespace boost
 
-//Segwit Activation Thread to handle default address type switch
-void SegwitWatcher();
-
 void StartShutdown();
 bool ShutdownRequested();
 /** Interrupt threads */
