@@ -43,7 +43,6 @@ public:
     ~ReceiveCoinsDialog();
 
     void setModel(WalletModel *model);
-    void updateAddressTypes();
 
     /** DeepOnion Theme Change */
     void refreshStyle();

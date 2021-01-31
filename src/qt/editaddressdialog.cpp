@@ -32,23 +32,11 @@ EditAddressDialog::EditAddressDialog(Mode _mode, QWidget* parent) : QDialog(pare
         ui->addressEdit->setVisible(false);
         ui->label_2->setVisible(false);
         ui->addressType->setVisible(true);
-        {
-            if (g_address_type == OUTPUT_TYPE_P2SH_SEGWIT) {
-                ui->bech32RB->setEnabled(true);
-                ui->stealthRB->setEnabled(true);
-                ui->segwitRB->setEnabled(true);
-                ui->legacyRB->setEnabled(true);
-            } else {
-                ui->bech32RB->setDisabled(true);
-                ui->bech32RB->setStyleSheet("color: gray");
-                ui->bech32RB->setToolTip("This type of address will be enabled with the activation of segwit.");
-                ui->stealthRB->setEnabled(true);
-                ui->segwitRB->setStyleSheet("color: gray");
-                ui->segwitRB->setToolTip("This type of address will be enabled with the activation of segwit.");
-                ui->segwitRB->setDisabled(true);
-                ui->legacyRB->setEnabled(true);
-            }
-        }
+        ui->bech32RB->setEnabled(true);
+        ui->stealthRB->setEnabled(true);
+        ui->segwitRB->setEnabled(true);
+        ui->legacyRB->setEnabled(true);
+           
         //Check default addresstype
         getDefaultAddressButton()->setChecked(true);
         break;
@@ -178,7 +166,7 @@ void EditAddressDialog::setAddress(const QString& _address)
 
 QRadioButton* EditAddressDialog::getDefaultAddressButton()
 {
-    switch (g_address_type) {
+    switch (OUTPUT_TYPE_DEFAULT) {
     case OUTPUT_TYPE_LEGACY:
         addDefaultInfoText(ui->legacyRB);
         return ui->legacyRB;

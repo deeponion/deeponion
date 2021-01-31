@@ -108,25 +108,14 @@ void ReceiveCoinsDialog::setModel(WalletModel* _model)
         columnResizingFixer = new GUIUtil::TableViewLastColumnResizingFixer(tableView, AMOUNT_MINIMUM_COLUMN_WIDTH, DATE_COLUMN_WIDTH, this);
 
         // configure bech32 checkbox, disable if launched with legacy as default:
-        switch (model->getDefaultAddressType()) {
-        case OUTPUT_TYPE_BECH32:
-            ui->useBech32->setChecked(true);
-            break;
-        case OUTPUT_TYPE_LEGACY:
-            ui->useLegacy->setChecked(true);
-            break;
-        case OUTPUT_TYPE_P2SH_SEGWIT:
-            ui->useSegwit->setChecked(true);
-            break;
-        default:
-            ui->useLegacy->setChecked(true);
-            break;
-        }
 
-        ui->useBech32->setVisible(g_address_type == OUTPUT_TYPE_P2SH_SEGWIT);
-        ui->useLegacy->setVisible(g_address_type == OUTPUT_TYPE_P2SH_SEGWIT);
-        ui->useStealth->setVisible(g_address_type == OUTPUT_TYPE_P2SH_SEGWIT);
-        ui->useSegwit->setVisible(g_address_type == OUTPUT_TYPE_P2SH_SEGWIT);
+        // Make P2SH-SEGWIT default
+        ui->useSegwit->setChecked(true);
+   
+        ui->useBech32->setVisible(true);
+        ui->useLegacy->setVisible(true);
+        ui->useStealth->setVisible(true);
+        ui->useSegwit->setVisible(true);
     }
 }
 
@@ -330,11 +319,4 @@ void ReceiveCoinsDialog::refreshStyle()
     ui->labelRequestedPaymentHistory->setStyleSheet(platformStyle->getThemeManager()->getCurrent()->getSubSectionTitleStyle());
 }
 
-void ReceiveCoinsDialog::updateAddressTypes()
-{
-    ui->useBech32->setVisible(g_address_type == OUTPUT_TYPE_P2SH_SEGWIT);
-    ui->useLegacy->setVisible(g_address_type == OUTPUT_TYPE_P2SH_SEGWIT);
-    ui->useStealth->setVisible(g_address_type == OUTPUT_TYPE_P2SH_SEGWIT);
-    ui->useSegwit->setVisible(g_address_type == OUTPUT_TYPE_P2SH_SEGWIT);
-}
 
