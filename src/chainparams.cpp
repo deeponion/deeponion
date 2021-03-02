@@ -466,7 +466,7 @@ public:
 
         bech32_hrp = "rdpn";
 
-        mapStakeModifierCheckpoints.insert(std::pair<int, unsigned int>(0, 0xfd11f4e7u));
+        mapStakeModifierCheckpoints.insert(std::pair<int, unsigned int>(0, 0x000000000e00670b));
 
     }
 };
