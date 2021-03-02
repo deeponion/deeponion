@@ -23,12 +23,13 @@ import socket
 import struct
 import time
 
-import litecoin_scrypt
+import x13_hash
+
 from test_framework.siphash import siphash256
 from test_framework.util import hex_str_to_bytes, bytes_to_hex_str
 
 MIN_VERSION_SUPPORTED = 60001
-MY_VERSION = 80014  # past bip-31 for ping/pong
+MY_VERSION = 80017  # past bip-31 for ping/pong
 MY_SUBVERSION = b"/python-mininode-tester:0.0.3/"
 MY_RELAY = 1 # from version 70001 onwards, fRelay should be appended to version messages (BIP37)
 
@@ -546,7 +547,7 @@ class CBlockHeader():
             r += struct.pack("<I", self.nNonce)
             self.sha256 = uint256_from_str(hash256(r))
             self.hash = encode(hash256(r)[::-1], 'hex_codec').decode('ascii')
-            self.scrypt256 = uint256_from_str(litecoin_scrypt.getPoWHash(r))
+            self.scrypt256 = uint256_from_str(x13_hash.getPoWHash(r))
 
     def rehash(self):
         self.sha256 = None

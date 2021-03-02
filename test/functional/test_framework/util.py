@@ -228,7 +228,7 @@ def wait_until(predicate, *, attempts=float('inf'), timeout=float('inf'), lock=N
 # The maximum number of nodes a single test can spawn
 MAX_NODES = 8
 # Don't assign rpc or p2p ports lower than this
-PORT_MIN = 11000
+PORT_MIN = 19000
 # The number of ports to "reserve" for p2p and rpc, each
 PORT_RANGE = 5000
 
@@ -287,11 +287,11 @@ def initialize_datadir(dirname, n):
     datadir = os.path.join(dirname, "node" + str(n))
     if not os.path.isdir(datadir):
         os.makedirs(datadir)
-    with open(os.path.join(datadir, "litecoin.conf"), 'w', encoding='utf8') as f:
+    with open(os.path.join(datadir, "DeepOnion.conf"), 'w', encoding='utf8') as f:
         f.write("regtest=1\n")
         f.write("port=" + str(p2p_port(n)) + "\n")
         f.write("rpcport=" + str(rpc_port(n)) + "\n")
-        f.write("listenonion=0\n")
+        f.write("listenonion=1\n")
     return datadir
 
 def get_datadir_path(dirname, n):
@@ -300,8 +300,8 @@ def get_datadir_path(dirname, n):
 def get_auth_cookie(datadir):
     user = None
     password = None
-    if os.path.isfile(os.path.join(datadir, "litecoin.conf")):
-        with open(os.path.join(datadir, "litecoin.conf"), 'r', encoding='utf8') as f:
+    if os.path.isfile(os.path.join(datadir, "DeepOnion.conf")):
+        with open(os.path.join(datadir, "DeepOnion.conf"), 'r', encoding='utf8') as f:
             for line in f:
                 if line.startswith("rpcuser="):
                     assert user is None  # Ensure that there is only one rpcuser line

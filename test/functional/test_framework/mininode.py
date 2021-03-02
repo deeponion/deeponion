@@ -86,7 +86,7 @@ class P2PConnection(asyncore.dispatcher):
         self.network = net
         self.disconnect = False
 
-        logger.info('Connecting to Litecoin Node: %s:%d' % (self.dstaddr, self.dstport))
+        logger.info('Connecting to DeepOnion Node: %s:%d' % (self.dstaddr, self.dstport))
 
         try:
             self.connect((dstaddr, dstport))
@@ -239,6 +239,7 @@ class P2PConnection(asyncore.dispatcher):
         elif direction == "receive":
             log_message = "Received message from "
         log_message += "%s:%d: %s" % (self.dstaddr, self.dstport, repr(msg)[:500])
+        print(repr(msg))
         if len(log_message) > 500:
             log_message += "... (msg truncated)"
         logger.debug(log_message)
