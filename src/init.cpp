@@ -1424,7 +1424,7 @@ bool AppInitMain()
 			else
 				return InitError(ResolveErrMsg("externalip", strAddr));
 		}
-    } else {
+    } else if (gArgs.GetBoolArg("-listenonion", DEFAULT_LISTEN_ONION)) {
         // Find our onion address.
 		uiInterface.InitMessage("Waiting For onion address...");
 		LogPrintf("Waiting For onion address...\n");
