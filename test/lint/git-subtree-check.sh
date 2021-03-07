@@ -4,8 +4,7 @@
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 export LC_ALL=C
-# Strip trailing / from directory path (in case it was added by autocomplete)
-DIR="${1%/}"
+DIR="$1"
 COMMIT="$2"
 if [ -z "$COMMIT" ]; then
     COMMIT=HEAD
