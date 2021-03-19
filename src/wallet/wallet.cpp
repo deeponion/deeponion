@@ -5538,10 +5538,15 @@ std::string CWallet::GetOneSelfAddress()
     for (const std::set<CTxDestination>& grouping: GetAddressGroupings()) {
         for (const CTxDestination& address: grouping)
         {
-            if(balances[address] > COIN) {
-                oneSelfAddress = EncodeDestination(address);
-                done = true;
-                break;
+            txnouttype which_type;
+            std::vector<std::vector<unsigned char>> solutions_data;
+            Solver(GetScriptForDestination(address), which_type, solutions_data);
+            if(which_type == TX_PUBKEY || which_type == TX_PUBKEYHASH) {
+                if(balances[address] > COIN) {
+                    oneSelfAddress = EncodeDestination(address);
+                    done = true;
+                    break;
+                }
             }
         }
 
@@ -5554,19 +5559,27 @@ std::string CWallet::GetOneSelfAddress()
 
 std::string CWallet::GetRandomSelfAddress()
 {
-	if(oneSelfAddress != "")
-		return oneSelfAddress;
-
     std::vector<std::string> vAddresses;
     for (const std::set<CTxDestination>& grouping: GetAddressGroupings()) {
         for (const CTxDestination& address: grouping)
         {
-            vAddresses.push_back (EncodeDestination(address));
+            txnouttype which_type;
+            std::vector<std::vector<unsigned char>> solutions_data;
+            Solver(GetScriptForDestination(address), which_type, solutions_data);
+            std::string sAddress = EncodeDestination(address);
+            // LogPrintf("GetRandomSelfAddress(): Address: %s Type: %d\n", sAddress.c_str(), which_type);
+            if(which_type == TX_PUBKEY || which_type == TX_PUBKEYHASH) {
+                vAddresses.push_back (sAddress);
+            }
         }
     }
 
+    if(vAddresses.size() > 0) {
     int randomIndex = rand() % vAddresses.size();
-	return vAddresses[randomIndex];
+	    return vAddresses[randomIndex];
+    } else {
+        return "";
+    }
 }
 
 std::string CWallet::GetAddressPubKey(std::string strAddress)

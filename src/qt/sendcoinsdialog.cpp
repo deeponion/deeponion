@@ -620,6 +620,9 @@ void SendCoinsDialog::processSendCoinsReturn(const WalletModel::SendCoinsReturn 
     case WalletModel::StartDeepSendFailed:
         msgParams.first = tr("StartP2pMixerSendProcess failed.");
         break;
+    case WalletModel::StartDeepSendFailedNoLegacyAddress:
+        msgParams.first = tr("StartP2pMixerSendProcess failed - Create legacy addresses for and send ONION to them for DeepSend to work.");
+        break;
     case WalletModel::InvalidStealthAddress:
         msgParams.first = tr("The recipient stealth address is not valid. Please recheck.");
         break;

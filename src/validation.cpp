@@ -7039,7 +7039,7 @@ bool StartP2pMixerSendProcess(std::vector< std::pair<std::string, CAmount> > vec
 		LOCK(cs_deepsend);
 		if(IsCurrentAnonymousTxInProcess())
 		{
-			LogPrintf(">> ERROR another active anonymous tx is in progress.\n");
+			LogPrint(BCLog::DEEPSEND, ">> ERROR another active anonymous tx is in progress.\n");
 			return false;
 		}
 		pCurrentAnonymousTxInfo->clean(true);
@@ -7048,12 +7048,17 @@ bool StartP2pMixerSendProcess(std::vector< std::pair<std::string, CAmount> > vec
 		b = SelectAnonymousServiceMixNode(pMixerNode, keyMixer, 0, &(*g_connman));
 		if(!b)
 		{
-			LogPrintf(">> ERROR in obtaining Mixer Node.\n");
+			LogPrint(BCLog::DEEPSEND, ">> ERROR in obtaining Mixer Node.\n");
+            // Clean up, something is probably now dirty
+    		pCurrentAnonymousTxInfo->clean(true);
 			return false;
 		}
 
 		// now save send info
-		pCurrentAnonymousTxInfo->SetInitialData(ROLE_SENDER, vecSendInfo, coinControl, NULL, pMixerNode, NULL);
+		if(!pCurrentAnonymousTxInfo->SetInitialData(ROLE_SENDER, vecSendInfo, coinControl, NULL, pMixerNode, NULL)) {
+			LogPrint(BCLog::DEEPSEND, ">> ERROR Setting Initial data\n");
+			return false;
+        }
 
 		// send check-availability message 1st
 		anonymousTxId = pCurrentAnonymousTxInfo->GetAnonymousId();

@@ -170,6 +170,12 @@ UniValue sendwithdeepsend(const JSONRPCRequest& request)
     //Make sure wallet is either unflagged unlocked or unlocked and flagged for deepsend only
     if((pwallet->IsLocked() || (!pwallet->IsLocked() && !fWalletUnlockDeepSendOnly && fWalletUnlockStakingOnly)))
         return "Unlock wallet for DeepSend";
+    
+    std::string selfaddress = pwallet->GetRandomSelfAddress();
+    if(selfaddress.length() == 0) {
+        return "StartP2pMixerSendProcess failed - Create legacy addresses for and send ONION to them for DeepSend to work.";
+    }
+
 
     bool b = StartP2pMixerSendProcess(vecSend, &coinControl);
 

@@ -127,6 +127,7 @@ public:
 		NotEnoughReserveForDeepSend,
 		NotSupportedDeepSendToStealthTx,
 		StartDeepSendFailed,
+        StartDeepSendFailedNoLegacyAddress,
         DeepSendWalletSyncing,
 		DeepSendAmountTooSmall
     };
