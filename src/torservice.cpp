@@ -130,7 +130,7 @@ TorService::TorService(struct event_base* _base):
     LogPrintf("torservice: Creating hidden service on port %s\n", sport);
     argv.push_back(sport);
     argv.push_back("--HiddenServiceVersion");
-    argv.push_back("2");
+    argv.push_back("3");
     if (clientTransportPlugin)
     {
         argv.push_back("--ClientTransportPlugin");
