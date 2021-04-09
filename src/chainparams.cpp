@@ -107,8 +107,8 @@ public:
 
         // Deployment of BIP68, BIP112, and BIP113.
         consensus.vDeployments[Consensus::DEPLOYMENT_CSV].bit = 0;
-        consensus.vDeployments[Consensus::DEPLOYMENT_CSV].nStartTime = 1548633600; // January 28, 2019
-        consensus.vDeployments[Consensus::DEPLOYMENT_CSV].nTimeout = 1548979199; // January 31st, 2019
+        consensus.vDeployments[Consensus::DEPLOYMENT_CSV].nStartTime = 1622545200; // Tue Jun 01 2021 11:00:00 GMT+0000
+        consensus.vDeployments[Consensus::DEPLOYMENT_CSV].nTimeout = 1625137200; // Thu Jul 01 2021 11:00:00 GMT+0000
             
         // Deployment of SegWit (BIP141, BIP143, and BIP147)
         consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].bit = 1;
@@ -303,10 +303,10 @@ public:
         consensus.nPowTargetTimespan = 14400; 
         consensus.nPowTargetSpacing = 240;
         consensus.nPosTargetSpacing = 60;
-        consensus.fPowAllowMinDifficultyBlocks = false;
+        consensus.fPowAllowMinDifficultyBlocks = true;
         // consensus.fPowNoRetargeting = false;
         // consensus.fPosNoRetargeting = false;
-        consensus.nStakeMinAge = 20 * 60;					// minimum age for coin age: 20 Minutes
+        consensus.nStakeMinAge = 60;					    // minimum age for coin age: 20 Minutes
         consensus.nStakeMaxAge = 60 * 60 * 24 * 30;	        // stake age of full weight: 30d
         consensus.nModifierInterval = 60;					// time to elapse before new modifier is computed
         consensus.nCoinbaseMaturity = 10;					// Blocks maturity
@@ -318,13 +318,13 @@ public:
 
         // Deployment of BIP68, BIP112, and BIP113.
         consensus.vDeployments[Consensus::DEPLOYMENT_CSV].bit = 0;
-        consensus.vDeployments[Consensus::DEPLOYMENT_CSV].nStartTime = 1483228800; // January 1, 2017
-        consensus.vDeployments[Consensus::DEPLOYMENT_CSV].nTimeout = 1517356801; // January 31st, 2018
+        consensus.vDeployments[Consensus::DEPLOYMENT_CSV].nStartTime = 1618657200; // Sat Apr 17 2021 11:00:00 GMT+0000
+        consensus.vDeployments[Consensus::DEPLOYMENT_CSV].nTimeout = 1621249200; // Mon May 17 2021 11:00:00 GMT+0000
 
         // Deployment of SegWit (BIP141, BIP143, and BIP147)
         consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].bit = 1;
-        consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].nStartTime = 1602417600; // Sunday, 11-Oct-20 12:00:00 UTC
-        consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].nTimeout = 1602504000; // Monday, 12-Sep-20 12:00:00 UTC
+        consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].nStartTime = 1618052400; // Sat Apr 10 2021 11:00:00 GMT+0000
+        consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].nTimeout = 1649588400; // Sun Apr 10 2022 11:00:00 GMT+0000
 
         // The best chain should have at least this much work.
         consensus.nMinimumChainWork = uint256S("0x0000000000000000000000000000000000000000000000000000000000000000");
@@ -339,10 +339,16 @@ public:
         nDefaultPort = 26550;
         nPruneAfterHeight = 1000;
 
-        genesis = CreateGenesisBlock(1602028800, 461649, 0x1e0fffff, 1, 0 * COIN);
+        genesis = CreateGenesisBlock(1617977000, 461649, 0x1e0fffff, 1, 0 * COIN);
         consensus.hashGenesisBlock = genesis.GetHash();
-        assert(consensus.hashGenesisBlock == uint256S("0x99484407804ac533c450eb0b00528f2df3e41670a9aee7661349ea7518b82e52"));
-        assert(genesis.hashMerkleRoot == uint256S("0x556799b6a374efa4eb0b579cfaedd87c2834f397bf70802d724cbc7a8c1c4784"));
+        // printf(">> block = %s\n", genesis.ToString().c_str()); 
+        // printf(">> block.GetHash() == %s\n", genesis.GetHash().ToString().c_str());
+        // printf(">> block.hashMerkleRoot == %s\n", genesis.hashMerkleRoot.ToString().c_str());
+        // printf(">> block.nTime = %u \n", genesis.nTime);
+        // printf(">> block.nNonce = %u \n", genesis.nNonce);
+
+        assert(consensus.hashGenesisBlock == uint256S("0xdde47d50dd650a434fa299a98a09e5f5a16dde43ddb8d34b95be38c576a740c3"));
+        assert(genesis.hashMerkleRoot == uint256S("0xdbc1d6a49eddf0c5fed1b6832696d598945fd8841286bb9bffc66e863c424746"));
 
         vFixedSeeds.clear();
         vSeeds.clear();
@@ -378,8 +384,7 @@ public:
             794057,
             0.01
         };
-
-        mapStakeModifierCheckpoints.insert(std::pair<int, unsigned int>(0, 0xc94f34e1u));
+        mapStakeModifierCheckpoints.insert(std::pair<int, unsigned int>(0, 0xabad6120u));
     }
 };
 

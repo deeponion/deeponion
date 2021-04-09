@@ -815,9 +815,13 @@ static bool AcceptToMemoryPoolWorker(const CChainParams& chainparams, CTxMemPool
             // DeepOnion: Attempt to find the previous out, don't fail if we don't find it as we are
             // are not allowing it to be done slowly, we shouldn't get here if it doesn't exists anyway
             if (GetTransaction(txin.prevout.hash, txPrev, Params().GetConsensus(), hash_block, false)) {
-            	// we need to put an allowance, but this will cause a fork, so will do whenever we decide a mandatory release
-                // if((txPrev->nTime - 3600) > tx.nTime) {
-                if(txPrev->nTime > tx.nTime) {
+            	// We need to put an allowance, but this will cause a fork, so we are doing this when do the CSV fork
+                // TODO: Remove reference CSV for after the event and leave as
+                // if(txPrev->nTime - 3600 > tx.nTime)
+                //    return state.DoS(100, false, REJECT_INVALID, "bad-txns-early-timestamp");
+                if(chainparams.GetConsensus().vDeployments[Consensus::DEPLOYMENT_CSV].nStartTime  < GetAdjustedTime() && txPrev->nTime - 3600 > tx.nTime) {
+                    return state.DoS(100, false, REJECT_INVALID, "bad-txns-early-timestamp");
+                } else if(chainparams.GetConsensus().vDeployments[Consensus::DEPLOYMENT_CSV].nStartTime  > GetAdjustedTime() &&txPrev->nTime > tx.nTime) {
                     return state.DoS(100, false, REJECT_INVALID, "bad-txns-early-timestamp");
                 }
             }
@@ -2571,7 +2575,7 @@ void static UpdateTip(const CBlockIndex *pindexNew, const CChainParams& chainPar
       GuessVerificationProgress(chainParams.TxData(), pindexNew), pcoinsTip->DynamicMemoryUsage() * (1.0 / (1<<20)), pcoinsTip->GetCacheSize());
       */
     if (!warningMessages.empty())
-        LogPrintf(" warning='%s'", boost::algorithm::join(warningMessages, ", "));
+        LogPrintf(" warning='%s'\n", boost::algorithm::join(warningMessages, ", "));
 
 }
 
