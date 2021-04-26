@@ -27,7 +27,7 @@ import socket
 import struct
 import time
 
-import x13_hash
+import deeponion_x13_hash
 from test_framework.siphash import siphash256
 from test_framework.util import hex_str_to_bytes, bytes_to_hex_str, assert_equal
 
@@ -584,8 +584,8 @@ class CBlockHeader:
             r += struct.pack("<I", self.nTime)
             r += struct.pack("<I", self.nBits)
             r += struct.pack("<I", self.nNonce)
-            self.sha256 = uint256_from_str(x13_hash.getPoWHash(r))
-            self.hash = encode(x13_hash.getPoWHash(r)[::-1], 'hex_codec').decode('ascii')
+            self.sha256 = uint256_from_str(deeponion_x13_hash.getPoWHash(r))
+            self.hash = encode(deeponion_x13_hash.getPoWHash(r)[::-1], 'hex_codec').decode('ascii')
             #self.sha256 = uint256_from_str(hash256(r))
             #self.hash = encode(hash256(r)[::-1], 'hex_codec').decode('ascii')
 
