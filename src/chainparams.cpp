@@ -96,8 +96,7 @@ public:
         consensus.nStakeMaxAge = 60 * 60 * 24 * 30;	        // stake age of full weight: 30d
         consensus.nModifierInterval = 8 * 60;				// time to elapse before new modifier is computed
         consensus.nCoinbaseMaturity = 40;					// 40 Blocks maturity
-        // disable NoRetargeting. NoRetargeting is always false
-        // consensus.fPowNoRetargeting = false;
+        consensus.fPowNoRetargeting = false;
         // consensus.fPosNoRetargeting = false;
         consensus.nRuleChangeActivationThreshold = 180; // 75% of 240
         consensus.nMinerConfirmationWindow = 240; // nPowTargetTimespan / nPowTargetSpacing * 4
@@ -304,7 +303,7 @@ public:
         consensus.nPowTargetSpacing = 240;
         consensus.nPosTargetSpacing = 60;
         consensus.fPowAllowMinDifficultyBlocks = true;
-        // consensus.fPowNoRetargeting = false;
+        consensus.fPowNoRetargeting = false;
         // consensus.fPosNoRetargeting = false;
         consensus.nStakeMinAge = 60;					    // minimum age for coin age: 20 Minutes
         consensus.nStakeMaxAge = 60 * 60 * 24 * 30;	        // stake age of full weight: 30d
@@ -407,7 +406,7 @@ public:
         consensus.nPowTargetSpacing = 240;
         consensus.nPosTargetSpacing = 60;
         consensus.fPowAllowMinDifficultyBlocks = true;
-        // consensus.fPowNoRetargeting = true;
+        consensus.fPowNoRetargeting = true;
         // consensus.fPosNoRetargeting = true;
         consensus.nStakeMinAge = 60 * 60 * 24 * 1;			// minimum age for coin age: 1d
         consensus.nStakeMaxAge = 60 * 60 * 24 * 30;	        // stake age of full weight: 30d

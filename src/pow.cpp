@@ -22,6 +22,9 @@ const CBlockIndex* GetLastBlockIndex(const CBlockIndex* pindex, bool fProofOfSta
 
 unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHeader *pblock, const Consensus::Params& params, bool fProofOfStake)
 {
+    if (params.fPowNoRetargeting)
+        return pindexLast->nBits;
+        
 	unsigned int nTargetLimit = UintToArith256(params.powLimit).GetCompact();
 
 	if (fProofOfStake)
