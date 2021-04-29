@@ -5,6 +5,7 @@
 
 #include <primitives/block.h>
 
+#include <chainparams.h>
 #include <hash.h>
 #include <tinyformat.h>
 #include <utilstrencodings.h>
@@ -30,7 +31,7 @@ bool CBlockHeader::IsProofOfStake() const
 	// this is temporary, we should not check the headers, but should move all check functions
 	// to checkblock, like the old deeponion code does
 	std::string hashStr = GetHash().ToString();
-	if(hashStr.find("00000") == 0) {
+	if(hashStr.find("00000") == 0 || Params().NetworkIDString() == "regtest") {
 		return false;
 	}
 	
