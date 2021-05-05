@@ -183,7 +183,7 @@ judge the general consensus of contributors.
 In general, all pull requests must:
 
   - Have a clear use case, fix a demonstrable bug or serve the greater good of
-    the project (for example refactoring for modularisation);
+    the project (for example refactoring for modularisation (modularization));
   - Be well peer reviewed;
   - Have unit tests and functional tests where appropriate;
   - Follow code style guidelines ([C++](doc/developer-notes.md), [functional tests](test/functional/README.md));
