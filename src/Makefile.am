@@ -48,12 +48,15 @@ TOR_UTIL_LIBS = \
 	$(abs_top_builddir)/tor/src/lib/libtor-wallclock.a \
 	$(abs_top_builddir)/tor/src/lib/libtor-err.a \
 	$(abs_top_builddir)/tor/src/lib/libtor-intmath.a \
-        $(abs_top_builddir)/tor/src/lib/libtor-ctime.a \
-        $(abs_top_builddir)/tor/src/lib/libtor-version.a \
-        $(abs_top_builddir)/tor/src/lib/libtor-buf.a \
-        $(abs_top_builddir)/tor/src/lib/libtor-pubsub.a \
-        $(abs_top_builddir)/tor/src/lib/libtor-dispatch.a \
-        $(abs_top_builddir)/tor/src/lib/libtor-container.a
+  $(abs_top_builddir)/tor/src/lib/libtor-ctime.a \
+  $(abs_top_builddir)/tor/src/lib/libtor-version.a \
+  $(abs_top_builddir)/tor/src/lib/libtor-buf.a \
+  $(abs_top_builddir)/tor/src/lib/libtor-pubsub.a \
+  $(abs_top_builddir)/tor/src/lib/libtor-dispatch.a \
+  $(abs_top_builddir)/tor/src/lib/libtor-metrics.a \
+  $(abs_top_builddir)/tor/src/lib/libtor-confmgt.a \
+  $(abs_top_builddir)/tor/src/lib/libtor-llharden.a \
+  $(abs_top_builddir)/tor/src/lib/libtor-container.a
 
 
 LIBED25519_REF10 = $(abs_top_builddir)/tor/src/ext/ed25519/ref10/libed25519_ref10.a
@@ -389,12 +392,16 @@ libbitcoin_consensus_a_SOURCES = \
   amount.h \
   arith_uint256.cpp \
   arith_uint256.h \
+  chainparamsbase.h \
+  chainparamsbase.cpp \
   chainparams.h \
   chainparams.cpp \
   consensus/merkle.cpp \
   consensus/merkle.h \
   consensus/params.h \
   consensus/validation.h \
+  fs.cpp \
+  fs.h \
   hash.cpp \
   hash.h \
   prevector.h \
@@ -404,15 +411,23 @@ libbitcoin_consensus_a_SOURCES = \
   primitives/transaction.h \
   pubkey.cpp \
   pubkey.h \
+  random.h \
+  random.cpp \
   script/bitcoinconsensus.cpp \
   script/script.cpp \
   script/script.h \
   script/script_error.cpp \
   script/script_error.h \
+  support/cleanse.cpp \
+  support/cleanse.h \
   serialize.h \
   tinyformat.h \
   uint256.cpp \
   uint256.h \
+  util.h \
+  util.cpp \
+  utiltime.h \
+  utiltime.cpp \
   utilstrencodings.cpp \
   utilstrencodings.h \
   script/interpreter.cpp \
@@ -562,7 +577,7 @@ if GLIBC_BACK_COMPAT
 endif
 
 libbitcoinconsensus_la_LDFLAGS = $(AM_LDFLAGS) -no-undefined $(RELDFLAGS)
-libbitcoinconsensus_la_LIBADD = $(LIBSECP256K1) $(CRYPTO_LIBS)
+libbitcoinconsensus_la_LIBADD = $(BOOST_LIBS) $(LIBSECP256K1) $(CRYPTO_LIBS)
 libbitcoinconsensus_la_CPPFLAGS = $(AM_CPPFLAGS) -I$(builddir)/obj -I$(srcdir)/secp256k1/include -DBUILD_BITCOIN_INTERNAL $(SSL_CFLAGS)
 libbitcoinconsensus_la_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 
