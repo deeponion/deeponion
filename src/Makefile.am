@@ -53,7 +53,6 @@ TOR_UTIL_LIBS = \
   $(abs_top_builddir)/tor/src/lib/libtor-buf.a \
   $(abs_top_builddir)/tor/src/lib/libtor-pubsub.a \
   $(abs_top_builddir)/tor/src/lib/libtor-dispatch.a \
-  $(abs_top_builddir)/tor/src/lib/libtor-metrics.a \
   $(abs_top_builddir)/tor/src/lib/libtor-confmgt.a \
   $(abs_top_builddir)/tor/src/lib/libtor-llharden.a \
   $(abs_top_builddir)/tor/src/lib/libtor-container.a
