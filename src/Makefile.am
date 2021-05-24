@@ -396,6 +396,7 @@ libbitcoin_consensus_a_SOURCES = \
   chainparamsbase.cpp \
   chainparams.h \
   chainparams.cpp \
+  compat.h \
   consensus/merkle.cpp \
   consensus/merkle.h \
   consensus/params.h \
