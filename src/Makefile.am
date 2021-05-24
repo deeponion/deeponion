@@ -568,6 +568,8 @@ DeepOnion_tx_LDADD += $(BOOST_LIBS) $(CRYPTO_LIBS)
 #
 
 # bitcoinconsensus library #
+if !TARGET_WINDOWS
+
 if BUILD_BITCOIN_LIBS
 include_HEADERS = script/bitcoinconsensus.h
 libbitcoinconsensus_la_SOURCES = $(crypto_libbitcoin_crypto_a_SOURCES) $(libbitcoin_consensus_a_SOURCES)
@@ -577,10 +579,12 @@ if GLIBC_BACK_COMPAT
 endif
 
 libbitcoinconsensus_la_LDFLAGS = $(AM_LDFLAGS) -no-undefined $(RELDFLAGS)
-libbitcoinconsensus_la_LIBADD = $(BOOST_LIBS) $(LIBSECP256K1) $(CRYPTO_LIBS)
+libbitcoinconsensus_la_LIBADD = $(BOOST_LIBS) $(LIBSECP256K1) $(CRYPTO_LIBS) $(EVENT_PTHREADS_LIBS)
 libbitcoinconsensus_la_CPPFLAGS = $(AM_CPPFLAGS) -I$(builddir)/obj -I$(srcdir)/secp256k1/include -DBUILD_BITCOIN_INTERNAL $(SSL_CFLAGS)
 libbitcoinconsensus_la_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
-
+# if BUILD_BITCOIN_LIBS
+endif
+# if !TARGET_WINDOWS
 endif
 #
 
