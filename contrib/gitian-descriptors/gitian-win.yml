@@ -1,5 +1,5 @@
 ---
-name: "deeponion-core-win-2.2.2"
+name: "deeponion-core-win-2.3.0"
 enable_cache: true
 distro: "ubuntu"
 suites:
@@ -148,7 +148,7 @@ script: |
     make install DESTDIR=${INSTALLPATH}
     cp -f --target-directory="${OUTDIR}" ./DeepOnion-*-setup.exe
     cd installed
-    mv ${DISTNAME}/bin/*.dll ${DISTNAME}/lib/
+#    mv ${DISTNAME}/bin/*.dll ${DISTNAME}/lib/
     find . -name "lib*.la" -delete
     find . -name "lib*.a" -delete
     rm -rf ${DISTNAME}/lib/pkgconfig
