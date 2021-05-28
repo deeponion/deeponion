@@ -96,8 +96,15 @@ public:
     template <typename Stream, typename Operation>
     inline void SerializationOp(Stream& s, Operation ser_action)
     {
-        if (s.GetVersion() > TORV3_SERVICES_VERSION) {
+        if((s.GetVersion() == INIT_PROTO_VERSION && !ser_action.ForRead()) || 
+                s.GetVersion() >= TORV3_SERVICES_VERSION || 
+                s.GetType() == SER_DISK
+            ) {
             READWRITE(FLATDATA(ip));
+            // Reads at this point should be Tor v3 address's if they it is a Tor address
+            if(ser_action.ForRead() && IsTor() && ip[40] != '\0') {
+                usesTorV3 = true;
+            }
         } else { // backwards compatibility
             if (ser_action.ForRead()) {
                 unsigned char compatibleIP[16];
@@ -183,8 +190,15 @@ public:
     template <typename Stream, typename Operation>
     inline void SerializationOp(Stream& s, Operation ser_action)
     {
-        if (s.GetVersion() >= TORV3_SERVICES_VERSION) {
+        if((s.GetVersion() == INIT_PROTO_VERSION && !ser_action.ForRead()) || 
+                s.GetVersion() >= TORV3_SERVICES_VERSION || 
+                s.GetType() == SER_DISK
+            ) {
             READWRITE(FLATDATA(ip));
+            // Reads at this point should be Tor v3 address's if they it is a Tor address
+            if(ser_action.ForRead() && IsTor() && ip[40] != '\0') {
+                usesTorV3 = true;
+            }
         } else {
             if (ser_action.ForRead()) {
                 unsigned char compatibleIP[16];

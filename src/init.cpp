@@ -1401,14 +1401,25 @@ bool AppInitMain()
         // Tor Implementation - Start
 		if (gArgs.GetBoolArg("-listenonion", DEFAULT_LISTEN_ONION)) {
 			LogPrintf("StartTor");
+            // For Tor v3 transition, first start may pick up v2 hostname, so remove it if it's a v2 hostname.
+            boost::filesystem::path hostname_path = GetDataDir() / "tor" / "onion" / "hostname";
+            if (boost::filesystem::exists(hostname_path)) {
+                std::string automatic_onion;
+                boost::filesystem::ifstream file(hostname_path.string().c_str());
+                file >> automatic_onion;
+                if(automatic_onion.size() < 60) {
+                    LogPrintf("Removing Tor v2 Hostname\n");
+                    boost::filesystem::remove(hostname_path);
+                }
+            }
+
 			StartTor(threadGroup, scheduler);
 
 			uiInterface.InitMessage("Initializing Tor Network...");
 			LogPrintf("Initializing Tor Network...\n");
 		}
-
         // Tor Implementation - End
-    	}
+    }
 
     // see Step 2: parameter interactions for more information about these
     fListen = gArgs.GetBoolArg("-listen", DEFAULT_LISTEN);
@@ -1438,9 +1449,10 @@ bool AppInitMain()
                 break;
             ++attempts;
             boost::this_thread::sleep(boost::posix_time::seconds(2));
-            if (attempts > 8)
+            // Wait 30s for hostname
+            if (attempts > 15)
                 return InitError(_("Timed out waiting for onion hostname."));
-            LogPrintf("No onion hostname yet, will retry in 2 seconds... (%d/8)\n", attempts);
+            LogPrintf("No onion hostname yet, will retry in 2 seconds... (%d/15)\n", attempts);
         }
 
         boost::filesystem::ifstream file(hostname_path.string().c_str());
