@@ -1400,7 +1400,7 @@ bool AppInitMain()
 
         // Tor Implementation - Start
 		if (gArgs.GetBoolArg("-listenonion", DEFAULT_LISTEN_ONION)) {
-			LogPrintf("StartTor");
+			LogPrintf("StartTor\n");
             // For Tor v3 transition, first start may pick up v2 hostname, so remove it if it's a v2 hostname.
             boost::filesystem::path hostname_path = GetDataDir() / "tor" / "onion" / "hostname";
             if (boost::filesystem::exists(hostname_path)) {
