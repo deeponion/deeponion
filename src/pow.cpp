@@ -47,8 +47,6 @@ unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHead
     // min difficulty
     if (params.fPowAllowMinDifficultyBlocks)
     {
-    	LogPrintf(">> Allow minimum diff\n");
-    	
         // Special difficulty rule for testnet:
         // If the new block's timestamp is more than 2 * 4 minutes
         // then allow mining of a min-difficulty block.
