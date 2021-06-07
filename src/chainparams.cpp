@@ -327,8 +327,8 @@ public:
 
         // Deployment of BIP68, BIP112, and BIP113.
         consensus.vDeployments[Consensus::DEPLOYMENT_CSV].bit = 0;
-        consensus.vDeployments[Consensus::DEPLOYMENT_CSV].nStartTime = 1618657200; // Sat Apr 17 2021 11:00:00 GMT+0000
-        consensus.vDeployments[Consensus::DEPLOYMENT_CSV].nTimeout = 1621249200; // Mon May 17 2021 11:00:00 GMT+0000
+        consensus.vDeployments[Consensus::DEPLOYMENT_CSV].nStartTime = 1625140800; // Jul 01 2021 12:00:00 GMT+0000
+        consensus.vDeployments[Consensus::DEPLOYMENT_CSV].nTimeout = 1627819200; // Aug 01 2021 12:00:00 GMT+0000
 
         // Deployment of SegWit (BIP141, BIP143, and BIP147)
         consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].bit = 1;
