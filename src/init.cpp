@@ -1407,6 +1407,7 @@ bool AppInitMain()
                 std::string automatic_onion;
                 boost::filesystem::ifstream file(hostname_path.string().c_str());
                 file >> automatic_onion;
+                file.close();
                 if(automatic_onion.size() < 60) {
                     LogPrintf("Removing Tor v2 Hostname\n");
                     boost::filesystem::remove(hostname_path);
@@ -1457,12 +1458,12 @@ bool AppInitMain()
 
         boost::filesystem::ifstream file(hostname_path.string().c_str());
         file >> automatic_onion;
+        file.close();
         CService addrLocal;
 		if (Lookup(automatic_onion.c_str(), addrLocal, GetListenPort(), fNameLookup) && addrLocal.IsValid())
 			AddLocal(addrLocal, LOCAL_MANUAL);
 		else
 			return InitError(ResolveErrMsg("external onion", automatic_onion));
-
 //        AddLocal(CService(automatic_onion, GetListenPort(), fNameLookup), LOCAL_MANUAL);
 
     }

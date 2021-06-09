@@ -148,7 +148,6 @@ script: |
     make install DESTDIR=${INSTALLPATH}
     cp -f --target-directory="${OUTDIR}" ./DeepOnion-*-setup.exe
     cd installed
-#    mv ${DISTNAME}/bin/*.dll ${DISTNAME}/lib/
     find . -name "lib*.la" -delete
     find . -name "lib*.a" -delete
     rm -rf ${DISTNAME}/lib/pkgconfig
