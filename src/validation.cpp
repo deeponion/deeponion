@@ -5837,6 +5837,7 @@ bool CAnonymousTxInfo::CanReset() const
 		int64_t now = GetTime();
 		if((now - lastActivityTime) > MAXIMUM_TRANSACTION_TIMEOUT)	
 		{
+            pCurrentAnonymousTxInfo->AddToLog("Maximum timeout exceeded, one or more of your chosen service nodes became unre, please try again.");
 			return true;
 		}
 	}

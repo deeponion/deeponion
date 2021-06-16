@@ -5610,7 +5610,10 @@ int CWallet::GetSelfAddressCount()
 	int count = 0;
     for (const std::pair<CTxDestination, CAddressBookData>& entry: mapAddressBook) 
     {
-        if (::IsMine(*this, entry.first)) 
+        txnouttype which_type;
+        std::vector<std::vector<unsigned char>> solutions_data;
+        Solver(GetScriptForDestination(entry.first), which_type, solutions_data);
+        if (::IsMine(*this, entry.first) && (which_type == TX_PUBKEY || which_type == TX_PUBKEYHASH)) 
         	count++;
     }
 	return count;
