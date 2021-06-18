@@ -5837,7 +5837,7 @@ bool CAnonymousTxInfo::CanReset() const
 		int64_t now = GetTime();
 		if((now - lastActivityTime) > MAXIMUM_TRANSACTION_TIMEOUT)	
 		{
-            pCurrentAnonymousTxInfo->AddToLog("Maximum timeout exceeded, one or more of your chosen service nodes became unre, please try again.");
+            pCurrentAnonymousTxInfo->AddToLog("Maximum timeout exceeded, one or more of your chosen service nodes became unresponsive, please try again.");
 			return true;
 		}
 	}
@@ -6958,7 +6958,8 @@ void UpdateAnonymousServiceList(CNode* pNode, std::string keyAddress, int servic
 					connman->AddToVNodes(pNode);
 
 					bool b1 = CheckAnonymousServiceConditions();
-					std::string selfAddress = pCurrentAnonymousTxInfo->GetSelfAddress();
+                    CWallet* pwallet = vpwallets[0];
+					std::string selfAddress = pwallet->GetOneSelfAddress();
 					if(b1 && selfAddress != "")
 					{
 						const CNetMsgMaker msgMaker(pNode->GetSendVersion());
