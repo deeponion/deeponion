@@ -160,7 +160,7 @@ public:
 
         bech32_hrp = "dpn";
 
-        vFixedSeeds = std::vector<SeedSpec6>(pnSeed6_main, pnSeed6_main + ARRAYLEN(pnSeed6_main));
+        vFixedSeeds = std::vector<uint8_t>(chainparams_seed_main, chainparams_seed_main + ARRAYLEN(chainparams_seed_main));
 
         fDefaultConsistencyChecks = false;
         fRequireStandard = true;
@@ -374,8 +374,7 @@ public:
         base58Prefixes[EXT_SECRET_KEY] = {0x04, 0x35, 0x83, 0x94};
 
         bech32_hrp = "tdpn";
-
-        vFixedSeeds = std::vector<SeedSpec6>(pnSeed6_test, pnSeed6_test + ARRAYLEN(pnSeed6_test));
+        vFixedSeeds = std::vector<uint8_t>(chainparams_seed_test, chainparams_seed_test + ARRAYLEN(chainparams_seed_test));
 
         fDefaultConsistencyChecks = false;
         fRequireStandard = false;

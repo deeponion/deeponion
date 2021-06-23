@@ -35,13 +35,15 @@ class BIP155Network(Enum):
     I2P = 5
     CJDNS = 6
 
+pchOnionCat = bytearray([0xFD,0x87,0xD8,0x7E,0xEB,0x43])
+
 def name_to_bip155(addr):
     '''Convert address string to BIP155 (networkID, addr) tuple.'''
     if addr.endswith('.onion'):
         vchAddr = b32decode(addr[0:-6], True)
         if len(vchAddr) == 35:
             assert vchAddr[34] == 3
-            return (BIP155Network.TORV3, vchAddr[:32])
+            return (BIP155Network.TORV3, pchOnionCat + vchAddr)
         elif len(vchAddr) == 10:
             return (BIP155Network.TORV2, vchAddr)
         else:
@@ -115,8 +117,8 @@ def bip155_serialize(spec):
     Serialize (networkID, addr, port) tuple to BIP155 binary format.
     '''
     r = b""
-    r += struct.pack('B', spec[0].value)
-    r += ser_compact_size(len(spec[1]))
+    # r += struct.pack('B', spec[0].value)
+    # r += ser_compact_size(len(spec[1]))
     r += spec[1]
     r += struct.pack('>H', spec[2])
     return r
