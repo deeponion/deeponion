@@ -542,7 +542,7 @@ WalletModel::SendCoinsReturn WalletModel::sendCoinsUsingMixer(WalletModelTransac
     	vecSend.push_back(std::make_pair(sAddr, rcp.amount));
     }
 	
-    std::string selfaddress = wallet->GetRandomSelfAddress();
+    std::string selfaddress = wallet->GetOneSelfAddress();
     if(selfaddress.length() == 0) {
         return SendCoinsReturn(StartDeepSendFailedNoLegacyAddress);
     }

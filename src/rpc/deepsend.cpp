@@ -171,7 +171,7 @@ UniValue sendwithdeepsend(const JSONRPCRequest& request)
     if((pwallet->IsLocked() || (!pwallet->IsLocked() && !fWalletUnlockDeepSendOnly && fWalletUnlockStakingOnly)))
         return "Unlock wallet for DeepSend";
     
-    std::string selfaddress = pwallet->GetRandomSelfAddress();
+    std::string selfaddress = pwallet->GetOneSelfAddress();
     if(selfaddress.length() == 0) {
         return "StartP2pMixerSendProcess failed - Create legacy addresses for and send ONION to them for DeepSend to work.";
     }

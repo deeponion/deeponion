@@ -5522,7 +5522,7 @@ bool CAnonymousTxInfo::SetInitialData(AnonymousTxRole role, std::vector< std::pa
 	if(pGuarantorNode != NULL)
 		pParties->SetNode(ROLE_GUARANTOR, pGuarantorNode);
 
-	std::string selfAddress = pWallet->GetRandomSelfAddress();
+	std::string selfAddress = pWallet->GetOneSelfAddress();
 
 	if(selfAddress == "")
 	{
@@ -6931,10 +6931,15 @@ void UpdateAnonymousServiceList(CNode* pNode, std::string keyAddress, int servic
 	}
 	
 	// *** for deepsend testing: only allow certain address
-//	if(addr != std::string("chi6rlwedk3xmtua.onion") && addr != std::string("r4kyfixzyw3dbav2.onion")) {
-//	    LogPrint(BCLog::DEEPSEND, ">> UpdateAnonymousServiceList. Not allowed address, addr = %s\n", addr.c_str());
-//		return;
-//	}
+	if(
+        addr != std::string("xg57sy5pl7s2yx5ile3np53yphxa2gj32ymjw4efhnbq64ujl6y3drid.onion") && addr != std::string("nn4w7wp5g7k6qm5fd3ggn6mixzga7o2k6egglvklcc5d65hrfpwuzdid.onion") &&
+        addr != std::string("yambepeu4ukazrjqc7c5zio3kb33dkz27hrmlgde3kxlpglkmfjbsbqd.onion") && addr != std::string("iio256wdjtmpmhjadiduqmikgqmqibennbwknclmyqhlw5dlkdn72oid.onion") &&
+        addr != std::string("7ri4trofsjuaoqobyijpi5nsb3pgv6obm62eoxhpfzurq7hgsx2criid.onion") && addr != std::string("5brjhmycceihkmwyvcpci5tkikpreafjpmzqwz62sy2rrfnjjtartcyd.onion") &&
+        addr != std::string("7l2hvyfvfnpbhnupsrvz6th7gbmobkbed3uijaxv3nx5hsr7ckp2ssqd.onion") && addr != std::string("5fcbe7wuvlftylz5cvumf7spw2wo4i3sf4zu5hk5v4s5nx6qp5rrdfad.onion") 
+    ) {
+	    LogPrint(BCLog::DEEPSEND, ">> UpdateAnonymousServiceList. Not allowed address, addr = %s\n", addr.c_str());
+		return;
+	}
 
 
 	// ignore banned address
