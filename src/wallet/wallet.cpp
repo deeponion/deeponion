@@ -5557,6 +5557,15 @@ std::string CWallet::GetOneSelfAddress()
 	return oneSelfAddress;
 }
 
+/**
+ * DeepOnion: Removed the useage og this for now. It is very heavy
+ * and the way it was being introduced an issue where ech node
+ * had different keys in their service list making DeepSend impossible.
+ * 
+ * We'll need to update the protocol so that the GetOneSelfAddress is used
+ * for they key the a random address is used for payout and creating the 
+ * multisig address.
+ */
 std::string CWallet::GetRandomSelfAddress()
 {
     std::vector<std::string> vAddresses;

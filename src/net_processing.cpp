@@ -3065,7 +3065,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 			return error(err.c_str());
 		}
 		
-        std::string selfAddress = vpwallets[0]->GetRandomSelfAddress();
+        std::string selfAddress = vpwallets[0]->GetOneSelfAddress();
 		std::string guarantorKey = "";
 		LogPrint(BCLog::DEEPSEND, ">> %s: mixer selfAddress = %s\n", strCommand, selfAddress.c_str());
 
