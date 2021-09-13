@@ -242,7 +242,7 @@ extern std::string LAST_REGISTERED_BLOCKCHAIN_HASH;
 extern std::string LAST_REGISTERED_BTC_TX;
 
 /** Deepsend related */
-static const CAmount MIN_ANON_SERVICE_COIN = 2500 * COIN;
+static const CAmount MIN_ANON_SERVICE_COIN = 1 * COIN;
 static const double DEEPSEND_FEE_RATE = 0.01;
 static const CAmount DEEPSEND_MIN_FEE = 0.01 * COIN;
 static const CAmount MAX_ALLOWED_DEEP_SEND = 1000 * COIN;

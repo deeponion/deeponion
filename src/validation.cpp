@@ -5522,7 +5522,16 @@ bool CAnonymousTxInfo::SetInitialData(AnonymousTxRole role, std::vector< std::pa
 	if(pGuarantorNode != NULL)
 		pParties->SetNode(ROLE_GUARANTOR, pGuarantorNode);
 
-	std::string selfAddress = pWallet->GetOneSelfAddress();
+    // Generate a new key that is added to wallet
+    CPubKey newKey;
+    if (!pWallet->GetKeyFromPool(newKey)) {
+		LogPrint(BCLog::DEEPSEND, ">> Error: Keypool ran out, please call keypoolrefill\n");
+		return false;
+    }
+    pWallet->LearnRelatedScripts(newKey, OUTPUT_TYPE_LEGACY);
+    CTxDestination dest = GetDestinationForKey(newKey, OUTPUT_TYPE_LEGACY);
+    pWallet->SetAddressBook(dest, "DS", "receive");
+    std::string selfAddress = EncodeDestination(dest);
 
 	if(selfAddress == "")
 	{
@@ -6893,6 +6902,10 @@ bool AddPrevTxOut(AnonymousTxRole role, CBasicKeyStore& tempKeystore, CCoinsView
 void UpdateAnonymousServiceList(CNode* pNode, std::string keyAddress, int serviceVersion, std::string status, CConnman *connman)
 {
 	// later may need to check service version, for now it is not used.
+    if(pNode == NULL || pNode->nVersion < DS_RANDOM_ADDRESS_VERSION) {
+		LogPrint(BCLog::DEEPSEND, ">> UpdateAnonymousServiceList. Invalid node\n");
+		return;
+    }
 	
     if (IsInitialBlockDownload2()){
 		LogPrint(BCLog::DEEPSEND, ">> UpdateAnonymousServiceList. Wallet not synced\n");
@@ -7054,7 +7067,7 @@ bool StartP2pMixerSendProcess(std::vector< std::pair<std::string, CAmount> > vec
 	std::string keyMixer = "";
 	std::string ipMixer = "";
 	std::string anonymousTxId = "";
-	std::string selfAddress = "";
+	std::string selfIndex = "";
 	bool b = false;
 
 	{
@@ -7085,8 +7098,8 @@ bool StartP2pMixerSendProcess(std::vector< std::pair<std::string, CAmount> > vec
 		// send check-availability message 1st
 		anonymousTxId = pCurrentAnonymousTxInfo->GetAnonymousId();
 		LogPrint(BCLog::DEEPSEND, ">> Got anonymousTxId = %s\n", anonymousTxId.c_str());
-		selfAddress = pCurrentAnonymousTxInfo->GetSelfAddress();
-		LogPrint(BCLog::DEEPSEND, ">> Got selfAddress = %s\n", selfAddress.c_str());
+		selfIndex = pCurrentAnonymousTxInfo->GetSelfAddress();
+		LogPrint(BCLog::DEEPSEND, ">> Got selfIndex = %s\n", selfIndex.c_str());
 	}
 		
 	CAmount baseAmount = 0;
@@ -7096,10 +7109,10 @@ bool StartP2pMixerSendProcess(std::vector< std::pair<std::string, CAmount> > vec
 	LogPrint(BCLog::DEEPSEND, ">> BaseAmount = %ld\n", baseAmount);
 
 	std::vector<unsigned char> vchSig;
-	b = SignMessageUsingAddress(selfAddress, selfAddress, vchSig);
+	b = SignMessageUsingAddress(selfIndex, selfIndex, vchSig);
 	if(!b) 
 	{
-		LogPrintf(">> StartP2pMixerSendProcess. ERROR can't sign the selfAddress message.\n");
+		LogPrintf(">> StartP2pMixerSendProcess. ERROR can't sign the selfIndex message.\n");
 		return false;
 	}
 	LogPrint(BCLog::DEEPSEND, ">> SignMessageUsingAddress completed.\n");
@@ -7107,7 +7120,7 @@ bool StartP2pMixerSendProcess(std::vector< std::pair<std::string, CAmount> > vec
 	int cnt = 1;
 	const CNetMsgMaker msgMaker(pMixerNode->GetSendVersion());
 	
-	g_connman->PushMessage(pMixerNode, msgMaker.Make(NetMsgType::DS_SVCAVAIL, anonymousTxId, selfAddress, 
+	g_connman->PushMessage(pMixerNode, msgMaker.Make(NetMsgType::DS_SVCAVAIL, anonymousTxId, selfIndex, 
 			mapAnonymousServices, baseAmount, cnt, vchSig));
 	LogPrint(BCLog::DEEPSEND, "StartP2pMixerSendProcess: sent message NetMsgType::DS_SVCAVAIL\n");
 

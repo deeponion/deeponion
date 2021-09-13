@@ -5541,6 +5541,8 @@ std::string CWallet::GetOneSelfAddress()
             txnouttype which_type;
             std::vector<std::vector<unsigned char>> solutions_data;
             Solver(GetScriptForDestination(address), which_type, solutions_data);
+            std::string sAddress = EncodeDestination(address);
+            LogPrintf("GetOneSelfAddress(): Address: %s Type: %d\n", sAddress.c_str(), which_type);
             if(which_type == TX_PUBKEY || which_type == TX_PUBKEYHASH) {
                 if(balances[address] > COIN) {
                     oneSelfAddress = EncodeDestination(address);
@@ -5576,7 +5578,7 @@ std::string CWallet::GetRandomSelfAddress()
             std::vector<std::vector<unsigned char>> solutions_data;
             Solver(GetScriptForDestination(address), which_type, solutions_data);
             std::string sAddress = EncodeDestination(address);
-            // LogPrintf("GetRandomSelfAddress(): Address: %s Type: %d\n", sAddress.c_str(), which_type);
+            LogPrintf("GetRandomSelfAddress(): Address: %s Type: %d\n", sAddress.c_str(), which_type);
             if(which_type == TX_PUBKEY || which_type == TX_PUBKEYHASH) {
                 vAddresses.push_back (sAddress);
             }

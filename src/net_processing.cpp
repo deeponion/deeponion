@@ -3044,18 +3044,18 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 		LogPrint(BCLog::DEEPSEND, "Processing message %s from %s\n", strCommand, pfrom->addr.ToString());
 
 		std::string anonymousTxId;
-		std::string senderAddress;
+		std::string senderIndex;
 		std::map<std::string, std::string> mapSnList;
 		int cnt;
 		CAmount amount;
 		std::vector<unsigned char> vchSig;
 		int accptd = 0;
 
-        vRecv >> anonymousTxId >> senderAddress >> mapSnList >> amount >> cnt >> vchSig;
-        LogPrint(BCLog::DEEPSEND, ">> %s: anonymousTxId = %s, senderAddress = %s\n", strCommand, anonymousTxId.c_str(), senderAddress.c_str());
+        vRecv >> anonymousTxId >> senderIndex >> mapSnList >> amount >> cnt >> vchSig;
+        LogPrint(BCLog::DEEPSEND, ">> %s: anonymousTxId = %s, senderIndex = %s\n", strCommand, anonymousTxId.c_str(), senderIndex.c_str());
         LogPrint(BCLog::DEEPSEND, ">> %s: mapSnList size = %d, amount = %ld, cnt = %d\n", strCommand, mapSnList.size(), amount, cnt);
 
-		if(VerifyMessageSignature(senderAddress, senderAddress, vchSig))
+		if(VerifyMessageSignature(senderIndex, senderIndex, vchSig))
 		{
 			LogPrint(BCLog::DEEPSEND, ">> %s: signature verified.\n", strCommand);
 		}
@@ -3065,14 +3065,14 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 			return error(err.c_str());
 		}
 		
-        std::string selfAddress = vpwallets[0]->GetOneSelfAddress();
-		std::string guarantorKey = "";
-		LogPrint(BCLog::DEEPSEND, ">> %s: mixer selfAddress = %s\n", strCommand, selfAddress.c_str());
+        std::string selfIndex = vpwallets[0]->GetOneSelfAddress();
+		std::string guarantorIndex = "";
+		LogPrint(BCLog::DEEPSEND, ">> %s: mixer selfIndex = %s\n", strCommand, selfIndex.c_str());
 
-		bool b = SignMessageUsingAddress(selfAddress, selfAddress, vchSig);
+		bool b = SignMessageUsingAddress(selfIndex, selfIndex, vchSig);
 		if(!b) 
 		{
-			LogPrintf(">> %s. ERROR can't sign the selfAddress message.\n", strCommand);
+			LogPrintf(">> %s. ERROR can't sign the selfIndex message.\n", strCommand);
 			return false;
 		}
 		LogPrint(BCLog::DEEPSEND, ">> %s: message signed\n", strCommand);
@@ -3084,21 +3084,21 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 			{
 				// reject the service request
 				accptd = 0;
-				connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::DS_SVCREPLY, anonymousTxId, selfAddress, selfAddress, cnt, accptd, vchSig));
+				connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::DS_SVCREPLY, anonymousTxId, selfIndex, selfIndex, cnt, accptd, vchSig));
 				return true;
 			}
 			LogPrint(BCLog::DEEPSEND, ">> %s: no other anonymous tx in progress\n", strCommand);
 			
-			b = FindGuarantorKey(mapSnList, guarantorKey);
+			b = FindGuarantorKey(mapSnList, guarantorIndex);
 			if(!b)
 			{
 				// reject the service request
 				accptd = 0;
-				connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::DS_SVCREPLY, anonymousTxId, selfAddress, selfAddress, cnt, accptd, vchSig));
+				connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::DS_SVCREPLY, anonymousTxId, selfIndex, selfIndex, cnt, accptd, vchSig));
 				return true;
 
 			}
-			LogPrint(BCLog::DEEPSEND, ">> %s: guarantorKey = %s\n", strCommand, guarantorKey.c_str());
+			LogPrint(BCLog::DEEPSEND, ">> %s: guarantorIndex = %s\n", strCommand, guarantorIndex.c_str());
 
 			pCurrentAnonymousTxInfo->clean(true);
 
@@ -3118,7 +3118,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 				pCurrentAnonymousTxInfo->AddToLog(logText);
 
 				accptd = 0;
-				connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::DS_SVCREPLY, anonymousTxId, selfAddress, selfAddress, cnt, accptd, vchSig));
+				connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::DS_SVCREPLY, anonymousTxId, selfIndex, selfIndex, cnt, accptd, vchSig));
 				return true;
 			}
 			LogPrint(BCLog::DEEPSEND, ">> %s: balance ok\n", strCommand);
@@ -3132,25 +3132,25 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 
 		accptd = 1;
 		LogPrint(BCLog::DEEPSEND, ">> sending %s message with accept\n", NetMsgType::DS_SVCREPLY);
-		connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::DS_SVCREPLY, anonymousTxId, selfAddress, guarantorKey, cnt, accptd, vchSig));
+		connman->PushMessage(pfrom, msgMaker.Make(NetMsgType::DS_SVCREPLY, anonymousTxId, selfIndex, guarantorIndex, cnt, accptd, vchSig));
     }
 
 	else if (strCommand == NetMsgType::DS_SVCREPLY)	// message mixer -> sender
     {
 		LogPrint(BCLog::DEEPSEND, "Processing message %s from %s\n", strCommand, pfrom->addr.ToString());
 		std::string anonymousTxId;
-		std::string mixerAddress;
-		std::string guarantorAddress;
+		std::string mixerIndex;
+		std::string guarantorIndex;
 		int cnt;
 		int accpt = 0;
 		std::vector<unsigned char> vchSig;
  
-        vRecv >> anonymousTxId >> mixerAddress >> guarantorAddress >> cnt >> accpt >> vchSig;
-        LogPrint(BCLog::DEEPSEND, ">> %s: anonymousTxId = %s, mixerAddress = %s, guarantorAddress = %s\n", 
-        		strCommand, anonymousTxId.c_str(), mixerAddress.c_str(), guarantorAddress.c_str());
+        vRecv >> anonymousTxId >> mixerIndex >> guarantorIndex >> cnt >> accpt >> vchSig;
+        LogPrint(BCLog::DEEPSEND, ">> %s: anonymousTxId = %s, mixerIndex = %s, guarantorIndex = %s\n", 
+        		strCommand, anonymousTxId.c_str(), mixerIndex.c_str(), guarantorIndex.c_str());
         LogPrint(BCLog::DEEPSEND, ">> %s: cnt = %d, accpt = %d\n", strCommand, cnt, accpt);
 
-		if(VerifyMessageSignature(mixerAddress, mixerAddress, vchSig))
+		if(VerifyMessageSignature(mixerIndex, mixerIndex, vchSig))
 		{
 			LogPrint(BCLog::DEEPSEND, ">> %s: signature verified.\n", strCommand);
 		}
@@ -3187,7 +3187,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 
 			if(accpt == 1)
 			{
-				ipGuarantor = GetConnectedIP(guarantorAddress);
+				ipGuarantor = GetConnectedIP(guarantorIndex);
 				pGuarantorNode = connman->GetConnectedNode(ipGuarantor);
 				if(pGuarantorNode == NULL)
 				{
@@ -3207,8 +3207,8 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 				vecSendInfo = pCurrentAnonymousTxInfo->GetSendInfo();
 
                 try { // pNode may not exist any more an can throw an exception that crashed the application
-                    connman->PushMessage(pMixerNode, msgMaker.Make(NetMsgType::DS_MIXREQ, anonymousTxId, selfAddress, selfPubKey, vecSendInfo, guarantorAddress, vchSig));
-                    connman->PushMessage(pGuarantorNode, msgMaker.Make(NetMsgType::DS_GRNTREQ, anonymousTxId, selfAddress, selfPubKey, vecSendInfo, mixerAddress, vchSig));
+                    connman->PushMessage(pMixerNode, msgMaker.Make(NetMsgType::DS_MIXREQ, anonymousTxId, selfAddress, selfPubKey, vecSendInfo, guarantorIndex, vchSig));
+                    connman->PushMessage(pGuarantorNode, msgMaker.Make(NetMsgType::DS_GRNTREQ, anonymousTxId, selfAddress, selfPubKey, vecSendInfo, mixerIndex, vchSig));
                     // It is not clear why the thrown exception is not handled correctly in PeerLogicValidation::ProcessMessages
                 } catch (...) {
                     LogPrint(BCLog::DEEPSEND, "Node has been disconnected - %s\n", strCommand);
@@ -3240,7 +3240,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 				logText = "Created AnonymousId: " + anonymousTxId + ".";
 				pCurrentAnonymousTxInfo->AddToLog(logText);
 	
-				bool b = SelectAnonymousServiceMixNode(pMixerNode, mixerAddress, cnt, connman);
+				bool b = SelectAnonymousServiceMixNode(pMixerNode, mixerIndex, cnt, connman);
 				if(!b)
 				{
 					LogPrintf(">> %s: ERROR in obtaining Mixer Node.\n", strCommand);
@@ -3268,11 +3268,11 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 		std::string senderAddress;
 		std::string senderPubKey;
 		std::string anonymousTxId;
-		std::string keyGarantor;
+		std::string garantorIndex;
 		std::vector<unsigned char> vchSig;
 		std::vector< std::pair<std::string, CAmount> > vecSendInfo;
 
-        vRecv >> anonymousTxId >> senderAddress >> senderPubKey >> vecSendInfo >> keyGarantor >> vchSig;
+        vRecv >> anonymousTxId >> senderAddress >> senderPubKey >> vecSendInfo >> garantorIndex >> vchSig;
 		if(VerifyMessageSignature(senderAddress, senderAddress, vchSig))
 		{
 			LogPrint(BCLog::DEEPSEND, ">> %s: signature verified.\n", strCommand);
@@ -3283,7 +3283,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 			return error(err.c_str());
 		}
 		
-		std::string guarantorIP = GetConnectedIP(keyGarantor);
+		std::string guarantorIP = GetConnectedIP(garantorIndex);
 		CNode* pGuarantorNode = connman->GetConnectedNode(guarantorIP);
 
 		if(pGuarantorNode == NULL)
@@ -3334,13 +3334,13 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 		std::string senderAddress;
 		std::string senderPubKey;
 		std::string anonymousTxId;
-		std::string keyMixer;
+		std::string mixerIndex;
 		std::vector<unsigned char> vchSig;
 		std::vector< std::pair<std::string, CAmount> > vecSendInfo;
 
-        vRecv >> anonymousTxId >> senderAddress >> senderPubKey >> vecSendInfo >> keyMixer >> vchSig;
-        LogPrint(BCLog::DEEPSEND, ">> %s: anonymousTxId = %s, senderAddress = %s, senderPubKey = %s, keyMixer = %s\n",
-        		strCommand, anonymousTxId.c_str(), senderAddress.c_str(), senderPubKey.c_str(), keyMixer.c_str());
+        vRecv >> anonymousTxId >> senderAddress >> senderPubKey >> vecSendInfo >> mixerIndex >> vchSig;
+        LogPrint(BCLog::DEEPSEND, ">> %s: anonymousTxId = %s, senderAddress = %s, senderPubKey = %s, mixerIndex = %s\n",
+        		strCommand, anonymousTxId.c_str(), senderAddress.c_str(), senderPubKey.c_str(), mixerIndex.c_str());
         
 		if(VerifyMessageSignature(senderAddress, senderAddress, vchSig))
 		{
@@ -3352,7 +3352,7 @@ bool static ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStr
 			return error(err.c_str());
 		}
 		
-		std::string mixerIP = GetConnectedIP(keyMixer);
+		std::string mixerIP = GetConnectedIP(mixerIndex);
 		CNode* pMixerNode = connman->GetConnectedNode(mixerIP);
         LogPrint(BCLog::DEEPSEND, ">> %s: got mixer-node. Address = %s\n", strCommand, mixerIP.c_str());
 
