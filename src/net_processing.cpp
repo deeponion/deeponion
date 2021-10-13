@@ -1549,7 +1549,7 @@ static void processCancelRunawayProcess(CNode* pfrom, CConnman* connman)
         int voutnGuarantor;
         std::string pkGuarantor;
         CAmount amountGuarantor;
-        pCurrentAnonymousTxInfo->GetMultisigTxOutInfo(ROLE_SENDER, txid, voutnGuarantor, pkGuarantor, amountGuarantor);
+        pCurrentAnonymousTxInfo->GetMultisigTxOutInfo(ROLE_GUARANTOR, txid, voutnGuarantor, pkGuarantor, amountGuarantor);
 
         if(amountSender == 0 && amountMixer == 0 && amountGuarantor == 0) {
             // No funds to return
