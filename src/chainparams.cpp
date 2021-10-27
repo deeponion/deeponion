@@ -223,6 +223,12 @@ public:
                 {2500000, uint256S("0x00000000001b80efcc3de42dae6e5961ded3f9df19254171d56f7b388989d6dc")},
                 {2550032, uint256S("0x0000000000044768f678440ef4b8f3bcb140864a8c787f74e6463c1b557009dd")},
                 {2600007, uint256S("0x000000000001426b974cbc3f139174f23bd607707d1f2cb75cdc4c5ffb72f93c")},
+                {2650008, uint256S("0x0000000000007d74f9d3f30bd86ff0f9ff7bae323a988e363f338f224bc55d16")},
+                {2700002, uint256S("0x0000000000006759c7cf878f4cf14dd9cc4da46a74b3f33356052150b3726d22")},
+                {2751510, uint256S("0x00000000000059385fd3d81b193f905630014b413f3acd4ec91f6975374a815e")},
+                {2800014, uint256S("0x00000000000028d14a60be1849b9f9278b7f293d9c2634e492cdd6bcd247ae8a")},
+                {2850003, uint256S("0x0000000000014ec4dd1ba53c63905548c2647aff7e00135ccf3e498aa8ac3c7a")},
+                {2900002, uint256S("0x0000000000015f98c4067d9913ea35f40ecec38f92e36b89d4fc12308f37fb28")},
             }
         };
 
@@ -289,6 +295,12 @@ public:
         mapStakeModifierCheckpoints.insert(std::pair<int, unsigned int>(2500000, 0x406a8f88u));
         mapStakeModifierCheckpoints.insert(std::pair<int, unsigned int>(2550032, 0xd091ebecu));
         mapStakeModifierCheckpoints.insert(std::pair<int, unsigned int>(2600007, 0x13ed88cau));
+        mapStakeModifierCheckpoints.insert(std::pair<int, unsigned int>(2600007, 0x5f9ced4du));
+        mapStakeModifierCheckpoints.insert(std::pair<int, unsigned int>(2600007, 0xb07600aeu));
+        mapStakeModifierCheckpoints.insert(std::pair<int, unsigned int>(2600007, 0xa5a4f150u));
+        mapStakeModifierCheckpoints.insert(std::pair<int, unsigned int>(2600007, 0xc627143fu));
+        mapStakeModifierCheckpoints.insert(std::pair<int, unsigned int>(2600007, 0xb3bcb649u));
+        mapStakeModifierCheckpoints.insert(std::pair<int, unsigned int>(2600007, 0x853ae272u));
     }
 };
 
