@@ -26,6 +26,9 @@ make
 make install # optional
 ```
 
+Note, if you get certificate issues when doing git clone, you can disable the check by entering
+git config --global http.sslverify false
+
 This will build DeepOnion-qt as well if the dependencies are met.
 
 Dependencies
