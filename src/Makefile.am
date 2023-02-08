@@ -48,14 +48,15 @@ TOR_UTIL_LIBS = \
 	$(abs_top_builddir)/tor/src/lib/libtor-wallclock.a \
 	$(abs_top_builddir)/tor/src/lib/libtor-err.a \
 	$(abs_top_builddir)/tor/src/lib/libtor-intmath.a \
-  $(abs_top_builddir)/tor/src/lib/libtor-ctime.a \
-  $(abs_top_builddir)/tor/src/lib/libtor-version.a \
-  $(abs_top_builddir)/tor/src/lib/libtor-buf.a \
-  $(abs_top_builddir)/tor/src/lib/libtor-pubsub.a \
-  $(abs_top_builddir)/tor/src/lib/libtor-dispatch.a \
-  $(abs_top_builddir)/tor/src/lib/libtor-confmgt.a \
-  $(abs_top_builddir)/tor/src/lib/libtor-llharden.a \
-  $(abs_top_builddir)/tor/src/lib/libtor-container.a
+        $(abs_top_builddir)/tor/src/lib/libtor-ctime.a \
+        $(abs_top_builddir)/tor/src/lib/libtor-version.a \
+        $(abs_top_builddir)/tor/src/lib/libtor-buf.a \
+        $(abs_top_builddir)/tor/src/lib/libtor-pubsub.a \
+        $(abs_top_builddir)/tor/src/lib/libtor-dispatch.a \
+        $(abs_top_builddir)/tor/src/lib/libtor-confmgt.a \
+        $(abs_top_builddir)/tor/src/lib/libtor-llharden.a \
+        $(abs_top_builddir)/tor/src/lib/libtor-container.a \
+        $(abs_top_builddir)/tor/src/lib/libtor-metrics.a
 
 
 LIBED25519_REF10 = $(abs_top_builddir)/tor/src/ext/ed25519/ref10/libed25519_ref10.a
