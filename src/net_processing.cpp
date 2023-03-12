@@ -7,6 +7,9 @@
 
 #include <addrman.h>
 #include <arith_uint256.h>
+#ifdef MAC_OSX
+#include <array>
+#endif
 #include <blockencodings.h>
 #include <chainparams.h>
 #include <consensus/validation.h>
