@@ -1,4 +1,4 @@
-[submodule "src/tor"]
-	path = src/tor
+[submodule "tor"]
+	path = tor
 	url = https://gitlab.torproject.org/tpo/core/tor.git
 	branch = release-0.4.8
