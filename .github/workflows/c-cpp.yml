@@ -1,0 +1,40 @@
+name: C/C++ CI
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-20.04
+
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        submodules: 'recursive'
+
+    - name: Update Packages
+      run: sudo apt-get update
+
+    - name: Install Base Deps
+      run: sudo apt-get install build-essential libtool autotools-dev automake pkg-config libssl-dev libevent-dev bsdmainutils python3 libseccomp-dev libcap-dev -y
+        
+    - name: Install Deps
+      run: sudo apt-get install libboost-all-dev libminiupnpc-dev libzmq3-dev libqt5gui5 libqt5core5a libqt5dbus5 qttools5-dev qttools5-dev-tools libprotobuf-dev protobuf-compiler libqrencode-dev -y
+
+    - name: Build Berkeley DB4
+      run: ./contrib/install_db4.sh `pwd`
+        
+    - name: Autogen
+      run: ./autogen.sh
+
+    - name: Configure
+      run: |
+        export BDB_PREFIX='/home/runner/work/deeponion/deeponion/db4'
+        ./configure LDFLAGS="-L${BDB_PREFIX}/lib -ldb_cxx-4.8" CPPFLAGS="-I${BDB_PREFIX}/include" --with-miniupnpc --enable-hardening --without-tests --without-bench
+
+    - name: Build
+      run: make -j8
