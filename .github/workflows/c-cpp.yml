@@ -34,7 +34,7 @@ jobs:
     - name: Configure
       run: |
         export BDB_PREFIX='/home/runner/work/deeponion/deeponion/db4'
-        ./configure LDFLAGS="-L${BDB_PREFIX}/lib -ldb_cxx-4.8" CPPFLAGS="-I${BDB_PREFIX}/include" --with-miniupnpc --enable-hardening --without-tests --without-bench
+        ./configure LDFLAGS="-L${BDB_PREFIX}/lib -ldb_cxx-4.8" CPPFLAGS="-I${BDB_PREFIX}/include" --with-miniupnpc --enable-hardening --disable-tests --disable-bench
 
     - name: Build
       run: make -j8
