@@ -24,3 +24,5 @@ cd "${srcdir}/src/secp256k1"
 ./autogen.sh
 cd "${srcdir}/tor"
 ./autogen.sh
+cd "${srcdir}"
+
