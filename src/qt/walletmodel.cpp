@@ -36,7 +36,7 @@
 #include <QMessageBox>
 #include <QSet>
 #include <QTimer>
-
+#include <random>
 
 WalletModel::WalletModel(const PlatformStyle *platformStyle, CWallet *_wallet, OptionsModel *_optionsModel, QObject *parent) :
     QObject(parent), wallet(_wallet), optionsModel(_optionsModel), addressTableModel(0),
@@ -319,7 +319,9 @@ WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransact
                 vecSend.push_back(recipient2);
 
                 // -- shuffle inputs, change output won't mix enough as it must be not fully random for plantext narrations
-                std::random_shuffle(vecSend.begin(), vecSend.end());
+                std::random_device rd;
+                std::mt19937 g(rd());
+                std::shuffle(vecSend.begin(), vecSend.end(), g);
 
                 fStealthAddressAdded = true;
             }
