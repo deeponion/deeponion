@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.com/deeponion/deeponion.svg?branch=master)](https://travis-ci.com/deeponion/deeponion)
+![Linux Build](https://github.com/deeponion/deeponion/actions/workflows/c-cpp.yml/badge.svg)
 
 ![alt text](https://image.ibb.co/mfR4R6/DO.png "DeepOnion")
 =====================================
