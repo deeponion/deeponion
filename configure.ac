@@ -15,7 +15,7 @@ AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([build-aux/m4])
 # This is the original line, the modified uncommented line removes reported errors. Just leaving in so we have a history in GIT. TODO: Remove commented line
 #AX_SUBDIRS_CONFIGURE([tor], [[--disable-unittests], [--disable-system-torrc], [--disable-systemd], [--disable-lzma], [--disable-asciidoc], [--with-openssl-dir=$($PKG_CONFIG --variable=libdir openssl)], [CFLAGS=$($PKG_CONFIG --cflags openssl) -fPIC -O2]])
-AX_SUBDIRS_CONFIGURE([tor], [[--disable-zstd], [--disable-unittests], [--disable-system-torrc], [--disable-systemd], [--disable-lzma], [--disable-asciidoc], [--with-openssl-dir=$($PKG_CONFIG openssl)], [CFLAGS=$($PKG_CONFIG --cflags openssl) -fPIC -O2]])
+AX_SUBDIRS_CONFIGURE([tor], [[--disable-zstd], [--disable-gcc-hardening], [--disable-unittests], [--disable-system-torrc], [--disable-systemd], [--disable-lzma], [--disable-asciidoc]])
 
 
 BITCOIN_DAEMON_NAME=DeepOniond
@@ -1024,7 +1024,7 @@ CXXFLAGS="${CXXFLAGS} ${CRYPTO_CFLAGS} ${SSL_CFLAGS}"
 AC_CHECK_DECLS([EVP_MD_CTX_new],,,[AC_INCLUDES_DEFAULT
 #include <openssl/x509_vfy.h>
 ])
-CXXFLAGS="${save_CXXFLAGS}"
+CXXFLAGS="${save_CXXFLAGS} -Wno-enum-constexpr-conversion"
 
 dnl univalue check
 
@@ -1366,9 +1366,9 @@ echo "  build os      = $BUILD_OS"
 echo
 echo "  CC            = $CC"
 echo "  CFLAGS        = $CFLAGS"
-echo "  CPPFLAGS      = $CPPFLAGS"
+echo "  CPPFLAGS      = $DEBUG_CPPFLAGS $HARDENED_CPPFLAGS $CPPFLAGS"
 echo "  CXX           = $CXX"
-echo "  CXXFLAGS      = $CXXFLAGS"
-echo "  LDFLAGS       = $LDFLAGS"
+echo "  CXXFLAGS      = $DEBUG_CXXFLAGS $HARDENED_CXXFLAGS $WARN_CXXFLAGS $NOWARN_CXXFLAGS $ERROR_CXXFLAGS $GPROF_CXXFLAGS $CXXFLAGS"
+echo "  LDFLAGS       = $PTHREAD_CFLAGS $HARDENED_LDFLAGS $GPROF_LDFLAGS $LDFLAGS"
 echo "  ARFLAGS       = $ARFLAGS"
 echo

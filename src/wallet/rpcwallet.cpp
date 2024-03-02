@@ -35,6 +35,7 @@
 #include <stdint.h>
 
 #include <univalue.h>
+#include <random>
 
 static const std::string WALLET_ENDPOINT_BASE = "/wallet/";
 
@@ -3911,7 +3912,9 @@ static void SendStealthMoney(CWallet * const pwallet, CStealthAddress& sxAddress
     vecSend.push_back(recipient2);
 
     // -- shuffle inputs, change output won't mix enough as it must be not fully random for plantext narrations
-    std::random_shuffle(vecSend.begin(), vecSend.end());
+    std::random_device rd;
+    std::mt19937 g(rd());
+    std::shuffle(vecSend.begin(), vecSend.end(), g);
 
     bool rv = pwallet->CreateTransaction(vecSend, wtxNew, reservekey, nFeeRequired, nChangePosRet, strError, coin_control);
     if (!rv) {
