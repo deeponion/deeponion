@@ -15,7 +15,7 @@ AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([build-aux/m4])
 # This is the original line, the modified uncommented line removes reported errors. Just leaving in so we have a history in GIT. TODO: Remove commented line
 #AX_SUBDIRS_CONFIGURE([tor], [[--disable-unittests], [--disable-system-torrc], [--disable-systemd], [--disable-lzma], [--disable-asciidoc], [--with-openssl-dir=$($PKG_CONFIG --variable=libdir openssl)], [CFLAGS=$($PKG_CONFIG --cflags openssl) -fPIC -O2]])
-AX_SUBDIRS_CONFIGURE([tor], [[--disable-zstd], [--disable-gcc-hardening], [--disable-unittests], [--disable-system-torrc], [--disable-systemd], [--disable-lzma], [--disable-asciidoc]])
+AX_SUBDIRS_CONFIGURE([tor], [[--disable-zstd], [--disable-gcc-hardening], [--disable-unittests], [--disable-system-torrc], [--disable-systemd], [--disable-lzma], [--disable-asciidoc], [--with-openssl-dir=$($PKG_CONFIG openssl)], [CFLAGS=$($PKG_CONFIG --cflags openssl) -fPIC -O2]])
 
 
 BITCOIN_DAEMON_NAME=DeepOniond
